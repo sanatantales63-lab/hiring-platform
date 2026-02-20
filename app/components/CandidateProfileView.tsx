@@ -14,13 +14,11 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const isAdmin = role === 'admin';
   const isDisqualified = candidate.examAccess === 'disqualified';
   
-  // 🔥 PRIVACY LOCKS 🔥
   const emailToDisplay = isCompany ? "hidden@candidate.com" : (candidate.email || "Email Not Added");
   const phoneToDisplay = isCompany ? "+91 98XXXXXX00" : (candidate.phone || "Phone Not Added");
   const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
   const dobToDisplay = isCompany ? "XX/XX/XXXX" : (candidate.dob || "Not Provided");
 
-  // 🔥 SMART PROFESSION TAG LOGIC 🔥
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
   const topEdu = candidate.educations?.[0];
   if (topEdu) {
@@ -29,26 +27,30 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
      else if (topEdu.qualification === 'CS Professional' && topEdu.stageCleared === 'Both Groups') smartTitle = 'Company Secretary (CS)';
   }
 
-  // 🔥 EDUCATION ARRAY LOGIC 🔥
-  const educationsList = candidate.educations || [];
+  // 🔥 DATA FILTERS: Kachra (Corrupted Data) ko hataane ke liye 🔥
+  const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
   const displayedEducations = showAllEdu ? educationsList : educationsList.slice(0, 3);
   const extraEduCount = educationsList.length > 3 ? educationsList.length - 3 : 0;
 
-  // 🔥 SMART SKILL SEPARATOR LOGIC 🔥
+  // Sirf asli language objects ko allow karo
+  const safeLanguages = Array.isArray(candidate.languages) 
+    ? candidate.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) 
+    : [];
+
   const PREDEFINED_SKILLS = [
     "Journal Entry", "Book Closure", "Financial Statements", "Ind-AS", "Accounting Standards", "Tally ERP", "SAP",
     "TDS Return", "GST Return", "Income Tax", "Corporate Tax",
     "Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"
   ];
   
-  const allSkills = candidate.skills || [];
+  // 🔥 FIX ERROR 31: Skills mein sirf 'string' (text) ko allow karo, objects ko hata do 🔥
+  const allSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((skill: any) => typeof skill === 'string') : [];
   const verifiedSkills = allSkills.filter((skill: string) => PREDEFINED_SKILLS.includes(skill));
   const additionalSkills = allSkills.filter((skill: string) => !PREDEFINED_SKILLS.includes(skill));
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* 1. PROFILE HEADER CARD */}
       <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]"></div>
         
@@ -192,15 +194,14 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Globe className="text-indigo-400"/> Languages</h3>
                    <div className="flex flex-wrap gap-2">
-                      {candidate.languages?.map((lang:any, i:number) => <span key={i} className="bg-slate-950 text-slate-300 px-4 py-2 rounded-xl text-sm font-bold border border-slate-800">{lang.language} <span className="text-[10px] text-slate-500 uppercase ml-2 px-2 py-0.5 bg-slate-900 rounded">{lang.proficiency}</span></span>)}
-                      {(!candidate.languages || candidate.languages.length === 0) && <span className="text-slate-500 text-sm">No languages added.</span>}
+                      {/* 🔥 Safe Languages Rendering 🔥 */}
+                      {safeLanguages.map((lang:any, i:number) => <span key={i} className="bg-slate-950 text-slate-300 px-4 py-2 rounded-xl text-sm font-bold border border-slate-800">{lang.language} <span className="text-[10px] text-slate-500 uppercase ml-2 px-2 py-0.5 bg-slate-900 rounded">{lang.proficiency}</span></span>)}
+                      {safeLanguages.length === 0 && <span className="text-slate-500 text-sm">No languages added.</span>}
                    </div>
                 </div>
 
-                {/* 🔥 SMART SKILLS SECTION (Verified vs Additional) 🔥 */}
                 <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                    
-                   {/* 1. Verified Skills (Green) */}
                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-green-400"/> AI Verified Skills</h3>
                    <div className="flex flex-wrap gap-2 mb-8">
                       {verifiedSkills.length > 0 ? verifiedSkills.map((skill:string, i:number) => (
@@ -208,7 +209,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                       )) : <span className="text-slate-500 text-sm italic">No testable skills selected.</span>}
                    </div>
 
-                   {/* 2. Additional Custom Skills (Grey) */}
                    {additionalSkills.length > 0 && (
                       <div className="pt-6 border-t border-slate-800/80">
                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><PlusCircle size={14}/> Additional / Custom Skills</h4>
@@ -225,7 +225,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          </div>
       </div>
 
-      {/* 🔥 THE NEW AI ASSESSMENT REPORT CARD 🔥 */}
       {candidate.meta?.skillScores && Object.keys(candidate.meta.skillScores).length > 0 && (
          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-10 rounded-[2.5rem] shadow-2xl mt-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-[80px]"></div>
@@ -255,7 +254,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   const data = candidate.meta.skillScores[skillName];
                   const percentage = (data.correct / data.total) * 100;
                   
-                  // Color coding based on performance
                   const colorClass = percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500';
                   const textClass = percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400';
 

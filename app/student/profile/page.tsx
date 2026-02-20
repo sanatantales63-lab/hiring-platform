@@ -9,7 +9,6 @@ import {
   GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, ShieldCheck, Check, Globe, FileText
 } from "lucide-react";
 
-// 🔥 NAYA IMPORT: Master Template Yahan Bulaya Hai 🔥
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 
 export default function CandidateProfile() {
@@ -17,7 +16,7 @@ export default function CandidateProfile() {
   const [loading, setLoading] = useState(true);
   
   const [isEditing, setIsEditing] = useState(false);
-  const [showGatekeeper, setShowGatekeeper] = useState(false); // Default false kar diya
+  const [showGatekeeper, setShowGatekeeper] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -59,7 +58,7 @@ export default function CandidateProfile() {
       try {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         if (data && data.fullName) {
-          // 🔥 NULL FIX: Database se aane wale null values ko empty string "" mein convert kiya
+          // 🔥 FIX ERROR 31: Yahan bhi Kachra data hataya gaya hai 🔥
           setFormData({ 
               ...formData, ...data,
               bio: data.bio || "",
@@ -67,14 +66,13 @@ export default function CandidateProfile() {
               currentSalary: data.currentSalary || "",
               expectedSalary: data.expectedSalary || "",
               educations: data.educations?.length ? data.educations : formData.educations,
-              languages: data.languages?.length ? data.languages : [],
-              preferredLocations: data.preferredLocations?.length ? data.preferredLocations : []
+              languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
+              preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
+              skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
-          // Agar data hai toh sidha Preview dikhao
           setIsEditing(false);
           setShowGatekeeper(false);
         } else { 
-          // Naya user hai toh Gatekeeper dikhao
           setIsEditing(true); 
           setShowGatekeeper(true); 
         }
@@ -149,7 +147,6 @@ export default function CandidateProfile() {
       if (aiResponse.ok) {
          const aiData = await aiResponse.json();
          
-         // 🔥 FIX REMOTE ISSUE: AI agar 'Remote' likhe toh ignore karo 🔥
          const rawLocs = aiData.preferredLocations || [];
          const cleanedLocs = rawLocs.filter((l:string) => l.toLowerCase() !== 'remote');
 
@@ -161,8 +158,9 @@ export default function CandidateProfile() {
             currentSalary: aiData.currentSalary || prev.currentSalary || "", expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
-            skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills])) : prev.skills,
-            languages: aiData.languages?.length > 0 ? aiData.languages : prev.languages
+            // 🔥 AI Parse me bhi Filter 🔥
+            skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
+            languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
          }));
          setShowGatekeeper(false); setCurrentStep(1);
          alert("✨ AI Auto-Fill Successful! Check your verified details.");
@@ -196,7 +194,6 @@ export default function CandidateProfile() {
       const { error } = await supabase.from("profiles").upsert({ id: session.user.id, ...formData, email: session.user.email, updated_at: new Date().toISOString() });
       if (error) throw error;
       
-      // Save hote hi wapas Preview Mode mein le jao
       setIsEditing(false); 
       alert("Profile Saved Successfully!");
     } catch (e: any) { alert("Error saving profile: " + e.message); }
@@ -216,7 +213,6 @@ export default function CandidateProfile() {
          <div className="flex justify-between items-center mb-10">
             <button onClick={() => router.push('/student/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold"><ArrowLeft size={18} /> Dashboard</button>
             
-            {/* 🔥 EDIT BUTTON ADDED BACK 🔥 */}
             {!isEditing && (
                <button onClick={() => { setIsEditing(true); setShowGatekeeper(false); setCurrentStep(1); }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25">
                   <Edit size={16}/> Edit Profile
@@ -224,7 +220,6 @@ export default function CandidateProfile() {
             )}
          </div>
 
-        {/* 🔥 PREVIEW MODE: Master Template Call 🔥 */}
         {!isEditing ? (
            <CandidateProfileView candidate={formData} role="student" />
         ) : showGatekeeper ? (
@@ -258,7 +253,6 @@ export default function CandidateProfile() {
         ) : (
           <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
             
-            {/* PROGRESS BAR */}
             <div className="mb-12">
                <div className="flex justify-between text-sm md:text-base font-bold mb-4">
                   <span className={currentStep >= 1 ? "text-blue-400" : "text-slate-600"}>1. Personal Info</span>
@@ -273,14 +267,12 @@ export default function CandidateProfile() {
             <AnimatePresence mode="wait">
                <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
                
-               {/* STEP 1 */}
                {currentStep === 1 && (
                   <div className="space-y-8">
                      <h2 className="text-3xl font-extrabold text-white mb-6">Personal Details</h2>
                      
                      <div className="md:col-span-2 bg-slate-950/50 border border-slate-800 p-6 rounded-2xl">
                         <label className="form-label flex items-center gap-2"><Sparkles size={16} className="text-blue-400"/> AI Generated Professional Bio</label>
-                        {/* 🔥 FIX: Fallback applied to textarea */}
                         <textarea value={formData.bio || ""} onChange={(e)=>setFormData({...formData, bio: e.target.value})} className="input-field min-h-[80px]" placeholder="A short, professional summary about your career objective..."/>
                      </div>
 
@@ -298,13 +290,11 @@ export default function CandidateProfile() {
                         <div><label className="form-label">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
                         <div><label className="form-label">Gender <span className="text-red-500">*</span></label><select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
                         <div><label className="form-label">City <span className="text-red-500">*</span></label><input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Mumbai"/></div>
-                        {/* 🔥 FIX: Fallback applied to panCard */}
                         <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value})} className="input-field uppercase" placeholder="ABCDE1234F"/></div>
                      </div>
                   </div>
                )}
 
-               {/* STEP 2 */}
                {currentStep === 2 && (
                   <div className="space-y-12">
                      <div>
@@ -322,7 +312,6 @@ export default function CandidateProfile() {
                                     {['CA Final', 'CA Inter', 'CMA Final', 'CMA Inter', 'CS Professional', 'CS Executive'].includes(edu.qualification) && (
                                        <div className="grid grid-cols-2 gap-4">
                                           <div><label className="form-label text-yellow-400">Stage Cleared</label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option></select></div>
-                                          {/* 🔥 FIX: Fallback applied to attempts */}
                                           <div><label className="form-label text-red-400">Attempts</label><input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30 focus:border-red-500" placeholder="e.g. 1st, Multiple"/></div>
                                        </div>
                                     )}
@@ -370,7 +359,6 @@ export default function CandidateProfile() {
                   </div>
                )}
 
-               {/* STEP 3 */}
                {currentStep === 3 && (
                   <div className="space-y-8">
                      <h2 className="text-3xl font-extrabold text-white mb-8">Work & Salary Preferences</h2>
@@ -379,10 +367,8 @@ export default function CandidateProfile() {
                         <div><label className="form-label">Notice Period <span className="text-red-500">*</span></label><select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:dark]"><option>Immediate Joiner</option><option>15 Days</option><option>1 Month</option><option>2 Months</option></select></div>
                         
                         {formData.experience !== "Fresher" && (
-                           // 🔥 FIX: Fallback applied to currentSalary
                            <div><label className="form-label">Current Salary (CTC)</label><input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. 4,50,000"/></div>
                         )}
-                        {/* 🔥 FIX: Fallback applied to expectedSalary */}
                         <div><label className="form-label">Expected Salary <span className="text-red-500">*</span></label><input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field" placeholder="e.g. 6,00,000"/></div>
 
                         <div className="md:col-span-2 bg-slate-950/50 p-8 rounded-3xl border border-slate-800/80 mt-4">
