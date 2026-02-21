@@ -21,18 +21,23 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
   const topEdu = candidate.educations?.[0];
-  if (topEdu) {
-     if (topEdu.qualification === 'CA Final' && topEdu.stageCleared === 'Both Groups') smartTitle = 'Chartered Accountant (CA)';
-     else if (topEdu.qualification === 'CMA Final' && topEdu.stageCleared === 'Both Groups') smartTitle = 'Cost & Management Accountant (CMA)';
-     else if (topEdu.qualification === 'CS Professional' && topEdu.stageCleared === 'Both Groups') smartTitle = 'Company Secretary (CS)';
+  
+  // 🔥 SMART TITLE DETECTOR: CA Final ko CA banayega 🔥
+  if (topEdu && topEdu.qualification) {
+     const q = topEdu.qualification.toLowerCase();
+     if (q.includes('ca ') || q === 'ca') smartTitle = 'Chartered Accountant (CA)';
+     else if (q.includes('cma ') || q === 'cma') smartTitle = 'Cost & Management Accountant (CMA)';
+     else if (q.includes('cs ') || q === 'cs') smartTitle = 'Company Secretary (CS)';
+     else if (q.includes('acca')) smartTitle = 'ACCA Professional';
+     else if (q.includes('mba')) smartTitle = 'MBA Professional';
+     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
+     else smartTitle = topEdu.qualification;
   }
 
-  // 🔥 DATA FILTERS: Kachra (Corrupted Data) ko hataane ke liye 🔥
   const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
   const displayedEducations = showAllEdu ? educationsList : educationsList.slice(0, 3);
   const extraEduCount = educationsList.length > 3 ? educationsList.length - 3 : 0;
 
-  // Sirf asli language objects ko allow karo
   const safeLanguages = Array.isArray(candidate.languages) 
     ? candidate.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) 
     : [];
@@ -43,7 +48,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
     "Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"
   ];
   
-  // 🔥 FIX ERROR 31: Skills mein sirf 'string' (text) ko allow karo, objects ko hata do 🔥
   const allSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((skill: any) => typeof skill === 'string') : [];
   const verifiedSkills = allSkills.filter((skill: string) => PREDEFINED_SKILLS.includes(skill));
   const additionalSkills = allSkills.filter((skill: string) => !PREDEFINED_SKILLS.includes(skill));
@@ -194,7 +198,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Globe className="text-indigo-400"/> Languages</h3>
                    <div className="flex flex-wrap gap-2">
-                      {/* 🔥 Safe Languages Rendering 🔥 */}
                       {safeLanguages.map((lang:any, i:number) => <span key={i} className="bg-slate-950 text-slate-300 px-4 py-2 rounded-xl text-sm font-bold border border-slate-800">{lang.language} <span className="text-[10px] text-slate-500 uppercase ml-2 px-2 py-0.5 bg-slate-900 rounded">{lang.proficiency}</span></span>)}
                       {safeLanguages.length === 0 && <span className="text-slate-500 text-sm">No languages added.</span>}
                    </div>

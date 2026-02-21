@@ -6,10 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, ShieldCheck, Check, Globe, FileText
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, ShieldCheck, Check, Globe, FileText, Search
 } from "lucide-react";
 
 import CandidateProfileView from "@/app/components/CandidateProfileView";
+import { QUALIFICATIONS_LIST, SKILL_CATEGORIES } from "@/lib/constants";
 
 export default function CandidateProfile() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function CandidateProfile() {
   const [formData, setFormData] = useState({
     fullName: "", dob: "", gender: "", phone: "", photoURL: "", addressLine: "", city: "", state: "", pincode: "", willingToRelocate: "No",
     panCard: "", bio: "", 
-    educations: [{ qualification: "B.Com", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }], 
+    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }], 
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
     preferredLocations: [] as string[],
@@ -35,19 +36,15 @@ export default function CandidateProfile() {
     resumeURL: ""
   });
 
-  const skillCategories = {
-    "Accounts": ["Journal Entry", "Book Closure", "Financial Statements", "Ind-AS", "Accounting Standards", "Tally ERP", "SAP"],
-    "Tax": ["TDS Return", "GST Return", "Income Tax", "Corporate Tax"],
-    "Excel": ["Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"]
-  };
-
   const languageOptions = ["English", "Hindi", "Marathi", "Gujarati", "Tamil", "Telugu", "Kannada", "Bengali", "French", "German"];
   const proficiencyOptions = ["Native / Bilingual", "Fluent", "Intermediate", "Beginner"];
 
   const [locInput, setLocInput] = useState("");
   const [langInput, setLangInput] = useState("");
   const [profInput, setProfInput] = useState("Fluent");
-  const [customSkillInput, setCustomSkillInput] = useState("");
+  
+  const [skillSearch, setSkillSearch] = useState("");
+  const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(SKILL_CATEGORIES)[0]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -58,7 +55,6 @@ export default function CandidateProfile() {
       try {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         if (data && data.fullName) {
-          // 🔥 FIX ERROR 31: Yahan bhi Kachra data hataya gaya hai 🔥
           setFormData({ 
               ...formData, ...data,
               bio: data.bio || "",
@@ -111,13 +107,6 @@ export default function CandidateProfile() {
   };
   const removeLanguage = (lang: string) => setFormData(p => ({ ...p, languages: p.languages.filter(l => l.language !== lang) }));
 
-  const handleAddCustomSkill = () => {
-    if (customSkillInput.trim() && !formData.skills.includes(customSkillInput.trim())) {
-       setFormData(p => ({ ...p, skills: [...p.skills, customSkillInput.trim()] }));
-       setCustomSkillInput("");
-    }
-  };
-
   const handleImageUpload = (e: any) => {
     const file = e.target.files[0];
     if (!file || file.size > 150 * 1024) return alert("Photo too big! Max 150KB.");
@@ -158,7 +147,6 @@ export default function CandidateProfile() {
             currentSalary: aiData.currentSalary || prev.currentSalary || "", expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
-            // 🔥 AI Parse me bhi Filter 🔥
             skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
             languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
          }));
@@ -307,11 +295,24 @@ export default function CandidateProfile() {
                               <div key={index} className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800 relative">
                                  {formData.educations.length > 1 && (<button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 p-2"><X size={18}/></button>)}
                                  <div className="grid md:grid-cols-2 gap-6 mt-2">
-                                    <div><label className="form-label">Qualification <span className="text-red-500">*</span></label><select value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="input-field [color-scheme:dark]"><option value="">Select Qualification</option><option>CA Final</option><option>CA Inter</option><option>CMA Final</option><option>CMA Inter</option><option>CS Professional</option><option>CS Executive</option><option>MBA</option><option>M.Com</option><option>B.Com</option><option>12th</option></select></div>
                                     
-                                    {['CA Final', 'CA Inter', 'CMA Final', 'CMA Inter', 'CS Professional', 'CS Executive'].includes(edu.qualification) && (
+                                    {/* 🔥 Smart Searchable Qualification Input 🔥 */}
+                                    <div>
+                                       <label className="form-label">Qualification <span className="text-red-500">*</span></label>
+                                       <input 
+                                          type="text" 
+                                          list="qualifications-list"
+                                          value={edu.qualification} 
+                                          onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} 
+                                          className="input-field" 
+                                          placeholder="Type to search (e.g. CA, B.Com)..."
+                                       />
+                                    </div>
+                                    
+                                    {/* 🔥 Auto-Trigger CA/CS/CMA Stage & Attempt Logic 🔥 */}
+                                    {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
                                        <div className="grid grid-cols-2 gap-4">
-                                          <div><label className="form-label text-yellow-400">Stage Cleared</label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option></select></div>
+                                          <div><label className="form-label text-yellow-400">Stage Cleared</label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
                                           <div><label className="form-label text-red-400">Attempts</label><input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30 focus:border-red-500" placeholder="e.g. 1st, Multiple"/></div>
                                        </div>
                                     )}
@@ -322,22 +323,80 @@ export default function CandidateProfile() {
                                  </div>
                               </div>
                            ))}
+                           <datalist id="qualifications-list">
+                              {QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}
+                           </datalist>
                         </div>
                      </div>
 
                      <div className="pt-8 border-t border-slate-800/80">
-                        <h2 className="text-2xl font-extrabold text-white mb-6">Technical Skills</h2>
+                        <h2 className="text-2xl font-extrabold text-white mb-6">Technical Skills & Certifications</h2>
+                        
+                        {formData.skills.length > 0 && (
+                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                              {formData.skills.map(skill => (
+                                 <span key={skill} className="flex items-center gap-2 bg-blue-600 border border-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
+                                    {skill} <X size={16} className="cursor-pointer hover:text-red-300" onClick={() => toggleSkill(skill)}/>
+                                 </span>
+                              ))}
+                           </div>
+                        )}
+
                         <div className="flex gap-4 mb-6">
-                           <input type="text" value={customSkillInput} onChange={(e) => setCustomSkillInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddCustomSkill()} className="input-field flex-1" placeholder="Type a custom skill and press Add..."/>
-                           <button onClick={handleAddCustomSkill} className="bg-slate-800 hover:bg-slate-700 px-6 rounded-xl font-bold text-white transition-colors">Add Skill</button>
+                           <div className="relative flex-1">
+                              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20}/>
+                              <input 
+                                 type="text" 
+                                 value={skillSearch} 
+                                 onChange={(e) => setSkillSearch(e.target.value)} 
+                                 onKeyDown={(e) => { if (e.key === 'Enter' && skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); e.preventDefault(); } }} 
+                                 className="input-field pl-12" 
+                                 placeholder="Search a skill or certification (e.g. SAP FICO)..."
+                              />
+                           </div>
+                           <button onClick={() => { if(skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); } }} className="bg-slate-800 hover:bg-slate-700 px-6 rounded-xl font-bold text-white transition-colors">Add</button>
                         </div>
-                        <div className="flex flex-wrap gap-3">
-                           {Array.from(new Set([...Object.values(skillCategories).flat(), ...formData.skills])).map(skill => (
-                              <button key={skill} onClick={()=>toggleSkill(skill)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${formData.skills.includes(skill) ? 'bg-blue-600 border-blue-500 text-white shadow-lg' : 'bg-slate-950/50 border-slate-800/80 text-slate-400 hover:border-slate-600'}`}>
-                                 {skill}
-                              </button>
-                           ))}
-                        </div>
+
+                        {skillSearch.trim() !== "" ? (
+                           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-700 mb-6">
+                              <p className="text-sm text-slate-400 mb-4 font-bold tracking-wider uppercase">Search Results</p>
+                              <div className="flex flex-wrap gap-2">
+                                 {Object.values(SKILL_CATEGORIES).flat().filter(s => s.toLowerCase().includes(skillSearch.toLowerCase()) && !formData.skills.includes(s)).map(skill => (
+                                       <button key={skill} onClick={() => { toggleSkill(skill); setSkillSearch(""); }} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-800 border border-slate-700 text-blue-400 hover:bg-slate-700 hover:text-white transition-colors">
+                                          + Add {skill}
+                                       </button>
+                                 ))}
+                                 
+                                 {!Object.values(SKILL_CATEGORIES).flat().some(s => s.toLowerCase() === skillSearch.toLowerCase()) && (
+                                    <button onClick={() => { toggleSkill(skillSearch.trim()); setSkillSearch(""); }} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-blue-900/30 border border-blue-800 text-blue-300 hover:bg-blue-800/50 transition-colors">
+                                       + Add "{skillSearch}" as custom skill
+                                    </button>
+                                 )}
+                              </div>
+                           </div>
+                        ) : (
+                           <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50">
+                              
+                              {/* Tabs - Modern UI */}
+                              <div className="flex flex-wrap gap-2 p-3 bg-slate-900/40 border-b border-slate-800 rounded-t-2xl">
+                                 {(Object.keys(SKILL_CATEGORIES) as Array<keyof typeof SKILL_CATEGORIES>).map((cat) => (
+                                    <button key={cat} onClick={() => setActiveSkillTab(cat)} className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSkillTab === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}>
+                                       {cat}
+                                    </button>
+                                 ))}
+                              </div>
+
+                              <div className="p-6">
+                                 <div className="flex flex-wrap gap-3">
+                                    {(SKILL_CATEGORIES[activeSkillTab as keyof typeof SKILL_CATEGORIES] || []).map((skill: string) => (
+                                       <button key={skill} onClick={()=>toggleSkill(skill)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${formData.skills.includes(skill) ? 'bg-blue-600 border-blue-500 text-white shadow-md' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-200'}`}>
+                                          {formData.skills.includes(skill) ? <span className="flex items-center gap-1"><Check size={14}/> {skill}</span> : <span className="flex items-center gap-1"><Plus size={14}/> {skill}</span>}
+                                       </button>
+                                    ))}
+                                 </div>
+                              </div>
+                           </div>
+                        )}
                      </div>
 
                      <div className="pt-8 border-t border-slate-800/80">
@@ -404,11 +463,12 @@ export default function CandidateProfile() {
         )}
       </div>
 
+      {/* 🔥 CSS Fix: Double Arrow Hata Diya Gaya Hai 🔥 */}
       <style jsx>{`
         .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.6rem; }
-        .input-field { width: 100%; background-color: #0f172a; border: 2px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; color: white; outline: none; transition: all 0.2s; font-size: 1rem; font-weight: 500;}
+        .input-field { width: 100%; background-color: #0f172a; border: 2px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; color: white; outline: none; transition: all 0.2s; font-size: 1rem; font-weight: 500; appearance: none; }
         .input-field:focus { border-color: #3b82f6; background-color: #020617; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
-        .input-field { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1.2rem top 50%; background-size: 0.75rem auto; }
+        select.input-field { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1.2rem top 50%; background-size: 0.75rem auto; }
       `}</style>
     </div>
   );
