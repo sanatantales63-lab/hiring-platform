@@ -1,0 +1,327 @@
+[
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Ravi is a salaried employee earning ₹9L per annum. He also earns rental income from 2 house properties and ₹30,000 interest from Fixed Deposits. Which ITR form is applicable to him for AY 2024-25?",
+    "options": [
+      "A) ITR-1, as total income is below ₹50L",
+      "B) ITR-3, as he has income from multiple sources",
+      "C) ITR-4, as presumptive taxation can cover FD interest",
+      "D) ITR-2, as he has income from more than one house property with no business income"
+    ],
+    "correctAnswer": "D) ITR-2, as he has income from more than one house property with no business income",
+    "explanation": "ITR-1 (Sahaj) is restricted to individuals with income from one house property only. Since Ravi has two house properties and no business income, ITR-2 is the correct and mandatory form."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Priya is a salaried employee (non-audit case) for FY 2023-24. Her employer deducted TDS of ₹85,000, but her actual tax liability is ₹72,000. She wants to claim the excess TDS as a refund. What is the last date to file her ITR without penalty?",
+    "options": [
+      "A) 30th September 2024",
+      "B) 31st July 2024",
+      "C) 31st October 2024",
+      "D) 30th November 2024"
+    ],
+    "correctAnswer": "B) 31st July 2024",
+    "explanation": "For non-audit individual taxpayers, the due date for filing ITR under Section 139(1) is 31st July of the assessment year. Filing after this date invites a late fee under Section 234F."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Arjun, a salaried employee, paid LIC premium of ₹50,000, invested ₹70,000 in PPF, and paid tuition fees of ₹40,000 for his two children during FY 2023-24. What is the maximum deduction he can claim under Section 80C?",
+    "options": [
+      "A) ₹1,50,000 — capped at the statutory limit regardless of actual investment",
+      "B) ₹1,60,000 — actual investment in eligible instruments",
+      "C) ₹1,20,000 — only LIC and PPF are eligible",
+      "D) ₹2,00,000 — no cap applicable under the new regime"
+    ],
+    "correctAnswer": "A) ₹1,50,000 — capped at the statutory limit regardless of actual investment",
+    "explanation": "The aggregate deduction under Section 80C, 80CCC, and 80CCD(1) is capped at ₹1,50,000 per year. Even though Arjun's actual eligible investments total ₹1,60,000, his deduction is limited to ₹1,50,000."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Sunita is a practicing doctor who consults at a private hospital and earns ₹18L annually. She does not wish to maintain detailed books of accounts. Which section and ITR form should she use for the simplest and most appropriate compliance?",
+    "options": [
+      "A) Section 44AD, ITR-4 — as she is a professional with gross receipts below ₹2 Cr",
+      "B) Section 44AE, ITR-3 — applicable to all self-employed professionals",
+      "C) Section 44ADA, ITR-4 — as she is a specified professional with receipts below ₹75L",
+      "D) Section 44AB, ITR-3 — tax audit is mandatory for all doctors"
+    ],
+    "correctAnswer": "C) Section 44ADA, ITR-4 — as she is a specified professional with receipts below ₹75L",
+    "explanation": "Section 44ADA covers specified professionals (including doctors) with gross receipts up to ₹75L, allowing them to declare 50% of receipts as profit. ITR-4 (Sugam) is the prescribed form for presumptive taxation under 44ADA."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Ramesh (aged 45) paid a health insurance premium of ₹28,000 for himself and his family, and ₹55,000 for his parents (both aged above 60). What is his maximum allowable deduction under Section 80D for FY 2023-24?",
+    "options": [
+      "A) ₹83,000 — total of actual premiums paid",
+      "B) ₹50,000 — only parental premium is deductible",
+      "C) ₹25,000 — limited to self and family only",
+      "D) ₹75,000 — ₹25,000 for self/family + ₹50,000 for senior citizen parents"
+    ],
+    "correctAnswer": "D) ₹75,000 — ₹25,000 for self/family + ₹50,000 for senior citizen parents",
+    "explanation": "Under Section 80D, the limit for self and family (below 60) is ₹25,000, and for senior citizen parents it is ₹50,000, giving a combined maximum of ₹75,000. The actual premium paid for parents (₹55,000) is capped at ₹50,000."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Kiran is a freelance graphic designer with professional receipts of ₹9L. She maintains no books of accounts and wants the simplest compliance path for AY 2024-25. What is the MOST appropriate form and scheme?",
+    "options": [
+      "A) ITR-1 under the normal scheme, as receipts are below ₹50L",
+      "B) ITR-4 under Section 44ADA, declaring 50% of receipts as deemed profit",
+      "C) ITR-3 with normal profit and loss computation",
+      "D) ITR-2 with a capital gains schedule for intellectual property"
+    ],
+    "correctAnswer": "B) ITR-4 under Section 44ADA, declaring 50% of receipts as deemed profit",
+    "explanation": "Graphic designers fall under specified professionals eligible for Section 44ADA. With receipts below ₹75L, Kiran can declare 50% as profit without maintaining books. ITR-4 (Sugam) is the prescribed filing form."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Meena's Form 16 for FY 2023-24 shows a gross salary of ₹12,00,000. The employer has deducted a standard deduction of ₹50,000 and professional tax of ₹2,400. What is Meena's net taxable salary income to be reported in her ITR?",
+    "options": [
+      "A) ₹11,47,600",
+      "B) ₹11,50,000",
+      "C) ₹11,98,000",
+      "D) ₹12,00,000"
+    ],
+    "correctAnswer": "A) ₹11,47,600",
+    "explanation": "Net taxable salary = Gross Salary – Standard Deduction – Professional Tax = ₹12,00,000 – ₹50,000 – ₹2,400 = ₹11,47,600. Professional tax paid is deductible under Section 16(iii)."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Beginner",
+    "question": "Vijay is a small trader with a turnover of ₹1.2 Cr for FY 2023-24. His receipts are 100% through digital modes (UPI/banking channels). He does not opt for presumptive taxation. Is a tax audit mandatory, and which ITR form applies?",
+    "options": [
+      "A) Audit mandatory; ITR-3",
+      "B) No audit required; ITR-1",
+      "C) No audit required; ITR-3",
+      "D) Audit mandatory; ITR-4"
+    ],
+    "correctAnswer": "C) No audit required; ITR-3",
+    "explanation": "Under the proviso to Section 44AB, if 95% or more receipts and payments are digital, the audit threshold is ₹3 Cr. Since Vijay's turnover (₹1.2 Cr) is below this, no audit is needed. As he has opted out of presumptive taxation, ITR-3 is applicable."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Anil purchased a house in FY 2015-16 for ₹40L and sold it in December 2023 for ₹1.1 Cr. He invested ₹30L in a new residential house within 2 years. CII for 2015-16 is 254 and for 2023-24 is 348. What is his net taxable LTCG after Section 54 exemption?",
+    "options": [
+      "A) ₹15.2L",
+      "B) ₹55.2L (no exemption since investment < LTCG)",
+      "C) ₹30L",
+      "D) ₹25.2L"
+    ],
+    "correctAnswer": "D) ₹25.2L",
+    "explanation": "Indexed cost = 40L × (348/254) = ₹54.8L. LTCG = ₹1.1 Cr – ₹54.8L = ₹55.2L. Section 54 exemption is limited to the investment of ₹30L. Taxable LTCG = ₹55.2L – ₹30L = ₹25.2L."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Seema incurred a short-term capital loss (STCL) of ₹80,000 from the sale of equity mutual fund units and earned a long-term capital gain (LTCG) of ₹1,20,000 from debt mutual funds in the same year. What is the correct tax treatment?",
+    "options": [
+      "A) STCL cannot be set off against any LTCG; it must be carried forward",
+      "B) STCL can be set off against both STCG and LTCG; net taxable LTCG = ₹40,000",
+      "C) STCL from equity can only offset STCG from equity transactions",
+      "D) STCL must be carried forward for 8 years without current-year set-off"
+    ],
+    "correctAnswer": "B) STCL can be set off against both STCG and LTCG; net taxable LTCG = ₹40,000",
+    "explanation": "Under Section 70(2), STCL can be set off against both short-term and long-term capital gains. After setting off ₹80,000 STCL against ₹1,20,000 LTCG, the net taxable LTCG is ₹40,000."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Rohit's AIS shows interest income of ₹95,000 from SBI, while his bank passbook shows only ₹72,000 actually credited. The ₹23,000 difference is accrued but not yet credited interest. Rohit follows a cash basis. What is the BEST course of action while filing ITR?",
+    "options": [
+      "A) Report ₹72,000 in ITR (cash basis) and submit feedback on the AIS portal explaining the ₹23,000 is accrued and not yet received",
+      "B) Report ₹95,000 as per AIS; individuals must always follow mercantile basis",
+      "C) Report ₹0 as the income is under dispute with the bank",
+      "D) Wait for the bank to issue a revised Form 26AS before filing ITR"
+    ],
+    "correctAnswer": "A) Report ₹72,000 in ITR (cash basis) and submit feedback on the AIS portal explaining the ₹23,000 is accrued and not yet received",
+    "explanation": "Individual taxpayers are generally permitted to follow the cash basis for interest income. The correct practice is to report ₹72,000 (received) and submit AIS feedback marking the ₹23,000 as 'income not pertaining to this year' to avoid a mismatch notice."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Kavita has a non-speculative business loss of ₹2,50,000 and rental income from one house property of ₹3,00,000 in FY 2023-24. What is the correct inter-head set-off treatment?",
+    "options": [
+      "A) Business loss cannot be set off against house property income; it must be carried forward",
+      "B) Set-off is allowed but capped at ₹2,00,000 per the annual limit",
+      "C) Non-speculative business loss can be set off against income from any head except salary; net taxable income = ₹50,000",
+      "D) Inter-head set-off is not permitted for business losses under any circumstances"
+    ],
+    "correctAnswer": "C) Non-speculative business loss can be set off against income from any head except salary; net taxable income = ₹50,000",
+    "explanation": "Under Section 71, non-speculative business loss can be set off against income from any head except 'Salaries.' Kavita's net taxable income = ₹3,00,000 – ₹2,50,000 = ₹50,000 after inter-head set-off."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Prakash runs a business under Section 44AD with turnover of ₹1.8 Cr (all cash receipts) in FY 2023-24. He declares a profit of only 5%, which is lower than the prescribed 8%. What is the tax consequence of this declaration?",
+    "options": [
+      "A) No consequence; Section 44AD allows any profit percentage at taxpayer's discretion",
+      "B) Tax audit required only if profit is below 6% (applicable for digital receipts)",
+      "C) He simply pays tax on the 5% profit declared; the department cannot challenge it",
+      "D) He must maintain books of accounts and get a mandatory tax audit done under Section 44AB"
+    ],
+    "correctAnswer": "D) He must maintain books of accounts and get a mandatory tax audit done under Section 44AB",
+    "explanation": "If a taxpayer under Section 44AD declares profit below 8% (for cash receipts) or 6% (for digital receipts), they lose the presumptive benefit. They are then required to maintain books of accounts and undergo a mandatory tax audit under Section 44AB."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Neha sold listed equity shares with an LTCG of ₹3,00,000. She also incurred a long-term capital loss (LTCL) of ₹80,000 from the sale of a plot of land. What is the correct tax treatment of the net LTCG under Section 112A?",
+    "options": [
+      "A) ₹3,00,000 taxed at 20% with indexation benefit under Section 112",
+      "B) Net LTCG = ₹2,20,000; the first ₹1,00,000 is exempt; balance ₹1,20,000 taxed at 10% under Sec 112A",
+      "C) Full ₹3,00,000 is taxed at 10% under Sec 112A; LTCL from land cannot offset equity LTCG",
+      "D) LTCL from land can only be carried forward and cannot offset LTCG from equity in the same year"
+    ],
+    "correctAnswer": "B) Net LTCG = ₹2,20,000; the first ₹1,00,000 is exempt; balance ₹1,20,000 taxed at 10% under Sec 112A",
+    "explanation": "LTCL from land (Section 112) can be set off against LTCG from equity (Section 112A) per Section 70(3). Net LTCG = ₹3,00,000 – ₹80,000 = ₹2,20,000. Under Section 112A, ₹1,00,000 is exempt; the balance ₹1,20,000 is taxed at 10%."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Dinesh is a practicing CA with gross professional receipts of ₹55L. He opts for Section 44ADA. His actual verified expenses were ₹35L. What is his taxable income to be reported in ITR-4?",
+    "options": [
+      "A) ₹27,50,000 — 50% of gross receipts is the deemed profit regardless of actual expenses",
+      "B) ₹20,00,000 — actual profit (receipts minus actual expenses) is always preferable",
+      "C) ₹16,50,000 — 30% deemed profit applicable to specified professionals",
+      "D) ₹27,50,000 only if actual profit is less than 50%; otherwise actual profit is used"
+    ],
+    "correctAnswer": "A) ₹27,50,000 — 50% of gross receipts is the deemed profit regardless of actual expenses",
+    "explanation": "Under Section 44ADA, once the taxpayer opts for the presumptive scheme, 50% of gross receipts is treated as deemed profit. Actual expense deductions are not available, and the scheme is optional but once chosen, overrides actual expense claims."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Harish has a carried-forward STCL of ₹1,50,000 from FY 2022-23. In FY 2023-24, he earns STCG of ₹80,000 and LTCG of ₹1,20,000. What is his final taxable capital gain position after set-off?",
+    "options": [
+      "A) STCL fully absorbed; net LTCG ₹50,000 taxable; no carry forward",
+      "B) Only ₹80,000 of STCL used against STCG; remaining ₹70,000 carried forward",
+      "C) ₹80,000 of b/f STCL set off against STCG; remaining ₹70,000 set off against LTCG; net taxable LTCG = ₹50,000",
+      "D) Carried forward capital losses expire after 1 year and cannot be used"
+    ],
+    "correctAnswer": "C) ₹80,000 of b/f STCL set off against STCG; remaining ₹70,000 set off against LTCG; net taxable LTCG = ₹50,000",
+    "explanation": "B/f STCL is first applied against current-year STCG (₹80,000), leaving ₹70,000. This residual STCL is then set off against LTCG (₹1,20,000), resulting in a net taxable LTCG of ₹50,000. Capital losses can be carried forward for 8 years."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Intermediate",
+    "question": "Ananya is a registered medical practitioner who opted for Section 44ADA for FY 2023-24. Her estimated tax liability exceeds ₹10,000. When must she pay advance tax?",
+    "options": [
+      "A) No advance tax obligation; presumptive taxpayers are fully exempt",
+      "B) In 4 instalments: 15% by June, 45% by September, 75% by December, 100% by March",
+      "C) No advance tax if liability is below ₹1,00,000",
+      "D) 100% of advance tax in a single instalment by 15th March of the financial year"
+    ],
+    "correctAnswer": "D) 100% of advance tax in a single instalment by 15th March of the financial year",
+    "explanation": "Under Section 211(1), taxpayers opting for presumptive taxation under Sections 44AD or 44ADA are required to pay 100% of their advance tax liability in a single instalment on or before 15th March of the financial year."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "Suresh is a Resident Indian with a bank account in UAE having a peak balance of USD 50,000. He earned interest of AED 12,000 but did not report this account in Schedule FA of his ITR. The omission is discovered during scrutiny. What is the primary consequence under applicable law?",
+    "options": [
+      "A) Penalty of ₹1,00,000 only under the Income Tax Act",
+      "B) Penalty of ₹10,00,000 per undisclosed foreign asset under the Black Money Act, 2015, plus risk of prosecution",
+      "C) Only a disclosure order issued; no penalty for a first-time omission",
+      "D) Penalty equivalent to 3 times the undisclosed income under the Income Tax Act"
+    ],
+    "correctAnswer": "B) Penalty of ₹10,00,000 per undisclosed foreign asset under the Black Money Act, 2015, plus risk of prosecution",
+    "explanation": "The Black Money (Undisclosed Foreign Income and Assets) and Imposition of Tax Act, 2015, prescribes a flat penalty of ₹10,00,000 per undisclosed foreign asset. Prosecution under Section 50 of the Act can also be initiated for willful non-disclosure."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "XYZ Pvt. Ltd. has book profits of ₹80L as per Section 115JB. Its normal tax computed on total income is ₹10L. The applicable MAT rate is 15% (plus surcharge and cess). What is the company's actual tax payable and the resulting MAT credit?",
+    "options": [
+      "A) Tax payable = ₹12L (MAT); MAT credit of ₹2L carried forward under Section 115JAA",
+      "B) Tax payable = ₹10L (normal tax always prevails)",
+      "C) Tax payable = ₹22L (both MAT and normal tax are additive)",
+      "D) Tax payable = ₹11L (average of MAT and normal tax)"
+    ],
+    "correctAnswer": "A) Tax payable = ₹12L (MAT); MAT credit of ₹2L carried forward under Section 115JAA",
+    "explanation": "MAT = 80L × 15% = ₹12L. Since MAT (₹12L) > Normal Tax (₹10L), the company pays ₹12L. The excess of MAT over normal tax = ₹2L is eligible as MAT credit under Section 115JAA, carried forward for 15 years."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "Rahul received a Section 143(1) intimation showing a tax demand of ₹45,000. The system added ₹3,00,000 as additional income from AIS (dividend from a company), which Rahul claims he never received. He had already submitted feedback on the AIS portal marking it as 'Dividend not pertaining to me'. What is the CORRECT procedural next step?",
+    "options": [
+      "A) Pay the demand immediately to stop interest accrual under Section 220",
+      "B) Ignore the intimation as Section 143(1) processing is not a final assessment",
+      "C) File a rectification request under Section 154 citing the AIS feedback as evidence, or respond to the notice within 30 days disputing the addition",
+      "D) Immediately file a revised ITR under Section 139(5) to remove the disputed income"
+    ],
+    "correctAnswer": "C) File a rectification request under Section 154 citing the AIS feedback as evidence, or respond to the notice within 30 days disputing the addition",
+    "explanation": "When a 143(1) demand arises from an incorrect AIS entry, the taxpayer should file a rectification under Section 154 or formally respond to the intimation with supporting evidence. A revised ITR under 139(5) is for correcting omissions in the original return, not for contesting erroneous system-generated additions."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "Krishnamurthy is an NRI selling a residential property in India for ₹1.5 Cr. The buyer (a resident Indian) deducted TDS at 1% (₹1,50,000) assuming Section 194IA applies. The actual long-term capital gain is ₹80L, attracting 20% tax. What is the implication for the buyer under the Income Tax Act?",
+    "options": [
+      "A) The buyer has no liability; the seller is solely responsible for paying the balance tax",
+      "B) The property registration is void due to short TDS deduction",
+      "C) The seller must pay the balance tax; the buyer faces no penalty as Section 194IA was applied in good faith",
+      "D) The buyer is treated as an assessee-in-default for short deduction and is liable for interest under Section 201(1A) on the shortfall"
+    ],
+    "correctAnswer": "D) The buyer is treated as an assessee-in-default for short deduction and is liable for interest under Section 201(1A) on the shortfall",
+    "explanation": "For NRI sellers, Section 195 mandates TDS at applicable rates (20% on LTCG), not Section 194IA (1%). The buyer, having failed to deduct the correct TDS, is treated as an assessee-in-default and is liable for the shortfall plus interest under Section 201(1A) at 1.5% per month."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "An LLP has AMT credit of ₹8L carried forward from prior years under Section 115JD. In the current year, the normal tax computed exceeds the AMT payable. How should the AMT credit be utilized?",
+    "options": [
+      "A) AMT credit lapses after 10 years and cannot be claimed",
+      "B) The AMT credit is set off against the excess of normal tax over AMT in the current year, up to the available credit balance of ₹8L",
+      "C) The department refunds the AMT credit directly upon filing of ITR",
+      "D) AMT credit is exclusively for companies under MAT; it is not available to LLPs"
+    ],
+    "correctAnswer": "B) The AMT credit is set off against the excess of normal tax over AMT in the current year, up to the available credit balance of ₹8L",
+    "explanation": "Under Section 115JD, AMT credit is available to non-corporate taxpayers (including LLPs and individuals under AMT). It is set off against the excess of normal tax over AMT in subsequent years and can be carried forward for 15 assessment years."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "Arun gifted ₹10,00,000 to his wife Sunita, who has no independent income. Sunita invested the entire amount in Fixed Deposits and earned interest of ₹80,000 during FY 2023-24. In whose hands will this interest income be taxed?",
+    "options": [
+      "A) In Arun's hands under Section 64(1)(iv), as income from assets transferred to spouse without adequate consideration is clubbed with the transferor",
+      "B) In Sunita's hands, as she is the legal owner of the FD and has made the investment decision",
+      "C) Not taxable; gift between spouses is exempt and clubbing applies only to business income",
+      "D) Clubbing provisions apply only if the gifted amount exceeds ₹15,00,000"
+    ],
+    "correctAnswer": "A) In Arun's hands under Section 64(1)(iv), as income from assets transferred to spouse without adequate consideration is clubbed with the transferor",
+    "explanation": "Section 64(1)(iv) mandates that income arising from assets transferred (directly or indirectly) to a spouse without adequate consideration shall be included in the income of the transferor-spouse. Since Arun gifted ₹10L to Sunita, the FD interest of ₹80,000 is clubbed in Arun's hands."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "Meghna, an Indian resident, holds ESOPs in a US-listed company (NYSE). During FY 2023-24, she received USD 2,000 as foreign dividend. Which of the following statements about her Indian tax treatment is INCORRECT?",
+    "options": [
+      "A) Foreign dividend is fully taxable under 'Income from Other Sources' in India at slab rates",
+      "B) She must report the foreign stocks in Schedule FA and the dividend income in Schedule FSI of her ITR-2",
+      "C) She can claim Section 10(34) exemption for the foreign dividend, as it covers all dividend income",
+      "D) If TDS was deducted on the dividend in the USA, she may claim DTAA relief under the India-USA treaty to avoid double taxation"
+    ],
+    "correctAnswer": "C) She can claim Section 10(34) exemption for the foreign dividend, as it covers all dividend income",
+    "explanation": "Section 10(34) exemption for dividends was abolished from AY 2021-22, and it was never applicable to dividends from foreign companies. Foreign dividends are fully taxable in India under 'Income from Other Sources.' DTAA relief, however, is available for taxes withheld abroad."
+  },
+  {
+    "skill": "Income Tax Return (ITR) Processing",
+    "difficulty": "Advanced",
+    "question": "A taxpayer received a Section 143(1) intimation dated 20th October 2024 raising a demand of ₹1,20,000 for AY 2024-25. He filed a rectification under Section 154, which was rejected. He disagrees with the demand. What is the correct legal recourse and the prescribed time limit?",
+    "options": [
+      "A) Direct appeal to ITAT under Section 253; time limit of 60 days",
+      "B) Writ petition in the High Court under Article 226; no fixed time limit",
+      "C) Revision application to the Principal Commissioner under Section 264; within 1 year",
+      "D) Appeal to the Commissioner of Income Tax (Appeals) / NFAC under Section 246A; within 30 days of receipt of the order"
+    ],
+    "correctAnswer": "D) Appeal to the Commissioner of Income Tax (Appeals) / NFAC under Section 246A; within 30 days of receipt of the order",
+    "explanation": "A taxpayer aggrieved by a Section 143(1) intimation or a rejected rectification under Section 154 can file an appeal to the CIT(Appeals)/NFAC under Section 246A. The appeal must be filed within 30 days from the date of receipt of the order, along with 20% of the disputed demand as pre-deposit."
+  }
+]

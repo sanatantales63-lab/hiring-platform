@@ -1,0 +1,202 @@
+[
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A small trader with annual turnover of ₹1.2 crore filed GSTR-1 for March 2024 on 15th May 2024. The due date was 11th April 2024. Will late fees apply, and if so, under which section?",
+    "options": ["A) No late fees, as turnover is below ₹1.5 crore", "B) Late fees under Section 47 of CGST Act, ₹50/day (₹25 CGST + ₹25 SGST)", "C) Late fees under Section 50, calculated as interest on tax liability", "D) Late fees of ₹200/day since outward supplies are involved"],
+    "correctAnswer": "B) Late fees under Section 47 of CGST Act, ₹50/day (₹25 CGST + ₹25 SGST)",
+    "explanation": "Section 47 levies late fees of ₹50/day (₹25 each under CGST & SGST) for delayed GSTR-1 filing, subject to a maximum cap. Turnover threshold affects filing frequency, not the late fee provision."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "During GSTR-2B vs GSTR-3B reconciliation for October 2024, a Bengaluru-based manufacturer finds ₹3.8 lakh ITC appearing in GSTR-2B but not claimed in GSTR-3B. The supplier filed GSTR-1 on 18th November 2024. By when can the manufacturer claim this ITC without any reversal risk?",
+    "options": ["A) It can be claimed only by filing a revised GSTR-3B for October 2024", "B) It can be claimed in GSTR-3B up to November 30, 2025 (before annual return filing date)", "C) It can be claimed in any subsequent GSTR-3B up to 30th November 2025 or the due date of annual return for FY 2024-25, whichever is earlier", "D) The ITC lapses since it was not claimed in the same month as GSTR-2B generation"],
+    "correctAnswer": "C) It can be claimed in any subsequent GSTR-3B up to 30th November 2025 or the due date of annual return for FY 2024-25, whichever is earlier",
+    "explanation": "As per Section 16(4) of CGST Act, ITC can be availed up to the due date of filing the return for September of the next FY (i.e., 30th Nov 2025 for FY 2024-25) or the date of filing annual return, whichever is earlier."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A GST officer issues SCN to a Mumbai exporter alleging ₹12 lakh excess ITC claimed in GSTR-3B for FY 2022-23, citing mismatch with GSTR-2B. The exporter has valid invoices, proof of receipt of goods, and payment confirmation to the supplier who has since become untraceable. Under which rule should the exporter primarily build their defence?",
+    "options": ["A) Rule 36(4) — ITC eligibility based on supplier's GSTR-1 filing", "B) Rule 86A — blocking of ITC in electronic credit ledger", "C) Section 16(2) read with Rule 36, establishing fulfilment of all four conditions for ITC eligibility", "D) Section 73 — non-fraud demand proceedings, requesting waiver of penalty"],
+    "correctAnswer": "C) Section 16(2) read with Rule 36, establishing fulfilment of all four conditions for ITC eligibility",
+    "explanation": "Section 16(2) lays down four mandatory conditions for ITC — tax invoice, receipt of goods/services, tax paid by supplier, and return filed. Defence must demonstrate all four conditions were met at the time of claiming ITC, regardless of supplier's current status."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A Delhi-based e-commerce seller uses the Amazon platform. Amazon collects TCS (Tax Collected at Source) under GST. Where will this TCS collected by Amazon reflect for the seller to claim credit?",
+    "options": ["A) In the seller's GSTR-2A as a credit note from Amazon", "B) In GSTR-8 filed by Amazon, which auto-populates in the seller's GSTR-2B", "C) The seller must manually enter it in GSTR-3B Table 9", "D) In GSTR-1 of the seller as an amendment entry"],
+    "correctAnswer": "B) In GSTR-8 filed by Amazon, which auto-populates in the seller's GSTR-2B",
+    "explanation": "E-commerce operators file GSTR-8 for TCS deducted. This auto-populates in the seller's GSTR-2B, and the seller claims the credit in Table 9 of GSTR-3B based on this reflection."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A Chennai-based company with mixed supply (taxable + exempt) reverses ITC under Rule 42 for the month. Total ITC for the month is ₹10 lakh, ITC directly attributable to exempt supply is ₹1.2 lakh, and the exempt supply proportion is 18% of total turnover. What is the total ITC to be reversed?",
+    "options": ["A) ₹1.80 lakh (18% of ₹10 lakh)", "B) ₹1.20 lakh (only direct attribution)", "C) ₹1.20 lakh + ₹1.584 lakh (18% of remaining ₹8.8 lakh common credit) = ₹2.784 lakh", "D) ₹3.00 lakh (flat 30% as a simplified standard method)"],
+    "correctAnswer": "C) ₹1.20 lakh + ₹1.584 lakh (18% of remaining ₹8.8 lakh common credit) = ₹2.784 lakh",
+    "explanation": "Rule 42 requires first separating direct exempt-use ITC (₹1.2L), then applying the exempt turnover ratio (18%) on remaining common ITC (₹8.8L = ₹1.584L). Both are reversed together as the total ineligible ITC."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A Pune trader sends goods worth ₹48,000 by road transport within Maharashtra for a B2B transaction. Is an e-way bill mandatory?",
+    "options": ["A) Yes, e-way bill is required for all B2B road movements above ₹10,000", "B) No, e-way bill is not required as the value is below ₹50,000", "C) Yes, because it is an interstate movement", "D) No, e-way bill is only required for goods notified in Annexure to Rule 138"],
+    "correctAnswer": "B) No, e-way bill is not required as the value is below ₹50,000",
+    "explanation": "Under Rule 138 of CGST Rules, e-way bill is mandatory only when the consignment value exceeds ₹50,000. Since the value is ₹48,000, it is below the threshold, making e-way bill generation optional unless the state has a lower threshold."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "A Hyderabad firm receives a legal consultancy service from an unregistered advocate billing ₹2 lakh. The firm is registered under GST. How should this transaction be reported and when should RCM tax be paid?",
+    "options": ["A) No GST applicable since the advocate is unregistered", "B) The firm must pay GST under RCM, report in GSTR-3B Table 3.1(d), and pay by the 20th of the following month", "C) The firm raises a self-invoice, pays RCM, but reports it only in the annual GSTR-9", "D) GST under RCM applies but can be offset against existing ITC balance without cash payment"],
+    "correctAnswer": "B) The firm must pay GST under RCM, report in GSTR-3B Table 3.1(d), and pay by the 20th of the following month",
+    "explanation": "Legal services by an advocate to a business entity attract RCM under Notification 13/2017-CT(R). The recipient firm must raise a self-invoice, pay 18% GST in cash via GSTR-3B Table 3.1(d), and can claim ITC on the same in Table 4."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A Kolkata company receives a GST audit notice under Section 65 for FY 2021-22. During audit, the officer finds ITC of ₹7 lakh availed on capital goods used for both taxable and exempt supply, with no Rule 43 reversal done. The company now wants to regularize. What is the correct approach?",
+    "options": ["A) Reverse the entire ₹7 lakh ITC immediately and pay interest from the date of availment", "B) Apply Rule 43: spread reversal over 60 months (useful life), reverse 1/60th per month for remaining months, pay interest on already-lapsed months", "C) File a rectification in GSTR-9C for FY 2021-22 and request a fresh ITC determination", "D) Claim that audit findings cannot result in ITC reversal if returns were filed on time"],
+    "correctAnswer": "B) Apply Rule 43: spread reversal over 60 months (useful life), reverse 1/60th per month for remaining months, pay interest on already-lapsed months",
+    "explanation": "Rule 43 prescribes ITC reversal on capital goods over 60 months based on exempt supply proportion. For past months, interest under Section 50 is payable. Remaining reversals must be done prospectively at the applicable ratio each month."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A quarterly GSTR-1 filer with turnover below ₹1.5 crore wants to report a high-value B2B invoice of ₹25 lakh immediately so the buyer can claim ITC next month. What facility allows this?",
+    "options": ["A) The filer must wait until the quarterly GSTR-1 due date", "B) The filer can use the Invoice Furnishing Facility (IFF) in the first two months of the quarter", "C) The filer should switch to monthly filing permanently", "D) The buyer can manually add the invoice in GSTR-2A by filing a grievance on the portal"],
+    "correctAnswer": "B) The filer can use the Invoice Furnishing Facility (IFF) in the first two months of the quarter",
+    "explanation": "IFF under the QRMP scheme allows quarterly GSTR-1 filers to upload B2B invoices in months 1 and 2 of the quarter, enabling recipients to see the ITC in their GSTR-2B without changing the supplier's quarterly filing status."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "While reconciling GSTR-2B with purchase register for Q3 FY 2024-25, a company finds 15 invoices totalling ₹4.5 lakh ITC in its purchase register but not appearing in GSTR-2B. Verification confirms suppliers filed GSTR-1 but filed it after the cut-off date. What should the accountant do?",
+    "options": ["A) Claim the ITC immediately in GSTR-3B since invoices are genuine", "B) Contact the supplier to amend GSTR-1 which will then reflect in the previous month's GSTR-2B", "C) Do not claim until the ITC appears in GSTR-2B; it will reflect in the subsequent month's GSTR-2B once supplier files", "D) File a grievance on the GST portal requesting manual credit of ₹4.5 lakh"],
+    "correctAnswer": "C) Do not claim until the ITC appears in GSTR-2B; it will reflect in the subsequent month's GSTR-2B once supplier files",
+    "explanation": "Post the Rule 36(4) amendment, ITC can only be claimed to the extent it appears in GSTR-2B. If the supplier filed GSTR-1 after the cut-off, the ITC will reflect in the next period's GSTR-2B, and should be claimed then."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A multi-state registered company (GSTIN in Maharashtra, Karnataka, Tamil Nadu) provides IT services and receives a centralized procurement invoice for office rent at its HQ in Maharashtra. The rent invoice is ₹30 lakh with 18% GST. How should ITC be distributed to other states?",
+    "options": ["A) Entire ITC of ₹5.4 lakh can be claimed by the Maharashtra GSTIN only", "B) ITC must be distributed through Input Service Distributor (ISD) mechanism under Section 20, proportionate to each state's turnover", "C) Each state GSTIN can claim ITC independently by raising inter-state invoices", "D) ITC must be reversed since rent is for a fixed location and cannot be shared"],
+    "correctAnswer": "B) ITC must be distributed through Input Service Distributor (ISD) mechanism under Section 20, proportionate to each state's turnover",
+    "explanation": "Services received at HQ but benefiting multiple GSTINs must be distributed via the ISD mechanism under Section 20 read with Rule 39. Distribution is pro-rata based on each recipient unit's turnover to total turnover."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A Jaipur retailer registered under GST mistakenly reported a B2C supply of ₹80,000 as a B2B supply in GSTR-1 with a wrong GSTIN of the customer. The error is noticed before filing GSTR-3B. What is the quickest correction method?",
+    "options": ["A) File a revised GSTR-1 before 20th of the next month", "B) Amend the invoice details in the next month's GSTR-1 using the amendment tables", "C) The error can be corrected directly in GSTR-1 before filing since it has not been submitted yet", "D) File a rectification petition with the jurisdictional GST officer"],
+    "correctAnswer": "C) The error can be corrected directly in GSTR-1 before filing since it has not been submitted yet",
+    "explanation": "GSTR-1 can be edited before it is filed/submitted on the portal. Once errors are identified before submission, the taxpayer can directly correct the invoice details without needing an amendment return."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "A Lucknow manufacturer claims ₹6 lakh ITC in GSTR-3B for August 2024. In September 2024, they discover that ₹1.5 lakh of this ITC relates to goods used for personal consumption by the proprietor. What corrective action is required?",
+    "options": ["A) No reversal needed as ITC was legitimately available at the time of purchase", "B) Reverse ₹1.5 lakh in Table 4(B)(1) of GSTR-3B for September 2024 and pay interest from August 20, 2024", "C) Reverse ₹1.5 lakh in GSTR-9 at the year end without any interest liability", "D) File an amendment to August 2024 GSTR-3B to reduce the claimed ITC"],
+    "correctAnswer": "B) Reverse ₹1.5 lakh in Table 4(B)(1) of GSTR-3B for September 2024 and pay interest from August 20, 2024",
+    "explanation": "ITC on goods used for personal consumption is blocked under Section 17(5). Since it was wrongly claimed, reversal must happen in the next available GSTR-3B along with interest under Section 50 from the date of original claim."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "An Ahmedabad exporter receives SCN for FY 2022-23 alleging that IGST refund of ₹18 lakh was fraudulently claimed as the underlying export invoices were not traceable in GSTR-1. The exporter has proof that GSTR-1 was filed but portal shows data as 'Not filed' due to a technical glitch. What is the ideal defence strategy?",
+    "options": ["A) Accept demand under Section 73 and pay with penalty to avoid litigation", "B) Submit portal acknowledgement, GST return filing history, CA-certified export proceeds, and escalate as a grievance citing technical glitch under Section 119 / Circular 183/2022", "C) File a writ petition in High Court directly without exhausting departmental remedies", "D) Request the exporter's CA to reconstruct the GSTR-1 data and file it retrospectively"],
+    "correctAnswer": "B) Submit portal acknowledgement, GST return filing history, CA-certified export proceeds, and escalate as a grievance citing technical glitch under Section 119 / Circular 183/2022",
+    "explanation": "CBIC Circular 183/2022 and various court precedents provide relief when portal glitches caused non-reflection of filed returns. Documentary evidence including acknowledgement numbers, filing timestamps, and EGM data must be presented to substantiate the defence."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A new GST registrant is confused about the difference between GSTR-2A and GSTR-2B. A vendor tells him to rely on GSTR-2A for claiming ITC. Is this advice correct for FY 2024-25?",
+    "options": ["A) Yes, GSTR-2A is the correct document for ITC claims as it is updated in real time", "B) No, GSTR-2B is the correct basis for ITC claims as it is a static, month-wise auto-drafted statement used for reconciliation", "C) Both GSTR-2A and GSTR-2B are equally valid for ITC claims", "D) Neither; ITC should be claimed based only on physical invoices received"],
+    "correctAnswer": "B) No, GSTR-2B is the correct basis for ITC claims as it is a static, month-wise auto-drafted statement used for reconciliation",
+    "explanation": "From FY 2022-23 onwards, Rule 36(4) mandates ITC claims based on GSTR-2B, which is a static monthly statement. GSTR-2A is dynamic and updated continuously, making it unreliable for period-specific ITC determination."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "A Coimbatore textile firm pays GST under the Composition Scheme. In Q3 FY 2024-25, they crossed the ₹1.5 crore threshold. What is their immediate compliance obligation?",
+    "options": ["A) Continue under Composition Scheme until year-end and then switch", "B) Withdraw from Composition Scheme prospectively, file CMP-04 within 7 days, and begin filing GSTR-1 and GSTR-3B from the date of threshold breach", "C) File GSTR-4 with increased tax liability and continue until next FY", "D) Composition Scheme is valid up to ₹2 crore for textile manufacturers, so no immediate action needed"],
+    "correctAnswer": "B) Withdraw from Composition Scheme prospectively, file CMP-04 within 7 days, and begin filing GSTR-1 and GSTR-3B from the date of threshold breach",
+    "explanation": "Under Rule 6(5), a Composition dealer must file Form CMP-04 within 7 days of exceeding the threshold. From the date of threshold breach, regular GST provisions apply and normal returns (GSTR-1, GSTR-3B) must be filed."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "During GSTR-9C (Reconciliation Statement) preparation for FY 2023-24, an auditor finds that the company declared ₹2.3 crore less in GSTR-3B compared to audited turnover. The difference relates to unbilled revenue recognized under Ind AS 115. How should this be treated?",
+    "options": ["A) Report the difference in GSTR-9C Table 5Q as unreconciled turnover and pay differential tax with interest", "B) Ignore the difference as Ind AS accounting does not affect GST turnover", "C) Report the difference in GSTR-9C with reason code, adjust through Table 9 of GSTR-9, and pay additional tax with interest if the revenue is GST-taxable", "D) File a revised GSTR-3B for each month with the differential revenue"],
+    "correctAnswer": "C) Report the difference in GSTR-9C with reason code, adjust through Table 9 of GSTR-9, and pay additional tax with interest if the revenue is GST-taxable",
+    "explanation": "GSTR-9C requires reconciliation of turnover per books vs. GST returns. Unbilled revenue recognized under Ind AS that is also a GST-taxable supply must be declared in GSTR-9 Table 9 with tax payment, and the GSTR-9C must explain the difference with appropriate notes."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A Mumbai restaurant owner registered under regular GST scheme wants to know if he can claim ITC on furniture purchased for the restaurant seating area. What is the correct position?",
+    "options": ["A) ITC is allowed as furniture is a business asset used for providing restaurant services", "B) ITC is blocked under Section 17(5)(d) as it relates to immovable property construction or civil structure", "C) ITC is blocked under Section 17(5)(b) as it relates to food and beverages", "D) ITC is blocked under Section 17(5)(a) as furniture qualifies as a motor vehicle accessory"],
+    "correctAnswer": "B) ITC is blocked under Section 17(5)(d) as it relates to immovable property construction or civil structure",
+    "explanation": "Furniture and fittings used for restaurant interiors fall under works contract services or goods used for construction/renovation of immovable property under Section 17(5)(d), blocking ITC, unless the taxpayer is in the business of supplying such services."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "An accountant notices that a supplier's invoice of ₹9 lakh (ITC ₹1.62 lakh) is appearing in GSTR-2B but payment to the supplier has not been made as on 180 days from the invoice date. What must the accountant do?",
+    "options": ["A) Continue to hold the ITC as long as the invoice appears in GSTR-2B", "B) Reverse the ITC of ₹1.62 lakh in GSTR-3B on the 181st day, pay interest, and re-claim once payment is made", "C) The 180-day rule applies only to goods, not services, so no action needed", "D) File Form GST ITC-02 to transfer the ITC to the supplier's account"],
+    "correctAnswer": "B) Reverse the ITC of ₹1.62 lakh in GSTR-3B on the 181st day, pay interest, and re-claim once payment is made",
+    "explanation": "Under the second proviso to Section 16(2), ITC must be reversed if payment is not made to the supplier within 180 days. Interest applies on the reversed amount. Once payment is subsequently made, ITC can be re-availed."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A Bengaluru software company has ₹15 lakh in its Electronic Credit Ledger (ECL) blocked by the GST officer under Rule 86A citing suspicious ITC. The company disputes the action. What is the legally available remedy and time limitation?",
+    "options": ["A) File a writ petition immediately as Rule 86A has no appeal mechanism", "B) The blocking automatically expires after 1 year; no action needed before that", "C) File a representation before the Commissioner within 7 days; if unsatisfied, the remedy is a writ petition in High Court challenging the blocking order", "D) Approach the GST Appellate Authority under Section 107 within 3 months of blocking"],
+    "correctAnswer": "C) File a representation before the Commissioner within 7 days; if unsatisfied, the remedy is a writ petition in High Court challenging the blocking order",
+    "explanation": "Rule 86A blocking has no direct statutory appeal under the GST Act. The taxpayer must first make a representation to the competent officer. If the block is arbitrary or without proper reason, a writ petition to the High Court is the recognized legal remedy, as several courts have held."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Beginner",
+    "question": "A Nagpur dealer files GSTR-3B for September 2024 but forgets to pay the tax liability of ₹50,000. He pays it on 5th November 2024 (due date was 20th October 2024). What will be the interest liability?",
+    "options": ["A) No interest, as GSTR-3B was filed on time", "B) Interest at 18% per annum on ₹50,000 for 16 days (21st Oct to 5th Nov)", "C) Interest at 24% per annum on ₹50,000 for the delay period", "D) Flat penalty of ₹5,000 under Section 122 for late payment"],
+    "correctAnswer": "B) Interest at 18% per annum on ₹50,000 for 16 days (21st Oct to 5th Nov)",
+    "explanation": "Section 50(1) of CGST Act levies interest at 18% per annum on delayed tax payment. Interest is calculated from the day after the due date (21st Oct) to the date of actual payment (5th Nov), totalling 16 days."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "A Surat diamond exporter under LUT wants to file GSTR-1 for exports made in November 2024 without IGST payment. However, the LUT for FY 2024-25 was not renewed and expired on 31st March 2024. Can exports still be made without IGST payment?",
+    "options": ["A) Yes, the previous year's LUT is automatically extended by 6 months", "B) No, exports must be made on payment of IGST and refund claimed later; however, a fresh LUT can be filed online for FY 2024-25 and the department may condone the gap", "C) No, the exporter must pay IGST on all past exports and cannot apply for a new LUT mid-year", "D) Yes, under a blanket circular, all exporters are given a 12-month grace period for LUT renewal"],
+    "correctAnswer": "B) No, exports must be made on payment of IGST and refund claimed later; however, a fresh LUT can be filed online for FY 2024-25 and the department may condone the gap",
+    "explanation": "LUT under Rule 96A must be filed for each FY before making zero-rated supplies. If it lapses, the exporter either pays IGST and claims refund or immediately files a fresh LUT. Courts and CBIC circulars have allowed late filing of LUT with condonation in genuine cases."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A company receives a GSTR-9 scrutiny notice pointing out that ITC declared in Table 8C (ITC claimed in returns but not in GSTR-2B) is ₹22 lakh higher than the department's records. The company had claimed transitional credit via TRAN-1 which is included in this figure. What is the defence?",
+    "options": ["A) Accept demand and pay the ₹22 lakh with interest and penalty", "B) TRAN-1 credit is eligible pre-GST credit and must be shown separately; demonstrate with TRAN-1 filing acknowledgement, pre-GST returns, and closing balance of input tax under VAT/Excise/Service Tax", "C) File a revised GSTR-9 excluding TRAN-1 credit from Table 8C", "D) Transitional credit automatically lapsed if not utilised by December 2019, so no defence is possible"],
+    "correctAnswer": "B) TRAN-1 credit is eligible pre-GST credit and must be shown separately; demonstrate with TRAN-1 filing acknowledgement, pre-GST returns, and closing balance of input tax under VAT/Excise/Service Tax",
+    "explanation": "TRAN-1 credit represents legitimate migration of pre-GST credits under Section 140. It will not appear in GSTR-2B (which tracks invoice-level ITC post-GST). The company must evidence the TRAN-1 filing, acknowledge pre-GST credit balances, and establish the credit trail to defend its position."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Intermediate",
+    "question": "A Chandigarh service provider files GSTR-3B for July 2024 but incorrectly reports ₹4 lakh taxable supply as exempt supply, resulting in lower tax payment. The error is noticed in October 2024. What is the prescribed way to correct this?",
+    "options": ["A) File a revised GSTR-3B for July 2024 with corrected figures", "B) Report the differential tax liability in GSTR-3B for October 2024 under Table 3.1(a) with interest at 18% from the due date of July GSTR-3B", "C) File Form GST DRC-03 for voluntary payment of the shortfall and report correction in GSTR-9", "D) The error can be corrected only through a formal rectification petition under Section 161"],
+    "correctAnswer": "B) Report the differential tax liability in GSTR-3B for October 2024 under Table 3.1(a) with interest at 18% from the due date of July GSTR-3B",
+    "explanation": "GSTR-3B cannot be revised once filed. Errors resulting in short payment must be corrected in a subsequent month's GSTR-3B by declaring the differential liability, with interest under Section 50 calculated from the original due date."
+  },
+  {
+    "skill": "GST Return Filing & Reconciliation",
+    "difficulty": "Advanced",
+    "question": "A Hyderabad holding company transfers a business division (as a going concern) to its subsidiary. The subsidiary's GST consultant argues no GST is applicable on this transfer. The tax officer disagrees, citing that the transfer includes taxable goods. What is the correct GST treatment?",
+    "options": ["A) Full GST applies on the value of all goods and services transferred", "B) Transfer of a going concern as a whole is exempt under Entry 2 of Notification 12/2017-CT(R), provided all assets and liabilities are transferred together", "C) GST applies only on goods; services included in the going concern are exempt", "D) Slump sale under GST is taxable at a flat 5% concessional rate under Schedule II"],
+    "correctAnswer": "B) Transfer of a going concern as a whole is exempt under Entry 2 of Notification 12/2017-CT(R), provided all assets and liabilities are transferred together",
+    "explanation": "Entry 2 of Notification 12/2017-CT(R) exempts services by way of transfer of a going concern as a whole or an independent part thereof. For the exemption to apply, the transfer must be of all assets, liabilities, and employees together, constituting a business unit capable of independent operation."
+  }
+]

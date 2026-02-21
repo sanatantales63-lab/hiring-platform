@@ -1,0 +1,405 @@
+[
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "The board of a newly incorporated domestic manufacturing company (turnover nil in prior year) is deciding whether to opt for Section 115BAA (22% concessional tax) from the first year. The CFO notes the company expects to claim various deductions (investment allowance, export incentives) over the next 5 years. Which board-level decision is most tax-efficient at incorporation?",
+"options": [
+"A) Opt for Section 115BAA immediately to lock in 22% tax and forfeit most specified deductions.",
+"B) Avoid 115BAA in the first year and claim deductions, then opt later when deductions are exhausted.",
+"C) Opt for 115BAA but apply for rollover of investment allowance to the next year.",
+"D) Do not opt for 115BAA and instead choose Section 115BAB for manufacturing startups for lower rate."
+],
+"correctAnswer": "A) Opt for Section 115BAA immediately to lock in 22% tax and forfeit most specified deductions.",
+"explanation": "Choosing 115BAA fixes tax at ~22% and requires forfeiture of certain deductions, often beneficial if effective tax under old regime exceeds 22%.\nIf the board expects limited long-term deductions, locking 115BAA at incorporation is typically efficient."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "A Mumbai-based private company is considering issuing a one-time employee bonus in FY to reduce book profit before MAT. The board asks whether paying the bonus will reduce taxable income under normal corporate rate calculations.",
+"options": [
+"A) Yes — a bonus paid before year-end reduces book profit and normal taxable income immediately without restrictions.",
+"B) No — employee bonuses are disallowed under Section 37 and do not reduce profits for tax purposes.",
+"C) Yes — but the bonus is allowable only if paid within nine months of year end under Companies Act; otherwise disallowed under Section 40(a)(ia).",
+"D) It depends — if the bonus is accrued and not paid, it will not be deductible until actually paid as per Section 43B."
+],
+"correctAnswer": "D) It depends — if the bonus is accrued and not paid, it will not be deductible until actually paid as per Section 43B.",
+"explanation": "Under tax rules, certain expenses like employee bonuses are deductible only when actually paid if covered by Section 43B.\nAccrued-but-unpaid bonuses may not reduce taxable income until payment is made; the board should time payment accordingly."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "A company receives an advance from a related party and treats it as 'other income' in books. The board wants clarity whether TDS under Section 194A applies (making the amount taxable/deductible differently) and whether non-withdrawal affects tax.",
+"options": [
+"A) TDS under Section 194A applies on advances and the company can claim deduction irrespective of TDS.",
+"B) No TDS applies on loan advances to companies; hence no tax impact under Section 194A.",
+"C) TDS may apply if the advance carries interest; principal advances without interest are not subject to 194A but accounting treatment matters.",
+"D) Section 194A applies only to salaried employee advances; corporate advances are outside its scope."
+],
+"correctAnswer": "C) TDS may apply if the advance carries interest; principal advances without interest are not subject to 194A but accounting treatment matters.",
+"explanation": "Section 194A applies to interest payments; principal advances without interest are not subjected to 194A.\nThe board must structure the advance (interest vs interest-free) to determine TDS and net tax cost."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "A private company has a small outstanding statutory liability that was disputed and remains unpaid. At a board meeting they ask if making the payment in the next FY will qualify for deduction in the current FY under Section 43B.",
+"options": [
+"A) Yes — disputed statutory liabilities are deductible in the year when the dispute is resolved, even if paid later.",
+"B) No — Section 43B allows deduction only in the year of actual payment; dispute resolution has no bearing.",
+"C) Yes — if the company can show that the liability was accepted by the board in writing in the current year.",
+"D) No — Section 43B specifically disallows deduction for any statutory dues regardless of payment timing."
+],
+"correctAnswer": "D) No — Section 43B specifically disallows deduction for any statutory dues regardless of payment timing.",
+"explanation": "Section 43B allows deduction only on actual payment of specified statutory dues; mere accrual or dispute doesn't permit current-year deduction.\nBoard should plan payment timing because delayed payment defers the tax deduction."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "A company is evaluating whether to exercise the option under Section 115BAB (15% tax) for a manufacturing unit set up in a new economic zone. The board must consider conditions to claim 115BAB. Which is the immediate board-level action?",
+"options": [
+"A) Automatically opt for Section 115BAB without checking conditions because manufacturing activity suffices.",
+"B) Verify that the unit meets specified manufacturing and capital investment conditions before opting for 115BAB.",
+"C) Opt for 115BAB and claim R&D credits simultaneously; the two regimes are fully compatible.",
+"D) Delay any decision until the fifth year when eligibility becomes clearer."
+],
+"correctAnswer": "A) Automatically opt for Section 115BAB without checking conditions because manufacturing activity suffices.",
+"explanation": "Incorrect — 115BAB has strict eligibility and capital conditions; the board cannot auto-opt without verification.\nCorrect action is to assess compliance before opting to avoid forfeiture of benefits."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "During year-end, the finance team proposes to classify certain payments to a contractor as 'professional services' to claim full deduction. The board asks whether tax disallowance under Section 40(a)(ia) for TDS non-deduction is a risk.",
+"options": [
+"A) No risk — classifying as professional services automatically removes TDS obligations.",
+"B) Yes — if TDS was not deducted/paid on payments to a contractor, Section 40(a)(ia) can disallow the deduction irrespective of classification.",
+"C) No — Section 40(a)(ia) applies only to interest and rent, not professional services.",
+"D) Yes — but Section 40(a)(ia) allows pro-rata deduction, so partial relief is available."
+],
+"correctAnswer": "B) Yes — if TDS was not deducted/paid on payments to a contractor, Section 40(a)(ia) can disallow the deduction irrespective of classification.",
+"explanation": "Section 40(a)(ia) disallows expenses where payee tax was not deducted/paid by the payer, regardless of accounting classification.\nBoard should ensure TDS compliance before year-end to preserve deductible status."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "A board is reviewing a proposal to shift the company's year-end by one month to accelerate tax benefits from allowable expenses. They ask whether changing the year-end will change applicability of corporate tax rates for the same accounting period.",
+"options": [
+"A) Yes — changing year-end immediately changes the corporate tax rate applicable for the shortened year.",
+"B) No — corporate tax rates apply based on the previous year’s regime and change only by statutory amendment, not by year-end shift.",
+"C) Yes — shifting year-end can permit spreading deductions to a different fiscal year and change rate applicability.",
+"D) No — tax rate applicability depends on the FY in which income arises and statutory provisions, not mere year-end change."
+],
+"correctAnswer": "C) Yes — shifting year-end can permit spreading deductions to a different fiscal year and change rate applicability.",
+"explanation": "Shifting year-end changes the fiscal period in which income and deductions are recognized and can affect effective tax outcome.\nBoard must evaluate transitional tax consequences and statutory filing implications before approving."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Beginner",
+"question": "A company has large employee stock option (ESOP) expenses recognized in books but not exercised. The board queries whether these book ESOP expenses will reduce taxable book profits for rate computation.",
+"options": [
+"A) Yes — ESOP expenses recognized in profit and loss automatically reduce book profit for tax purposes.",
+"B) No — ESOP expenses are never deductible for tax purposes under any section.",
+"C) It depends — tax deduction for ESOP expensing is limited and often deferred to exercise or per tax rules.",
+"D) Yes — but only if the company declares the shares issued in the same year."
+],
+"correctAnswer": "D) Yes — but only if the company declares the shares issued in the same year.",
+"explanation": "Tax treatment of ESOPs depends on exercise and tax rules; some deductions are available only upon actual issuance/exercise.\nBoard should align ESOP accounting with tax timing or tax deduction may be deferred."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "A company acquired an asset and depreciates it differently under Companies Act schedule (higher rate) vs Income Tax Act (lower rate). The board asks how to present tax provision for deferred tax purposes and whether excess book depreciation creates deferred tax liabilities or assets.",
+"options": [
+"A) Excess book depreciation over tax depreciation creates a deferred tax asset because future taxable income will be lower.",
+"B) Excess book depreciation over tax depreciation creates a deferred tax liability as temporary difference will reverse increasing taxable income later.",
+"C) No DTA/DTL arises because companies can choose either schedule for tax reporting.",
+"D) The difference is ignored for tax provision; only permanent differences are considered."
+],
+"correctAnswer": "A) Excess book depreciation over tax depreciation creates a deferred tax asset because future taxable income will be lower.",
+"explanation": "When accounting depreciation exceeds tax depreciation, taxable income will be higher in future leading to tax benefit now, hence a DTA.\nBoard must record deferred tax accounting under AS/IND AS accordingly."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "The finance director proposes increased debt funding from a foreign parent to optimize interest deduction. The tax head warns of thin capitalization rules. For an Indian company with equity 100 and related-party debt 500, what is the immediate planning concern?",
+"options": [
+"A) No concern — India has no thin capitalization rules; interest is fully deductible.",
+"B) Concern — interest deduction could be restricted if the debt/equity ratio and related-party interest exceed prescribed thresholds or transfer pricing safe harbour.",
+"C) Concern — all related-party interest is treated as dividend under DTAA provisions.",
+"D) No concern — related-party debt is taxable as FTS and deductible fully."
+],
+"correctAnswer": "B) Concern — interest deduction could be restricted if the debt/equity ratio and related-party interest exceed prescribed thresholds or transfer pricing safe harbour.",
+"explanation": "Excessive related-party debt triggers thin capitalization/transfer pricing scrutiny and possible restriction on interest deduction.\nBoard should evaluate optimal capital structure and consider arm’s length interest or equity infusion."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "A company has incurred expenditure to acquire shares of an overseas associate; the board asks whether the expenditure to earn exempt dividend income attracts Section 14A disallowance when computing taxable income.",
+"options": [
+"A) No — Section 14A disallowance applies only to domestic investments, not overseas associates.",
+"B) Yes — expenditure incurred to earn exempt (or non-taxable) income, including dividends, is subject to Section 14A disallowance proportionately.",
+"C) No — Section 14A applies only where exempt income is tax-free in hands of the recipient under DTAA.",
+"D) Yes — but only if the dividend is repatriated as cash back to India."
+],
+"correctAnswer": "B) Yes — expenditure incurred to earn exempt (or non-taxable) income, including dividends, is subject to Section 14A disallowance proportionately.",
+"explanation": "Section 14A disallows expenses attributable to earning exempt income, which includes dividends even from overseas investments.\nBoard must allocate and restrict such costs to reduce disallowance risk."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "An Indian subsidiary has MAT credit available from earlier years. The board plans to set off MAT credit against current tax. What is the primary compliance issue the board should verify before utilization?",
+"options": [
+"A) MAT credit can be used freely without restriction; no checks required.",
+"B) Verify that the MAT credit has not expired (carry forward period) and that current tax is computed under provisions that permit MAT credit set-off.",
+"C) Ensure the company opts for concessional 115BAA; then MAT credit becomes immediately refundable.",
+"D) MAT credit can only be set off after obtaining approval from the foreign parent under DTAA."
+],
+"correctAnswer": "C) Ensure the company opts for concessional 115BAA; then MAT credit becomes immediately refundable.",
+"explanation": "Incorrect — opting for concessional regimes may actually restrict MAT credit usage; MAT credit utilization rules and expiry periods must be checked.\nBoard should confirm carry-forward period and compatibility with current tax regime before setting off MAT credit."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "A manufacturing company capitalized a major overhaul as a revenue expense in books (to reduce book profit) but tax rules treat it as capital expenditure. The CFO asks how this mismatch affects current tax provision and deferred tax.",
+"options": [
+"A) The mismatch creates a permanent difference — no deferred tax arises; only current tax differs.",
+"B) The mismatch creates a temporary difference, leading to deferred tax liabilities or assets depending on reversal timing.",
+"C) No impact — tax authorities always accept book treatment if board approves it.",
+"D) The company should reclassify for accounting to match tax treatment; deferred tax rules do not apply."
+],
+"correctAnswer": "B) The mismatch creates a temporary difference, leading to deferred tax liabilities or assets depending on reversal timing.",
+"explanation": "When accounting and tax treatments differ in timing, temporary differences arise leading to DTAs/DTLs.\nBoard must record deferred tax and disclose the timing of reversals in financial statements."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "During a quarterly review the board is informed that the company has large payments to suppliers where TDS was not deducted. They propose to claim the expense and pay interest later. What is the likely immediate tax impact under Section 40(a)(ia)?",
+"options": [
+"A) Payments will be allowed fully if interest is paid along with TDS later.",
+"B) Such expenses may be disallowed under Section 40(a)(ia) until TDS and interest are deposited; the board should prioritize TDS compliance.",
+"C) Only a portion will be disallowed based on supplier classification; domestic suppliers are exempt.",
+"D) The company can claim the expense but needs to treat interest as revenue in books."
+],
+"correctAnswer": "A) Payments will be allowed fully if interest is paid along with TDS later.",
+"explanation": "Incorrect — typically Section 40(a)(ia) disallows expenses where TDS isn't deducted/paid; paying interest later does not automatically restore deduction.\nBoard must ensure timely TDS deduction and deposit to avoid disallowances."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "A corporate acquisition led to differing intangible asset amortization between Companies Act and Income-tax Act. Board-level question: when preparing tax provision for consolidated group, which principle should guide deferred tax treatment?",
+"options": [
+"A) Use Companies Act amortization exclusively for both accounting and tax provisions.",
+"B) Recognize deferred tax on temporary differences between book and tax bases of intangible assets, using tax rates expected on reversal.",
+"C) Ignore tax amortization differences for consolidated reporting; deferred tax applies only at standalone level.",
+"D) Immediately expense the whole intangible asset for tax computation to avoid deferred tax."
+],
+"correctAnswer": "B) Recognize deferred tax on temporary differences between book and tax bases of intangible assets, using tax rates expected on reversal.",
+"explanation": "Deferred tax arises where book and tax bases differ; the board should measure DTAs/DTLs using enacted tax rates.\nThis ensures consolidated provisions reflect future tax consequences of current timing differences."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "A mid-size group is evaluating inter-company service charges between India and its Dutch affiliate. The board asks whether such charges could be adjusted under transfer pricing and what immediate step is prudent.",
+"options": [
+"A) Inter-company service charges are always ignored for transfer pricing; no steps needed.",
+"B) Board should commission contemporaneous transfer pricing documentation and apply arm’s length pricing to minimize adjustments.",
+"C) Use invoice-based amounts; TP adjustments apply only for cross-border sales of goods, not services.",
+"D) Declare all service charges as management fees to avoid transfer pricing review."
+],
+"correctAnswer": "A) Inter-company service charges are always ignored for transfer pricing; no steps needed.",
+"explanation": "Incorrect — cross-border services are squarely within TP scope; contemporaneous documentation and arm’s length pricing are essential.\nBoard should proactively document and benchmark to reduce audit risk and potential adjustments."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "A company plans to revalue plant & machinery upward for accounting (books) while tax written down value remains lower. The audit committee asks how this affects MAT computation and MAT credit positions.",
+"options": [
+"A) Revaluation increases book profit and may increase MAT liability; MAT credit may arise if MAT paid earlier and now excess tax is paid.",
+"B) Revaluation has no tax effect; MAT is computed only on taxable income, not book profit.",
+"C) Revaluation will reduce MAT because book profit decreases when carrying amount is increased.",
+"D) MAT is unaffected but deferred tax is recognized only if revaluation is notified to tax authorities."
+],
+"correctAnswer": "A) Revaluation increases book profit and may increase MAT liability; MAT credit may arise if MAT paid earlier and now excess tax is paid.",
+"explanation": "Accounting revaluation can raise book profits leading to higher MAT in years when book profit is the MAT base.\nBoard should assess MAT consequences and track MAT credit carry-forwards when making revaluation decisions."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Intermediate",
+"question": "An Indian exporter company took a soft loan from a related non-resident. The board asks whether interest paid on that loan will be allowed as deduction and whether purpose/FTS characterization affects withholding tax.",
+"options": [
+"A) Interest on soft loans from non-resident related parties is always non-deductible due to thin capitalization.",
+"B) Interest is deductible subject to transfer pricing/thin capitalization scrutiny and withholding obligations under domestic law; characterization affects treaty withholding.",
+"C) Interest on such loans is treated as royalty under DTAA, attracting different rates.",
+"D) No withholding is required for loans from related non-residents if funds are used for export activities."
+],
+"correctAnswer": "C) Interest on such loans is treated as royalty under DTAA, attracting different rates.",
+"explanation": "Incorrect — interest is generally interest (not royalty); its deductibility depends on arm’s length and TP rules, and withholding tax depends on DTAA terms.\nBoard must examine treaty definitions and document commercial rationale to support deduction and appropriate withholding."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A multinational's Indian subsidiary plans to remit accumulated profits to its Swiss parent. The board asks about tax implications and whether DTAA relief or withholding tax applies on dividend repatriation.",
+"options": [
+"A) No Indian withholding applies on dividends to Switzerland due to unilateral relief provisions.",
+"B) Dividend remittance attracts Indian dividend distribution tax only at the parent level.",
+"C) Withholding tax on dividends may apply as per India–Switzerland DTAA; reduced rates could apply subject to eligibility and documentation.",
+"D) Dividends are tax-exempt in India when remitted to related foreign parents under Section 115J."
+],
+"correctAnswer": "A) No Indian withholding applies on dividends to Switzerland due to unilateral relief provisions.",
+"explanation": "Incorrect — India levies withholding on dividends paid to non-residents and DTAA with Switzerland may reduce rate subject to certificate of residence.\nBoard must verify treaty rates and ensure documentation (Form 10F/Tax Residency Certificate) for reduced withholding."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "During due diligence for a merger, the tax team finds historical cross-border pricing with a related party below market. The board asks which tax adjustments are likely and how they affect purchase price allocation.",
+"options": [
+"A) No adjustments — historical TP issues do not affect current M&A valuations.",
+"B) Transfer pricing adjustments may be proposed by tax authorities leading to increased taxable income, interest and penalties; these contingent liabilities should be reflected in purchase price allocation and warranties.",
+"C) Such issues are only of interest to competition authorities and not tax authorities.",
+"D) Adjustments can only be made by changing inter-company invoices post-merger; pre-merger issues are ignored."
+],
+"correctAnswer": "B) Transfer pricing adjustments may be proposed by tax authorities leading to increased taxable income, interest and penalties; these contingent liabilities should be reflected in purchase price allocation and warranties.",
+"explanation": "TP adjustments can create significant contingent tax liabilities, affecting valuation and indemnities in SPA.\nBoard should ensure due diligence quantifies exposures and negotiations include warranties/escrows accordingly."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A listed company contemplates a scheme of demerger of a business undertaking to a wholly-owned subsidiary. The board wants to know immediate tax pitfalls affecting tax neutrality under the Income-tax Act and implications for capital gains.",
+"options": [
+"A) Demerger is always tax-neutral; no conditions need to be met for capital gains exemption.",
+"B) For tax neutrality, stringent conditions (continuity of business, shareholders’ consideration, asset transfers) must be met; failing which demerger may trigger capital gains tax.",
+"C) Demerger automatically converts into slump sale under the Act and is taxed as ordinary business income.",
+"D) Tax neutrality applies only if demerged entity is listed immediately after demerger."
+],
+"correctAnswer": "C) Demerger automatically converts into slump sale under the Act and is taxed as ordinary business income.",
+"explanation": "Incorrect — demerger can be tax-neutral if statutory conditions are satisfied; otherwise transactions may attract capital gains.\nBoard must structure the scheme to meet conditions for tax-neutral demerger and obtain tax opinions."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "The board considers repatriation via royalty payments to a foreign related party for use of intangibles. They ask about transfer pricing risk and DTAA/BEPS considerations affecting withholding tax and permanent establishment risk.",
+"options": [
+"A) Royalty payments to related parties are always exempt under DTAA and present no TP issues.",
+"B) Such payments are subject to TP benchmarking, could be recharacterized as shareholder distributions, and DTAA provisions may cap withholding but BEPS/anti-abuse rules can deny treaty benefits.",
+"C) The board can avoid withholding by labeling payments as 'consultancy' irrespective of substance.",
+"D) BEPS concerns apply only to large multinationals and not to routinely structured royalty arrangements."
+],
+"correctAnswer": "B) Such payments are subject to TP benchmarking, could be recharacterized as shareholder distributions, and DTAA provisions may cap withholding but BEPS/anti-abuse rules can deny treaty benefits.",
+"explanation": "Cross-border royalties are high-risk for TP and treaty abuse challenges; substance and arm’s length pricing are critical.\nBoard should document commercial rationale and consider anti-abuse checks to secure treaty benefits."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "An Indian parent company is evaluating amortization of goodwill arising on an overseas acquisition. The board asks whether India taxes such amortization and whether DTAA provisions can give relief on corresponding foreign income.",
+"options": [
+"A) Goodwill amortization on foreign acquisitions is always tax-deductible in India.",
+"B) Goodwill amortization for tax purposes depends on Indian tax law; cross-border relief under DTAA may not apply directly as DTAAs deal with avoidance of double taxation, not deduction timings.",
+"C) DTAA allows immediate deduction of goodwill amortization in India if paid to a treaty country.",
+"D) No tax consequences arise in India for overseas goodwill as it is capital in nature and ignored."
+],
+"correctAnswer": "A) Goodwill amortization on foreign acquisitions is always tax-deductible in India.",
+"explanation": "Incorrect — deductibility of goodwill depends on whether tax law allows amortization; DTAA typically addresses double taxation, not whether a deduction is permitted.\nBoard must evaluate domestic rules and any treaty relief for foreign tax credits."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "During a cross-border intra-group loan restructure the treasury proposes to convert loans into equity to improve debt-equity ratios. The board asks about tax consequences of debt-to-equity conversion and possible withholding or deemed dividend issues.",
+"options": [
+"A) Conversion of debt into equity is always tax neutral and carries no withholding or deemed dividend implications.",
+"B) Debt-to-equity conversion may attract deemed dividend provisions (e.g., Section 2(22)(e)), related-party transfer pricing scrutiny, and possible capital gains events; board approvals and documentation are necessary.",
+"C) Such conversions always trigger immediate capital gains for the lender under the DTAA.",
+"D) Conversions are treated as repayable loans for tax; no equity is recognized until three years later."
+],
+"correctAnswer": "B) Debt-to-equity conversion may attract deemed dividend provisions (e.g., Section 2(22)(e)), related-party transfer pricing scrutiny, and possible capital gains events; board approvals and documentation are necessary.",
+"explanation": "Debt-to-equity conversions can have complex tax effects including deemed dividends and TP issues; documentation of commercial rationale is key.\nBoard should model tax outcomes and secure necessary approvals to mitigate unintended tax costs."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A global group considers centralizing IP ownership in a low-tax jurisdiction and licensing it to the Indian operating company. The board asks what DTAA and transfer pricing issues could arise on royalty flows and whether India’s anti-abuse rules might deny treaty benefits.",
+"options": [
+"A) Centralization eliminates all withholding taxes on royalties due to DTAAs.",
+"B) Licensing to India may attract withholding on royalties as per DTAA; transfer pricing requires arm’s length royalty rates and substance must support treaty claims; anti-abuse/limitation of benefits clauses could deny treaty rates.",
+"C) There are no TP concerns if group invoices are internal and not shown to tax authorities.",
+"D) Anti-abuse rules are irrelevant if the IP is registered in a treaty jurisdiction."
+],
+"correctAnswer": "D) Anti-abuse rules are irrelevant if the IP is registered in a treaty jurisdiction.",
+"explanation": "Incorrect — anti-abuse rules apply irrespective of IP registration; treaty benefits may be denied if substance and economic ownership are lacking.\nBoard should ensure real value creation and documentation to withstand scrutiny."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "An Indian captive insurance cell within a group seeks to remit management fees to foreign related-party insurers. The board asks whether such payments will be recharacterized and whether DTAA offers a lower withholding rate.",
+"options": [
+"A) Management fees to related insurers are always classified as 'business profits' and exempt from withholding under DTAA.",
+"B) Payments could be recharacterized as royalties or service fees under local law; DTAA may provide reduced withholding but substance and permanent establishment tests matter.",
+"C) No withholding applies on payments to related insurers because insurance is regulated separately.",
+"D) DTAA automatically treats all insurance payments as tax-free if insurer is abroad."
+],
+"correctAnswer": "A) Management fees to related insurers are always classified as 'business profits' and exempt from withholding under DTAA.",
+"explanation": "Incorrect — classification depends on treaty provisions and domestic characterisation; withholding may apply if treaty or domestic law prescribes.\nBoard must analyse treaty articles and local law to determine withholding and classification."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A cross-border restructuring contemplates shifting a manufacturing profit hub into a low-tax affiliate and charging India for contract manufacturing. The board wants to know transfer pricing and DTAA PRUDENCE steps to withstand BEPS scrutiny.",
+"options": [
+"A) Simply charge cost-plus rates to India; BEPS is irrelevant for intra-group manufacturing.",
+"B) The board must ensure functional analysis, value chain reallocation, comparability studies and document that real economic activities occur in the low-tax hub to justify profits; otherwise BEPS and anti-abuse provisions may reallocate profits.",
+"C) Use aggressive low royalty payments to shift profits; DTAA will protect the arrangement.",
+"D) Convert profits into inter-company loans to avoid TP and BEPS scrutiny."
+],
+"correctAnswer": "D) Convert profits into inter-company loans to avoid TP and BEPS scrutiny.",
+"explanation": "Incorrect — converting to loans is likely to attract TP/thin capitalization scrutiny and anti-avoidance rules.\nBoard should follow robust functional analysis and maintain substantial activities where profits are reported."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A company is considering paying a lump-sum technical service fee to a related non-resident for a one-time implementation. The board asks about withholding tax, applicability of DTAA, and whether the payment could be disallowed as excessive under transfer pricing.",
+"options": [
+"A) Lump-sum technical fees to related non-residents are exempt from withholding but subject to GST only.",
+"B) Such payments attract withholding tax based on characterisation (fees for technical services) and DTAA may reduce rate; TP analysis must confirm arm’s length amount else adjustments may lead to disallowance or additional tax.",
+"C) No transfer pricing applies to one-time payments; only recurring payments are tested.",
+"D) The company can claim immediate R&D credit to offset withholding on services."
+],
+"correctAnswer": "B) Such payments attract withholding tax based on characterisation (fees for technical services) and DTAA may reduce rate; TP analysis must confirm arm’s length amount else adjustments may lead to disallowance or additional tax.",
+"explanation": "One-time technical fees to related non-residents attract withholding; DTAA may provide relief but subject to documentation.\nTP benchmarking is needed to support the fee quantum and avoid subsequent adjustments."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "The group CFO proposes to avail tax treaty benefit for reduced withholding on interest by routing intercompany interest via a treaty state. The board asks whether Limitation of Benefits (LOB) and Principal Purpose Test (PPT) under BEPS could deny treaty benefits.",
+"options": [
+"A) LOB and PPT are only advisory; treaty benefits cannot be denied in practice.",
+"B) LOB and PPT clauses can lead to denial of treaty benefits if the routed entity lacks substance; board must ensure commercial substance and documentation to support treaty claims.",
+"C) Treaty benefits apply automatically to all routed transactions irrespective of substance.",
+"D) PPT applies only to dividends and not to interest payments."
+],
+"correctAnswer": "A) LOB and PPT are only advisory; treaty benefits cannot be denied in practice.",
+"explanation": "Incorrect — LOB/PPT are binding anti-abuse measures and can deny treaty benefits where routing lacks substance.\nBoard should ensure active business presence and commercial rationale in the treaty jurisdiction to mitigate denial risk."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A global software company plans to declare a major intra-group dividend from India to its Mauritius parent. The board asks whether Mauritius route still provides treaty relief and what documentation is required to claim reduced withholding.",
+"options": [
+"A) Mauritius no longer provides treaty relief for dividends; India revoked all treaty benefits unilaterally.",
+"B) Treaty relief may be available subject to current India–Mauritius DTAA terms, but anti-abuse measures and beneficial ownership tests require proper tax residency certificates and documentation.",
+"C) No documentation is necessary; withholding should be zero automatically for Mauritius entities.",
+"D) Dividends to Mauritius are taxed at a flat 30% with no possibility of relief."
+],
+"correctAnswer": "D) Dividends to Mauritius are taxed at a flat 30% with no possibility of relief.",
+"explanation": "Incorrect — India–Mauritius treaty historically offered reduced rates but amendments and anti-abuse provisions mean relief requires documentation and beneficial ownership tests.\nBoard should collect tax residency certificate and supporting documents before claiming reduced withholding."
+},
+{
+"skill": "Corporate Tax Planning",
+"difficulty": "Advanced",
+"question": "A cross-border group plans an intra-group royalty for software use. The tax team suggests documenting benchmarking and splitting profits between developer (non-resident) and distributor (India). The board wants to ensure safe harbour and treaty protections. Which approach is most defensible?",
+"options": [
+"A) Allocate all profit to the non-resident developer to minimize Indian tax; documentation is optional.",
+"B) Perform functional analysis, apply OECD-aligned transfer pricing methods, maintain substance in each jurisdiction, and use treaty and local safe harbour rules where available for protection.",
+"C) Declare royalties as capital contributions to avoid withholding tax and transfer pricing.",
+"D) Use internal allocation models without external comparables; safe harbour will automatically apply."
+],
+"correctAnswer": "B) Perform functional analysis, apply OECD-aligned transfer pricing methods, maintain substance in each jurisdiction, and use treaty and local safe harbour rules where available for protection.",
+"explanation": "Robust functional analysis and OECD-based TP methods provide defensible allocation of profits and support treaty claims.\nBoard should document comparables and maintain real substance in jurisdictions to reduce audit exposures."
+}
+]

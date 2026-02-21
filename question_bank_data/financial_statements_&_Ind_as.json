@@ -1,0 +1,327 @@
+[
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "During the audit of a Non-Banking Finance Company, you notice that Lease Liabilities of ₹45 lakhs have been classified under 'Long-term Provisions' in the Balance Sheet. The lease matures in 4 years with no current portion identified. Under Schedule III Division II, what is the correct presentation?",
+    "options": [
+      "A) Classify under Other Long-term Liabilities as it is a contractual obligation",
+      "B) Classify under Long-term Provisions as it is an estimated future outflow",
+      "C) Classify under Current Liabilities since the first instalment falls due within 12 months",
+      "D) Classify under Borrowings — Long-term, as Lease Liabilities form part of financial liabilities under borrowings head"
+    ],
+    "correctAnswer": "D) Classify under Borrowings — Long-term, as Lease Liabilities form part of financial liabilities under borrowings head",
+    "explanation": "Under Schedule III Division II, Lease Liabilities recognised under Ind-AS 116 are classified under 'Borrowings' (long-term or current based on maturity), not under Provisions. Provisions are for obligations of uncertain timing or amount, which a lease liability is not."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "While reviewing the Statement of Profit & Loss of a manufacturing company, you find that 'Dividend received from a subsidiary' of ₹12 lakhs has been included under 'Revenue from Operations.' The company is not in the business of holding investments. Under Schedule III Division II, how should the auditor advise the management?",
+    "options": [
+      "A) Retain under Revenue from Operations as it is income earned during the normal course of operations",
+      "B) Reclassify to 'Other Income,' as dividend from a subsidiary is not part of operating revenue for a non-financial entity",
+      "C) Show as an Exceptional Item since it involves an intercompany transaction",
+      "D) Net it off against Finance Costs in the P&L to reduce reported borrowing expense"
+    ],
+    "correctAnswer": "B) Reclassify to 'Other Income,' as dividend from a subsidiary is not part of operating revenue for a non-financial entity",
+    "explanation": "Schedule III Division II restricts 'Revenue from Operations' to income arising from the principal business activity. Dividend income, unless the entity is a financial company, must be disclosed under 'Other Income' separately."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "A startup company preparing its first Balance Sheet under Schedule III Division II has classified 'Advance Tax Paid (net of provision for tax)' of ₹8 lakhs as a Non-current Asset. The company's tax assessment for the year is pending and is not expected to be finalised within 12 months. Your audit team questions this classification. What is the correct position?",
+    "options": [
+      "A) It is correctly classified as a Non-current Asset under 'Other Non-current Assets' since realisation is not expected within 12 months",
+      "B) It must always be shown as a Current Asset since it relates to the current year's income tax computation",
+      "C) It should be netted off directly against the Deferred Tax Liability on the face of the Balance Sheet",
+      "D) It should be classified under Long-term Provisions as tax is an uncertain obligation"
+    ],
+    "correctAnswer": "A) It is correctly classified as a Non-current Asset under 'Other Non-current Assets' since realisation is not expected within 12 months",
+    "explanation": "Under Schedule III, Advance Tax (net) is classified based on the expected realisation timeline. If settlement or refund is not expected within the operating cycle or 12 months, it rightly sits under Non-current Assets as 'Other Non-current Assets.'"
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "A CFO is preparing the Cash Flow Statement and debates whether to use the Direct or Indirect Method for Cash Flows from Operating Activities. The company is a listed entity preparing standalone financials under Ind-AS. As the statutory auditor reviewing the draft, which of the following correctly reflects the requirements under Ind-AS 7?",
+    "options": [
+      "A) The Direct Method is mandatory for all listed companies under SEBI regulations read with Ind-AS 7",
+      "B) The Indirect Method is not permitted for NBFC companies; they must use the Direct Method",
+      "C) Both Direct and Indirect Methods are permitted under Ind-AS 7, but the standard encourages the Direct Method as it provides more useful information",
+      "D) The Indirect Method is mandatory under Schedule III Division II for all non-financial companies"
+    ],
+    "correctAnswer": "C) Both Direct and Indirect Methods are permitted under Ind-AS 7, but the standard encourages the Direct Method as it provides more useful information",
+    "explanation": "Ind-AS 7 explicitly permits both methods for presenting operating cash flows. However, it encourages the Direct Method as it gives users information to estimate future cash flows that is not available under the Indirect Method."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "During the audit of Radiant Properties Ltd., you review the Balance Sheet and find 'Security Deposits paid to landlords' of ₹25 lakhs (tenure: 3 years, no portion due within 12 months) classified under 'Cash and Cash Equivalents.' What is the correct classification under Schedule III Division II?",
+    "options": [
+      "A) Current Assets — Other Current Assets, as deposits are liquid in nature",
+      "B) Current Assets — Short-term Loans and Advances, since it is a financial receivable",
+      "C) Non-current Assets — Long-term Loans and Advances (legacy IGAAP head)",
+      "D) Non-current Assets — Other Financial Assets (Non-current), as it is a financial asset not due within 12 months"
+    ],
+    "correctAnswer": "D) Non-current Assets — Other Financial Assets (Non-current), as it is a financial asset not due within 12 months",
+    "explanation": "Under Ind-AS and Schedule III Division II, security deposits are financial assets. Since the tenure is 3 years with no current portion, they must be classified as 'Other Financial Assets (Non-current),' not as cash equivalents, which are restricted to short-term highly liquid investments."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "During the audit of Atlas Builders Ltd., you notice that 'Profit on Sale of an Office Building' of ₹1.5 crores has been included in 'Revenue from Operations.' The building was a fixed asset and was not part of the company's inventory or stock-in-trade. What should the auditor advise?",
+    "options": [
+      "A) Retain under Revenue from Operations, as the sale constitutes a business transaction generating cash",
+      "B) Reclassify to 'Other Income,' as profit on disposal of a fixed asset is not part of operating revenue",
+      "C) Show only the gain as an Exceptional Item if it is material to the P&L",
+      "D) Net the profit against current year depreciation charge and disclose in the Notes to Accounts"
+    ],
+    "correctAnswer": "B) Reclassify to 'Other Income,' as profit on disposal of a fixed asset is not part of operating revenue",
+    "explanation": "Under Ind-AS 16, the gain or loss on derecognition of a PPE item is included in profit or loss under 'Other Income,' not Revenue from Operations. Including it under revenue overstates operating performance."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "While auditing the Cash Flow Statement prepared using the Indirect Method, the audit team flags that an increase of ₹18 lakhs in Trade Payables during the year has been deducted from Net Profit in arriving at 'Cash Generated from Operations.' Is this treatment correct under Ind-AS 7?",
+    "options": [
+      "A) No, an increase in Trade Payables should be added back to Net Profit, as it indicates cash has been conserved and represents a source of operating funds",
+      "B) Yes, an increase in Trade Payables reduces cash generated from operations as more is owed to creditors",
+      "C) No, changes in Trade Payables are classified under Financing Activities, not Operating Activities",
+      "D) Yes, this is correct only if the Trade Payable relates to capital expenditure purchases"
+    ],
+    "correctAnswer": "A) No, an increase in Trade Payables should be added back to Net Profit, as it indicates cash has been conserved and represents a source of operating funds",
+    "explanation": "Under the Indirect Method, an increase in current liabilities (like Trade Payables) is added to Net Profit to compute operating cash flows, as it means less cash was paid out than the expense recognised. Deducting it is a fundamental error."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Beginner",
+    "question": "Sunshine Retail Ltd.'s Board of Directors proposed a dividend of ₹30 lakhs on 15th April 20X2, after the Balance Sheet date of 31st March 20X2, but before the financial statements were approved. The finance team has recognized this as a Current Liability in the 31st March 20X2 Balance Sheet. Under Ind-AS, is this treatment correct?",
+    "options": [
+      "A) Correct, as the dividend was proposed before the financial statements were approved and must be accrued",
+      "B) Correct, as it falls under Ind-AS 37 provisions since payment is certain",
+      "C) Incorrect; dividends proposed after the reporting date are non-adjusting events and must not be recognized as a liability — they should only be disclosed in the Notes",
+      "D) Incorrect; it should be reclassified under Other Equity until the AGM approval"
+    ],
+    "correctAnswer": "C) Incorrect; dividends proposed after the reporting date are non-adjusting events and must not be recognized as a liability — they should only be disclosed in the Notes",
+    "explanation": "Under Ind-AS 10, dividends declared after the balance sheet date are non-adjusting events. No liability exists at the reporting date; only disclosure in notes is required. This is a key departure from the old IGAAP practice."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "Techno Infra Ltd. purchased a heavy crane for ₹2 crores. The crane comprises three identifiable components: the Chassis valued at ₹90 lakhs (useful life: 15 years), the Engine at ₹70 lakhs (useful life: 7 years), and Safety Equipment at ₹40 lakhs (useful life: 3 years). The company has depreciated the entire crane as a single asset over 15 years. During audit finalization, what is the correct position under Ind-AS 16?",
+    "options": [
+      "A) The treatment is acceptable as the crane was purchased and commissioned as a single unit",
+      "B) Componentisation is required only if an individual component exceeds 10% of total gross block of the company",
+      "C) Only the Engine and Safety Equipment need separate componentisation; the Chassis, being the primary structure, can be treated as the base asset",
+      "D) Each significant component must be depreciated separately over its own useful life; treating the entire crane as one asset is non-compliant with Ind-AS 16"
+    ],
+    "correctAnswer": "D) Each significant component must be depreciated separately over its own useful life; treating the entire crane as one asset is non-compliant with Ind-AS 16",
+    "explanation": "Ind-AS 16 paragraph 43 mandates component accounting — each part of an asset with a cost that is significant relative to the total cost must be depreciated separately over its own useful life. The engine (7 years) and safety equipment (3 years) have materially different lives, making unified depreciation a misstatement."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "Pharma Corp. holds inventory of a chemical compound that cost ₹85 per unit (FIFO basis). Due to a sudden regulatory ban on a key application, the estimated selling price has dropped to ₹72 per unit. The estimated cost to complete and bring the goods to point of sale is ₹6 per unit. You are finalizing the accounts under Ind-AS 2. At what value should the inventory be carried?",
+    "options": [
+      "A) ₹85 per unit — historical cost, as write-downs require management approval not yet obtained",
+      "B) ₹66 per unit — NRV (₹72 selling price minus ₹6 estimated selling costs), since inventory must be written down to NRV when it falls below cost",
+      "C) ₹72 per unit — current market selling price, without deducting selling costs",
+      "D) ₹78.50 per unit — the average of historical cost and NRV as a conservative estimate"
+    ],
+    "correctAnswer": "B) ₹66 per unit — NRV (₹72 selling price minus ₹6 estimated selling costs), since inventory must be written down to NRV when it falls below cost",
+    "explanation": "Under Ind-AS 2, inventory is valued at the lower of cost and NRV. NRV = Estimated Selling Price (₹72) minus Estimated Cost to Complete and Sell (₹6) = ₹66. The write-down of ₹19 per unit is recognised as an expense in P&L."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "During the audit of Sunrise Ltd., you discover that the company paid consulting fees of ₹15 lakhs to 'Strategic Advisory LLP,' a firm wholly owned by the brother of the company's Managing Director. The company has not disclosed this transaction anywhere in its financial statements, stating that the fees were charged at market rate. Under Ind-AS 24, what must the auditor insist on?",
+    "options": [
+      "A) Disclose the related party relationship (brother of MD), the nature and amount (₹15L) of the transaction, terms of payment, and any outstanding balances — regardless of whether the transaction was at market rate",
+      "B) Reverse the transaction entirely as related party transactions at arm's length cannot be validated without a transfer pricing study",
+      "C) No disclosure is required since the consulting fees were charged at market rate and therefore carry no economic prejudice",
+      "D) Disclosure is required only if the transaction exceeds 10% of the company's annual turnover"
+    ],
+    "correctAnswer": "A) Disclose the related party relationship (brother of MD), the nature and amount (₹15L) of the transaction, terms and conditions, and any outstanding balances — regardless of whether the transaction was at market rate",
+    "explanation": "Ind-AS 24 requires disclosure of related party transactions irrespective of whether they are at arm's length. The relationship, amounts, terms, and outstanding balances must all be disclosed. The 'arm's length' nature does not eliminate the disclosure obligation."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "BuildRight Ltd. has a weighted average of 50 lakh equity shares outstanding. Net profit after tax attributable to equity shareholders is ₹200 lakhs. The company has 10 lakh outstanding warrants, each exercisable at ₹15 per share. The average market price of the equity share during the year was ₹25. Compute Diluted EPS under Ind-AS 33.",
+    "options": [
+      "A) ₹4.00 — treating warrants as having no dilutive effect",
+      "B) ₹3.64 — using the treasury stock method to compute incremental shares",
+      "C) ₹3.50 — adding all 10 lakh warrant shares to the denominator",
+      "D) ₹3.70 — using the treasury stock method, net additional shares = 4 lakhs"
+    ],
+    "correctAnswer": "D) ₹3.70 — using the treasury stock method, net additional shares = 4 lakhs",
+    "explanation": "Treasury Stock Method: Proceeds = 10L × ₹15 = ₹150L; Shares buyable at market price = ₹150L ÷ ₹25 = 6L shares. Net dilutive shares = 10L − 6L = 4L. Diluted shares = 54L. Diluted EPS = ₹200L ÷ 54L = ₹3.70."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "Prakash Steels Ltd. revalued its freehold land from ₹50 lakhs to ₹90 lakhs two years ago under the Revaluation Model, creating a Revaluation Surplus of ₹40 lakhs in OCI. The land's fair value has now fallen to ₹35 lakhs due to environmental restrictions. How should the ₹55 lakh decrease (from ₹90L to ₹35L) be treated under Ind-AS 16?",
+    "options": [
+      "A) Entire ₹55 lakhs charged to P&L as the land value has declined below original cost",
+      "B) Entire ₹55 lakhs reversed through OCI as it mirrors the original revaluation entry",
+      "C) ₹40 lakhs (existing Revaluation Surplus) reversed through OCI; the remaining ₹15 lakhs (amount by which the decrease exceeds the surplus) charged to P&L as an expense",
+      "D) ₹15 lakhs charged to P&L and ₹40 lakhs retained in Revaluation Reserve without any current period adjustment"
+    ],
+    "correctAnswer": "C) ₹40 lakhs (existing Revaluation Surplus) reversed through OCI; the remaining ₹15 lakhs (amount by which the decrease exceeds the surplus) charged to P&L as an expense",
+    "explanation": "Ind-AS 16 para 40 states: a revaluation decrease is charged to OCI to the extent of any credit balance in the revaluation surplus for that asset, and the excess is recognised in profit or loss. Here, ₹40L absorbs the surplus and ₹15L hits P&L."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "A consumer goods company uses FIFO for inventory valuation. A warehouse flood has damaged goods that cost ₹22 lakhs. These damaged goods can be sold in their current condition for ₹14 lakhs; no additional costs are needed to bring them to point of sale. The auditor is reviewing inventory valuation under Ind-AS 2. Which treatment is correct?",
+    "options": [
+      "A) No write-down required; the flood loss should be shown as an Exceptional Item in the P&L",
+      "B) Write down the damaged inventory to its NRV of ₹14 lakhs and recognise a loss of ₹8 lakhs in the P&L for the period",
+      "C) Write down only if the overall company-level inventory NRV is below total inventory cost on a portfolio basis",
+      "D) Write off the entire ₹22 lakhs since damaged goods cannot be sold at full value"
+    ],
+    "correctAnswer": "B) Write down the damaged inventory to its NRV of ₹14 lakhs and recognise a loss of ₹8 lakhs in the P&L for the period",
+    "explanation": "Ind-AS 2 requires inventory to be written down item-by-item (or by category) to NRV when NRV is below cost. NRV here is ₹14L (no completion costs), so a write-down of ₹8L (₹22L − ₹14L) is mandatory and recognised as a P&L expense."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "You are auditing Megacorp Ltd. The company sold goods worth ₹50 lakhs to Megacorp Distributors Pvt. Ltd., a company in which Megacorp's CEO holds 60% equity. The transaction was priced 20% below prevailing market rates. The company has not disclosed this in its financial statements. What disclosure does Ind-AS 24 require?",
+    "options": [
+      "A) Disclose the related party relationship, the ₹50 lakh transaction amount, the below-market pricing terms, and a statement that the transaction was not conducted on an arm's-length basis, along with outstanding balances",
+      "B) Disclose the ₹50 lakh amount only, without pricing details, as pricing is commercially sensitive information",
+      "C) No disclosure needed since the related party is a separate legal entity and the CEO is acting in a personal capacity",
+      "D) Disclose only if the amount exceeds 5% of the company's annual revenue during the year"
+    ],
+    "correctAnswer": "A) Disclose the related party relationship, the ₹50 lakh transaction amount, the below-market pricing terms, and a statement that the transaction was not conducted on an arm's-length basis, along with outstanding balances",
+    "explanation": "Under Ind-AS 24, where related party transactions are not at arm's length, that fact must be explicitly stated in addition to the standard disclosures of nature, amount, and outstanding balances. The CEO's 60% holding in the buyer creates a clear related party relationship."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "During finalization, Sigma Ltd. reports a Basic EPS of ₹8 on 20 lakh weighted average equity shares. The company has 5 lakh 10% Convertible Debentures of ₹100 each, each convertible into 2 equity shares. Tax rate is 25%. Compute the Diluted EPS under Ind-AS 33.",
+    "options": [
+      "A) ₹8.00 — debentures are anti-dilutive and should be excluded",
+      "B) ₹7.20 — partial conversion adjustment applied",
+      "C) ₹6.25 — earnings adjusted by full interest, shares by half the dilutive shares",
+      "D) ₹6.58 — after adding back after-tax interest saving and all conversion shares to the base figures"
+    ],
+    "correctAnswer": "D) ₹6.58 — after adding back after-tax interest saving and all conversion shares to the base figures",
+    "explanation": "Net Profit = 8 × 20L = ₹160L. After-tax interest add-back = 5L × ₹100 × 10% × (1 − 0.25) = ₹37.5L. Adjusted earnings = ₹197.5L. Diluted shares = 20L + 10L = 30L. Diluted EPS = 197.5 ÷ 30 = ₹6.58."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Intermediate",
+    "question": "Atlas Manufacturing Ltd. disposes of a machine (original cost ₹80 lakhs, accumulated depreciation ₹55 lakhs) for ₹30 lakhs in cash. The accountant has credited the full ₹30 lakhs to 'Revenue from Operations' and retained the gross block and depreciation in the books. What is the correct treatment under Ind-AS 16?",
+    "options": [
+      "A) The treatment is correct as a cash receipt from asset disposal is a business revenue",
+      "B) Retain ₹30L as revenue and charge ₹25L (carrying value) as a cost of sales expense in the same period",
+      "C) Derecognise the asset (remove ₹80L cost and ₹55L depreciation); the gain on disposal of ₹5 lakhs (₹30L proceeds − ₹25L carrying value) is included in 'Other Income,' not Revenue from Operations",
+      "D) Reverse the gross block of ₹80L and recognise ₹30L as revenue, writing off ₹50L as an exceptional impairment loss"
+    ],
+    "correctAnswer": "C) Derecognise the asset (remove ₹80L cost and ₹55L depreciation); the gain on disposal of ₹5 lakhs (₹30L proceeds − ₹25L carrying value) is included in 'Other Income,' not Revenue from Operations",
+    "explanation": "Ind-AS 16 para 67 requires derecognition of the PPE on disposal. The gain or loss is the difference between net disposal proceeds and the carrying amount, and must be presented in Other Income/Expense — not as revenue, as it inflates turnover incorrectly."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "TechServe Ltd. enters into a ₹120 lakh contract to (i) implement a customised software platform and (ii) provide 2 years of post-implementation support. The standalone selling prices are ₹80 lakhs for implementation and ₹60 lakhs for support. Under Ind-AS 115 (5-step model), how much revenue should be allocated to the software implementation performance obligation at contract inception?",
+    "options": [
+      "A) ₹80 lakhs — use the standalone selling price directly as the allocation base",
+      "B) ₹68.57 lakhs — allocate ₹120L in proportion to standalone SSPs (₹80L : ₹60L = 4:3)",
+      "C) ₹60 lakhs — allocate the lower standalone price to conservative revenue recognition",
+      "D) ₹120 lakhs upfront as implementation is the primary deliverable and support is incidental"
+    ],
+    "correctAnswer": "B) ₹68.57 lakhs — allocate ₹120L in proportion to standalone SSPs (₹80L : ₹60L = 4:3)",
+    "explanation": "Under Ind-AS 115 Step 4, transaction price is allocated on a relative standalone selling price basis. Implementation SSP ratio = 80/(80+60) = 57.14%. Revenue allocated = 120 × 57.14% = ₹68.57L. The remaining ₹51.43L is allocated to support and recognised over 2 years."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "Crescent Retail Ltd. (lessee) enters a 5-year lease for a warehouse. Annual lease rentals are ₹12 lakhs, payable at year-end. The lessee's incremental borrowing rate is 10% p.a. The present value annuity factor for 5 years at 10% is 3.7908. There is no purchase option or variable payment. How should the lessee record the commencement of the lease on Day 1 under Ind-AS 116?",
+    "options": [
+      "A) Charge ₹12 lakhs per year directly to P&L as operating lease expense — short-term lease exemption applies",
+      "B) Recognise a Right-of-Use Asset of ₹60 lakhs and Lease Liability of ₹60 lakhs based on undiscounted payments",
+      "C) Recognise a Right-of-Use Asset of ₹45.49 lakhs and a separate Lease Liability of ₹12 lakhs (first year instalment only)",
+      "D) Recognise a Right-of-Use Asset of ₹45.49 lakhs and a Lease Liability of ₹45.49 lakhs, both measured at the present value of future lease payments"
+    ],
+    "correctAnswer": "D) Recognise a Right-of-Use Asset of ₹45.49 lakhs and a Lease Liability of ₹45.49 lakhs, both measured at the present value of future lease payments",
+    "explanation": "Under Ind-AS 116, at commencement the lessee measures the lease liability at the present value of future payments: 12 × 3.7908 = ₹45.49L. The ROU asset is initially equal to the lease liability (adjusted for initial direct costs etc., which are nil here). Using undiscounted figures or showing only one instalment is incorrect."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "Vertex Ltd.'s machinery has a carrying amount of ₹60 lakhs and a tax base of ₹40 lakhs (accelerated depreciation claimed for tax purposes). Tax rate is 25%. Additionally, the company has unabsorbed tax depreciation of ₹10 lakhs carried forward. Management is confident that sufficient future taxable profits will be available. What is the correct deferred tax treatment under Ind-AS 12?",
+    "options": [
+      "A) Recognise a Deferred Tax Liability of ₹5 lakhs on the machinery temporary difference; recognise a Deferred Tax Asset of ₹2.5 lakhs on the unabsorbed depreciation carry-forward",
+      "B) Recognise only a Deferred Tax Asset of ₹5 lakhs; no DTA is permissible on unabsorbed depreciation",
+      "C) Recognise a Deferred Tax Liability of ₹15 lakhs based on the full carrying value of the asset",
+      "D) No deferred tax required as both temporary differences will reverse in future years and offset each other"
+    ],
+    "correctAnswer": "A) Recognise a Deferred Tax Liability of ₹5 lakhs on the machinery temporary difference; recognise a Deferred Tax Asset of ₹2.5 lakhs on the unabsorbed depreciation carry-forward",
+    "explanation": "Temporary difference on machinery = ₹60L − ₹40L = ₹20L (taxable) → DTL = ₹5L. Unabsorbed depreciation of ₹10L × 25% = DTA of ₹2.5L, recognised since future taxable profit is probable per Ind-AS 12 para 34–36."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "GlobalEdge Ltd. has a ₹5 crore contract to deliver 1,000 customised industrial units over 6 months. After delivering 400 units, the customer requests a modification: upgraded specifications for the remaining 600 units at an additional ₹10 lakhs. The upgraded units are not distinct from the original contract scope and do not represent a separate contract. Under Ind-AS 115, how should this modification be treated?",
+    "options": [
+      "A) Treat as a separate new contract since the customer has approved the change in scope and price in writing",
+      "B) Terminate the original contract and recognise a cumulative catch-up adjustment for all 1,000 units",
+      "C) Account as a modification to the existing contract; the ₹10 lakhs is spread over the remaining 600 units as they are not distinct new goods that increase the contract scope separately",
+      "D) Recognise the full ₹10 lakhs immediately on approval of the modification as the price increase is confirmed"
+    ],
+    "correctAnswer": "C) Account as a modification to the existing contract; the ₹10 lakhs is spread over the remaining 600 units as they are not distinct new goods that increase the contract scope separately",
+    "explanation": "Under Ind-AS 115 para 21, when a modification does not add distinct goods or services, it is treated as a modification of the existing contract. A cumulative catch-up or prospective adjustment is applied; here, ₹10L is allocated to the remaining 600 units going forward."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "MegaAssets Ltd. is testing a Cash Generating Unit (CGU) for impairment. The carrying amount of the CGU is ₹500 lakhs, including goodwill of ₹80 lakhs. The Value in Use is ₹420 lakhs, and the Fair Value Less Costs of Disposal is ₹440 lakhs. Under Ind-AS 36, what is the impairment loss and how should it be allocated?",
+    "options": [
+      "A) Impairment loss = ₹80 lakhs; allocated entirely to goodwill as carrying amount exceeds VIU",
+      "B) Impairment loss = ₹60 lakhs; allocated proportionately across all assets in the CGU including goodwill",
+      "C) No impairment loss; the FVLCD of ₹440L approximates the carrying amount of ₹500L within a 10% threshold",
+      "D) Impairment loss = ₹60 lakhs; allocated first entirely to goodwill (since ₹60L does not exceed goodwill of ₹80L), with no allocation to other assets"
+    ],
+    "correctAnswer": "D) Impairment loss = ₹60 lakhs; allocated first entirely to goodwill (since ₹60L does not exceed goodwill of ₹80L), with no allocation to other assets",
+    "explanation": "Recoverable Amount = higher of VIU (₹420L) and FVLCD (₹440L) = ₹440L. Impairment loss = ₹500L − ₹440L = ₹60L. Per Ind-AS 36 para 104, impairment is first allocated to reduce goodwill; since ₹60L < ₹80L goodwill, other assets are unaffected."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "Sunrise Logistics Ltd. (lessee) enters a 4-year equipment lease with payments of ₹10 lakhs payable at the start of each year (annuity in advance). The IBR is 8% p.a. The PV annuity-due factor (4 years, 8%) = 3.5771. At year-end, the company records only a ₹10 lakh debit to the lease liability with no interest expense. Identify the error and state the correct Ind-AS 116 treatment for Year 1.",
+    "options": [
+      "A) No error; since payments are in advance, no interest accrues in the first year",
+      "B) The lease liability at inception is ₹35.77L; after the Day 1 payment the outstanding balance is ₹25.77L; interest for Year 1 = ₹25.77L × 8% = ₹2.06L must be accrued and reflected in the income statement",
+      "C) Advance lease payments must be treated as prepaid rent and are not part of the lease liability calculation under Ind-AS 116",
+      "D) Interest accrues only from Year 2 onward for annuity-due arrangements since the first payment precedes any interest accrual period"
+    ],
+    "correctAnswer": "B) The lease liability at inception is ₹35.77L; after the Day 1 payment the outstanding balance is ₹25.77L; interest for Year 1 = ₹25.77L × 8% = ₹2.06L must be accrued and reflected in the income statement",
+    "explanation": "Under Ind-AS 116, lease liability = ₹10L × 3.5771 = ₹35.77L. The first payment reduces it to ₹25.77L on Day 1. Interest for Year 1 accrues on ₹25.77L at 8% = ₹2.06L. Omitting this interest understates finance costs and overstates profit."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "Nova Tech Ltd. creates a warranty provision of ₹40 lakhs (deductible for tax only when actually paid). Tax rate = 30%. The company also records a revaluation surplus of ₹50 lakhs in OCI on freehold land measured at fair value (taxable only on eventual sale). Identify the correct deferred tax accounting under Ind-AS 12.",
+    "options": [
+      "A) Recognise a Deferred Tax Asset of ₹12 lakhs on the warranty provision (in P&L) and a Deferred Tax Liability of ₹15 lakhs on the revaluation surplus (recognised in OCI, not P&L)",
+      "B) Recognise only a DTA of ₹12 lakhs; revaluation of freehold land does not give rise to deferred tax as land is not depreciable",
+      "C) Recognise only a DTL of ₹15 lakhs on revaluation; warranty DTA cannot be recognised without virtual certainty of future taxable profits",
+      "D) Recognise both DTA ₹12 lakhs and DTL ₹15 lakhs, but route both through the P&L as they arise from book-to-tax differences"
+    ],
+    "correctAnswer": "A) Recognise a Deferred Tax Asset of ₹12 lakhs on the warranty provision (in P&L) and a Deferred Tax Liability of ₹15 lakhs on the revaluation surplus (recognised in OCI, not P&L)",
+    "explanation": "Under Ind-AS 12, DTA on deductible temporary difference (warranty ₹40L × 30% = ₹12L) is recognised in P&L. For revaluation surplus on land, Ind-AS 12 para 20 requires recognition of DTL (₹50L × 30% = ₹15L) in OCI to match the item that created it, not in P&L."
+  },
+  {
+    "skill": "Financial Statements & Ind-AS",
+    "difficulty": "Advanced",
+    "question": "Orbit Constructions Ltd. signs a ₹5 crore fixed-price contract to build a residential complex. The contract includes a performance bonus of ₹50 lakhs if completion occurs before 18 months. Based on historical project data, management estimates a 40% probability of earning the bonus. At contract inception, how should the variable consideration be included in the transaction price under Ind-AS 115?",
+    "options": [
+      "A) Include the full ₹50 lakhs in the transaction price as it is contractually agreed upon",
+      "B) Exclude the ₹50 lakhs entirely until the project is completed and the bonus is formally confirmed",
+      "C) Include ₹20 lakhs (expected value: 40% × ₹50L) in the transaction price only to the extent it is highly probable that a significant revenue reversal will not occur when the uncertainty resolves",
+      "D) Include ₹50 lakhs only after the 18-month milestone is crossed and the outcome is no longer uncertain"
+    ],
+    "correctAnswer": "C) Include ₹20 lakhs (expected value: 40% × ₹50L) in the transaction price only to the extent it is highly probable that a significant revenue reversal will not occur when the uncertainty resolves",
+    "explanation": "Under Ind-AS 115 Step 2, variable consideration is estimated using either the expected value or most likely amount method and constrained to amounts where a significant revenue reversal is highly improbable. Here, expected value = ₹20L, which may be included subject to the constraint test being satisfied."
+  }
+]

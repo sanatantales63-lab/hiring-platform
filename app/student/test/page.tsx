@@ -5,13 +5,14 @@ import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { 
   Timer, Lock, ShieldAlert, CheckCircle, Loader2, FileText, AlertTriangle, 
-  MousePointer2, Monitor, Wifi, Ban, Target
+  MousePointer2, Monitor, Wifi, Ban, Target, Award
 } from "lucide-react";
 
 export default function LiveTestPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  
   const [testStarted, setTestStarted] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
@@ -21,6 +22,7 @@ export default function LiveTestPage() {
   const [timeLeft, setTimeLeft] = useState(0); 
   const [warnings, setWarnings] = useState(0);
   const [isTerminated, setIsTerminated] = useState(false);
+  
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [skillAnalytics, setSkillAnalytics] = useState<any>({});
@@ -66,7 +68,7 @@ export default function LiveTestPage() {
       
       const { data: profileSnap } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
       
-      // 🔥 THE ENTRY GATEKEEPER 🔥
+      // THE ENTRY GATEKEEPER
       const currentStatus = profileSnap?.examAccess || 'none';
       if (currentStatus === 'completed' || currentStatus === 'disqualified' || currentStatus === 'pending') {
          alert("Your test is locked. Please request a re-test from your dashboard if needed.");
@@ -74,28 +76,61 @@ export default function LiveTestPage() {
          return;
       }
 
-      const studentSkills = profileSnap.skills || [];
-      if (studentSkills.length === 0) {
-          alert("No skills found! Please add skills to your profile before taking the test.");
+      const studentSkills = profileSnap?.skills || [];
+
+      // THE SMART SKILL MAPPER
+      const mappedSkills = new Set<string>();
+      const combinedSkills = studentSkills.join(" ").toLowerCase();
+
+      if (combinedSkills.includes("tally")) mappedSkills.add("Tally ERP");
+      if (combinedSkills.includes("excel")) mappedSkills.add("Advanced Excel");
+      if (combinedSkills.includes("sap")) mappedSkills.add("SAP FICO");
+      if (combinedSkills.includes("gst")) mappedSkills.add("GST Return Filing & Reconciliation");
+      if (combinedSkills.includes("journal") || combinedSkills.includes("book closure") || combinedSkills.includes("accounting")) mappedSkills.add("Journal Entry & Book Closure");
+      if (combinedSkills.includes("tds")) mappedSkills.add("TDS Return & Compliance");
+      if (combinedSkills.includes("income tax") || combinedSkills.includes("itr") || combinedSkills.includes("taxation")) mappedSkills.add("Income Tax Return (ITR) Processing");
+      if (combinedSkills.includes("corporate tax")) mappedSkills.add("Corporate Tax Planning");
+      if (combinedSkills.includes("ind-as") || combinedSkills.includes("financial statement")) mappedSkills.add("Financial Statements & Ind-AS");
+      if (combinedSkills.includes("gaap") || combinedSkills.includes("accounting standard")) mappedSkills.add("Accounting Standards");
+      if (combinedSkills.includes("payroll")) mappedSkills.add("Payroll Processing & Compliance");
+      if (combinedSkills.includes("audit")) mappedSkills.add("Statutory Audit & Assurance");
+
+      const testableSkills = Array.from(mappedSkills);
+
+      if (testableSkills.length === 0) {
+          alert("Test engine couldn't match your skills! Please add core skills like 'Tally', 'Excel', 'SAP', or 'GST' to your profile.");
           router.push("/student/profile");
           return;
       }
 
       try {
-        const { data: qList } = await supabase.from("question_bank").select("*").in("category", studentSkills);
-        if(qList) {
-           let finalQuestions: any[] = [];
-           studentSkills.forEach((skill: string) => {
-               const skillQs = qList.filter((q: any) => q.category === skill);
-               const selectedQs = skillQs.sort(() => 0.5 - Math.random()).slice(0, 10);
-               finalQuestions = [...finalQuestions, ...selectedQs];
-           });
+        let finalQuestions: any[] = [];
+        
+        for (const skill of testableSkills) {
+            const { data: skillQs } = await supabase.from("question_bank").select("*").eq("skill", skill);
+            
+            if (skillQs && skillQs.length > 0) {
+                const beginnerQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random()).slice(0, 3);
+                const interQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random()).slice(0, 4);
+                const advancedQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random()).slice(0, 3);
+                
+                finalQuestions = [...finalQuestions, ...beginnerQs, ...interQs, ...advancedQs];
+            }
+        }
+
+        if (finalQuestions.length > 0) {
            finalQuestions = finalQuestions.sort(() => 0.5 - Math.random());
            setQuestions(finalQuestions);
            setAnswers(new Array(finalQuestions.length).fill(-1));
            setTimeLeft(finalQuestions.length * 60); 
+        } else {
+           alert("Question Bank is empty for your matched skills. Please check database.");
+           router.push("/student/dashboard");
         }
-      } catch (e) { console.error(e); }
+
+      } catch (e) { 
+        console.error("Error fetching questions:", e); 
+      }
       
       setLoading(false);
     };
@@ -104,21 +139,62 @@ export default function LiveTestPage() {
 
   const submitTest = useCallback(async () => {
     if (!user || isTerminated) return;
+    setLoading(true);
     
     let calcScore = 0;
     let analyticsData: any = {};
 
     questions.forEach((q, i) => {
-       if (!analyticsData[q.category]) {
-           analyticsData[q.category] = { total: 0, correct: 0 };
+       if (!analyticsData[q.skill]) {
+           analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, aiLevel: "Beginner" };
        }
-       analyticsData[q.category].total += 1;
+       analyticsData[q.skill].total += 1;
 
-       if (answers[i] === q.correct) {
+       const selectedOptionText = answers[i] !== -1 ? q.options[answers[i]] : null;
+       const isCorrect = selectedOptionText === q.correct_answer;
+
+       if (isCorrect) {
            calcScore += 1;
-           analyticsData[q.category].correct += 1;
+           analyticsData[q.skill].correct += 1;
+           
+           if(q.difficulty.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
+           if(q.difficulty.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
+           if(q.difficulty.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
        }
     });
+
+    // 🧠 THE NEW, STRICT AI GRADING LOGIC 🧠
+    for (const skill in analyticsData) {
+        const data = analyticsData[skill];
+        
+        // Fail-Safe: Agar 40% (4/10) se kam score hai, toh tukka maara hai, seedha Beginner.
+        if (data.correct < 4) {
+            data.aiLevel = "Beginner Level 🔴";
+        } 
+        // Expert: Score kam se kam 70% hona chahiye, aur Hard wale kam se kam 2 theek hone chahiye.
+        else if (data.correct >= 7 && data.advanced >= 2) {
+            data.aiLevel = "Expert Level 🟢";
+        } 
+        // Intermediate: Score kam se kam 40% hona chahiye, aur thode medium/hard theek hone chahiye.
+        else if (data.correct >= 4 && (data.intermediate >= 2 || data.advanced >= 1)) {
+            data.aiLevel = "Intermediate Level 🟡";
+        } 
+        // Baaki sab Beginner
+        else {
+            data.aiLevel = "Beginner Level 🔴";
+        }
+
+        // Push detailed result to test_results table
+        await supabase.from("test_results").insert({
+            student_id: user.id,
+            skill: skill,
+            total_score: data.correct,
+            beginner_score: data.beginner,
+            intermediate_score: data.intermediate,
+            advanced_score: data.advanced,
+            ai_skill_level: data.aiLevel
+        });
+    }
 
     setScore(calcScore);
     setSkillAnalytics(analyticsData);
@@ -134,6 +210,8 @@ export default function LiveTestPage() {
           skillScores: analyticsData 
        }
     }).eq("id", user.id);
+
+    setLoading(false);
   }, [user, isTerminated, questions, answers, warnings]);
 
   useEffect(() => {
@@ -220,7 +298,7 @@ export default function LiveTestPage() {
                             <ul className="space-y-3 text-sm text-slate-300">
                                 <li className="flex justify-between border-b border-slate-800 pb-2"><span>Total Questions</span> <span className="text-white font-bold">{questions.length} Qs</span></li>
                                 <li className="flex justify-between border-b border-slate-800 pb-2"><span>Duration</span> <span className="text-white font-bold">{questions.length} Mins</span></li>
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">MCQ</span></li>
+                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">Adaptive MCQ</span></li>
                                 <li className="flex justify-between"><span>Negative Marking</span> <span className="text-white font-bold">No</span></li>
                             </ul>
                         </div>
@@ -292,25 +370,35 @@ export default function LiveTestPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center justify-center p-6 text-center">
-         <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
+      <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center justify-center p-6 text-center py-12">
+         <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6 mt-10">
             <CheckCircle size={40} className="text-green-500"/>
          </div>
          <h1 className="text-3xl font-bold mb-2">Assessment Submitted</h1>
-         <p className="text-slate-400 text-sm mb-8">Your response and skill analytics have been securely recorded.</p>
+         <p className="text-slate-400 text-sm mb-8">Your response and AI skill analytics have been securely recorded.</p>
          
-         <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-lg mb-8 shadow-2xl">
+         <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-2xl mb-8 shadow-2xl">
             <p className="text-slate-500 text-sm uppercase font-bold mb-2">Final Overall Score</p>
             <p className="text-6xl font-bold text-green-400 mb-6">{score} <span className="text-2xl text-slate-500">/ {questions.length}</span></p>
 
             <div className="border-t border-slate-800 pt-6 text-left">
-               <h4 className="text-slate-400 text-sm font-bold uppercase mb-4 flex items-center gap-2"><Target size={16}/> Skill-wise Breakdown</h4>
-               <div className="space-y-3">
+               <h4 className="text-slate-400 text-sm font-bold uppercase mb-4 flex items-center gap-2"><Award size={18}/> AI Skill Grading Report</h4>
+               <div className="space-y-4">
                   {Object.keys(skillAnalytics).map(skill => (
-                     <div key={skill} className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                        <span className="text-slate-300 font-medium">{skill}</span>
-                        <div className="bg-blue-900/30 text-blue-400 px-3 py-1 rounded-lg border border-blue-500/20 font-bold text-sm">
-                           {skillAnalytics[skill].correct} / {skillAnalytics[skill].total}
+                     <div key={skill} className="bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                           <span className="text-white font-bold text-lg">{skill}</span>
+                           <p className="text-xs text-slate-500 mt-1">
+                              Correct: {skillAnalytics[skill].correct}/{skillAnalytics[skill].total} 
+                              (Hard: {skillAnalytics[skill].advanced}, Med: {skillAnalytics[skill].intermediate}, Easy: {skillAnalytics[skill].beginner})
+                           </p>
+                        </div>
+                        <div className={`px-4 py-2 rounded-lg border font-bold text-sm text-center ${
+                           skillAnalytics[skill].aiLevel.includes('Expert') ? 'bg-green-900/30 text-green-400 border-green-500/30' : 
+                           skillAnalytics[skill].aiLevel.includes('Intermediate') ? 'bg-yellow-900/30 text-yellow-400 border-yellow-500/30' : 
+                           'bg-red-900/30 text-red-400 border-red-500/30'
+                        }`}>
+                           {skillAnalytics[skill].aiLevel}
                         </div>
                      </div>
                   ))}
@@ -318,7 +406,7 @@ export default function LiveTestPage() {
             </div>
          </div>
 
-         <button onClick={() => router.push('/student/dashboard')} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+         <button onClick={() => router.push('/student/dashboard')} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 mb-10">
             Back to Dashboard
          </button>
       </div>
@@ -353,10 +441,12 @@ export default function LiveTestPage() {
           {questions.length > 0 && (
              <motion.div key={currentQ} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-slate-900 border border-slate-800 p-6 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden">
                 <div className="flex justify-between items-start mb-8">
-                   <h2 className="text-xl md:text-2xl font-medium leading-relaxed max-w-2xl">{questions[currentQ].text}</h2>
-                   <div className="flex flex-col items-end gap-2">
-                      <span className={`text-[10px] px-2 py-1 rounded-full font-bold border uppercase tracking-wider ${questions[currentQ].difficulty === 'hard' ? 'bg-red-500/10 text-red-400 border-red-500/20' : questions[currentQ].difficulty === 'medium' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>{questions[currentQ].difficulty}</span>
-                      <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold uppercase">{questions[currentQ].category}</span>
+                   <h2 className="text-xl md:text-2xl font-medium leading-relaxed max-w-2xl">{questions[currentQ].question}</h2>
+                   <div className="flex flex-col items-end gap-2 shrink-0 ml-4">
+                      <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${questions[currentQ].difficulty.toLowerCase().includes('advanced') ? 'bg-red-500/10 text-red-400 border-red-500/20' : questions[currentQ].difficulty.toLowerCase().includes('intermediate') ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
+                          {questions[currentQ].difficulty.split(' ')[0]}
+                      </span>
+                      <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded-full font-bold uppercase text-right max-w-[120px] truncate">{questions[currentQ].skill}</span>
                    </div>
                 </div>
                 

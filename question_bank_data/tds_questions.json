@@ -1,0 +1,202 @@
+[
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "Your client, a manufacturing company, pays ₹8,00,000 to a transport contractor in a single transaction. The contractor provides a valid PAN. Which TDS section applies and what is the rate?",
+    "options": ["A) Section 194C @ 2%", "B) Section 194J @ 10%", "C) Section 194I @ 10%", "D) Section 194H @ 5%"],
+    "correctAnswer": "A) Section 194C @ 2%",
+    "explanation": "Payments to contractors (non-individual/HUF) are covered under Section 194C at 2%. Since the contractor has provided a valid PAN, the higher rate of 20% under Section 206AA does not apply."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "A company deducts TDS in March 2024. By which date must it deposit the TDS to avoid interest under Section 201(1A)?",
+    "options": ["A) 7th April 2024", "B) 15th April 2024", "C) 30th April 2024", "D) 31st March 2024"],
+    "correctAnswer": "C) 30th April 2024",
+    "explanation": "For TDS deducted in March, the extended due date for deposit is 30th April of the following month. For all other months, the due date is the 7th of the following month."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "Your client needs to file a TDS return for salary deductions made to employees. Which form must be filed?",
+    "options": ["A) Form 26Q", "B) Form 27Q", "C) Form 27EQ", "D) Form 24Q"],
+    "correctAnswer": "D) Form 24Q",
+    "explanation": "Form 24Q is specifically used for filing quarterly TDS returns for salary payments under Section 192. Form 26Q is used for all non-salary payments to residents."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "While filling Challan ITNS 281, your client is unsure which 'Nature of Payment' code to select for TDS deducted under Section 194J. What is the correct code?",
+    "options": ["A) Code 92A", "B) Code 92B", "C) Code 94J", "D) Code 194J"],
+    "correctAnswer": "C) Code 94J",
+    "explanation": "Challan ITNS 281 uses specific minor head codes; the code for Section 194J (Fees for Professional/Technical Services) is 94J. Codes 92A and 92B are used for salary TDS under Section 192."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "A private limited company pays ₹60,000 as monthly rent for office premises to an individual landlord. The landlord does not provide Form 15G/15H. What TDS rate applies under Section 194I?",
+    "options": ["A) 2%", "B) 5%", "C) 10%", "D) 1%"],
+    "correctAnswer": "C) 10%",
+    "explanation": "Rent paid for land, building, or furniture to any person is subject to TDS @ 10% under Section 194I, provided the annual payment exceeds the threshold of ₹2,40,000."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "Your client company must file its Q2 TDS return (Form 26Q) for the period July–September 2024. What is the last date to file this return?",
+    "options": ["A) 31st October 2024", "B) 15th November 2024", "C) 31st October 2024", "D) 15th October 2024"],
+    "correctAnswer": "B) 15th November 2024",
+    "explanation": "The due date for filing Form 26Q for Q2 (July–September) is 15th November. For Q1 it is 31st July, for Q3 it is 31st January, and for Q4 it is 31st May."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "A sole proprietor pays ₹25,000 to a consultant for professional services. The proprietor's accounts are not subject to tax audit. Is TDS under Section 194J applicable?",
+    "options": ["A) Yes, TDS @ 10% must be deducted", "B) No, individual/HUF not liable to audit are exempt from deducting TDS under 194J", "C) Yes, but only @ 2%", "D) No, because the amount is below ₹30,000"],
+    "correctAnswer": "B) No, individual/HUF not liable to audit are exempt from deducting TDS under 194J",
+    "explanation": "Section 194J exempts individuals and HUFs from deducting TDS on professional fees if their accounts are not subject to tax audit under Section 44AB in the preceding year."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Beginner",
+    "question": "When filing challan ITNS 281, your accountant needs to select the correct 'Type of Payment' for TDS deducted from salary. Which minor head code should be selected?",
+    "options": ["A) 200 – TDS/TCS Payable by Taxpayer", "B) 400 – TDS/TCS Regular Assessment", "C) 800 – Other Receipts", "D) 100 – Advance Tax"],
+    "correctAnswer": "A) 200 – TDS/TCS Payable by Taxpayer",
+    "explanation": "Minor Head 200 (TDS/TCS Payable by Taxpayer) is used for voluntary TDS deposits. Minor Head 400 is used only when paying dues raised through a demand/assessment by the department."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "A vendor approaches your client with a certificate under Section 197 for TDS deduction at 1% instead of 10% on professional fees. The certificate is valid from 1st June to 31st March. Your client made a payment on 30th May without checking the certificate. How should this be corrected?",
+    "options": ["A) No correction needed; deduct balance TDS from next payment", "B) File a correction statement on TRACES to update the rate and pay differential TDS with interest under 201(1A)", "C) Ask the vendor to adjust the excess tax in their ITR", "D) The client must pay a penalty equal to the TDS amount under Section 271C"],
+    "correctAnswer": "B) File a correction statement on TRACES to update the rate and pay differential TDS with interest under 201(1A)",
+    "explanation": "Since the lower deduction certificate was not valid on the payment date, TDS should have been deducted at 10%. The deductor must file a correction statement and pay the differential TDS with interest @ 1.5% per month from the date of deduction."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "Your client filed Form 26Q for Q3 on 5th February instead of the due date of 31st January. Calculate the late filing fee under Section 234E for 5 days of delay (TDS deducted ₹5,00,000).",
+    "options": ["A) ₹500", "B) ₹1,000", "C) ₹5,000", "D) ₹2,500"],
+    "correctAnswer": "B) ₹1,000",
+    "explanation": "Section 234E levies a fee of ₹200 per day of delay until the return is filed, subject to a maximum of the TDS amount. For 5 days: ₹200 × 5 = ₹1,000, which is less than ₹5,00,000."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "TRACES shows a 'Short Deduction' default against your client for a specific deductee. On investigation, you find the deductee had submitted Form 15G, which was not captured in the return. What is the correct course of action?",
+    "options": ["A) Submit a grievance on the income tax portal", "B) File a correction statement on TRACES updating the reason code to '1' (Lower/No deduction due to Form 15G/H)", "C) Pay the short deduction amount and file a revised return", "D) Ask the deductee to file a rectification in their ITR"],
+    "correctAnswer": "B) File a correction statement on TRACES updating the reason code to '1' (Lower/No deduction due to Form 15G/H)",
+    "explanation": "When Form 15G/15H was received but not updated in the original return, the correct remedy is to file a correction statement on TRACES with reason code '1', which will remove the short deduction default."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "TDS of ₹1,00,000 was deducted on 10th July 2024 but deposited on 20th September 2024. Calculate the interest liability under Section 201(1A).",
+    "options": ["A) ₹1,000", "B) ₹2,000", "C) ₹3,000", "D) ₹1,500"],
+    "correctAnswer": "C) ₹3,000",
+    "explanation": "Interest for late deposit is @ 1.5% per month (or part thereof) from the date of deduction to the date of deposit. From 10th July to 20th September = 3 months (part months counted as full): ₹1,00,000 × 1.5% × 3 = ₹3,000."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "Your client discovers that a challan of ₹50,000 paid in Q1 was incorrectly mapped to the wrong deductee PAN in the TDS return. The Q1 return was filed 8 months ago. What is the correct procedure?",
+    "options": ["A) It cannot be corrected after 6 months", "B) Raise a challan correction request directly with the bank", "C) File a correction statement on TRACES by updating the deductee PAN in the relevant record", "D) Pay a fresh challan and write off the old one"],
+    "correctAnswer": "C) File a correction statement on TRACES by updating the deductee PAN in the relevant record",
+    "explanation": "TRACES allows filing correction statements (C1 to C9 types) to rectify errors in filed returns including PAN corrections. There is no time bar for corrections; they can be filed even for older returns."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "A deductee complains that their Form 26AS does not reflect TDS deducted by your client company for Q2. The TDS return was filed but the challan was paid with a wrong Assessment Year. What must the deductor do first?",
+    "options": ["A) Ask the deductee to raise a grievance on the income tax portal", "B) Request a challan correction through TRACES within the permissible period", "C) File a fresh TDS return for the correct assessment year", "D) Issue a revised Form 16A manually to the deductee"],
+    "correctAnswer": "B) Request a challan correction through TRACES within the permissible period",
+    "explanation": "Challan corrections including Assessment Year corrections can be requested via the TRACES portal within 7 days from challan deposit date, or through the jurisdictional AO beyond that period, to ensure correct credit in Form 26AS."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "Your client received a demand notice for interest under Section 201(1A) for non-deduction of TDS. However, the payee has already paid tax on the same income and filed their return. How can the deductor reduce their liability?",
+    "options": ["A) File a rectification application under Section 154", "B) Furnish proof of tax payment by the payee to the Assessing Officer as per the proviso to Section 201(1)", "C) Deduct TDS from future payments to the same party", "D) Pay the interest and claim it as a business expense"],
+    "correctAnswer": "B) Furnish proof of tax payment by the payee to the Assessing Officer as per the proviso to Section 201(1)",
+    "explanation": "The proviso to Section 201(1) provides relief to the deductor from being treated as 'assessee-in-default' if the payee has paid the due taxes. The deductor must furnish a certificate from the payee's CA confirming the tax payment."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "A client files a revised TDS return (correction statement) on TRACES. After submission, they notice another error in the same return. Can a second correction be filed?",
+    "options": ["A) No, only one correction per original return is allowed", "B) Yes, multiple correction statements can be filed sequentially, each based on the latest accepted version", "C) Yes, but only within 30 days of the first correction", "D) No, they must file a fresh original return for that quarter"],
+    "correctAnswer": "B) Yes, multiple correction statements can be filed sequentially, each based on the latest accepted version",
+    "explanation": "TRACES allows multiple correction statements on the same original return. Each subsequent correction must be filed on top of the latest accepted/processed version of the return, not the original."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Intermediate",
+    "question": "A company receives a TRACES intimation showing 'PAN not available' defaults for several deductees. What is the immediate consequence if this is not rectified?",
+    "options": ["A) TDS return will be cancelled", "B) TDS must be deducted at 20% for those deductees under Section 206AA, creating a short deduction demand", "C) Form 16A cannot be issued for those deductees", "D) Both B and C"],
+    "correctAnswer": "D) Both B and C",
+    "explanation": "Where PAN is not available, Section 206AA mandates deduction at the higher of applicable rate or 20%. Non-compliance results in short deduction demand on TRACES, and Form 16A generation is also blocked for PAN-invalid records."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "Your client, a distributor, receives a capital asset worth ₹1,20,000 from a manufacturer as a Diwali gift/benefit. The manufacturer claims no TDS applies since it is a gift. As the tax advisor, what is the correct position?",
+    "options": ["A) No TDS; gifts are exempt under Section 56(2)(x)", "B) TDS @ 10% under Section 194R applies as it is a benefit/perquisite arising from business, and the manufacturer must deduct TDS", "C) TDS @ 30% applies under Section 194Q", "D) The distributor must self-declare this income; no TDS obligation on manufacturer"],
+    "correctAnswer": "B) TDS @ 10% under Section 194R applies as it is a benefit/perquisite arising from business, and the manufacturer must deduct TDS",
+    "explanation": "Section 194R (introduced from 1st July 2022) requires the provider of any benefit/perquisite arising from business or profession to deduct TDS @ 10% if the aggregate value exceeds ₹20,000 in a year, irrespective of whether it is in cash or kind."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "A buyer purchases goods worth ₹75 lakhs from a seller whose turnover exceeds ₹10 crore. The seller has also been collecting TCS under Section 206C(1H). Which provision takes precedence?",
+    "options": ["A) Both 194Q and 206C(1H) apply simultaneously; both must comply", "B) Section 206C(1H) prevails as TCS is collected at source by the seller", "C) Section 194Q prevails; if the buyer deducts TDS under 194Q, the seller is exempt from collecting TCS under 206C(1H)", "D) Neither applies since the transaction is below ₹1 crore"],
+    "correctAnswer": "C) Section 194Q prevails; if the buyer deducts TDS under 194Q, the seller is exempt from collecting TCS under 206C(1H)",
+    "explanation": "CBDT has clarified that Section 194Q and 206C(1H) cannot apply simultaneously on the same transaction. If the buyer is liable to deduct TDS under 194Q, it overrides the seller's obligation to collect TCS under 206C(1H)."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "Your Indian client remits ₹50 lakhs to a UK-based company for software licensing fees. The UK company has no PE in India and provides a Tax Residency Certificate. Under the India-UK DTAA, royalty is taxable at 15%. What TDS rate applies under Section 195?",
+    "options": ["A) 20% as per Finance Act (non-treaty rate)", "B) 25% under Section 115A", "C) 15% as per the India-UK DTAA rate, being lower and more beneficial", "D) 10% since it is a software license"],
+    "correctAnswer": "C) 15% as per the India-UK DTAA rate, being lower and more beneficial",
+    "explanation": "Section 90(2) allows a non-resident to be taxed at the rate under the DTAA or domestic law, whichever is more beneficial. With a valid TRC, the UK company can avail the 15% DTAA rate on royalty instead of the higher domestic rate."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "A foreign remittance of ₹25 lakhs is to be made by your client as payment for management consultancy to a Singapore entity. Which forms must be filed and what is the sequence?",
+    "options": ["A) Only Form 15CB by CA; Form 15CA is optional", "B) Form 15CA Part C must be filed online after obtaining Form 15CB from a CA; both submitted before remittance", "C) Form 15CA Part A only, since the amount is below ₹5 lakhs per transaction", "D) No forms required if TDS is deducted at 20% flat"],
+    "correctAnswer": "B) Form 15CA Part C must be filed online after obtaining Form 15CB from a CA; both submitted before remittance",
+    "explanation": "For taxable remittances exceeding ₹5 lakhs in a financial year, Form 15CA (Part C) must be filed online on the income tax portal after obtaining a certificate in Form 15CB from a Chartered Accountant, prior to the actual remittance."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "Your client receives a notice under Section 201 declaring them an 'assessee-in-default' for not deducting TDS on interest payments to NRIs. The client argues the NRI never provided banking details for withholding. Is this a valid defense?",
+    "options": ["A) Yes, if the NRI refuses cooperation, the deductor's liability is waived", "B) No, the obligation to deduct TDS under Section 195 is absolute and cannot be avoided based on the payee's non-cooperation", "C) Yes, the NRI must be pursued independently by the income tax department", "D) Only if the deductor files an indemnity bond with the AO"],
+    "correctAnswer": "B) No, the obligation to deduct TDS under Section 195 is absolute and cannot be avoided based on the payee's non-cooperation",
+    "explanation": "Section 195 casts an absolute and unconditional obligation on the person making payment to an NRI to deduct TDS. The deductor's liability cannot be escaped citing non-cooperation of the payee; they remain liable as assessee-in-default."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "During a TDS survey, the officer alleges that your client should have deducted TDS under Section 194J on payments made to cloud service providers (AWS/Azure). Your client claims these are 'purchase of services' not 'technical services'. What is the strongest defense?",
+    "options": ["A) Cloud services are notified as exempt from TDS by CBDT", "B) Rely on judicial precedents and CBDT circulars clarifying that standard cloud/SaaS subscriptions are not 'fees for technical services' as there is no human element involved (make available clause under DTAA)", "C) TDS under 194C at 2% was correctly deducted; no additional liability", "D) Apply for a prospective lower deduction certificate under Section 197"],
+    "correctAnswer": "B) Rely on judicial precedents and CBDT circulars clarifying that standard cloud/SaaS subscriptions are not 'fees for technical services' as there is no human element involved (make available clause under DTAA)",
+    "explanation": "Multiple tribunals have held that standardized cloud/SaaS services do not qualify as 'technical services' under Section 194J since no technical know-how is 'made available' to the payer; these are treated as business income not taxable in India if the provider has no PE."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "Your client is an e-commerce operator. A seller on its platform is an NRI. When the client credits the sale consideration to the NRI seller's account, which TDS provision applies?",
+    "options": ["A) Section 194O @ 1% applies without exception", "B) Section 194O applies, but TDS must be deducted under Section 195 at applicable rates for NRI sellers, not at the flat 1% domestic rate", "C) Section 194Q applies as the operator is a buyer", "D) No TDS; NRI sellers are outside the Indian TDS framework"],
+    "correctAnswer": "B) Section 194O applies, but TDS must be deducted under Section 195 at applicable rates for NRI sellers, not at the flat 1% domestic rate",
+    "explanation": "While Section 194O governs TDS by e-commerce operators, CBDT has clarified through guidelines that for NRI participants on e-commerce platforms, TDS must be deducted under Section 195 at rates applicable to NRIs, not at the standard 1% under 194O."
+  },
+  {
+    "skill": "TDS Return & Compliance",
+    "difficulty": "Advanced",
+    "question": "Your client receives a scrutiny notice asking to explain why TDS was not deducted on year-end provisions for expenses booked on 31st March. The expenses were reversed in April without actual payment. What is the correct position?",
+    "options": ["A) TDS is triggered on credit entry; the provision itself attracts TDS regardless of payment or reversal", "B) TDS is applicable on the credit entry (provision), but if reversed before filing the TDS return for Q4, the provision can be excluded from the TDS return with proper documentation", "C) TDS applies only on actual payment; provisions never trigger TDS", "D) A penalty under Section 271C is automatic since TDS was not deducted on credit"],
+    "correctAnswer": "B) TDS is applicable on the credit entry (provision), but if reversed before filing the TDS return for Q4, the provision can be excluded from the TDS return with proper documentation",
+    "explanation": "TDS is triggered on credit or payment, whichever is earlier. However, CBDT and various courts have accepted that if a provision is reversed before the due date of the TDS return without any actual payment, it reflects non-crystallization of the expense and TDS need not be deducted."
+  }
+]

@@ -1,0 +1,202 @@
+[
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "A new accounts payable clerk at your company needs to post a vendor invoice for office supplies worth $5,000. The invoice has already been received without a purchase order. Which T-Code should the clerk use to directly post this vendor invoice in SAP?",
+    "options": ["A) FB65", "B) FB70", "C) FB60", "D) FB50"],
+    "correctAnswer": "C) FB60",
+    "explanation": "FB60 is used to enter vendor invoices (accounts payable) directly without a purchase order reference. FB50 is for G/L account postings, FB70 is for customer invoices, and FB65 is for vendor credit memos."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "A junior accountant is asked to post a journal entry to record a bank charges expense of $200 debiting an expense account and crediting the bank G/L account. Which T-Code is most appropriate for this G/L posting?",
+    "options": ["A) FB60", "B) FB50", "C) F-02", "D) FB70"],
+    "correctAnswer": "B) FB50",
+    "explanation": "FB50 (Enter G/L Account Document) is the standard T-Code for posting general ledger journal entries involving G/L accounts directly. F-02 is an older complex posting screen, while FB60/FB70 are for vendor/customer transactions."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "During month-end, your finance team notices a document was posted with document type 'SA'. A new team member asks what type of transaction this document type typically represents. What is the correct answer?",
+    "options": ["A) Customer Invoice", "B) Vendor Payment", "C) Asset Posting", "D) G/L Account Document"],
+    "correctAnswer": "D) G/L Account Document",
+    "explanation": "Document type 'SA' in SAP FICO stands for G/L Account Document and is used for general ledger postings. 'KR' is for vendor invoices, 'DR' for customer invoices, and 'AA' for asset postings."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "A finance executive wants to display an already posted accounting document to verify the entries. The document number is 1800000025, company code is 1000, and fiscal year is 2024. Which T-Code should be used to display this document?",
+    "options": ["A) FB02", "B) FB03", "C) FB04", "D) FB01"],
+    "correctAnswer": "B) FB03",
+    "explanation": "FB03 is used to display (view) a posted accounting document in SAP. FB01 is for posting documents, FB02 is for changing documents, and FB04 displays document change history."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "Your AP team receives a credit memo from a vendor for $1,200 due to a returned shipment. The team needs to post this credit memo directly in SAP without referencing a purchase order. Which T-Code should they use?",
+    "options": ["A) FB65", "B) FB60", "C) FB75", "D) FB50"],
+    "correctAnswer": "A) FB65",
+    "explanation": "FB65 is specifically used to post vendor credit memos in SAP Accounts Payable. FB60 is for vendor invoices, FB75 is for customer credit memos, and FB50 is for G/L postings."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "A senior accountant asks a trainee to explain what 'document type' controls in SAP FICO. The trainee provides four answers. Which one is correct?",
+    "options": ["A) It controls the fiscal year variant assigned to the company code", "B) It determines the tax jurisdiction code for a posting", "C) It controls the number range and account types allowed in a posting", "D) It defines the payment terms for vendor master data"],
+    "correctAnswer": "C) It controls the number range and account types allowed in a posting",
+    "explanation": "Document type in SAP controls two key things: the number range from which document numbers are assigned, and the account types (G/L, vendor, customer, asset) permitted in the document. It does not control fiscal year variants or payment terms."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "An AR accountant needs to post a customer invoice for consulting services of $15,000 rendered to a client, without any SD billing reference. Which T-Code is most appropriate?",
+    "options": ["A) FB60", "B) VF01", "C) FB70", "D) F-22"],
+    "correctAnswer": "C) FB70",
+    "explanation": "FB70 (Enter Customer Invoice) is the standard T-Code for directly posting customer invoices in Accounts Receivable without an SD reference. VF01 is used for SD billing documents, and FB60 is for vendor invoices."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Beginner",
+    "question": "A new SAP user is navigating the system and wants to find all open vendor line items for a specific vendor to check outstanding payables. Which T-Code should they use for this report?",
+    "options": ["A) FBL1N", "B) FBL3N", "C) FBL5N", "D) FB03"],
+    "correctAnswer": "A) FBL1N",
+    "explanation": "FBL1N (Vendor Line Item Display) is used to view open, cleared, or all line items for a vendor account. FBL3N is for G/L account line items, FBL5N is for customer line items, and FB03 is for displaying individual documents."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "An accountant tries to post a vendor invoice dated March 15, 2024, but receives an error: 'Posting period 03/2024 is not open for account type K.' The posting periods for March are closed. What is the correct T-Code to open the posting period for this company code?",
+    "options": ["A) OB52", "B) OBY6", "C) OB29", "D) SM30"],
+    "correctAnswer": "A) OB52",
+    "explanation": "OB52 (Posting Periods: Specify Time Intervals) is the T-Code used to open or close posting periods for specific account types and company codes. OBY6 copies company code data, and OB29 manages fiscal year variants."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "A finance clerk enters a complex multi-line vendor invoice but is called away urgently before completing it. They want to save the work-in-progress without it being visible in financial reporting or affecting balances. What should the clerk do?",
+    "options": ["A) Park the document using FBV0", "B) Hold the document using the 'Hold' function in FB60", "C) Save as complete using FB60 post button", "D) Save as a recurring entry using FBD1"],
+    "correctAnswer": "B) Hold the document using the 'Hold' function in FB60",
+    "explanation": "A 'Held' document saves an incomplete document locally without any FI posting or number assignment; it is not visible in reporting. A 'Parked' document is assigned a document number, can be seen in reports, and can be workflow-approved before final posting."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "During month-end clearing, the AP team needs to clear an open vendor invoice of $10,000 against a payment of $10,000 that was posted to the vendor account. Which T-Code should be used to manually clear these open items?",
+    "options": ["A) F-44", "B) F-32", "C) F-28", "D) F-53"],
+    "correctAnswer": "A) F-44",
+    "explanation": "F-44 (Manual Clearing – Vendor) is used to manually clear open vendor line items against each other. F-32 is for manual clearing of customer open items, F-28 is for incoming customer payments, and F-53 is for outgoing vendor payments."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "A parked vendor invoice document (number 2300001234) has been reviewed and approved by the finance manager. The AP accountant now needs to post this parked document as a final accounting entry. Which T-Code should they use?",
+    "options": ["A) FBV2", "B) FBV4", "C) FBV0", "D) FB02"],
+    "correctAnswer": "C) FBV0",
+    "explanation": "FBV0 is used to post a parked document, making it a final accounting entry in SAP. FBV2 is for changing a parked document, FBV4 is for displaying it, and FB02 is for changing already-posted documents (limited fields)."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "Your company acquires a new piece of machinery worth $50,000. The asset master has been created. The accountant needs to post the external asset acquisition against a vendor in SAP Asset Accounting. Which T-Code is used?",
+    "options": ["A) AB01", "B) ABZON", "C) F-90", "D) AS91"],
+    "correctAnswer": "C) F-90",
+    "explanation": "F-90 (Acquisition from External Vendor) is the T-Code for posting an asset acquisition with a vendor (integrated FI-AA posting). ABZON is for acquisitions without a vendor, AB01 is for asset transactions generally, and AS91 is for creating legacy asset masters."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "An accountant posts a vendor invoice but immediately realizes the amount was entered as $15,000 instead of $1,500. The posting period is still open. What is the most appropriate corrective action in SAP?",
+    "options": ["A) Delete the document using FB03", "B) Reverse the document using FB08 and repost correctly", "C) Change the amount directly in the posted document using FB02", "D) Post a manual G/L adjustment for the $13,500 difference"],
+    "correctAnswer": "B) Reverse the document using FB08 and repost correctly",
+    "explanation": "In SAP, posted accounting documents cannot have their amount changed. The standard procedure is to reverse the incorrect document using FB08 (or MR8M for MM invoices) and then repost with the correct amount. FB02 only allows changes to non-key fields."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "A finance manager reviewing the trial balance notices that depreciation for the current month has not been posted for any asset. Which T-Code is used to run the periodic depreciation posting run in SAP Asset Accounting?",
+    "options": ["A) AFAB", "B) AR01", "C) AJAB", "D) AFAR"],
+    "correctAnswer": "A) AFAB",
+    "explanation": "AFAB (Post Depreciation) is the T-Code for executing the periodic depreciation posting run in SAP Asset Accounting. AJAB is for year-end closing of assets, AFAR is for recalculating depreciation, and AR01 is an asset history report."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "Your company's bank statement shows a direct debit of $3,000 for rent, which has not yet been recorded in SAP. The accountant needs to post an outgoing bank payment for this. Which T-Code should be used?",
+    "options": ["A) F-53", "B) F-28", "C) F-58", "D) FF67"],
+    "correctAnswer": "D) FF67",
+    "explanation": "FF67 is used for manual bank statement entry to post bank transactions directly. F-53 posts outgoing vendor payments, F-28 posts incoming customer payments, and F-58 is for printing and posting payment forms. For direct bank entries, FF67 is most appropriate."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Intermediate",
+    "question": "During an audit, the auditor asks the SAP FICO consultant to show all documents that have been changed after posting, with a log of what fields were modified. Which T-Code provides this document change log?",
+    "options": ["A) FB03", "B) FB04", "C) SE16", "D) FB02"],
+    "correctAnswer": "B) FB04",
+    "explanation": "FB04 (Display Document Changes) displays the change history of a posted accounting document, showing which fields were changed, old values, new values, and by whom. FB03 only displays the document, not its change history."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "In the Procure-to-Pay (P2P) cycle, a Purchase Order is created for raw materials worth $100,000. When Goods Receipt (GR) is posted via MIGO, which of the following accounting entries is automatically generated in SAP FI, assuming standard price control?",
+    "options": ["A) Dr. GR/IR Clearing Account, Cr. Vendor Account", "B) Dr. Raw Material Stock Account, Cr. GR/IR Clearing Account", "C) Dr. Vendor Account, Cr. Raw Material Stock Account", "D) Dr. Raw Material Stock Account, Cr. Accounts Payable"],
+    "correctAnswer": "B) Dr. Raw Material Stock Account, Cr. GR/IR Clearing Account",
+    "explanation": "At Goods Receipt (MIGO), SAP automatically debits the Stock/Inventory account and credits the GR/IR (Goods Receipt/Invoice Receipt) clearing account. The vendor account is only credited when the invoice is posted via MIRO, at which point GR/IR is debited and cleared."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "Your company sells goods to a customer and an SD billing document is created in VF01. This triggers an automatic FI posting. Which of the following correctly describes the accounting entry generated in SAP at the time of SD billing?",
+    "options": ["A) Dr. Revenue Account, Cr. Customer Account", "B) Dr. Customer Account, Cr. GR/IR Clearing Account", "C) Dr. Customer (AR) Account, Cr. Revenue Account", "D) Dr. Inventory Account, Cr. Customer Account"],
+    "correctAnswer": "C) Dr. Customer (AR) Account, Cr. Revenue Account",
+    "explanation": "When an SD billing document is saved (VF01/VF02), SAP automatically creates an FI document debiting the Customer (Accounts Receivable) account and crediting the Revenue account. This is the core FI-SD integration posting in the Order-to-Cash cycle."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "Your company has open vendor invoices in foreign currency (USD) from a vendor, while your company code currency is EUR. At month-end, the EUR/USD exchange rate has changed unfavorably. Which SAP program is executed to revalue these open foreign currency items and post unrealized exchange rate differences?",
+    "options": ["A) F.05", "B) F.13", "C) F101", "D) FAGL_FC_VAL"],
+    "correctAnswer": "D) FAGL_FC_VAL",
+    "explanation": "FAGL_FC_VAL is the standard program in New G/L for foreign currency valuation of open items and G/L balances. F.05 is the classic G/L foreign currency valuation (pre-New G/L), F.13 is for automatic clearing, and F101 is for balance sheet adjustments."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "A multinational company using SAP runs month-end foreign currency valuation. After valuation, the system posts unrealized exchange rate gains to a special G/L account. At the start of the next period, SAP automatically reverses this valuation posting. What SAP functionality controls this automatic reversal?",
+    "options": ["A) The reversal is triggered manually using FB08 by the accountant", "B) The valuation method in OB59 is configured with a reversal posting date for the next period", "C) The document type for valuation postings is set to auto-reverse in OBA7", "D) The recurring entry program FBD1 generates the reversal automatically"],
+    "correctAnswer": "B) The valuation method in OB59 is configured with a reversal posting date for the next period",
+    "explanation": "In SAP, the foreign currency valuation method configured in OB59 (or FAGL_FC_VAL settings) includes a 'Reverse Postings' option where you specify the reversal date in the next period. This ensures unrealized valuation entries are automatically reversed at period start."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "A company runs the dunning program (F150) for overdue customer receivables. After analyzing the dunning proposal, the CFO asks why a specific overdue customer invoice was excluded from the dunning run. Which of the following is NOT a valid reason for a line item being excluded from dunning?",
+    "options": ["A) A dunning block has been set on the customer master or the line item", "B) The customer's credit limit has been exceeded in the credit management module", "C) The line item's dunning level has already reached the maximum dunning level configured", "D) The overdue amount is below the minimum amount configured in the dunning procedure"],
+    "correctAnswer": "B) The customer's credit limit has been exceeded in the credit management module",
+    "explanation": "Credit limit exceedance in credit management (SD-CM) does not influence the FI dunning program (F150). Valid exclusion reasons include dunning blocks, reaching maximum dunning level, and amounts below the minimum dunning threshold configured in the dunning procedure."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "In a P2P cycle, the logistics team posts a goods receipt for 100 units at $50 each (PO price). However, the vendor invoice (MIRO) arrives at $52 per unit. What accounting entry does SAP generate for the $200 price difference at the time of MIRO posting, assuming the material uses standard price control (S)?",
+    "options": ["A) Dr. Vendor $5,200, Cr. GR/IR $5,000, Cr. Raw Material Stock $200", "B) Dr. GR/IR $5,000, Dr. Price Difference Account $200, Cr. Vendor $5,200", "C) Dr. GR/IR $5,200, Cr. Vendor $5,200 with no price difference", "D) Dr. Raw Material Stock $200, Cr. Vendor $200 to adjust inventory value"],
+    "correctAnswer": "B) Dr. GR/IR $5,000, Dr. Price Difference Account $200, Cr. Vendor $5,200",
+    "explanation": "With Standard Price (S) control, inventory is always valued at the standard price. Any difference between PO price and invoice price is posted to a Price Difference account. GR/IR is debited at GR value ($5,000), the price variance ($200) hits Price Difference account, and vendor is credited at invoice value ($5,200)."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "Your company's O2C cycle involves delivery (VL01N) and PGI (Post Goods Issue). When PGI is executed, which of the following correctly describes the automatic FI accounting entry generated in SAP?",
+    "options": ["A) Dr. Customer Account, Cr. Revenue Account", "B) Dr. GR/IR Account, Cr. Finished Goods Inventory", "C) Dr. Cost of Goods Sold (COGS), Cr. Finished Goods Inventory", "D) Dr. Finished Goods Inventory, Cr. Cost of Goods Sold"],
+    "correctAnswer": "C) Dr. Cost of Goods Sold (COGS), Cr. Finished Goods Inventory",
+    "explanation": "Post Goods Issue (PGI) in SAP triggers a Material document and an FI document. The FI entry debits the Cost of Goods Sold account and credits the Finished Goods Inventory account, reflecting the removal of inventory at standard/moving average cost. The customer billing entry is separate (VF01)."
+  },
+  {
+    "skill": "SAP FICO",
+    "difficulty": "Advanced",
+    "question": "A treasury accountant at a manufacturing firm needs to revalue the G/L bank account balances held in foreign currency at month-end (balance sheet date). The company uses the New G/L. The difference between the original posting exchange rate and the current rate must be posted as unrealized gain/loss. Which T-Code and approach should be used?",
+    "options": ["A) Run F.05 which valuates both open items and G/L balances in the classic G/L environment", "B) Run FAGL_FC_VAL selecting the 'Valuate G/L Account Balances' option for balance sheet accounts", "C) Run F101 which automatically handles all foreign currency balance sheet revaluations", "D) Manually post the difference using FB50 with document type SA after calculating the rate difference offline"],
+    "correctAnswer": "B) Run FAGL_FC_VAL selecting the 'Valuate G/L Account Balances' option for balance sheet accounts",
+    "explanation": "In New G/L, FAGL_FC_VAL is the correct program for foreign currency valuation. It has separate options to valuate open items (vendors/customers) and G/L account balances (like foreign currency bank accounts). F.05 is the legacy classic G/L equivalent and is not recommended in New G/L environments."
+  }
+]

@@ -1,0 +1,327 @@
+[
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Arjun just joined a small trading firm as an accounts assistant. On his first day, his manager asks him to open the existing company data in Tally ERP 9. When Tally opens, it shows 'No Company Loaded'. What should Arjun do to load the existing company?",
+    "options": [
+      "A) Press F3 and select the company from the list",
+      "B) Go to Gateway of Tally → Accounts Info → Company",
+      "C) Press Alt + F1 to load company data",
+      "D) Go to File → Open Company from the menu bar"
+    ],
+    "correctAnswer": "A) Press F3 and select the company from the list",
+    "explanation": "In Tally ERP 9, pressing F3 (or clicking 'Select Company') allows the user to load an existing company from the available list of companies stored on the system. This is the standard way to switch between or load companies."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Sunita is creating a new ledger for her business's HDFC current bank account in Tally ERP 9. Under which Group should she place this ledger to ensure it reflects correctly in the Balance Sheet?",
+    "options": [
+      "A) Cash-in-Hand",
+      "B) Loans & Advances (Asset)",
+      "C) Current Assets",
+      "D) Bank Accounts"
+    ],
+    "correctAnswer": "D) Bank Accounts",
+    "explanation": "All bank account ledgers in Tally ERP 9 must be created under the 'Bank Accounts' group, which is a sub-group of Current Assets. This ensures the bank balance appears correctly in the Balance Sheet and is available for BRS."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Mohan runs a retail shop and wants to transfer Rs. 50,000 from his SBI Bank account to his HDFC Bank account using Tally ERP 9. Which voucher type is correct for this transaction?",
+    "options": [
+      "A) Journal Voucher",
+      "B) Payment Voucher",
+      "C) Contra Voucher",
+      "D) Receipt Voucher"
+    ],
+    "correctAnswer": "C) Contra Voucher",
+    "explanation": "A Contra Voucher (F4) is used in Tally ERP 9 for all fund transfers between Cash and Bank or between two Bank accounts within the same company. It does not affect income or expense, only the fund position."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Preeti is a fresher accountant and has been asked to record depreciation of Rs. 10,000 on machinery for the year-end in Tally ERP 9. There is no cash involved. Which voucher type should she use?",
+    "options": [
+      "A) Payment Voucher",
+      "B) Journal Voucher",
+      "C) Contra Voucher",
+      "D) Purchase Voucher"
+    ],
+    "correctAnswer": "B) Journal Voucher",
+    "explanation": "Journal Vouchers (F7) are used for non-cash accounting adjustments such as depreciation, provisions, and write-offs. Since depreciation involves no cash or bank movement, it is recorded through a Journal entry."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Ramesh wants to see every single transaction entered on a specific date in Tally ERP 9 — a complete transaction log for that day. Which report should he access?",
+    "options": [
+      "A) Trial Balance",
+      "B) Balance Sheet",
+      "C) Ledger Report",
+      "D) Day Book"
+    ],
+    "correctAnswer": "D) Day Book",
+    "explanation": "The Day Book in Tally ERP 9 (Display → Day Book) shows all vouchers entered for a selected date in chronological order. It acts as the complete daily transaction log and is the first report to verify day-end entries."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Vinod is setting up a company in Tally ERP 9. He is confused about which option to select in the 'Maintain' field. His company only provides IT consulting services and does not deal with any physical stock. Which option should he select?",
+    "options": [
+      "A) Accounts with Inventory",
+      "B) Inventory Only",
+      "C) Accounts Only",
+      "D) Payroll with Accounts"
+    ],
+    "correctAnswer": "C) Accounts Only",
+    "explanation": "For service-based businesses that do not handle physical goods or stock, 'Accounts Only' is the correct setting. This disables inventory features, simplifying the interface and reports for a pure service company."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Nisha accidentally entered a payment voucher with the wrong amount. She wants to cancel/delete the voucher permanently from Tally ERP 9. Which key combination should she use while the voucher is open in alteration mode?",
+    "options": [
+      "A) Ctrl + C",
+      "B) Alt + D",
+      "C) Shift + F10",
+      "D) Ctrl + Z"
+    ],
+    "correctAnswer": "B) Alt + D",
+    "explanation": "Alt + D is the standard shortcut to permanently delete a voucher in Tally ERP 9 when it is opened in alteration mode. This removes the entry entirely from the books, so it should be used carefully."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Beginner",
+    "question": "Aditya's manager asked him to create a Contra Voucher in Tally ERP 9. Aditya is on the accounting voucher screen but cannot locate the Contra option. Which function key activates the Contra Voucher?",
+    "options": [
+      "A) F4",
+      "B) F5",
+      "C) F6",
+      "D) F7"
+    ],
+    "correctAnswer": "A) F4",
+    "explanation": "In Tally ERP 9's accounting voucher entry screen, F4 is the dedicated shortcut for Contra Voucher. The function key mapping is: F4=Contra, F5=Payment, F6=Receipt, F7=Journal, F8=Sales, F9=Purchase."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "During month-end reconciliation, the accountant finds that the Tally bank ledger shows a balance of Rs. 1,85,000 while the bank statement shows Rs. 2,10,000. On investigation, she finds a cheque of Rs. 25,000 issued to a supplier which has not yet been presented to the bank. How should this be treated in the Tally BRS screen?",
+    "options": [
+      "A) Enter it as a reconciled item by marking the cheque as cleared in Tally BRS",
+      "B) Pass a new Payment Voucher in Tally for Rs. 25,000 to correct the ledger",
+      "C) Leave the cheque unreconciled in the BRS — it will appear as 'Cheque issued but not presented'",
+      "D) Reverse the original payment voucher and re-enter it with the bank statement date"
+    ],
+    "correctAnswer": "C) Leave the cheque unreconciled in the BRS — it will appear as 'Cheque issued but not presented'",
+    "explanation": "In Tally's BRS, a cheque issued but not yet cleared by the bank is a standard timing difference. It should remain unreconciled in the BRS, where it will appear as a reconciling item explaining the difference between book and bank balance."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Geeta is an accountant for a GST-registered firm. She needs to record a purchase of raw materials worth Rs. 1,00,000 with 18% GST paid to a registered supplier in Tally ERP 9. Which GST ledger entries should be created to correctly record the Input Tax Credit (ITC)?",
+    "options": [
+      "A) Create a single 'GST Payable' ledger under Duties & Taxes and link it to the purchase",
+      "B) Create 'CGST Input' and 'SGST Input' ledgers under Current Assets and select them in the Purchase Voucher",
+      "C) Create 'IGST Input' ledger only, as all purchases attract integrated GST",
+      "D) No separate ledger needed — Tally auto-calculates GST without any ledger setup"
+    ],
+    "correctAnswer": "B) Create 'CGST Input' and 'SGST Input' ledgers under Current Assets and select them in the Purchase Voucher",
+    "explanation": "For intra-state purchases in Tally ERP 9, CGST and SGST input tax credit ledgers must be created under 'Current Assets' (or Duties & Taxes with input type). These are debited in the Purchase Voucher to correctly claim ITC."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Harish is reconciling his company's bank account in Tally ERP 9. He finds a bank charge of Rs. 450 debited by the bank in the bank statement, but no corresponding entry exists in Tally. What is the correct procedure?",
+    "options": [
+      "A) Adjust it directly in the BRS screen without passing any voucher",
+      "B) Pass a Payment Voucher in Tally debiting Bank Charges A/c and crediting Bank A/c, then reconcile",
+      "C) Pass a Journal Voucher debiting Bank A/c and crediting Bank Charges A/c",
+      "D) Mark it as an outstanding entry in the creditors list and reconcile later"
+    ],
+    "correctAnswer": "B) Pass a Payment Voucher in Tally debiting Bank Charges A/c and crediting Bank A/c, then reconcile",
+    "explanation": "Bank charges appearing in the bank statement but not in the books are book-side errors. A Payment Voucher must be passed in Tally to record the charge, and then it can be matched and reconciled in the BRS screen."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Pallavi's company is GST-registered and made an inter-state sale of goods worth Rs. 2,00,000 to a buyer in another state. She needs to record this in Tally ERP 9 with the correct GST treatment. Which GST component applies and which ledger should be credited?",
+    "options": [
+      "A) CGST @ 9% and SGST @ 9% — both should be credited as output tax",
+      "B) IGST @ 18% should be credited as output tax for inter-state supply",
+      "C) No GST applies on inter-state sales — only VAT is applicable",
+      "D) Both IGST and SGST apply simultaneously for inter-state transactions"
+    ],
+    "correctAnswer": "B) IGST @ 18% should be credited as output tax for inter-state supply",
+    "explanation": "As per GST law, inter-state supply of goods attracts Integrated GST (IGST) only — not CGST and SGST. In Tally, the IGST Output ledger under Duties & Taxes should be credited in the Sales Voucher for such transactions."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "The finance manager asks the accountant to run the GSTR-1 report from Tally ERP 9 to verify outward supply details before filing. She finds some invoices showing as 'Uncertain' in the GST report. What is the most likely reason for this status?",
+    "options": [
+      "A) The invoices were entered using a Journal Voucher instead of a Sales Voucher",
+      "B) The GST rate was set to 0% on those invoices",
+      "C) The party ledger or stock item does not have proper GST classification or GSTIN configured",
+      "D) Tally's license has expired, causing incomplete GST data extraction"
+    ],
+    "correctAnswer": "C) The party ledger or stock item does not have proper GST classification or GSTIN configured",
+    "explanation": "Tally marks GST transactions as 'Uncertain' when mandatory GST details — such as the party's GSTIN, HSN/SAC code, or tax rate on the stock item/ledger — are missing or incorrectly configured. Fixing the master data resolves this."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Kiran's company has a closing stock of Rs. 75,000 at the end of the financial year. He needs to record this in Tally ERP 9 using a Journal Voucher for the year-end stock adjustment. Which is the correct accounting entry?",
+    "options": [
+      "A) Debit Closing Stock A/c (Current Asset), Credit Profit & Loss A/c",
+      "B) Debit Purchases A/c, Credit Closing Stock A/c",
+      "C) Debit Trading A/c, Credit Stock in Hand A/c",
+      "D) Debit P&L A/c, Credit Opening Stock A/c"
+    ],
+    "correctAnswer": "A) Debit Closing Stock A/c (Current Asset), Credit Profit & Loss A/c",
+    "explanation": "For year-end stock entry via Journal Voucher in Tally, Closing Stock is debited as a Current Asset and the corresponding credit goes to the Trading/P&L account. This recognizes unsold inventory and correctly impacts the gross profit calculation."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Anjali's company paid advance rent of Rs. 60,000 for 6 months. At month-end, she needs to record prepaid rent of Rs. 50,000 (for 5 remaining months) as a month-end adjustment in Tally ERP 9. What is the correct Journal entry?",
+    "options": [
+      "A) Debit Rent A/c Rs. 50,000, Credit Cash A/c Rs. 50,000",
+      "B) Debit Prepaid Rent A/c Rs. 50,000, Credit Rent A/c Rs. 50,000",
+      "C) Debit Rent A/c Rs. 10,000, Credit Prepaid Rent A/c Rs. 50,000",
+      "D) Debit Cash A/c Rs. 50,000, Credit Prepaid Rent A/c Rs. 50,000"
+    ],
+    "correctAnswer": "B) Debit Prepaid Rent A/c Rs. 50,000, Credit Rent A/c Rs. 50,000",
+    "explanation": "Prepaid rent is an asset (expense paid in advance but not yet due). The Journal entry reverses the expense to a Prepaid (Current Asset) account: Debit Prepaid Rent A/c and Credit Rent A/c for the unexpired portion."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Rajan is using Tally ERP 9 and needs to configure the system to automatically calculate TDS when recording a payment to a contractor exceeding the TDS threshold. Which configuration path enables TDS in Tally?",
+    "options": [
+      "A) Gateway of Tally → F11 Features → Statutory & Taxation → Enable Tax Deducted at Source (TDS) → Yes",
+      "B) Gateway of Tally → Accounts Info → Ledgers → Enable TDS",
+      "C) Gateway of Tally → F12 Configure → Voucher Entry → Enable TDS Deduction",
+      "D) Gateway of Tally → Payroll Info → TDS Setup → Activate"
+    ],
+    "correctAnswer": "A) Gateway of Tally → F11 Features → Statutory & Taxation → Enable Tax Deducted at Source (TDS) → Yes",
+    "explanation": "TDS functionality in Tally ERP 9 is activated through F11 (Company Features) → Statutory & Taxation tab, where 'Enable Tax Deducted at Source (TDS)' must be set to Yes. This unlocks TDS nature of payments, deductee types, and automatic calculations."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Intermediate",
+    "question": "Meena's audit team notices that the Trial Balance in Tally ERP 9 is not matching — the difference is exactly Rs. 1,00,000. On investigation, they find a Sales Voucher was entered as Rs. 2,00,000 instead of Rs. 1,00,000. What is the quickest way to correct this in Tally without deleting the voucher?",
+    "options": [
+      "A) Delete the wrong voucher and re-enter a new one with the correct amount",
+      "B) Pass a reverse Journal entry for Rs. 1,00,000 to neutralize the error",
+      "C) Open the voucher in alteration mode (press Enter or Alt+Enter on the entry), correct the amount, and save",
+      "D) Create a Credit Note for Rs. 1,00,000 against the original invoice"
+    ],
+    "correctAnswer": "C) Open the voucher in alteration mode (press Enter or Alt+Enter on the entry), correct the amount, and save",
+    "explanation": "In Tally ERP 9, any previously saved voucher can be altered by locating it in the Day Book or Ledger and pressing Enter to open it in alteration mode. Correcting the amount and saving is the cleanest way to fix data entry errors."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "A CA firm is conducting an internal audit of a client's Tally ERP 9 data. They want to check whether any voucher was altered or deleted after it was originally saved, including who made the change and at what time. Which feature of Tally ERP 9 should they use?",
+    "options": [
+      "A) Display → Day Book filtered by date range",
+      "B) Audit & Compliance → Tally Audit under Gateway of Tally",
+      "C) F12 Configure → Show Voucher History",
+      "D) Display → Statistics → Voucher Count"
+    ],
+    "correctAnswer": "B) Audit & Compliance → Tally Audit under Gateway of Tally",
+    "explanation": "Tally Audit (Gateway of Tally → Audit & Compliance → Tally Audit) is a built-in feature that tracks all post-save modifications, deletions, and user-level changes with timestamps. It is the primary tool for auditors to detect tampering in Tally data."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "A company uses Tally ERP 9 and has activated multi-currency. They imported goods and received an invoice of USD 10,000 when the exchange rate was Rs. 82/USD. By the time payment was made, the rate moved to Rs. 84/USD. The accountant needs to record the Rs. 20,000 exchange loss. Which is the correct treatment in Tally?",
+    "options": [
+      "A) Pass a Payment Voucher for the full Rs. 8,40,000 and ignore the exchange difference",
+      "B) Tally auto-adjusts the forex difference — no separate entry is needed",
+      "C) Pass a Journal Voucher debiting 'Forex Loss A/c' and crediting the supplier ledger for the Rs. 20,000 difference, then pay the full Rs. 8,40,000",
+      "D) Pass a Debit Note to the supplier for the Rs. 20,000 exchange loss"
+    ],
+    "correctAnswer": "C) Pass a Journal Voucher debiting 'Forex Loss A/c' and crediting the supplier ledger for the Rs. 20,000 difference, then pay the full Rs. 8,40,000",
+    "explanation": "In Tally's multi-currency module, when payment exchange rate differs from invoice rate, a forex gain/loss entry must be passed via Journal Voucher to update the supplier ledger balance. The payment voucher is then passed for the actual amount paid in INR."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "The CFO suspects that an employee has been backdating payment vouchers in Tally ERP 9 to manipulate the monthly expense reports. As the internal auditor, which specific Tally feature and report should you use to identify such tampering?",
+    "options": [
+      "A) Run the Profit & Loss report for each month and compare totals manually",
+      "B) Use Tally Audit → Altered Vouchers report, filtering by user and date range to see all post-entry modifications",
+      "C) Export all vouchers to Excel and sort by creation date versus voucher date",
+      "D) Enable the 'Use Security Control' feature and reset all user passwords"
+    ],
+    "correctAnswer": "B) Use Tally Audit → Altered Vouchers report, filtering by user and date range to see all post-entry modifications",
+    "explanation": "Tally Audit's 'Altered Vouchers' report captures every instance where a voucher was modified after original entry, including the user's login ID and the timestamp of alteration. This is the definitive tool to detect backdating or post-facto manipulation."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "A company's Tally ERP 9 data has grown to over 80GB and performance has degraded significantly. The IT team recommends splitting the company data by financial year. What is the correct approach to split data in Tally without losing historical records?",
+    "options": [
+      "A) Copy the Tally data folder manually for each year and rename the companies",
+      "B) Use Gateway of Tally → Company Info → Split Company Data, select the split date, and Tally creates two separate company data sets",
+      "C) Export all vouchers to Excel, delete older data from Tally, and reimport the current year data",
+      "D) Use F11 Features → Enable Data Archiving to compress older transactions automatically"
+    ],
+    "correctAnswer": "B) Use Gateway of Tally → Company Info → Split Company Data, select the split date, and Tally creates two separate company data sets",
+    "explanation": "Tally ERP 9 has a built-in 'Split Company Data' feature under Company Info that divides company data at a specified date into two separate companies. The closing balances of the split date automatically become the opening balances of the new company, maintaining data continuity."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "A firm deducted TDS of Rs. 15,000 under Section 194C on a contractor payment of Rs. 1,50,000 in Tally ERP 9. However, the TDS return (Form 26Q) generated from Tally shows Rs. 0 TDS for this deductee. What is the most likely cause?",
+    "options": [
+      "A) The TDS rate was not configured in F11 Company Features",
+      "B) The contractor's ledger was not assigned the correct 'Nature of Payment' and 'Deductee Type' in the ledger master",
+      "C) TDS can only be calculated on payments above Rs. 2,00,000 per transaction",
+      "D) The Payment Voucher was used instead of a Journal Voucher for the contractor payment"
+    ],
+    "correctAnswer": "B) The contractor's ledger was not assigned the correct 'Nature of Payment' and 'Deductee Type' in the ledger master",
+    "explanation": "In Tally ERP 9, for TDS to be correctly captured in statutory reports like Form 26Q, the party ledger must have the correct 'Nature of Payment' (e.g., 194C - Contractor) and 'Deductee Type' (Company/Individual) configured in the ledger master under the TDS section."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "During a statutory audit, the auditor requests a user-wise voucher entry report to check whether the junior accountant had access to alter finalized vouchers. The company uses Tally ERP 9 with Security Control enabled. Where can the auditor pull this report?",
+    "options": [
+      "A) Display → Statements of Accounts → User Activity Log",
+      "B) Gateway of Tally → Audit & Compliance → Tally Audit → Users and Passwords Report",
+      "C) Gateway of Tally → Audit & Compliance → Tally Audit → filter by Authority Type and User Name to see all entry and alteration activity",
+      "D) F12 Configure → Security → View User Access Report"
+    ],
+    "correctAnswer": "C) Gateway of Tally → Audit & Compliance → Tally Audit → filter by Authority Type and User Name to see all entry and alteration activity",
+    "explanation": "Tally Audit allows filtering by user name and authority type, showing all vouchers created or altered by a specific user. This is the correct path for auditors to perform user-level activity reviews and assess internal control effectiveness."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "A company has a TCS liability for collecting tax on sale of scrap worth Rs. 5,00,000 (TCS @ 1%). The accountant recorded it in Tally ERP 9 but the TCS amount is not reflecting in Form 27EQ. After checking, the stock item 'Scrap' has all details correct. What is the most likely configuration gap?",
+    "options": [
+      "A) TCS was enabled in F11 but the Sales Voucher type was not configured to use TCS",
+      "B) The party (buyer) ledger does not have 'TCS Applicable' set to 'Yes' with the correct 'Nature of Goods' mapped in the ledger master",
+      "C) TCS on scrap is not supported in Tally ERP 9 and must be computed manually",
+      "D) Form 27EQ can only be exported after running the Year-End process in Tally"
+    ],
+    "correctAnswer": "B) The party (buyer) ledger does not have 'TCS Applicable' set to 'Yes' with the correct 'Nature of Goods' mapped in the ledger master",
+    "explanation": "For TCS to flow into Form 27EQ in Tally ERP 9, the buyer's ledger master must have TCS enabled with the correct Nature of Goods (e.g., Scrap - 206C) configured. Without this mapping, Tally does not tag the transaction for TCS statutory reporting even if the feature is enabled at the company level."
+  },
+  {
+    "skill": "Tally ERP",
+    "difficulty": "Advanced",
+    "question": "A manufacturing company using Tally ERP 9 maintains accounts in INR but has a USD-denominated loan from a foreign bank. At year-end, the USD loan balance needs to be revalued at the closing exchange rate as per AS-11. The original loan was recorded at Rs. 75/USD and the year-end rate is Rs. 83/USD for a loan of USD 1,00,000. How should the Rs. 8,00,000 unrealised forex loss be correctly recorded?",
+    "options": [
+      "A) Debit Forex Loss A/c Rs. 8,00,000, Credit Foreign Currency Loan A/c Rs. 8,00,000 via Journal Voucher; disclose in notes as per AS-11",
+      "B) No entry required as it is unrealised — only realised forex losses are recorded under AS-11",
+      "C) Debit Foreign Currency Loan A/c Rs. 8,00,000, Credit Forex Gain A/c Rs. 8,00,000",
+      "D) Record as a contingent liability in the notes to accounts without any Tally journal entry"
+    ],
+    "correctAnswer": "A) Debit Forex Loss A/c Rs. 8,00,000, Credit Foreign Currency Loan A/c Rs. 8,00,000 via Journal Voucher; disclose in notes as per AS-11",
+    "explanation": "As per AS-11 (Effects of Changes in Foreign Exchange Rates), monetary items like foreign currency loans must be restated at the closing rate. The resultant exchange difference (whether gain or loss) is recognised in the P&L. In Tally, this is passed via Journal Voucher debiting Forex Loss A/c and crediting the Loan ledger to reflect the increased liability."
+  }
+]

@@ -1,0 +1,314 @@
+[
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "During year-end close, the statutory audit committee asks whether the note on significant accounting policies should disclose the method used to classify a one-off insurance recovery. Under AS 1, how should the company proceed for audit disclosure?",
+"options": [
+"A) Disclose the nature of the one-off insurance recovery and the accounting policy used to recognise it in the significant accounting policies note.",
+"B) Omit disclosure because one-off items need not be included in AS 1 policies.",
+"C) Only disclose the amount in the financial statements without describing the accounting policy.",
+"D) Disclose the item as extraordinary in a separate schedule outside AS 1 requirements."
+],
+"correctAnswer": "A) Disclose the nature of the one-off insurance recovery and the accounting policy used to recognise it in the significant accounting policies note.",
+"explanation": "AS 1 requires disclosure of significant accounting policies and material items; the nature and policy for one-off recoveries is material.\nAuditors expect the note to explain recognition criteria so users can understand comparability and basis of presentation."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "A retail client uses FIFO for most inventories but adopted weighted average for a specific slow-moving product line. At statutory audit, the board asks how to present this under AS 2 for compliance.",
+"options": [
+"A) Continue FIFO for all inventories to avoid disclosure complexity.",
+"B) Disclose the basis of valuation for each class of inventory and justify the change for the slow-moving line in the notes.",
+"C) Aggregate inventory values and disclose only the total amount to simplify reporting.",
+"D) Reclassify the slow-moving line as obsolete and write it off without disclosure."
+],
+"correctAnswer": "B) Disclose the basis of valuation for each class of inventory and justify the change for the slow-moving line in the notes.",
+"explanation": "AS 2 requires disclosure of valuation methods for inventories and reasons for different bases across classes.\nAuditors expect transparent notes showing the method used and justification for any deviation to assess comparability."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "A services company received an upfront non-refundable setup fee. During the audit the board asks how revenue should be recognised under AS 9 to comply with statutory reporting.",
+"options": [
+"A) Recognise entire fee immediately in P&L on receipt as per policy.",
+"B) Defer recognition and present as capital reserve.",
+"C) Recognise revenue over the period of providing services consistent with AS 9 revenue recognition criteria.",
+"D) Net off the fee against cost of future services and do not show separately."
+],
+"correctAnswer": "C) Recognise revenue over the period of providing services consistent with AS 9 revenue recognition criteria.",
+"explanation": "AS 9 requires that revenue be recognised when it is earned and measurable; upfront fees for services should be recognised over the service period.\nAudit compliance demands matching revenue recognition to performance obligations to avoid misstated profits."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "At the pre-audit board meeting, management suggests treating the going concern uncertainty due to a major customer loss as a disclosure only, not adjusting asset valuations. Under fundamental accounting assumptions how should auditors advise the board?",
+"options": [
+"A) Maintain current carrying values and add a brief disclosure only, since uncertainty alone does not require adjustments.",
+"B) Revise all comparative numbers to reflect hypothetical liquidation values.",
+"C) Assess whether material uncertainty requires modification of going concern assumption and adjust asset valuations if going concern is no longer appropriate.",
+"D) Defer any decision to next year as going concern is a management judgment."
+],
+"correctAnswer": "D) Defer any decision to next year as going concern is a management judgment.",
+"explanation": "Incorrect — going concern is a critical assumption; auditors must evaluate evidence and may require adjustments if viability is doubtful.\nIf uncertainty is material, assets should be tested for impairment and disclosures expanded rather than mere deferral."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "A small manufacturing entity applies accrual basis in its books but is contemplating cash basis for certain contract revenues to smooth profits. The audit partner asks what AS principle governs this switch.",
+"options": [
+"A) The company can selectively apply cash basis for certain contracts without disclosure.",
+"B) Fundamental assumption of accrual requires revenue recognition when earned; change to cash basis requires justification and disclosure under AS 1.",
+"C) Use cash basis for revenue and accrual for expenses to optimize tax outcomes.",
+"D) No accounting standard governs basis selection; choose what suits stakeholders."
+],
+"correctAnswer": "B) Fundamental assumption of accrual requires revenue recognition when earned; change to cash basis requires justification and disclosure under AS 1.",
+"explanation": "The accrual assumption is a core accounting principle; any change in basis materially affecting results must be justified and disclosed.\nAuditors will require disclosure of the change and assess whether it complies with AS 1 on significant accounting policies."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "During statutory audit the CFO suggests capitalising small handling costs into inventory though policy caps capitalisation at material thresholds. For AS 2 compliance, how should auditors respond?",
+"options": [
+"A) Allow capitalisation regardless of policy to smooth margins.",
+"B) Require adherence to AS 2 and the entity's policy; only allow capitalisation if costs meet recognised criteria and are material.",
+"C) Capitalise all costs to comply with prudence principle.",
+"D) Reclassify handling costs as administrative expenses to be conservative."
+],
+"correctAnswer": "C) Capitalise all costs to comply with prudence principle.",
+"explanation": "Incorrect — AS 2 allows capitalisation of costs that are directly attributable to bringing inventory to its present location and condition and materiality matters.\nAuditors should enforce the stated policy and AS 2 criteria; immaterial or non-attributable costs should be expensed."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Beginner",
+"question": "A retailer returns goods to supplier after year end but before financial statements are authorised. Management wants inventories to reflect the reduced stock. Under AS 2, what is the correct audit-compliant treatment?",
+"options": [
+"A) Do not adjust inventory since return occurred after year-end.",
+"B) Adjust inventory because post-balance-sheet events that provide evidence of conditions existing at balance sheet date should be reflected.",
+"C) Show as contingent liability until supplier confirms acceptance.",
+"D) Record as a purchase return in next year's books only."
+],
+"correctAnswer": "D) Record as a purchase return in next year's books only.",
+"explanation": "Incorrect — AS 2 and AS 4 require adjusting events after the balance sheet date that provide evidence of conditions existing at balance sheet date.\nIf the return evidences a condition that existed at year-end, the inventory and related accounts should be adjusted before authorisation."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "During classification review, the finance head proposes revaluing land under AS 10 and crediting revaluation surplus to general reserves to avoid volatility in retained earnings. Auditors ask what statutory compliance is required.",
+"options": [
+"A) Revaluation surplus can be credited to general reserves without specific disclosure.",
+"B) Revaluation must be recognized in revaluation reserve and full disclosure of basis, frequency and effect is required under AS 10.",
+"C) Revalue and amortise surplus over useful life to smooth profits.",
+"D) Revaluation is prohibited for land; carry at historical cost only."
+],
+"correctAnswer": "A) Revaluation surplus can be credited to general reserves without specific disclosure.",
+"explanation": "Incorrect — AS 10 mandates that revaluation increases be credited to revaluation reserve and detailed disclosures about the basis and effects must be made.\nAuditors should insist on correct presentation and disclosure rather than routing surplus into general reserves."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "A company capitalised borrowing costs into plant under construction but later abandoned the project. The audit committee asks how AS 10 and other standards require treatment of capitalised borrowing costs on abandonment.",
+"options": [
+"A) Continue capitalising borrowing costs indefinitely until a new project is found.",
+"B) Expense the capitalised borrowing costs as they relate to an abandoned asset and disclose the write-off.",
+"C) Transfer capitalised borrowing costs to intangible assets for future use.",
+"D) Defer write-off to future periods to avoid profit impact."
+],
+"correctAnswer": "B) Expense the capitalised borrowing costs as they relate to an abandoned asset and disclose the write-off.",
+"explanation": "When a project is abandoned, capitalised costs that no longer meet recognition criteria should be written off and disclosed.\nAuditors expect prompt expensing and transparent notes on the abandonment and its impact on results."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "At year-end payroll review, HR requests classifying a November long-term incentive as short-term under AS 15 to avoid actuarial valuations. The statutory auditor asks which test determines short vs long-term employee benefit classification.",
+"options": [
+"A) Classify as short-term if company prefers simpler accounting.",
+"B) Classify as short-term only if expected to be settled wholly within 12 months of reporting period as per AS 15.",
+"C) Treat all incentive plans as long-term to be conservative.",
+"D) Use cash flow projections to decide classification irrespective of settlement timing."
+],
+"correctAnswer": "C) Classify as short-term only if expected to be settled wholly within 12 months of reporting period as per AS 15.",
+"explanation": "AS 15 distinguishes short-term and long-term benefits based on expected settlement timing; the 12-month criterion is determinative.\nAuditors require evidence of expected settlement dates to support classification and related measurement."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "The tax head flags that depreciation for tax differs from book and asks audit committee whether deferred tax liability should be recorded under AS 22. What is the appropriate compliance step?",
+"options": [
+"A) No deferred tax is required for timing differences in depreciation.",
+"B) Recognise deferred tax liability for taxable temporary differences arising from different depreciation bases under AS 22.",
+"C) Adjust the depreciation policy to match tax to avoid deferred tax recognition.",
+"D) Only disclose the difference in notes without recognising deferred tax."
+],
+"correctAnswer": "D) Recognise deferred tax liability for taxable temporary differences arising from different depreciation bases under AS 22.",
+"explanation": "Incorrect — AS 22 requires recognition of deferred tax for timing differences, including depreciation differences between accounting and tax bases.\nAuditors expect a measured DTL using enacted tax rates and appropriate disclosures on timing and reversals."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "An entity is considering capitalising an employee training program cost into PPE under AS 10. The auditors ask whether AS 15 and AS 10 permit capitalisation of such costs.",
+"options": [
+"A) Capitalise training costs as part of PPE since they enhance employee productivity.",
+"B) Expense training costs as they do not meet recognition criteria for PPE and are covered by AS 15 as employee benefit expense.",
+"C) Capitalise as intangible asset under AS 26 without further assessment.",
+"D) Defer recognition until training results in measurable cost savings."
+],
+"correctAnswer": "B) Expense training costs as they do not meet recognition criteria for PPE and are covered by AS 15 as employee benefit expense.",
+"explanation": "Training costs are primarily employee benefits and do not create identifiable PPE; AS 15 requires these to be expensed unless specific criteria for capitalisation are met.\nAuditors should ensure such costs are not capitalised improperly and that disclosures reflect expense treatment."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "A company has timing differences between taxable income and accounting profit due to provisions not deductible for tax now. At audit, the CFO asks whether these should be disclosed and recognised under AS 22.",
+"options": [
+"A) Do not recognise or disclose; tax impact is only when cash tax is paid.",
+"B) Recognise deferred tax assets or liabilities for timing differences and disclose the nature and amounts under AS 22.",
+"C) Offset timing differences against retained earnings without disclosure.",
+"D) Only disclose in a management commentary and not in financial statements."
+],
+"correctAnswer": "A) Recognise deferred tax assets or liabilities for timing differences and disclose the nature and amounts under AS 22.",
+"explanation": "Incorrect — AS 22 mandates recognition of deferred tax for timing differences and disclosure of their nature, amounts and expected reversals.\nAuditors expect recognition where timing differences are material and adequate supporting documentation for recoverability of DTAs."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "During PPE review, management wants to capitalize costs of replacing a major component of a machine. The board asks whether capitalisation fits AS 10 and audit compliance.",
+"options": [
+"A) Capitalise the replacement cost only if it increases future economic benefits and meets recognition criteria under AS 10.",
+"B) Always expense replacements to avoid inflating asset values.",
+"C) Capitalise and create a separate reserve without depreciation.",
+"D) Treat replacement as revenue expenditure unless board approves capitalization."
+],
+"correctAnswer": "A) Capitalise the replacement cost only if it increases future economic benefits and meets recognition criteria under AS 10.",
+"explanation": "AS 10 allows capitalisation of replacing major components when they meet recognition criteria and extend asset life or improve future benefits.\nAuditors will expect documentation showing enhanced future benefits and appropriate depreciation adjustments."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Intermediate",
+"question": "A company offers long-service retirement benefits and the actuary provides a report. The audit committee asks whether short-term and long-term portions should be separated under AS 15 for audit reporting.",
+"options": [
+"A) Combine both amounts and show a single liability under current liabilities.",
+"B) Split and present short-term and long-term employee benefit obligations separately with disclosures as required by AS 15.",
+"C) Present as contingent liability since actuarial valuations are uncertain.",
+"D) Only disclose the actuarial method and avoid recognising any liability."
+],
+"correctAnswer": "B) Split and present short-term and long-term employee benefit obligations separately with disclosures as required by AS 15.",
+"explanation": "AS 15 requires classification between short-term and long-term employee benefits and specific disclosures on measurement and actuarial assumptions.\nAuditors expect separate presentation to reflect timing of expected settlements and ensure clarity for users."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "A group has an overseas subsidiary whose operations are closely integrated with Indian parent. The statutory audit must determine whether subsidiary is an integral or non-integral foreign operation under AS 11. Which compliance factor is decisive in determining accounting treatment?",
+"options": [
+"A) The legal form of contracts alone decides integral status.",
+"B) The degree of integration of cash flows, operational dependency and currency of transactions determines whether it is integral or non-integral.",
+"C) The place of incorporation alone makes it non-integral automatically.",
+"D) The parent’s intent to repatriate profits decides the classification."
+],
+"correctAnswer": "C) The degree of integration of cash flows, operational dependency and currency of transactions determines whether it is integral or non-integral.",
+"explanation": "Classification under AS 11 depends on operational and economic integration, including whether local currency and operations are independent.\nAuditors should evaluate substance over form, including cash flow integration and control, to determine correct translation method."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "A lessee has a lease of specialized plant for 12 years where risks/rewards transfer substantially. Management classified as operating lease to keep liabilities off balance sheet. The statutory auditor asks how AS 19 should be applied for audit compliance.",
+"options": [
+"A) Accept management classification if lease rentals are low.",
+"B) Reassess substance; if risks and rewards transfer substantially, reclassify as finance lease and capitalise asset and liability per AS 19.",
+"C) Always treat leases over 10 years as operating leases under AS 19.",
+"D) Present as contingent liability with disclosure but not capitalise."
+],
+"correctAnswer": "D) Reassess substance; if risks and rewards transfer substantially, reclassify as finance lease and capitalise asset and liability per AS 19.",
+"explanation": "Incorrect — if the lease transfers substantially all risks and rewards, AS 19 requires finance lease classification and capitalisation; auditors must test substance.\nBalance sheet recognition and measurement must follow AS 19 to avoid misrepresentation of liabilities."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "During audit of contingency provisions, management declines to recognise a probable legal claim of significant value arguing low chance of loss. Under AS 29 how should auditors treat this for compliance and disclosure?",
+"options": [
+"A) Do not recognise or disclose because management believes chance of loss is low.",
+"B) Recognise a provision if outflow is probable and amount can be reliably estimated; if only possible, disclose as contingent liability with an estimate.",
+"C) Aggressively recognise full amount as provision to be conservative.",
+"D) Ignore the contingency if legal counsel is optimistic."
+],
+"correctAnswer": "B) Recognise a provision if outflow is probable and amount can be reliably estimated; if only possible, disclose as contingent liability with an estimate.",
+"explanation": "AS 29 requires recognition for probable outflows with reliable estimates and disclosure of possible losses as contingent liabilities.\nAuditors must evaluate probability and measurement and ensure appropriate recognition or disclosure in the notes."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "A technology company internally develops software and seeks to capitalise development costs. The CFO asks how AS 26 treats internally generated intangible assets for audit and compliance purposes.",
+"options": [
+"A) Capitalise all research and development costs immediately under AS 26.",
+"B) Capitalise development costs only when technical feasibility, intent to complete, ability to use/sell and reliable measurement of expenditure are demonstrated; research costs should be expensed.",
+"C) Expense all development costs as AS 26 prohibits internal capitalisation.",
+"D) Record development costs as deferred revenue until commercialisation."
+],
+"correctAnswer": "A) Capitalise development costs only when technical feasibility, intent to complete, ability to use/sell and reliable measurement of expenditure are demonstrated; research costs should be expensed.",
+"explanation": "AS 26 distinguishes research and development; development costs meeting specific criteria can be capitalised while research must be expensed.\nAuditors require evidence of feasibility and reliable measurement before permitting capitalisation to ensure compliance."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "An importer invoices in USD but sells domestically in INR; the company hedges part of exposure. At statutory audit, management treated foreign exchange differences on hedges and underlying trade as part of inventory cost. Under AS 11 what is the audit-compliant approach?",
+"options": [
+"A) Net off hedge gains/losses with inventory costs without separate disclosure.",
+"B) Foreign exchange differences related to the acquisition of inventories should be included in inventory cost until the inventory is sold, and hedging gains/losses treated per AS 11 disclosures.",
+"C) Always recognise all FX gains/losses in P&L immediately irrespective of purpose.",
+"D) Capitalise hedging transaction costs as intangible assets."
+],
+"correctAnswer": "C) Foreign exchange differences related to the acquisition of inventories should be included in inventory cost until the inventory is sold, and hedging gains/losses treated per AS 11 disclosures.",
+"explanation": "AS 11 allows FX differences related to acquisition to be included in inventory cost; hedging outcomes must be disclosed and matched appropriately.\nAuditors will expect consistency and transparency in how FX and hedge results affect inventory valuation and profit timing."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "A company entered into a sale-and-leaseback of manufacturing equipment and booked a gain. Management wants to recognise the full gain in current profits. The audit team asks how AS 19 and AS 10 affect recognition of that gain for compliance.",
+"options": [
+"A) Recognise full gain immediately to improve current year results.",
+"B) Defer gain recognition and amortise over lease term if sale and leaseback is finance lease; if operating lease, recognise proportionally depending on substance under AS 19.",
+"C) Classify gain as extraordinary and show separately under AS 1.",
+"D) Capitalise gain as part of new lease asset."
+],
+"correctAnswer": "D) Defer gain recognition and amortise over lease term if sale and leaseback is finance lease; if operating lease, recognise proportionally depending on substance under AS 19.",
+"explanation": "Sale-and-leaseback gains require careful assessment of lease classification; immediate recognition may be inappropriate if transaction lacks substance.\nAuditors should ensure gains are recognised in line with AS 19 and AS 10 principles, with appropriate disclosure and amortisation where required."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "During group audit, the headquarters proposes centralising IP in a sister company abroad and charging the Indian entity management fees. The audit committee requests guidance on AS 26 and AS 29 exposure and required audit evidence.",
+"options": [
+"A) Centralise IP and treat all fees as capital contributions to avoid revenue recognition issues.",
+"B) Ensure that any internally generated intangible transferred meets AS 26 recognition criteria, and assess whether fee arrangements create contingent liabilities or onerous obligations under AS 29; obtain documentation of valuation and commercial substance.",
+"C) Ignore AS 26 for inter-company transfers as group accounting overrides local standards.",
+"D) Record contingent liability for all inter-company fees without further assessment."
+],
+"correctAnswer": "A) Ensure that any internally generated intangible transferred meets AS 26 recognition criteria, and assess whether fee arrangements create contingent liabilities or onerous obligations under AS 29; obtain documentation of valuation and commercial substance.",
+"explanation": "Inter-company IP centralisation must satisfy AS 26 for recognition and AS 29 for provisions and contingencies; auditors need corroborative valuation and substance evidence.\nTransparent documentation of contracts, pricing and business rationale is essential to defend the accounting treatment."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "A company with significant foreign currency borrowings elects to apply hedge accounting. During audit, management failed to document hedge effectiveness testing. Under AS 11 what is the likely audit outcome for hedge accounting compliance?",
+"options": [
+"A) Continue hedge accounting without tests as documentation is optional.",
+"B) Disallow hedge accounting until effectiveness is demonstrated; recognise hedge gains/losses in profit or loss accordingly and disclose the change.",
+"C) Convert all hedges to derivatives and capitalise costs.",
+"D) Treat the hedge as a contingent asset and avoid recognition."
+],
+"correctAnswer": "B) Disallow hedge accounting until effectiveness is demonstrated; recognise hedge gains/losses in profit or loss accordingly and disclose the change.",
+"explanation": "AS 11 requires hedge effectiveness documentation; absence of such evidence typically prevents hedge accounting and forces immediate P&L recognition of hedge results.\nAuditors will insist on either retrospective/prospective testing or de-designation and appropriate disclosures."
+},
+{
+"skill": "Accounting Standards",
+"difficulty": "Advanced",
+"question": "A major contractual dispute could create an onerous contract for supply obligations. Management suggests waiting until litigation concludes. The audit partner asks how AS 29 guides recognition of onerous contracts and provisioning.",
+"options": [
+"A) Wait until litigation resolution before recognising any provision.",
+"B) Recognise a provision for onerous contracts when the unavoidable costs of meeting obligations exceed the expected economic benefits, even if litigation is pending.",
+"C) Disclose as contingent asset until proven otherwise.",
+"D) Capitalise any expected losses into the cost of future inventories."
+],
+"correctAnswer": "C) Recognise a provision for onerous contracts when the unavoidable costs of meeting obligations exceed the expected economic benefits, even if litigation is pending.",
+"explanation": "AS 29 requires provisioning when a contract is onerous and expected costs exceed benefits; waiting for litigation outcome may delay necessary recognition.\nAuditors expect measurement of the unavoidable costs and timely recognition of provisions with clear disclosure of uncertainties."
+}
+]

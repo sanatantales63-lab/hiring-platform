@@ -1,0 +1,202 @@
+[
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "You are an accounts assistant entering invoice data. Cell B2 contains the unit price ₹500 and cell C2 contains quantity 10. You copy the formula =B2*C2 from D2 down to D3, but D3 shows 0 because B3 and C3 are empty. Your manager wants the unit price to always refer to B2 regardless of which row the formula is in. Which formula in D2 should you use before copying it down?",
+    "options": ["A) =B2*C2", "B) =$B$2*C2", "C) =B$2*$C2", "D) =$B2*C$2"],
+    "correctAnswer": "B) =$B$2*C2",
+    "explanation": "$B$2 locks the unit price cell absolutely so it never changes when the formula is copied down. C2 remains relative so it adjusts to the correct quantity row as you copy the formula downward."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "Your junior has submitted a salary sheet where all monetary values in column C appear as plain numbers like 75000 instead of ₹75,000.00. Your manager wants a professional look with the Indian Rupee symbol and two decimal places. Without changing the actual cell values, which is the fastest way to apply this formatting to C2:C500?",
+    "options": ["A) Type the ₹ symbol manually before each number", "B) Select C2:C500 → Right-click → Format Cells → Number → Currency → select ₹ symbol with 2 decimal places", "C) Use a formula =TEXT(C2,\"₹#,##0.00\") in a helper column", "D) Use Find & Replace to add ₹ before every number"],
+    "correctAnswer": "B) Select C2:C500 → Right-click → Format Cells → Number → Currency → select ₹ symbol with 2 decimal places",
+    "explanation": "Format Cells → Currency applies the display format instantly across all selected cells without altering underlying values. Using TEXT() (option C) converts numbers to text strings, breaking any downstream SUM formulas."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "You are preparing a petty cash report. Column A has expense categories, column B has amounts. You need to find the total amount spent on 'Stationery' across 200 rows. Which formula gives the correct total?",
+    "options": ["A) =SUM(B2:B200)", "B) =COUNTIF(A2:A200,\"Stationery\")", "C) =SUMIF(A2:A200,\"Stationery\",B2:B200)", "D) =SUMIFS(A2:A200,B2:B200,\"Stationery\")"],
+    "correctAnswer": "C) =SUMIF(A2:A200,\"Stationery\",B2:B200)",
+    "explanation": "SUMIF checks column A for 'Stationery' and sums the corresponding values in column B. Option D has the arguments in the wrong order — SUMIFS requires the sum range first, then the criteria range and criteria."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "You have a 300-row purchase register. You need to quickly identify how many invoices belong to vendor 'Infosys'. Column B contains vendor names. Which formula gives the correct count in a summary cell?",
+    "options": ["A) =SUMIF(B2:B300,\"Infosys\",B2:B300)", "B) =COUNT(B2:B300)", "C) =COUNTA(B2:B300)", "D) =COUNTIF(B2:B300,\"Infosys\")"],
+    "correctAnswer": "D) =COUNTIF(B2:B300,\"Infosys\")",
+    "explanation": "COUNTIF counts only the cells in column B that exactly match 'Infosys', giving the invoice count for that vendor. COUNT and COUNTA count all numeric or non-empty cells respectively, ignoring the vendor name condition."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "During a month-end review, your manager notices that the totals row at the bottom of your expense sheet is not visually distinct from the data rows. She wants the totals row (row 51) to have a bold font, dark blue background, and white text. What is the most efficient way to apply all three formatting changes at once?",
+    "options": ["A) Apply each format separately using the Home ribbon buttons one at a time", "B) Select row 51 → Format Cells (Ctrl+1) → apply Font: Bold, White; Fill: Dark Blue in one dialog", "C) Use Conditional Formatting to highlight the totals row", "D) Copy formatting from a pre-formatted template cell using Format Painter"],
+    "correctAnswer": "B) Select row 51 → Format Cells (Ctrl+1) → apply Font: Bold, White; Fill: Dark Blue in one dialog",
+    "explanation": "Format Cells dialog (Ctrl+1) allows applying font style, font color, and background fill simultaneously in a single operation, which is faster and more precise than applying each property separately via ribbon buttons."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "You are building an expense tracker. Cell D2 has a formula =B2+C2. When you press Enter and then click D2 again, the cell still shows the formula text '=B2+C2' instead of the calculated result. What is the most likely cause?",
+    "options": ["A) The formula has a syntax error", "B) The cell D2 is formatted as 'Text' format instead of 'General' or 'Number'", "C) The Show Formulas mode is turned on (Ctrl+`)", "D) Both B and C could cause this issue"],
+    "correctAnswer": "D) Both B and C could cause this issue",
+    "explanation": "When a cell is formatted as Text, Excel treats the entry as a string and displays it literally instead of calculating. Similarly, pressing Ctrl+` toggles 'Show Formulas' mode, displaying all formulas as text across the sheet."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "You receive a bank statement in Excel. Column A has transaction dates formatted as 'DD-MM-YYYY' text strings. When you try to sort column A chronologically, Excel sorts alphabetically instead. You want to extract just the year number from the text date '25-03-2024' in cell A2 as a number. Which formula correctly extracts the year?",
+    "options": ["A) =YEAR(A2)", "B) =RIGHT(A2,4)*1", "C) =MID(A2,7,4)*1", "D) Both B and C are correct"],
+    "correctAnswer": "D) Both B and C are correct",
+    "explanation": "Since dates are stored as text in 'DD-MM-YYYY' format, RIGHT(A2,4) and MID(A2,7,4) both extract the 4-digit year string. Multiplying by 1 converts it to a number. YEAR(A2) fails because A2 is text, not a date serial."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Beginner",
+    "question": "You are creating a simple GST invoice template. Cell B5 has the net amount. GST at 18% should be calculated in B6, and the total in B7 should be B5 + B6. Your manager wants to change the GST rate easily without editing multiple formulas. You put the GST rate 18% in cell E1. Which formula in B6 correctly calculates GST and allows easy rate change?",
+    "options": ["A) =B5*18%", "B) =B5*0.18", "C) =B5*$E$1", "D) =B5*E1"],
+    "correctAnswer": "C) =B5*$E$1",
+    "explanation": "Using $E$1 with absolute reference ensures the formula always points to the GST rate cell even if copied to other cells. Options A and B hardcode the rate, requiring manual formula edits if the rate changes. Option D would break if copied."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "You are working on a vendor master reconciliation. Column A in your sheet has numeric vendor IDs (e.g., 1023), but the master database sheet has the same IDs stored as text (e.g., '1023' with a green triangle error indicator). Your VLOOKUP returns #N/A for all rows. Which is the most reliable fix to apply in the VLOOKUP formula without changing the master data?",
+    "options": ["A) =VLOOKUP(A2&\"\",Master!$A:$C,2,FALSE)", "B) =VLOOKUP(VALUE(A2),Master!$A:$C,2,FALSE)", "C) =IFERROR(VLOOKUP(A2,Master!$A:$C,2,FALSE),\"Not Found\")", "D) =VLOOKUP(TEXT(A2,\"0\"),Master!$A:$C,2,FALSE)"],
+    "correctAnswer": "A) =VLOOKUP(A2&\"\",Master!$A:$C,2,FALSE)",
+    "explanation": "Appending &\"\" converts the numeric lookup value to text, matching the text-formatted IDs in the master sheet. IFERROR (option C) only hides the error without fixing the data type mismatch that causes the #N/A."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "Your Pivot Table summarizes monthly expenses by department. When you drag the 'Date' field to Rows, it shows individual dates instead of months. You right-click a date in the Pivot Table and try to select 'Group', but the option is grayed out. What is the most likely reason?",
+    "options": ["A) Pivot Tables cannot group dates; use a helper column with =TEXT(A2,\"MMM-YYYY\") in the source data", "B) One or more cells in the Date column in the source data contain text values or blanks instead of valid date serial numbers", "C) You need to sort the date column ascending before grouping is enabled", "D) Date grouping only works when the Pivot Table has at least 1000 rows of source data"],
+    "correctAnswer": "B) One or more cells in the Date column in the source data contain text values or blanks instead of valid date serial numbers",
+    "explanation": "Excel's date grouping in Pivot Tables requires every cell in the date field to be a valid numeric date serial. Even a single text date or blank disables the Group option. Fix the source data and refresh to re-enable grouping."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "You manage a collections register with 4,000 rows. Column A = Customer Name, Column B = Invoice Date, Column C = Outstanding Amount. You need to create a Data Validation dropdown in cell F2 that restricts entry to only the unique customer names that exist in column A. What is the correct approach?",
+    "options": ["A) Data → Data Validation → List → Source: A2:A4001", "B) Create a named range of unique customer names using Remove Duplicates on a copy, then use Data Validation → List → Source: that named range", "C) Data → Data Validation → Custom → Formula: =COUNTIF($A$2:$A$4001,F2)>0", "D) Both B and C are valid approaches depending on the use case"],
+    "correctAnswer": "D) Both B and C are valid approaches depending on the use case",
+    "explanation": "Option B creates a clean dropdown with only unique names, ideal for user-friendly data entry. Option C uses a custom formula to validate that the typed entry exists in the list, useful when a dropdown is impractical for large unique-value lists."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "You are preparing a debtor aging summary. A colleague used =VLOOKUP(A2,DebtorMaster!A:D,3,FALSE) and it returns wrong values — it's pulling the city name instead of the credit limit. The DebtorMaster columns are: A=ID, B=Name, C=City, D=CreditLimit. What is wrong and what is the correct fix?",
+    "options": ["A) The range should be DebtorMaster!A:C — column D is out of range", "B) The col_index_num should be 4 instead of 3 to return the Credit Limit from column D", "C) FALSE should be changed to TRUE for an exact match on IDs", "D) The lookup should use INDEX-MATCH since VLOOKUP cannot skip columns"],
+    "correctAnswer": "B) The col_index_num should be 4 instead of 3 to return the Credit Limit from column D",
+    "explanation": "In VLOOKUP, the col_index_num counts from the first column of the lookup range. Column D is the 4th column in A:D, so index 4 returns the Credit Limit. Index 3 correctly returns City (column C), confirming the colleague's formula has the wrong index."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "You have a sales register Pivot Table with 'Product' in Rows and 'Sales' in Values. Your manager wants to see what percentage each product contributes to the total sales, directly inside the Pivot Table without adding any columns to the source data. What is the correct method?",
+    "options": ["A) Add a Calculated Field: =Sales/SUM(Sales)", "B) Right-click the Sales value field → Show Values As → % of Grand Total", "C) Add a helper column in source data: =C2/SUM($C:$C) and add it to the Pivot Table", "D) Use GETPIVOTDATA outside the Pivot Table to calculate percentages in a separate column"],
+    "correctAnswer": "B) Right-click the Sales value field → Show Values As → % of Grand Total",
+    "explanation": "'Show Values As → % of Grand Total' is a built-in Pivot Table feature that instantly converts values to percentages without touching source data or adding calculated fields. It dynamically updates when filters are applied."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "During month-end closure, you need to verify that every cell in the 'Invoice Number' column (B2:B5000) is unique — no duplicates allowed. Which Conditional Formatting formula rule, applied to B2:B5000, will highlight any duplicate invoice numbers in red?",
+    "options": ["A) =COUNTIF($B$2:$B$5000,B2)>1", "B) =COUNTIF(B2:B5000,B2)>1", "C) =ISNUMBER(MATCH(B2,$B$1:B1,0))", "D) Use Home → Conditional Formatting → Highlight Cell Rules → Duplicate Values"],
+    "correctAnswer": "D) Use Home → Conditional Formatting → Highlight Cell Rules → Duplicate Values",
+    "explanation": "The built-in Duplicate Values rule is the fastest, most reliable method to highlight duplicates across a range. While option A also works as a custom formula, the built-in rule requires no formula entry and is less error-prone for beginners and intermediate users."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "You are performing a two-criteria lookup on a 6,000-row purchase register. You need to find the invoice amount where both Vendor (column A) matches 'Wipro' AND Month (column B) matches 'March'. Vendor-Month combinations are unique. Which formula correctly retrieves this value?",
+    "options": ["A) =VLOOKUP(\"Wipro\"&\"March\",A2:C6000,3,FALSE)", "B) =SUMPRODUCT((A2:A6000=\"Wipro\")*(B2:B6000=\"March\")*C2:C6000)", "C) =INDEX(C2:C6000,MATCH(\"Wipro\"&\"March\",A2:A6000&B2:B6000,0))", "D) Both B and C are correct, but C requires Ctrl+Shift+Enter in Excel 2019 and earlier"],
+    "correctAnswer": "D) Both B and C are correct, but C requires Ctrl+Shift+Enter in Excel 2019 and earlier",
+    "explanation": "SUMPRODUCT handles multi-criteria lookups without array entry and returns the correct amount when combinations are unique. INDEX-MATCH with concatenated arrays also works but must be entered as an array formula (Ctrl+Shift+Enter) in pre-365 Excel."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "Your accounts payable sheet has a 'Payment Due Date' in column C. You want column D to automatically display 'Overdue' if the due date has passed today, 'Due Today' if the due date is today, and 'Upcoming' if the due date is in the future. Which formula in D2 correctly implements this three-way logic?",
+    "options": ["A) =IF(C2<TODAY(),\"Overdue\",IF(C2=TODAY(),\"Due Today\",\"Upcoming\"))", "B) =IF(C2>TODAY(),\"Upcoming\",\"Overdue\")", "C) =IFS(C2<TODAY(),\"Overdue\",C2=TODAY(),\"Due Today\",C2>TODAY(),\"Upcoming\")", "D) Both A and C are correct"],
+    "correctAnswer": "D) Both A and C are correct",
+    "explanation": "Nested IF (option A) and IFS (option C) both correctly evaluate all three conditions in the right order. IFS is more readable for multiple conditions. Option B only handles two cases and cannot differentiate 'Due Today' from 'Overdue'."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Intermediate",
+    "question": "You have received a creditor ledger export where the 'Amount' column (column D) contains values like '1,23,456.00' stored as text due to comma formatting from the ERP system. All SUM formulas on this column return 0. What is the most efficient way to convert this entire column to numeric values?",
+    "options": ["A) Use Find & Replace to remove all commas (replace ',' with nothing), then multiply by 1 using Paste Special → Multiply", "B) Use =VALUE(SUBSTITUTE(D2,\",\",\"\")) in a helper column, then paste-special values back over column D", "C) Use Text to Columns on column D with Delimited → no delimiter selected, which forces Excel to re-evaluate the column", "D) All three options above are valid approaches to solve this problem"],
+    "correctAnswer": "D) All three options above are valid approaches to solve this problem",
+    "explanation": "All three methods effectively strip commas and convert text-numbers to true numeric values. Find & Replace + Paste Special Multiply is fastest for in-place conversion. SUBSTITUTE+VALUE gives a formula-driven audit trail. Text to Columns forces type re-evaluation."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "Your finance team receives a 2-million-row transaction dump monthly from SAP as a CSV file. Loading it into Excel crashes the application. You need to filter only 'Expense' type transactions for the 'Mumbai' region and aggregate totals by department — all without loading the full dataset into Excel. Which tool and approach is correct?",
+    "options": ["A) Import into Excel, use Ctrl+End to navigate, then apply AutoFilter and SUMIFS", "B) Use Power Query: Get Data → From CSV → in the Query Editor, filter 'Type = Expense' and 'Region = Mumbai' before loading, then Group By Department and sum amounts", "C) Split the CSV into multiple files of 1 million rows each and use 3D SUM references across sheets", "D) Use a Macro to loop through the CSV line by line and accumulate totals in an array"],
+    "correctAnswer": "B) Use Power Query: Get Data → From CSV → in the Query Editor, filter 'Type = Expense' and 'Region = Mumbai' before loading, then Group By Department and sum amounts",
+    "explanation": "Power Query performs transformations before loading data into Excel's memory, making it ideal for datasets exceeding Excel's 1,048,576 row limit. Filtering and aggregating in the query editor means only the final summary table is loaded, preventing crashes."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "A VBA macro is running on your month-end closing workbook to copy data from 12 monthly sheets into a summary sheet. The macro takes 8 minutes to complete. A colleague suggests adding two lines of code at the start and removing them at the end. Which two properties, when set to False at the start of the macro, would most significantly reduce execution time?",
+    "options": ["A) Application.DisplayAlerts = False and Application.EnableEvents = False", "B) Application.ScreenUpdating = False and Application.Calculation = xlCalculationManual", "C) Application.Visible = False and ThisWorkbook.Saved = True", "D) Application.Interactive = False and Application.DisplayStatusBar = False"],
+    "correctAnswer": "B) Application.ScreenUpdating = False and Application.Calculation = xlCalculationManual",
+    "explanation": "Disabling ScreenUpdating stops Excel from visually redrawing the screen after every operation, and xlCalculationManual prevents recalculation after every cell change. Together these are the two most impactful VBA performance optimizations, often reducing runtime by 80-90%."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "You are building a dynamic financial dashboard. Cell B2 has a dropdown (Data Validation) for selecting a year (2022, 2023, 2024). You need a formula in C2 that returns the total sales from a named range structured as 'Sales_2022', 'Sales_2023', or 'Sales_2024' based on the selection in B2 — all in one formula without VBA. Which formula achieves this?",
+    "options": ["A) =IF(B2=2022,SUM(Sales_2022),IF(B2=2023,SUM(Sales_2023),SUM(Sales_2024)))", "B) =SUM(INDIRECT(\"Sales_\"&B2))", "C) =CHOOSE(B2-2021,SUM(Sales_2022),SUM(Sales_2023),SUM(Sales_2024))", "D) Both B and C are correct"],
+    "correctAnswer": "B) =SUM(INDIRECT(\"Sales_\"&B2))",
+    "explanation": "INDIRECT converts the text string 'Sales_2022' (or 2023/2024) into an actual range reference dynamically, making it the most elegant solution. Option A uses hardcoded IFs which must be manually updated each year. Option C relies on sequential numbering which is fragile."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "You have Power Query loaded with a vendor payment table. The 'Payment Date' column has mixed formats — some rows have '2024-04-15' (ISO format) and others have '15/04/2024' (Indian format). When you change the column type to Date, half the rows become errors. What is the correct Power Query approach to handle this?",
+    "options": ["A) Use 'Replace Errors' to replace all error values with null after changing the column type", "B) Add a conditional column to split the rows by format first, then convert each group separately", "C) Use Transform → Data Type → Using Locale, selecting the appropriate locale for each format, or add a custom column with a formula that uses try...otherwise to handle both formats", "D) Delete rows with errors and inform the source system team to standardize the date format"],
+    "correctAnswer": "C) Use Transform → Data Type → Using Locale, selecting the appropriate locale for each format, or add a custom column with a formula that uses try...otherwise to handle both formats",
+    "explanation": "Power Query's 'Using Locale' option interprets dates according to a specific regional format. For mixed formats, a custom M-language column using try [Date1] otherwise [Date2] logic handles both formats gracefully without data loss."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "You write a VBA macro to automate invoice generation. The macro loops through rows and creates a new sheet for each invoice. After running on 500 invoices, you get a Runtime Error 1004: 'Cannot rename a sheet to the same name as another sheet.' Which coding practice would have prevented this error?",
+    "options": ["A) Add On Error Resume Next before the sheet rename line to silently skip errors", "B) Before renaming, check if a sheet with that name already exists using a loop through Worksheets collection or a custom function, and handle duplicates by appending a counter", "C) Use a random number generator to create sheet names to avoid any duplicates", "D) Delete all existing sheets at the start of the macro before creating new ones"],
+    "correctAnswer": "B) Before renaming, check if a sheet with that name already exists using a loop through Worksheets collection or a custom function, and handle duplicates by appending a counter",
+    "explanation": "Proactively checking for existing sheet names before renaming is the professional approach, preventing runtime errors. On Error Resume Next (option A) silently suppresses all errors including legitimate ones, creating hard-to-diagnose bugs in production macros."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "You are building a rolling 3-month average sales report. The data has months in column A and sales in column B, from B2:B37 (36 months). For each row starting from row 4, you need the average of the current and two preceding months. The formula must not return errors for the first two rows (B2, B3) where fewer than 3 prior values exist. Which formula in C4, safe to copy down, is most appropriate?",
+    "options": ["A) =AVERAGE(B2:B4)", "B) =IFERROR(AVERAGE(OFFSET(B4,0,0,-3,1)),AVERAGE(B$2:B4))", "C) =AVERAGE(B2:B4) copied down manually adjusting each row", "D) =AVERAGEIF(B2:B4,\">0\")"],
+    "correctAnswer": "B) =IFERROR(AVERAGE(OFFSET(B4,0,0,-3,1)),AVERAGE(B$2:B4))",
+    "explanation": "OFFSET(B4,0,0,-3,1) dynamically creates a range of the current and 2 preceding rows, producing a true rolling 3-month average. The IFERROR wrapper gracefully handles edge cases at the top of the data where fewer than 3 rows exist."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "In Power Query, you are combining 12 monthly expense files from a folder. Each file has identical columns. After using 'Get Data → From Folder → Combine Files', the merged table has an extra column called 'Source.Name' showing the filename. You want to extract just the month name (e.g., 'April' from 'April_Expenses.xlsx'). Which Power Query step achieves this cleanly?",
+    "options": ["A) Use Transform → Extract → Text Before Delimiter, setting '_' as the delimiter on the Source.Name column", "B) Add a Custom Column with formula = Text.BeforeDelimiter([Source.Name], \"_\")", "C) Use Split Column → By Delimiter → '_' → Keep Left part", "D) All three options above produce the same result"],
+    "correctAnswer": "D) All three options above produce the same result",
+    "explanation": "All three Power Query methods extract the text before the underscore from the filename, yielding the month name. 'Extract → Text Before Delimiter' (UI method) and Text.BeforeDelimiter (formula) are equivalent; Split Column also isolates the month portion as a separate column."
+  },
+  {
+    "skill": "Advanced Excel",
+    "difficulty": "Advanced",
+    "question": "Your CFO wants a single KPI dashboard cell that shows: 'TARGET MET ✓' in green if monthly sales (cell D5) exceed the target (cell E5) by more than 10%, 'ON TRACK' in amber if within 10% below target, and 'MISSED ✗' in red if more than 10% below target. You need the formula logic for the text label (formatting handled separately via Conditional Formatting). Which formula in F5 correctly produces the three labels?",
+    "options": ["A) =IF(D5>E5,\"TARGET MET ✓\",IF(D5>=E5*0.9,\"ON TRACK\",\"MISSED ✗\"))", "B) =IFS(D5/E5>1.1,\"TARGET MET ✓\",D5/E5>=0.9,\"ON TRACK\",TRUE,\"MISSED ✗\")", "C) =IF(D5/E5>1.1,\"TARGET MET ✓\",IF(D5/E5>=0.9,\"ON TRACK\",\"MISSED ✗\"))", "D) Both B and C are correct"],
+    "correctAnswer": "D) Both B and C are correct",
+    "explanation": "Option C correctly checks if sales exceed target by more than 10% (ratio > 1.1), then checks if within 10% of target (ratio >= 0.9). Option B achieves the same using IFS. Option A is incorrect because >E5 is not the same as >E5*1.1 — it misses the 10% threshold requirement."
+  }
+]
