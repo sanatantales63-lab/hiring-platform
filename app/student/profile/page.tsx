@@ -12,6 +12,10 @@ import {
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST, SKILL_CATEGORIES } from "@/lib/constants";
 
+// 🔥 Firebase OTP Imports 🔥
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+
 export default function CandidateProfile() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -46,6 +50,12 @@ export default function CandidateProfile() {
   const [skillSearch, setSkillSearch] = useState("");
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(SKILL_CATEGORIES)[0]);
 
+  // 🔥 OTP States 🔥
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpInput, setOtpInput] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -66,6 +76,10 @@ export default function CandidateProfile() {
               preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
               skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
+          
+          // Agar database mein pehle se phone hai, toh baar-baar OTP mat maango
+          if(data.phone) setPhoneVerified(true);
+          
           setIsEditing(false);
           setShowGatekeeper(false);
         } else { 
@@ -76,6 +90,52 @@ export default function CandidateProfile() {
     };
     fetchProfile();
   }, [router]);
+
+  // 🔥 OTP BHEJNE KA LOGIC 🔥
+  const setupRecaptcha = () => {
+     if (!(window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+           'size': 'invisible',
+        });
+     }
+  };
+
+  const handleSendOtp = async () => {
+     const cleanPhone = formData.phone.replace(/\D/g, '');
+     if (cleanPhone.length < 10) return alert("🛑 Enter a valid 10-digit number first!");
+     
+     setOtpLoading(true);
+     try {
+        setupRecaptcha();
+        const appVerifier = (window as any).recaptchaVerifier;
+        // Hamesha +91 lagana padta hai Firebase ke liye
+        const phoneNumberWithCode = "+91" + cleanPhone.slice(-10); 
+        
+        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumberWithCode, appVerifier);
+        (window as any).confirmationResult = confirmationResult;
+        
+        setOtpSent(true);
+        alert("✅ OTP Sent Successfully!");
+     } catch (error: any) {
+        console.error(error);
+        alert("Failed to send OTP. Try again.");
+     } finally {
+        setOtpLoading(false);
+     }
+  };
+
+  const handleVerifyOtp = async () => {
+     if(otpInput.length < 6) return alert("Enter 6 digit OTP");
+     try {
+        const result = await (window as any).confirmationResult.confirm(otpInput);
+        if(result.user) {
+           setPhoneVerified(true);
+           setOtpSent(false);
+        }
+     } catch (error) {
+        alert("🛑 Invalid OTP! Please check and try again.");
+     }
+  };
 
   const handleAddLocation = (e: any) => {
     if (e.key === 'Enter' && locInput.trim() !== '') {
@@ -164,6 +224,23 @@ export default function CandidateProfile() {
      if (currentStep === 1) {
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
+        }
+
+        const cleanPhone = formData.phone.replace(/\D/g, '');
+        if (cleanPhone.length < 10) {
+           return alert("🛑 Invalid Phone Number! Please enter a valid 10-digit number.");
+        }
+        
+        // 🔥 OTP Verification Zaroori Hai 🔥
+        if (!phoneVerified) {
+           return alert("🛑 Please verify your phone number with OTP first!");
+        }
+
+        if (formData.panCard && formData.panCard.trim() !== "") {
+           const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+           if (!panRegex.test(formData.panCard.toUpperCase())) {
+              return alert("🛑 Invalid PAN Card format! Please enter a valid PAN (e.g., ABCDE1234F).");
+           }
         }
      } else if (currentStep === 2) {
         if (!formData.educations[0].qualification || !formData.educations[0].collegeName || !formData.educations[0].passingYear) {
@@ -274,11 +351,62 @@ export default function CandidateProfile() {
 
                      <div className="grid md:grid-cols-2 gap-6">
                         <div><label className="form-label">Full Name <span className="text-red-500">*</span></label><input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field" placeholder="e.g. Rahul Sharma"/></div>
-                        <div><label className="form-label">Phone Number <span className="text-red-500">*</span></label><input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field" placeholder="+91 98765..."/></div>
+                        
+                        {/* 🔥 Naya Phone Number with OTP Box 🔥 */}
+                        <div>
+                           <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
+                           <div className="flex flex-col gap-3">
+                              <div className="flex gap-2">
+                                 <input 
+                                    type="text" 
+                                    value={formData.phone} 
+                                    onChange={(e)=>{ 
+                                       setFormData({...formData, phone: e.target.value}); 
+                                       setPhoneVerified(false); 
+                                       setOtpSent(false); 
+                                    }} 
+                                    className={`input-field flex-1 ${phoneVerified ? 'border-green-500/50 text-green-400 bg-green-500/5' : ''}`} 
+                                    placeholder="10-digit mobile number" 
+                                    disabled={phoneVerified}
+                                 />
+                                 
+                                 {!phoneVerified && (
+                                    <button onClick={handleSendOtp} disabled={otpLoading} className="bg-slate-800 hover:bg-slate-700 text-white px-5 rounded-xl font-bold transition-all border border-slate-700 whitespace-nowrap min-w-[110px]">
+                                       {otpLoading ? <Loader2 className="animate-spin mx-auto" size={20}/> : "Get OTP"}
+                                    </button>
+                                 )}
+                                 
+                                 {phoneVerified && (
+                                    <div className="bg-green-600/20 text-green-400 border border-green-500/30 px-5 rounded-xl flex items-center justify-center font-bold gap-2 whitespace-nowrap">
+                                       <Check size={18}/> Verified
+                                    </div>
+                                 )}
+                              </div>
+
+                              {/* OTP Enter Box */}
+                              {otpSent && !phoneVerified && (
+                                 <div className="flex gap-2 p-3 bg-slate-900/80 border border-blue-500/30 rounded-xl animate-in zoom-in duration-300">
+                                    <input 
+                                       type="text" 
+                                       value={otpInput} 
+                                       onChange={(e)=>setOtpInput(e.target.value)} 
+                                       className="input-field py-2 text-center tracking-[0.5em] font-mono text-xl" 
+                                       placeholder="------" 
+                                       maxLength={6}
+                                    />
+                                    <button onClick={handleVerifyOtp} className="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20">
+                                       Verify
+                                    </button>
+                                 </div>
+                              )}
+                           </div>
+                           <div id="recaptcha-container"></div>
+                        </div>
+
                         <div><label className="form-label">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
                         <div><label className="form-label">Gender <span className="text-red-500">*</span></label><select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
                         <div><label className="form-label">City <span className="text-red-500">*</span></label><input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Mumbai"/></div>
-                        <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value})} className="input-field uppercase" placeholder="ABCDE1234F"/></div>
+                        <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" placeholder="ABCDE1234F" maxLength={10}/></div>
                      </div>
                   </div>
                )}
@@ -296,7 +424,6 @@ export default function CandidateProfile() {
                                  {formData.educations.length > 1 && (<button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 p-2"><X size={18}/></button>)}
                                  <div className="grid md:grid-cols-2 gap-6 mt-2">
                                     
-                                    {/* 🔥 Smart Searchable Qualification Input 🔥 */}
                                     <div>
                                        <label className="form-label">Qualification <span className="text-red-500">*</span></label>
                                        <input 
@@ -309,7 +436,6 @@ export default function CandidateProfile() {
                                        />
                                     </div>
                                     
-                                    {/* 🔥 Auto-Trigger CA/CS/CMA Stage & Attempt Logic 🔥 */}
                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
                                        <div className="grid grid-cols-2 gap-4">
                                           <div><label className="form-label text-yellow-400">Stage Cleared</label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
@@ -377,7 +503,6 @@ export default function CandidateProfile() {
                         ) : (
                            <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50">
                               
-                              {/* Tabs - Modern UI */}
                               <div className="flex flex-wrap gap-2 p-3 bg-slate-900/40 border-b border-slate-800 rounded-t-2xl">
                                  {(Object.keys(SKILL_CATEGORIES) as Array<keyof typeof SKILL_CATEGORIES>).map((cat) => (
                                     <button key={cat} onClick={() => setActiveSkillTab(cat)} className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSkillTab === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}>
@@ -463,7 +588,6 @@ export default function CandidateProfile() {
         )}
       </div>
 
-      {/* 🔥 CSS Fix: Double Arrow Hata Diya Gaya Hai 🔥 */}
       <style jsx>{`
         .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.6rem; }
         .input-field { width: 100%; background-color: #0f172a; border: 2px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; color: white; outline: none; transition: all 0.2s; font-size: 1rem; font-weight: 500; appearance: none; }
