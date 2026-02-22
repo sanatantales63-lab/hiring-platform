@@ -11,7 +11,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   
   // 🔥 THE MASTER LOCK 🔥
-  const ADMIN_EMAIL = "hiringweb7@gmail.com"; 
+  const ADMIN_EMAIL = "karushhofficial@gmail.com"; 
 
   const [activeTab, setActiveTab] = useState("requests"); 
   const [students, setStudents] = useState<any[]>([]);

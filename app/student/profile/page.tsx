@@ -8,7 +8,6 @@ import {
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
   GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, ShieldCheck, Check, Globe, FileText, Search
 } from "lucide-react";
-
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST, SKILL_CATEGORIES } from "@/lib/constants";
 
@@ -66,7 +65,7 @@ export default function CandidateProfile() {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         if (data && data.fullName) {
           setFormData({ 
-              ...formData, ...data,
+            ...formData, ...data,
               bio: data.bio || "",
               panCard: data.panCard || "",
               currentSalary: data.currentSalary || "",
@@ -76,22 +75,20 @@ export default function CandidateProfile() {
               preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
               skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
-          
-          // Agar database mein pehle se phone hai, toh baar-baar OTP mat maango
+
           if(data.phone) setPhoneVerified(true);
           
           setIsEditing(false);
           setShowGatekeeper(false);
         } else { 
           setIsEditing(true); 
-          setShowGatekeeper(true); 
+          setShowGatekeeper(true);
         }
       } catch (e) {} finally { setLoading(false); }
     };
     fetchProfile();
   }, [router]);
 
-  // 🔥 OTP BHEJNE KA LOGIC 🔥
   const setupRecaptcha = () => {
      if (!(window as any).recaptchaVerifier) {
         (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -108,8 +105,7 @@ export default function CandidateProfile() {
      try {
         setupRecaptcha();
         const appVerifier = (window as any).recaptchaVerifier;
-        // Hamesha +91 lagana padta hai Firebase ke liye
-        const phoneNumberWithCode = "+91" + cleanPhone.slice(-10); 
+        const phoneNumberWithCode = "+91" + cleanPhone.slice(-10);
         
         const confirmationResult = await signInWithPhoneNumber(auth, phoneNumberWithCode, appVerifier);
         (window as any).confirmationResult = confirmationResult;
@@ -144,14 +140,17 @@ export default function CandidateProfile() {
       setLocInput("");
     }
   };
-  const removeLocation = (loc: string) => setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
 
+  const removeLocation = (loc: string) => setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
+  
   const addEducation = () => setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }] }));
+  
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value };
     setFormData(p => ({ ...p, educations: newEdu }));
   };
+
   const removeEducation = (index: number) => {
     if (formData.educations.length === 1) return;
     const newEdu = [...formData.educations];
@@ -184,6 +183,7 @@ export default function CandidateProfile() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if(!session) return;
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `${session.user.id}_resume_${Date.now()}.${fileExt}`;
       await supabase.storage.from('resumes').upload(fileName, file, { upsert: true });
@@ -191,32 +191,35 @@ export default function CandidateProfile() {
 
       const formDataForAPI = new FormData();
       formDataForAPI.append('file', file);
+      
       const aiResponse = await fetch('/api/parse-resume', { method: 'POST', body: formDataForAPI });
-
+      
       if (aiResponse.ok) {
          const aiData = await aiResponse.json();
-         
          const rawLocs = aiData.preferredLocations || [];
          const cleanedLocs = rawLocs.filter((l:string) => l.toLowerCase() !== 'remote');
-
+         
          setFormData(prev => ({ 
             ...prev, resumeURL: publicUrlData.publicUrl,
             fullName: aiData.fullName || prev.fullName, dob: aiData.dob || prev.dob, gender: aiData.gender || prev.gender, phone: aiData.phone || prev.phone,
             city: aiData.city || prev.city, state: aiData.state || prev.state, pincode: aiData.pincode || prev.pincode, experience: aiData.experience || prev.experience,
             bio: aiData.bio || prev.bio || "", panCard: aiData.panCard || prev.panCard || "", 
-            currentSalary: aiData.currentSalary || prev.currentSalary || "", expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
+            currentSalary: aiData.currentSalary || prev.currentSalary || "", 
+            expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
             skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
             languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
          }));
-         setShowGatekeeper(false); setCurrentStep(1);
-         alert("✨ AI Auto-Fill Successful! Check your verified details.");
+         setShowGatekeeper(false);
+         setCurrentStep(1);
+         alert("✨ AI Auto-Fill Successful!");
       } else {
          setFormData(prev => ({ ...prev, resumeURL: publicUrlData.publicUrl }));
          setShowGatekeeper(false); alert("Resume Uploaded! Please fill remaining details manually.");
       }
-    } catch (e: any) { alert("Upload Failed: " + e.message); } 
+    } catch (e: any) { alert("Upload Failed: " + e.message);
+    } 
     finally { setUploading(false); }
   };
 
@@ -231,7 +234,6 @@ export default function CandidateProfile() {
            return alert("🛑 Invalid Phone Number! Please enter a valid 10-digit number.");
         }
         
-        // 🔥 OTP Verification Zaroori Hai 🔥
         if (!phoneVerified) {
            return alert("🛑 Please verify your phone number with OTP first!");
         }
@@ -246,13 +248,27 @@ export default function CandidateProfile() {
         if (!formData.educations[0].qualification || !formData.educations[0].collegeName || !formData.educations[0].passingYear) {
            return alert("🛑 Please complete at least one Education block completely.");
         }
+
+        // 🧠 THE NEW STRICT VALIDATION FOR CA/CMA/CS/ACCA 🧠
+        for (const edu of formData.educations) {
+           if (edu.qualification) {
+              const isProfessional = ['CA', 'CMA', 'CS', 'ACCA'].some(keyword => edu.qualification.includes(keyword));
+              if (isProfessional) {
+                 if (!edu.stageCleared || edu.stageCleared.trim() === "") {
+                    return alert(`🛑 For Professional Qualifications like ${edu.qualification}, 'Stage Cleared' is mandatory!`);
+                 }
+                 if (!edu.attempts || edu.attempts.trim() === "") {
+                    return alert(`🛑 For Professional Qualifications like ${edu.qualification}, 'Attempts' are mandatory!`);
+                 }
+              }
+           }
+        }
      }
      setCurrentStep(p => Math.min(3, p + 1));
   };
 
   const handleSave = async () => {
     if (!formData.experience || !formData.expectedSalary) return alert("🛑 Please fill your Experience and Expected Salary.");
-
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     try {
@@ -261,14 +277,15 @@ export default function CandidateProfile() {
       
       setIsEditing(false); 
       alert("Profile Saved Successfully!");
-    } catch (e: any) { alert("Error saving profile: " + e.message); }
+    } catch (e: any) { alert("Error saving profile: " + e.message);
+    }
   };
 
   const toggleSkill = (skill: string) => setFormData(prev => ({ ...prev, skills: prev.skills.includes(skill) ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] }));
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
-
+  
   if (loading) return <div className="h-screen bg-[#020617] text-white flex gap-3 items-center justify-center"><Loader2 className="animate-spin text-blue-500" /> Loading...</div>;
-
+  
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-12 font-sans relative overflow-hidden">
       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none"></div>
@@ -277,7 +294,6 @@ export default function CandidateProfile() {
          
          <div className="flex justify-between items-center mb-10">
             <button onClick={() => router.push('/student/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold"><ArrowLeft size={18} /> Dashboard</button>
-            
             {!isEditing && (
                <button onClick={() => { setIsEditing(true); setShowGatekeeper(false); setCurrentStep(1); }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25">
                   <Edit size={16}/> Edit Profile
@@ -352,7 +368,6 @@ export default function CandidateProfile() {
                      <div className="grid md:grid-cols-2 gap-6">
                         <div><label className="form-label">Full Name <span className="text-red-500">*</span></label><input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field" placeholder="e.g. Rahul Sharma"/></div>
                         
-                        {/* 🔥 Naya Phone Number with OTP Box 🔥 */}
                         <div>
                            <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
                            <div className="flex flex-col gap-3">
@@ -361,7 +376,7 @@ export default function CandidateProfile() {
                                     type="text" 
                                     value={formData.phone} 
                                     onChange={(e)=>{ 
-                                       setFormData({...formData, phone: e.target.value}); 
+                                       setFormData({...formData, phone: e.target.value});
                                        setPhoneVerified(false); 
                                        setOtpSent(false); 
                                     }} 
@@ -383,7 +398,6 @@ export default function CandidateProfile() {
                                  )}
                               </div>
 
-                              {/* OTP Enter Box */}
                               {otpSent && !phoneVerified && (
                                  <div className="flex gap-2 p-3 bg-slate-900/80 border border-blue-500/30 rounded-xl animate-in zoom-in duration-300">
                                     <input 
@@ -438,8 +452,9 @@ export default function CandidateProfile() {
                                     
                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
                                        <div className="grid grid-cols-2 gap-4">
-                                          <div><label className="form-label text-yellow-400">Stage Cleared</label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
-                                          <div><label className="form-label text-red-400">Attempts</label><input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30 focus:border-red-500" placeholder="e.g. 1st, Multiple"/></div>
+                                          {/* 🔥 Added Required Astersiks 🔥 */}
+                                          <div><label className="form-label text-yellow-400">Stage Cleared <span className="text-red-500">*</span></label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
+                                          <div><label className="form-label text-red-400">Attempts <span className="text-red-500">*</span></label><input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30 focus:border-red-500" placeholder="e.g. 1st, Multiple"/></div>
                                        </div>
                                     )}
 
@@ -502,7 +517,6 @@ export default function CandidateProfile() {
                            </div>
                         ) : (
                            <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50">
-                              
                               <div className="flex flex-wrap gap-2 p-3 bg-slate-900/40 border-b border-slate-800 rounded-t-2xl">
                                  {(Object.keys(SKILL_CATEGORIES) as Array<keyof typeof SKILL_CATEGORIES>).map((cat) => (
                                     <button key={cat} onClick={() => setActiveSkillTab(cat)} className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSkillTab === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}>
@@ -551,9 +565,15 @@ export default function CandidateProfile() {
                         <div><label className="form-label">Notice Period <span className="text-red-500">*</span></label><select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:dark]"><option>Immediate Joiner</option><option>15 Days</option><option>1 Month</option><option>2 Months</option></select></div>
                         
                         {formData.experience !== "Fresher" && (
-                           <div><label className="form-label">Current Salary (CTC)</label><input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. 4,50,000"/></div>
+                           <div>
+                              <label className="form-label">Current Salary (CTC)</label>
+                              <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹4,50,000"/>
+                           </div>
                         )}
-                        <div><label className="form-label">Expected Salary <span className="text-red-500">*</span></label><input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field" placeholder="e.g. 6,00,000"/></div>
+                        <div>
+                           <label className="form-label flex items-center gap-2">Expected Salary <span className="text-red-500">*</span> <Sparkles size={14} className="text-blue-400"/></label>
+                           <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30 focus:border-blue-500" placeholder="e.g. ₹6,00,000"/>
+                        </div>
 
                         <div className="md:col-span-2 bg-slate-950/50 p-8 rounded-3xl border border-slate-800/80 mt-4">
                            <label className="text-slate-300 font-bold mb-4 block text-base">Preferred Work Locations <span className="text-slate-500 font-normal text-sm ml-2">(Type city & press Enter)</span></label>

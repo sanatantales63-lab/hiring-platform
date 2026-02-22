@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(arrayBuffer);
     
     const { PdfReader } = require("pdfreader");
-    
+
     const resumeText = await new Promise<string>((resolve, reject) => {
       let text = "";
       new PdfReader().parseBuffer(buffer, (err: any, item: any) => {
@@ -31,22 +31,23 @@ export async function POST(req: Request) {
     });
 
     if (!resumeText || resumeText.trim() === "") throw new Error("PDF se text nahi nikal paya");
-    
-    // 🔥 TUMHARI GROQ API KEY YAHAN HAI
+
     const groq = new Groq({ apiKey: "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" });
 
-    // 🧠 THE STRICT AI PROMPT (Accuracy = 100%)
+    // 🧠 THE STRICT AI PROMPT (Now with Smart HR Salary Logic)
     const prompt = `
-      You are a highly strict and accurate HR data extractor. Read the provided resume text and extract the details strictly in the JSON format below.
-      
+      You are a highly strict and accurate Expert Indian HR and Data Extractor.
+      Read the provided resume text and extract the details strictly in the JSON format below.
+
       CRITICAL RULES:
-      1. DO NOT HALLUCINATE OR GUESS. If information is missing, leave the field as an empty string "" or empty array [].
+      1. DO NOT HALLUCINATE details like names, phones, or emails.
       2. 'bio': Write a highly professional, impressive 2-line summary based ONLY on the candidate's actual skills and experience mentioned.
       3. 'panCard': Extract PAN number (Format: 5 letters, 4 numbers, 1 letter) only if explicitly mentioned.
       4. 'educations': Extract ALL qualifications. If they are CA/CMA/CS, look carefully for "Attempts" (e.g., "1st attempt", "Multiple").
       5. 'skills': Extract all technical and soft skills.
-      6. 'currentSalary' & 'expectedSalary': Extract only if mentioned, otherwise leave empty.
-      
+      6. 'currentSalary': Extract only if mentioned, otherwise leave empty string "".
+      7. 'expectedSalary': IF EXPLICITLY MENTIONED in the resume, extract it. IF NOT MENTIONED, act as an Expert Indian HR. Calculate and suggest a realistic 'Market Standard Expected Salary' in INR (e.g., '₹4,00,000 - ₹5,00,000') based STRICTLY on the candidate's extracted 'experience', 'skills', and 'educations'. For a fresher with basic skills, suggest ₹2,50,000 - ₹3,50,000. For an experienced CA/SAP expert, suggest market-standard higher brackets.
+
       STRICT JSON FORMAT:
       {
         "fullName": "Name in Title Case",
@@ -78,14 +79,13 @@ export async function POST(req: Request) {
         ],
         "experience": "Choose EXACTLY ONE: Fresher, 0-1 Years, 1-3 Years, 3-5 Years, 5+ Years",
         "currentSalary": "Current CTC if mentioned",
-        "expectedSalary": "Expected CTC if mentioned"
+        "expectedSalary": "Expected CTC if mentioned, OR AI-calculated realistic Indian market standard salary in INR (e.g. '₹6,00,000 - ₹8,00,000')"
       }
 
       Resume Text:
       ${resumeText}
     `;
 
-    // Temperature 0 means Maximum Strictness and No Hallucinations
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
       model: "llama-3.1-8b-instant", 
@@ -97,7 +97,6 @@ export async function POST(req: Request) {
     const extractedData = JSON.parse(aiResponse);
 
     return NextResponse.json(extractedData);
-    
   } catch (error: any) {
      return NextResponse.json({ error: "AI processing failed" }, { status: 500 });
   }

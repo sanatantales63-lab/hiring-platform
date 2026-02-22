@@ -52,6 +52,25 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const verifiedSkills = allSkills.filter((skill: string) => PREDEFINED_SKILLS.includes(skill));
   const additionalSkills = allSkills.filter((skill: string) => !PREDEFINED_SKILLS.includes(skill));
 
+  // 🔥 DYNAMIC ATTEMPT COLOR LOGIC 🔥
+  const getAttemptColorClasses = (attempts: string) => {
+    if (!attempts) return '';
+    const lower = attempts.toLowerCase();
+    
+    // Green for 1st Attempt
+    if (lower === '1' || lower === '1st' || lower.includes('one') || lower.includes('first')) {
+      return 'text-green-400 bg-green-500/10 border-green-500/20';
+    } 
+    // Yellow for 2nd / 3rd Attempt
+    else if (lower === '2' || lower === '2nd' || lower === '3' || lower === '3rd' || lower.includes('two') || lower.includes('three')) {
+      return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+    } 
+    // Red for Multiple / 4+ Attempts
+    else {
+      return 'text-red-400 bg-red-500/10 border-red-500/20';
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
@@ -175,8 +194,11 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                             </p>
                             <p className="text-sm text-slate-400 mt-1">{edu.collegeName || "Institution not specified"}</p>
                             
+                            {/* 🔥 Applied Dynamic Attempt Color Logic here 🔥 */}
                             {edu.attempts && (
-                               <p className="text-xs text-red-400 font-bold mt-2 bg-red-500/10 inline-block px-2 py-1 rounded border border-red-500/20">Attempts: {edu.attempts}</p>
+                               <p className={`text-xs font-bold mt-2 inline-block px-2 py-1 rounded border ${getAttemptColorClasses(edu.attempts)}`}>
+                                  Attempts: {edu.attempts}
+                               </p>
                             )}
                          </div>
                          <div className="text-left sm:text-right">

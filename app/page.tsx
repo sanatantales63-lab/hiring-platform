@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Building2, Users, ArrowRight, ShieldCheck, Briefcase, Linkedin, Twitter, Github } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -22,9 +23,11 @@ export default function Home() {
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
             <Briefcase className="text-blue-500" strokeWidth={2.5} /> Talexo
           </div>
-          <div className="hidden md:flex gap-8 items-center text-sm font-medium text-slate-400">
-            <button className="hover:text-white transition-colors">Find Jobs</button>
-            <button className="hover:text-white transition-colors">For Companies</button>
+          <div className="hidden md:flex gap-6 items-center text-sm font-medium text-slate-400">
+            {/* 🛑 Naya Admin Navbar Button 🛑 */}
+            <button onClick={() => router.push("/admin/login")} className="hover:text-red-400 transition-colors flex items-center gap-1">
+              <ShieldCheck size={16} /> Admin Panel
+            </button>
             <button onClick={() => router.push("/student/login")} className="px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-white hover:text-black transition-all font-semibold">
               Sign In
             </button>
@@ -53,12 +56,11 @@ export default function Home() {
           </p>
         </motion.div>
 
-        {/* CARDS SECTION - Fixed Clicks */}
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-6 w-full">
+        {/* CARDS SECTION - Sirf 2 Cards */}
+        <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-8 w-full">
           
           {/* CANDIDATE CARD */}
           <motion.div whileHover={{ y: -10 }} className="bg-slate-900/40 backdrop-blur-lg border border-white/10 p-8 rounded-3xl hover:border-blue-500/50 transition-all group shadow-2xl relative overflow-hidden flex flex-col">
-            {/* Background Overlay ko pointer-events-none diya hai taaki wo click na roke */}
             <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             
             <div className="relative z-10 flex flex-col items-center flex-1">
@@ -86,7 +88,7 @@ export default function Home() {
                 <div className="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.3)]">
                    <Building2 size={28} />
                 </div>
-                <h2 className="text-2xl font-bold mb-3 text-white">I am a Company</h2>
+                <h2 className="text-2xl font-bold mb-3 text-white">Need Candidates</h2>
                 <p className="text-slate-400 mb-8 text-sm leading-relaxed text-center">
                    Hire pre-verified talent. Filter candidates by skills, experience, and assessment scores effortlessly.
                 </p>
@@ -94,28 +96,7 @@ export default function Home() {
                   onClick={() => router.push("/company/login")} 
                   className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-500/20 mt-auto cursor-pointer relative z-20"
                 >
-                  Login as Company <ArrowRight size={18} />
-                </button>
-            </div>
-          </motion.div>
-
-          {/* OWNER CARD */}
-          <motion.div whileHover={{ y: -10 }} className="bg-slate-900/40 backdrop-blur-lg border border-white/10 p-8 rounded-3xl hover:border-red-500/50 transition-all group shadow-2xl relative overflow-hidden flex flex-col">
-            <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-            
-            <div className="relative z-10 flex flex-col items-center flex-1">
-                <div className="w-14 h-14 bg-red-500/20 rounded-2xl flex items-center justify-center mb-6 text-red-400 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                   <ShieldCheck size={28} />
-                </div>
-                <h2 className="text-2xl font-bold mb-3 text-white">I am the Owner</h2>
-                <p className="text-slate-400 mb-8 text-sm leading-relaxed text-center">
-                   Admin dashboard access to manage users, approve companies, and oversee Talexo analytics.
-                </p>
-                <button 
-                  onClick={() => router.push("/admin/login")} 
-                  className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-500/20 mt-auto cursor-pointer relative z-20"
-                >
-                  Owner Login <ArrowRight size={18} />
+                  Login as Recruiter <ArrowRight size={18} />
                 </button>
             </div>
           </motion.div>
@@ -139,10 +120,11 @@ export default function Home() {
             <a href="#" className="text-slate-500 hover:text-blue-400 transition-colors transform hover:scale-110"><Github size={20}/></a>
           </div>
 
+          {/* 🔥 WORKING FOOTER LINKS 🔥 */}
           <div className="flex gap-6 text-xs text-slate-500 font-medium">
-             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-             <a href="#" className="hover:text-white transition-colors">Support</a>
+             <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+             <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
+             <Link href="/support" className="hover:text-white transition-colors">Support</Link>
           </div>
         </div>
       </footer>
