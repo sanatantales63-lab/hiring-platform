@@ -4,16 +4,25 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
-  Search, MapPin, IndianRupee, Briefcase, GraduationCap, 
-  Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon
+  Search, MapPin, Briefcase, GraduationCap, 
+  Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock
 } from "lucide-react";
 
 export default function CompanyDashboard() {
   const router = useRouter();
+  const [companyId, setCompanyId] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [candidates, setCandidates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [approvalStatus, setApprovalStatus] = useState<string>("pending");
+  const [activeTab, setActiveTab] = useState("assigned"); 
+
+  // Review Modal States
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewStudent, setReviewStudent] = useState<any>(null);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -25,13 +34,16 @@ export default function CompanyDashboard() {
         
         if (companyData) {
           setApprovalStatus(companyData.status);
+          setCompanyId(companyData.id);
+          setCompanyName(companyData.name);
 
           if (companyData.status === "approved") {
             const { data: allProfiles } = await supabase.from("profiles").select("*");
-            
             if (allProfiles) {
                const allowedIDs = companyData.allowedStudents || [];
-               const visibleCandidates = allProfiles.filter((student: any) => allowedIDs.includes(student.id));
+               const visibleCandidates = allProfiles.filter((student: any) => 
+                 allowedIDs.includes(student.id) || student.hired_company_id === companyData.id
+               );
                setCandidates(visibleCandidates);
             }
           }
@@ -42,12 +54,52 @@ export default function CompanyDashboard() {
     fetchDashboard();
   }, [router]);
 
+  const handleLogout = async () => { await supabase.auth.signOut(); router.push("/"); };
+
+  const markAsHired = async (student: any) => {
+    if(!confirm(`Are you sure you want to send a Hiring Offer to ${student.fullName}?`)) return;
+    try {
+      const { error } = await supabase.from("profiles").update({ 
+        hired_status: "pending", 
+        hired_company_id: companyId,
+        hired_company_name: companyName
+      }).eq("id", student.id);
+      
+      if (error) throw error;
+      alert("Offer sent! Waiting for candidate to verify.");
+      setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "pending", hired_company_id: companyId} : c));
+    } catch (e) { alert("Error sending offer."); }
+  };
+
+  const submitReview = async () => {
+    if(rating === 0) return alert("Please select a star rating!");
+    try {
+      const { error } = await supabase.from("profiles").update({ 
+        company_rating: rating,
+        company_review: reviewText
+      }).eq("id", reviewStudent.id);
+      
+      if (error) throw error;
+      alert("Review submitted successfully!");
+      setCandidates(candidates.map(c => c.id === reviewStudent.id ? {...c, company_rating: rating, company_review: reviewText} : c));
+      setShowReviewModal(false);
+      setRating(0); setReviewText("");
+    } catch (e) { alert("Error submitting review."); }
+  };
+
   const filteredCandidates = candidates.filter(c => 
-    c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase()))
+    (c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
-  const handleLogout = async () => { await supabase.auth.signOut(); router.push("/"); };
+  const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "pending");
+  const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "pending"));
+  
+  const pendingReviews = hiredList.filter(c => {
+     if(c.hired_status !== "hired" || c.company_rating) return false;
+     if(!c.hire_date) return false;
+     const daysSinceHire = Math.floor((new Date().getTime() - new Date(c.hire_date).getTime()) / (1000 * 60 * 60 * 24));
+     return daysSinceHire >= 60; 
+  });
 
   if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500 w-10 h-10" /></div>;
 
@@ -64,20 +116,43 @@ export default function CompanyDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex">
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col p-6">
+      <aside className="w-64 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col p-6 fixed h-full z-10">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-10">Recruiter Panel</h2>
         <nav className="space-y-4 flex-1">
-          <div onClick={() => router.push('/company/dashboard')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer bg-purple-600 text-white shadow-lg"><LayoutDashboard size={20}/> <span className="font-medium">Dashboard</span></div>
-          <div onClick={() => router.push('/company/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-white transition-all"><BriefcaseIcon size={20}/> <span className="font-medium">My Requirements</span></div>
+          <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'assigned' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><LayoutDashboard size={20}/> <span className="font-medium">Talent Pool</span></div>
+          <div onClick={() => setActiveTab('hired')} className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'hired' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+             <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span className="font-medium">My Hires</span></div>
+             {pendingReviews.length > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">{pendingReviews.length}</span>}
+          </div>
+          
+          {/* 🔥 COMPANY PROFILE BUTTON RESTORED HERE 🔥 */}
+          <div onClick={() => router.push('/company/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-white transition-all border border-slate-800 mt-4">
+             <BriefcaseIcon size={20}/> <span className="font-medium">My Requirements</span>
+          </div>
+
         </nav>
-        <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 mt-auto"><LogOut size={20} /> Logout</button>
+        <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 mt-auto font-bold"><LogOut size={20} /> Logout</button>
       </aside>
 
-      <main className="flex-1 p-8 overflow-y-auto">
-        <header className="flex justify-between items-center mb-12">
+      <main className="flex-1 p-8 md:p-12 ml-64 overflow-y-auto">
+        
+        {pendingReviews.length > 0 && (
+           <div className="mb-8 bg-red-950/40 border border-red-500/50 p-6 rounded-2xl flex items-center justify-between animate-in fade-in">
+              <div className="flex items-center gap-4">
+                 <div className="bg-red-500/20 p-3 rounded-full"><AlertCircle className="text-red-500" size={28}/></div>
+                 <div>
+                    <h3 className="text-xl font-bold text-red-400">Action Required: Leave a Review!</h3>
+                    <p className="text-red-200/70 text-sm">You have candidates who completed 60+ days. Please rate their performance.</p>
+                 </div>
+              </div>
+              <button onClick={() => setActiveTab('hired')} className="bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg transition-colors">Review Now</button>
+           </div>
+        )}
+
+        <header className="flex justify-between items-center mb-8">
           <div>
-             <h1 className="text-3xl font-bold">Assigned Talent Pool</h1>
-             <p className="text-slate-400">Candidates selected specifically for your requirements.</p>
+             <h1 className="text-4xl font-extrabold">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Hired Team'}</h1>
+             <p className="text-slate-400 mt-2">{activeTab === 'assigned' ? 'Candidates verified by Talexo AI matching your needs.' : 'Manage your hired candidates and their performance.'}</p>
           </div>
         </header>
 
@@ -87,44 +162,86 @@ export default function CompanyDashboard() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCandidates.map((candidate) => <CandidateCard key={candidate.id} data={candidate} />)}
+          {(activeTab === 'assigned' ? assignedList : hiredList).map((candidate) => (
+             <motion.div key={candidate.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-purple-500/50 transition-all flex flex-col group">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">{candidate.fullName}</h3>
+                    <p className="text-slate-400 text-sm flex items-center gap-1 mt-1"><MapPin size={14} /> {candidate.city || "Remote"}</p>
+                  </div>
+                  <div className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/20">{candidate.experience}</div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mb-6 h-[55px] overflow-hidden">
+                  {candidate.skills?.map((skill: string, index: number) => <span key={index} className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">{skill}</span>)}
+                </div>
+
+                {activeTab === 'assigned' && (
+                  <div className="mt-auto flex gap-3">
+                     <button onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-all border border-slate-700">View Profile</button>
+                     <button onClick={() => markAsHired(candidate)} className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold shadow-lg shadow-green-900/20 transition-all">Mark as Hired</button>
+                  </div>
+                )}
+
+                {activeTab === 'hired' && (
+                   <div className="mt-auto border-t border-slate-800 pt-4">
+                      {candidate.hired_status === 'pending' && <p className="text-yellow-500 text-sm font-bold flex items-center gap-2"><Clock size={16}/> Waiting for Student to Verify</p>}
+                      
+                      {candidate.hired_status === 'hired' && !candidate.company_rating && (
+                         <div className="space-y-3">
+                            <p className="text-green-500 text-sm font-bold flex items-center gap-2"><CheckCircle size={16}/> Successfully Hired</p>
+                            {pendingReviews.find(c => c.id === candidate.id) ? (
+                               <button onClick={() => {setReviewStudent(candidate); setShowReviewModal(true);}} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg"><Star size={18}/> Leave Review Now</button>
+                            ) : (
+                               <button disabled className="w-full py-2.5 bg-slate-800 text-slate-500 rounded-xl text-sm font-bold border border-slate-700 flex items-center justify-center gap-2"><Lock size={14}/> Review unlocks after 60 days</button>
+                            )}
+                         </div>
+                      )}
+
+                      {candidate.hired_status === 'hired' && candidate.company_rating && (
+                         <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div className="flex text-yellow-500 mb-1">
+                               {[1,2,3,4,5].map(star => <Star key={star} size={14} fill={star <= candidate.company_rating ? "currentColor" : "none"} className={star <= candidate.company_rating ? "text-yellow-500" : "text-slate-600"}/>)}
+                            </div>
+                            <p className="text-xs text-slate-400 italic line-clamp-2">"{candidate.company_review}"</p>
+                         </div>
+                      )}
+                   </div>
+                )}
+             </motion.div>
+          ))}
         </div>
 
         {filteredCandidates.length === 0 && (
-           <div className="text-center p-12 bg-slate-900/50 border border-slate-800 rounded-2xl">
-              <div className="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Lock className="text-slate-500" size={32}/></div>
-              <h3 className="text-xl font-bold text-slate-400">No Candidates Assigned</h3>
-              <p className="text-slate-500">The Admin has not assigned any candidates to your dashboard yet.<br/>Please update your requirements.</p>
+           <div className="text-center p-12 bg-slate-900/50 border border-slate-800 rounded-2xl mt-10">
+              <div className="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Search className="text-slate-500" size={32}/></div>
+              <h3 className="text-xl font-bold text-slate-400">No candidates found</h3>
            </div>
         )}
       </main>
+
+      {/* REVIEW MODAL */}
+      {showReviewModal && reviewStudent && (
+         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-700 max-w-md w-full rounded-3xl p-8 shadow-2xl">
+               <h3 className="text-2xl font-extrabold text-white mb-2">Rate {reviewStudent.fullName}</h3>
+               <p className="text-slate-400 text-sm mb-6">Your honest review helps Talexo maintain quality. Positive reviews (3+ stars) will be shown on their profile.</p>
+               
+               <div className="flex justify-center gap-2 mb-6">
+                  {[1,2,3,4,5].map(star => (
+                     <Star key={star} size={40} onClick={() => setRating(star)} className={`cursor-pointer transition-all hover:scale-110 ${rating >= star ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-slate-600'}`} />
+                  ))}
+               </div>
+
+               <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write a brief professional feedback (Optional but recommended)..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none min-h-[120px] mb-6"/>
+
+               <div className="flex gap-4">
+                  <button onClick={() => {setShowReviewModal(false); setRating(0);}} className="flex-1 py-3 rounded-xl font-bold text-slate-400 hover:bg-slate-800">Cancel</button>
+                  <button onClick={submitReview} className="flex-1 py-3 rounded-xl font-bold text-black bg-yellow-500 hover:bg-yellow-400 shadow-lg">Submit Review</button>
+               </div>
+            </div>
+         </div>
+      )}
     </div>
-  );
-}
-
-function CandidateCard({ data }: { data: any }) {
-  const router = useRouter();
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -5 }} className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-purple-500/50 transition-all group">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">{data.fullName}</h3>
-          <p className="text-slate-400 text-sm flex items-center gap-1 mt-1"><MapPin size={14} /> {data.city || "Remote"}</p>
-        </div>
-        <div className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/20">{data.experience}</div>
-      </div>
-      
-      <div className="space-y-3 mb-6 bg-slate-900 p-3 rounded-lg border border-slate-800/50">
-        <div className="flex items-center gap-2 text-slate-500 text-sm">
-          <Lock size={14} className="text-yellow-500"/> Contact Info Locked
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-6">
-        {data.skills?.slice(0, 4).map((skill: string, index: number) => <span key={index} className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">{skill}</span>)}
-      </div>
-
-      <button onClick={() => router.push(`/company/student/${data.id}`)} className="w-full py-3 rounded-lg bg-slate-800 hover:bg-purple-600 hover:text-white text-slate-300 font-medium transition-all border border-slate-700 hover:border-purple-500">View Profile</button>
-    </motion.div>
   );
 }

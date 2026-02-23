@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { 
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
-  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, PlusCircle, AlertTriangle 
+  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, PlusCircle, AlertTriangle, Star, CheckCircle 
 } from "lucide-react";
 
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
@@ -22,7 +22,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
   const topEdu = candidate.educations?.[0];
   
-  // 🔥 SMART TITLE DETECTOR: CA Final ko CA banayega 🔥
   if (topEdu && topEdu.qualification) {
      const q = topEdu.qualification.toLowerCase();
      if (q.includes('ca ') || q === 'ca') smartTitle = 'Chartered Accountant (CA)';
@@ -42,34 +41,21 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
     ? candidate.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) 
     : [];
 
-  const PREDEFINED_SKILLS = [
-    "Journal Entry", "Book Closure", "Financial Statements", "Ind-AS", "Accounting Standards", "Tally ERP", "SAP",
-    "TDS Return", "GST Return", "Income Tax", "Corporate Tax",
-    "Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"
-  ];
-  
+  const PREDEFINED_SKILLS = ["Journal Entry", "Book Closure", "Financial Statements", "Ind-AS", "Accounting Standards", "Tally ERP", "SAP", "TDS Return", "GST Return", "Income Tax", "Corporate Tax", "Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"];
   const allSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((skill: any) => typeof skill === 'string') : [];
   const verifiedSkills = allSkills.filter((skill: string) => PREDEFINED_SKILLS.includes(skill));
   const additionalSkills = allSkills.filter((skill: string) => !PREDEFINED_SKILLS.includes(skill));
 
-  // 🔥 DYNAMIC ATTEMPT COLOR LOGIC 🔥
   const getAttemptColorClasses = (attempts: string) => {
     if (!attempts) return '';
     const lower = attempts.toLowerCase();
-    
-    // Green for 1st Attempt
-    if (lower === '1' || lower === '1st' || lower.includes('one') || lower.includes('first')) {
-      return 'text-green-400 bg-green-500/10 border-green-500/20';
-    } 
-    // Yellow for 2nd / 3rd Attempt
-    else if (lower === '2' || lower === '2nd' || lower === '3' || lower === '3rd' || lower.includes('two') || lower.includes('three')) {
-      return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
-    } 
-    // Red for Multiple / 4+ Attempts
-    else {
-      return 'text-red-400 bg-red-500/10 border-red-500/20';
-    }
+    if (lower === '1' || lower === '1st' || lower.includes('one') || lower.includes('first')) return 'text-green-400 bg-green-500/10 border-green-500/20';
+    else if (lower === '2' || lower === '2nd' || lower === '3' || lower === '3rd' || lower.includes('two') || lower.includes('three')) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+    else return 'text-red-400 bg-red-500/10 border-red-500/20';
   };
+
+  // 🌟 Logic to show verified review (Only if rating is 3 or above, OR if Admin is viewing) 🌟
+  const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -124,6 +110,34 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
         </div>
       </div>
 
+      {/* 🌟 VERIFIED EXPERIENCE REVIEW SECTION 🌟 */}
+      {showReview && (
+         <div className="bg-gradient-to-r from-yellow-900/20 to-amber-900/20 border border-yellow-500/30 p-8 rounded-[2rem] shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Star size={100}/></div>
+            <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start">
+               <div className="w-16 h-16 bg-yellow-500/20 rounded-2xl flex items-center justify-center shrink-0">
+                  <Briefcase className="text-yellow-500" size={32}/>
+               </div>
+               <div>
+                  <h3 className="text-xl font-extrabold text-white mb-1 flex items-center gap-2">
+                     Verified Corporate Experience <CheckCircle className="text-green-400" size={18}/>
+                  </h3>
+                  <p className="text-slate-300 mb-3 font-medium">Hired by <strong className="text-white">{candidate.hired_company_name}</strong> through Talexo</p>
+                  <div className="flex gap-1 mb-3">
+                     {[1,2,3,4,5].map(star => <Star key={star} size={18} fill={star <= candidate.company_rating ? "#EAB308" : "none"} className={star <= candidate.company_rating ? "text-yellow-500" : "text-slate-600"}/>)}
+                  </div>
+                  {candidate.company_review && <p className="text-slate-400 italic text-lg leading-relaxed">"{candidate.company_review}"</p>}
+                  
+                  {isAdmin && candidate.company_rating < 3 && (
+                     <div className="mt-4 inline-block bg-red-900/40 text-red-400 border border-red-500/50 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                        Hidden from public (Low Rating)
+                     </div>
+                  )}
+               </div>
+            </div>
+         </div>
+      )}
+
       {candidate.bio && (
          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg relative overflow-hidden">
             <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
@@ -141,7 +155,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                <div className="space-y-4 text-sm font-medium">
                   <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Total Exp.</span><span className="text-white font-bold bg-slate-800 px-3 py-1 rounded-lg">{candidate.experience}</span></div>
                   <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Current Status</span><span className="text-white">{candidate.currentStatus}</span></div>
-                  
                   {candidate.experience !== "Fresher" && candidate.currentSalary && (
                      <div className="flex justify-between pb-1"><span className="text-slate-400">Current Salary</span><span className="text-white font-bold">{candidate.currentSalary}</span></div>
                   )}
@@ -193,8 +206,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                                {edu.stageCleared && <span className="text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded ml-2 uppercase font-bold">{edu.stageCleared}</span>}
                             </p>
                             <p className="text-sm text-slate-400 mt-1">{edu.collegeName || "Institution not specified"}</p>
-                            
-                            {/* 🔥 Applied Dynamic Attempt Color Logic here 🔥 */}
                             {edu.attempts && (
                                <p className={`text-xs font-bold mt-2 inline-block px-2 py-1 rounded border ${getAttemptColorClasses(edu.attempts)}`}>
                                   Attempts: {edu.attempts}
@@ -226,7 +237,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 </div>
 
                 <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-                   
                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-green-400"/> AI Verified Skills</h3>
                    <div className="flex flex-wrap gap-2 mb-8">
                       {verifiedSkills.length > 0 ? verifiedSkills.map((skill:string, i:number) => (
@@ -244,7 +254,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                          </div>
                       </div>
                    )}
-
                 </div>
             </div>
          </div>
@@ -278,7 +287,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                {Object.keys(candidate.meta.skillScores).map((skillName) => {
                   const data = candidate.meta.skillScores[skillName];
                   const percentage = (data.correct / data.total) * 100;
-                  
                   const colorClass = percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500';
                   const textClass = percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400';
 
