@@ -16,9 +16,10 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   
-  // Requests & Disputes
+  // 🚨 NEW REQUESTS & PIPELINE ALERTS
   const [examRequests, setExamRequests] = useState<any[]>([]);
-  const [disputedProfiles, setDisputedProfiles] = useState<any[]>([]);
+  const [shortlistedProfiles, setShortlistedProfiles] = useState<any[]>([]);
+  const [hireRequests, setHireRequests] = useState<any[]>([]);
   
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +60,8 @@ export default function AdminDashboard() {
         if (allStudents) {
           setStudents(allStudents);
           setExamRequests(allStudents.filter((s: any) => s.examAccess === "pending"));
-          setDisputedProfiles(allStudents.filter((s: any) => s.hired_status === "disputed"));
+          setShortlistedProfiles(allStudents.filter((s: any) => s.hired_status === "shortlisted"));
+          setHireRequests(allStudents.filter((s: any) => s.hired_status === "hire_requested"));
         }
         const { data: allCompanies } = await supabase.from("companies").select("*");
         if (allCompanies) setCompanies(allCompanies);
@@ -99,14 +101,28 @@ export default function AdminDashboard() {
     } catch (error) { alert("Failed to grant access."); }
   };
 
-  const resolveDispute = async (id: string) => {
-    if(!confirm("Are you sure you want to resolve this dispute and set the candidate's status back to Normal?")) return;
+  // 🔥 ADMIN ACTIONS FOR SHORTLIST & HIRE 🔥
+  const clearShortlist = async (id: string) => {
+    if(!confirm("Clear Shortlist? This returns the candidate to the available talent pool.")) return;
     try {
       const { error } = await supabase.from("profiles").update({ hired_status: "none", hired_company_id: null, hired_company_name: null }).eq("id", id);
       if (error) throw error;
-      setDisputedProfiles(prev => prev.filter(r => r.id !== id)); 
-      alert("Dispute Resolved. Profile is back to normal.");
-    } catch (error) { alert("Failed to resolve dispute."); }
+      setShortlistedProfiles(prev => prev.filter(r => r.id !== id));
+      setStudents(prev => prev.map(s => s.id === id ? {...s, hired_status: "none", hired_company_id: null, hired_company_name: null} : s));
+      alert("Candidate returned to pool.");
+    } catch (error) { alert("Action failed."); }
+  };
+
+  const approveHire = async (id: string) => {
+    if(!confirm("Approve Hire? This will officially lock the candidate's profile and start their review timer.")) return;
+    try {
+      const currentDate = new Date().toISOString();
+      const { error } = await supabase.from("profiles").update({ hired_status: "hired", hire_date: currentDate }).eq("id", id);
+      if (error) throw error;
+      setHireRequests(prev => prev.filter(r => r.id !== id)); 
+      setStudents(prev => prev.map(s => s.id === id ? {...s, hired_status: "hired", hire_date: currentDate} : s));
+      alert("Hire Approved! Profile is now locked.");
+    } catch (error) { alert("Failed to approve hire."); }
   };
 
   const toggleCompanyStatus = async (id: string, status: string) => {
@@ -163,7 +179,7 @@ export default function AdminDashboard() {
     if (advMinScore !== "" && sScore < Number(advMinScore)) match = false;
     
     if (advStatus) {
-       if (advStatus === "none" && (s.hired_status === "hired" || s.hired_status === "disputed" || s.hired_status === "pending")) match = false;
+       if (advStatus === "none" && (s.hired_status === "hired" || s.hired_status === "disputed" || s.hired_status === "pending" || s.hired_status === "hire_requested" || s.hired_status === "shortlisted")) match = false;
        else if (advStatus === "hired" && s.hired_status !== "hired") match = false;
        else if (advStatus === "disputed" && s.hired_status !== "disputed") match = false;
     }
@@ -178,6 +194,8 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center font-bold text-xl tracking-widest animate-pulse">VERIFYING ADMIN...</div>;
 
+  const totalAlerts = examRequests.length + shortlistedProfiles.length + hireRequests.length;
+
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex">
       <aside className="w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col fixed h-full z-10 shadow-2xl">
@@ -185,7 +203,7 @@ export default function AdminDashboard() {
         <nav className="space-y-3 flex-1">
           <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-gradient-to-r from-red-600 to-red-500 shadow-lg shadow-red-900/20 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}>
             <div className="flex items-center gap-3"><Bell size={20} /> Alerts</div>
-            {(examRequests.length > 0 || disputedProfiles.length > 0) && <span className="bg-white text-red-600 text-xs font-black px-2 py-1 rounded-lg animate-pulse">{examRequests.length + disputedProfiles.length}</span>}
+            {totalAlerts > 0 && <span className="bg-white text-red-600 text-xs font-black px-2 py-1 rounded-lg animate-pulse">{totalAlerts}</span>}
           </button>
           
           <button onClick={() => setActiveTab("companies")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'companies' ? 'bg-gradient-to-r from-red-600 to-red-500 shadow-lg shadow-red-900/20 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}>
@@ -244,7 +262,6 @@ export default function AdminDashboard() {
                       <option value="">🟢 All Status</option>
                       <option value="none">✨ Available Talent</option>
                       <option value="hired">💼 Hired / Locked</option>
-                      <option value="disputed">🚨 Disputed</option>
                    </select>
                    <select value={advCity} onChange={(e)=>setAdvCity(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 font-medium text-sm focus:border-blue-500 outline-none text-slate-300 [color-scheme:dark]">
                       <option value="">🗺️ Any City</option>
@@ -276,7 +293,6 @@ export default function AdminDashboard() {
                 )}
              </div>
              
-             {/* 🚀 REVAMPED UNIFORM GRID DESIGN 🚀 */}
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                {filteredMainStudents.map(s => {
                  const score = s.meta?.totalScore || 0;
@@ -286,7 +302,6 @@ export default function AdminDashboard() {
                  return (
                    <div key={s.id} className={`flex flex-col bg-[#0f172a] border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 hover:shadow-2xl h-full ${isDisqualified ? 'border-red-900/50 opacity-70' : 'border-slate-800 hover:border-blue-500/50'}`}>
                      
-                     {/* CARD HEADER */}
                      <div className="flex justify-between items-start mb-4">
                         <div className="flex-1 pr-2">
                            <h3 className="text-xl font-extrabold text-white flex flex-wrap items-center gap-2 mb-1.5">
@@ -295,10 +310,14 @@ export default function AdminDashboard() {
                            </h3>
                            <p className="text-slate-400 text-sm font-medium flex items-center gap-1.5"><MapPin size={14} className="text-blue-500"/> {s.city || "Location not set"}</p>
                            
-                           {/* SLEEK HIRED BADGE */}
                            {s.hired_status === 'hired' && (
                               <p className="text-[10px] text-green-400 font-bold mt-2 flex items-center gap-1 bg-green-500/10 inline-flex px-2 py-1 rounded-md border border-green-500/20">
                                  <CheckCircle size={12}/> HIRED BY {s.hired_company_name?.toUpperCase() || "COMPANY"}
+                              </p>
+                           )}
+                           {s.hired_status === 'shortlisted' && (
+                              <p className="text-[10px] text-blue-400 font-bold mt-2 flex items-center gap-1 bg-blue-500/10 inline-flex px-2 py-1 rounded-md border border-blue-500/20">
+                                 <UserPlus size={12}/> SHORTLISTED
                               </p>
                            )}
                         </div>
@@ -311,7 +330,6 @@ export default function AdminDashboard() {
                         </div>
                      </div>
                      
-                     {/* DEGREE & EXP BOX */}
                      <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800/80 mb-4">
                         <div className="flex items-center gap-3 mb-2.5">
                            <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0">
@@ -330,17 +348,13 @@ export default function AdminDashboard() {
                         </div>
                      </div>
 
-                     {/* SKILLS TAGS */}
                      <div className="flex flex-wrap gap-1.5 mb-4 h-[44px] overflow-hidden">
                         {s.skills?.map((skill:string, idx:number) => (
                            <span key={idx} className="bg-slate-800/50 text-slate-300 text-xs font-medium px-2.5 py-1 rounded-md border border-slate-700/50 truncate max-w-[120px]">{skill}</span>
                         ))}
                      </div>
 
-                     {/* 🚀 THE MAGIC "MT-AUTO" WRAPPER PUSHES BUTTON TO BOTTOM 🚀 */}
                      <div className="mt-auto">
-                        
-                        {/* REFINED RATING BAR */}
                         {s.hired_status === 'hired' && s.company_rating && (
                            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-2.5 mb-3 flex items-center justify-between">
                               <span className="text-[10px] text-yellow-500 font-bold uppercase tracking-wider">Company Rating</span>
@@ -352,7 +366,6 @@ export default function AdminDashboard() {
                            </div>
                         )}
                         
-                        {/* VIEW PROFILE BUTTON */}
                         <button onClick={() => setViewingStudent(s)} className="w-full bg-slate-800 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 border border-slate-700 hover:border-transparent text-slate-300 hover:text-white py-3.5 rounded-xl transition-all text-sm font-bold flex items-center justify-center gap-2 shadow-lg group">
                            <ExternalLink size={18} className="group-hover:scale-110 transition-transform"/> View Full Profile
                         </button>
@@ -408,26 +421,51 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* 🔥 NEW MANAGED ALERTS PIPELINE 🔥 */}
         {activeTab === "requests" && (
            <div className="animate-in fade-in duration-300 grid gap-8">
              
+             {/* HIRE REQUESTS */}
              <div>
-               <h2 className="text-3xl font-extrabold text-red-400 tracking-tight mb-2 flex items-center gap-2"><AlertCircle/> Fake Hire Reports</h2>
-               <p className="text-slate-400 mb-6">Candidates who reported a false hiring update from a company.</p>
+               <h2 className="text-3xl font-extrabold text-green-400 tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hire Requests</h2>
+               <p className="text-slate-400 mb-6">Companies requesting to officially hire these candidates. Verify offline, then approve to lock their profiles.</p>
                <div className="space-y-4">
-                 {disputedProfiles.map((s) => (
-                    <div key={s.id} className="bg-red-950/20 border border-red-900/50 p-6 rounded-2xl flex justify-between items-center shadow-lg">
+                 {hireRequests.map((s) => (
+                    <div key={s.id} className="bg-green-950/20 border border-green-900/50 p-6 rounded-2xl flex justify-between items-center shadow-lg">
                        <div>
                           <h3 className="font-bold text-xl text-white">{s.fullName}</h3>
-                          <p className="text-red-300 text-sm mt-1">Reported Company: <strong>{s.hired_company_name}</strong></p>
+                          <p className="text-green-300 text-sm mt-1">Requested by: <strong>{s.hired_company_name}</strong></p>
                        </div>
-                       <button onClick={() => resolveDispute(s.id)} className="bg-slate-800 border border-slate-700 hover:border-red-500 px-6 py-3 rounded-xl font-bold shadow-lg transition-all text-white">Resolve Dispute</button>
+                       <button onClick={() => approveHire(s.id)} className="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-xl font-bold shadow-lg transition-all text-white">Approve Hire</button>
                     </div>
                  ))}
-                 {disputedProfiles.length === 0 && (
+                 {hireRequests.length === 0 && (
                     <div className="text-center p-8 bg-slate-900/50 rounded-2xl border border-slate-800 text-slate-500">
-                       <ShieldCheck size={48} className="mx-auto mb-2 text-slate-600 opacity-50"/>
-                       <p>No fake hire reports. The platform is secure.</p>
+                       <p>No new hire requests.</p>
+                    </div>
+                 )}
+               </div>
+             </div>
+
+             <div className="border-t border-slate-800 my-4"></div>
+
+             {/* SHORTLIST REQUESTS */}
+             <div>
+               <h2 className="text-3xl font-extrabold text-blue-400 tracking-tight mb-2 flex items-center gap-2"><UserPlus/> Interview Shortlists</h2>
+               <p className="text-slate-400 mb-6">Call the students and arrange offline interviews with the companies.</p>
+               <div className="space-y-4">
+                 {shortlistedProfiles.map((s) => (
+                    <div key={s.id} className="bg-blue-950/20 border border-blue-900/50 p-6 rounded-2xl flex justify-between items-center shadow-lg">
+                       <div>
+                          <h3 className="font-bold text-xl text-white">{s.fullName}</h3>
+                          <p className="text-blue-300 text-sm mt-1">Company: <strong>{s.hired_company_name}</strong> | Phone: {s.phone}</p>
+                       </div>
+                       <button onClick={() => clearShortlist(s.id)} className="bg-slate-800 border border-slate-700 hover:border-red-500 hover:text-red-400 px-6 py-3 rounded-xl font-bold shadow-lg transition-all text-slate-300">Clear / Reject</button>
+                    </div>
+                 ))}
+                 {shortlistedProfiles.length === 0 && (
+                    <div className="text-center p-8 bg-slate-900/50 rounded-2xl border border-slate-800 text-slate-500">
+                       <p>No pending interview shortlists.</p>
                     </div>
                  )}
                </div>
@@ -445,7 +483,7 @@ export default function AdminDashboard() {
                           <h3 className="font-bold text-xl text-white">{s.fullName}</h3>
                           <p className="text-slate-400 text-sm">{s.email}</p>
                        </div>
-                       <button onClick={() => grantExamAccess(s.id)} className="bg-green-600 px-6 py-3 rounded-xl font-bold shadow-lg shadow-green-900/20 hover:bg-green-700 transition-all">Allow Re-Test</button>
+                       <button onClick={() => grantExamAccess(s.id)} className="bg-slate-700 border border-slate-600 px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-slate-600 transition-all">Allow Re-Test</button>
                     </div>
                  ))}
                  {examRequests.length === 0 && (

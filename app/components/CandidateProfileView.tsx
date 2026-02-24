@@ -3,11 +3,12 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase"; 
 import { 
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
-  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, PlusCircle, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor
+  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, PlusCircle, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building
 } from "lucide-react";
 
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
   const [showAllEdu, setShowAllEdu] = useState(false);
+  const [showAllWork, setShowAllWork] = useState(false); // 🔥 WORK EXP TOGGLE STATE 🔥
   const [isResetting, setIsResetting] = useState(false);
 
   if (!candidate) return null;
@@ -21,23 +22,41 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
   const dobToDisplay = isCompany ? "XX/XX/XXXX" : (candidate.dob || "Not Provided");
 
+  // 🎓 🔥 THE SUPER-SMART BADGE LOGIC 🔥 🎓
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
   const topEdu = candidate.educations?.[0];
   
   if (topEdu && topEdu.qualification) {
      const q = topEdu.qualification.toLowerCase();
-     if (q.includes('ca ') || q === 'ca') smartTitle = 'Chartered Accountant (CA)';
-     else if (q.includes('cma ') || q === 'cma') smartTitle = 'Cost & Management Accountant (CMA)';
-     else if (q.includes('cs ') || q === 'cs') smartTitle = 'Company Secretary (CS)';
+     // Use regex to catch CA, CA-Final, CA-Inter, etc. properly
+     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) {
+         smartTitle = 'Chartered Accountant (CA)';
+     }
+     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) {
+         smartTitle = 'Cost & Management Accountant (CMA)';
+     }
+     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) {
+         smartTitle = 'Company Secretary (CS)';
+     }
      else if (q.includes('acca')) smartTitle = 'ACCA Professional';
      else if (q.includes('mba')) smartTitle = 'MBA Professional';
-     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
+     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) {
+         smartTitle = 'Commerce Graduate (B.Com)';
+     }
      else smartTitle = topEdu.qualification;
   }
 
+  // Arrays Setup
   const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
+  const workExpList = Array.isArray(candidate.workExperience) ? candidate.workExperience : [];
+  
   const displayedEducations = showAllEdu ? educationsList : educationsList.slice(0, 3);
   const extraEduCount = educationsList.length > 3 ? educationsList.length - 3 : 0;
+
+  // 🔥 WORK EXP LIMITER LOGIC 🔥
+  const displayedWorkExp = showAllWork ? workExpList : workExpList.slice(0, 2);
+  const extraWorkCount = workExpList.length > 2 ? workExpList.length - 2 : 0;
+
   const safeLanguages = Array.isArray(candidate.languages) ? candidate.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [];
 
   const PREDEFINED_SKILLS = ["Journal Entry", "Book Closure", "Financial Statements", "Ind-AS", "Accounting Standards", "Tally ERP", "SAP", "TDS Return", "GST Return", "Income Tax", "Corporate Tax", "Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"];
@@ -47,18 +66,12 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
   const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
 
-  // 🚨 EXTRACTING SEPARATE WARNINGS
   const metaObj = candidate.meta || {};
-  const warns = metaObj.warnings || { 
-      tab: metaObj.warningsCount || 0, 
-      mic: 0, 
-      cam: 0 
-  };
+  const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0 };
   const hasMediaWarnings = warns.mic > 0 || warns.cam > 0;
 
-  // 👑 ADMIN POWER: RESET MEDIA WARNINGS
   const handleResetMediaWarnings = async () => {
-     if(!confirm("Are you sure you want to forgive this candidate and clear their Mic/Camera warnings? (Tab warnings will remain)")) return;
+     if(!confirm("Are you sure you want to forgive this candidate and clear their Mic/Camera warnings?")) return;
      setIsResetting(true);
      try {
          const newMeta = { ...metaObj, warnings: { tab: warns.tab, mic: 0, cam: 0 }, warningsCount: warns.tab, status: "Passed" };
@@ -66,7 +79,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          if (isDisqualified && warns.tab < 2) newAccess = 'granted'; 
 
          await supabase.from("profiles").update({ meta: newMeta, examAccess: newAccess }).eq("id", candidate.id);
-         alert("Warnings Cleared! If disqualified, their test access has been re-granted.");
+         alert("Warnings Cleared! Test access re-granted if applicable.");
          window.location.reload(); 
      } catch (e) { alert("Error resetting warnings"); }
      setIsResetting(false);
@@ -75,6 +88,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
+      {/* HEADER CARD */}
       <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]"></div>
         
@@ -104,7 +118,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
           </div>
           
           <div className={`flex flex-wrap justify-center md:justify-start gap-3 text-sm font-medium ${isCompany ? 'blur-[4px] select-none opacity-50' : ''}`}>
-            <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}, {candidate.state || "State"}</span>
+            <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}</span>
             <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><Phone size={16} className="text-green-500"/> {phoneToDisplay}</span>
             <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><Mail size={16} className="text-yellow-500"/> {emailToDisplay}</span>
           </div>
@@ -142,6 +156,33 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-blue-400" size={20}/> Professional Summary</h3>
             <p className="text-slate-300 leading-relaxed text-base md:text-lg italic">"{candidate.bio}"</p>
          </div>
+      )}
+
+      {/* 🏢 PAST WORK EXPERIENCE SECTION 🏢 */}
+      {workExpList.length > 0 && (
+          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
+             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><Building className="text-green-400"/> Past Work Experience</h3>
+             <div className="space-y-4">
+                 {displayedWorkExp.map((work:any, i:number) => (
+                    <div key={i} className="bg-slate-950/50 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-700 transition-colors">
+                       <div>
+                          <p className="font-bold text-lg text-white">{work.company}</p>
+                          <p className="text-sm text-blue-400 font-bold mt-1">{work.role}</p>
+                       </div>
+                       <div className="text-left sm:text-right">
+                          <p className="text-slate-400 text-sm font-medium bg-slate-800 px-3 py-1 rounded-lg inline-block">{work.duration}</p>
+                       </div>
+                    </div>
+                 ))}
+
+                 {/* 🔥 SHOW MORE BUTTON FOR WORK EXP 🔥 */}
+                 {extraWorkCount > 0 && (
+                    <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                       {showAllWork ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraWorkCount} More Experiences</>}
+                    </button>
+                 )}
+             </div>
+          </div>
       )}
 
       <div className="grid md:grid-cols-3 gap-8">
@@ -186,15 +227,31 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                          </div>
                       </div>
                    ))}
+
+                   {extraEduCount > 0 && (
+                      <button onClick={() => setShowAllEdu(!showAllEdu)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                         {showAllEdu ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraEduCount} More Qualifications</>}
+                      </button>
+                   )}
                </div>
             </div>
 
             <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-green-400"/> AI Verified Skills</h3>
-               <div className="flex flex-wrap gap-2">
-                  {verifiedSkills.length > 0 ? verifiedSkills.map((skill:string, i:number) => (
-                     <span key={i} className="bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-sm font-bold border border-green-500/20">{skill}</span>
-                  )) : <span className="text-slate-500 text-sm italic">No testable skills selected.</span>}
+               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-blue-400"/> Skills & Expertise</h3>
+               <div className="flex flex-wrap gap-2.5">
+                  {verifiedSkills.map((skill:string, i:number) => (
+                     <span key={`v-${i}`} title="AI Testable Skill" className="bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-sm font-bold border border-green-500/20 flex items-center gap-1.5">
+                        <CheckCircle size={14}/> {skill}
+                     </span>
+                  ))}
+
+                  {additionalSkills.map((skill:string, i:number) => (
+                     <span key={`a-${i}`} className="bg-slate-800/80 text-slate-300 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-700/80">
+                        {skill}
+                     </span>
+                  ))}
+
+                  {allSkills.length === 0 && <span className="text-slate-500 text-sm italic">No skills selected.</span>}
                </div>
             </div>
          </div>
@@ -209,7 +266,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   <h3 className="text-3xl font-extrabold text-white flex items-center gap-3"><Target className="text-green-400" size={32}/> Detailed Assessment Report</h3>
                   <p className="text-slate-400 mt-2">Verified Skill-by-Skill AI Analytics</p>
                   
-                  {/* 🚨 AUTO-SUBMIT RED FLAG FOR HR/ADMIN 🚨 */}
                   {metaObj.status && metaObj.status.includes('Auto-Submitted') && (
                      <div className="mt-4 bg-orange-500/10 border border-orange-500/30 text-orange-400 p-3 rounded-xl flex items-center gap-2 text-sm font-bold">
                         <AlertTriangle size={18} className="shrink-0"/> 
@@ -236,7 +292,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                         </div>
                      </div>
                      
-                     {/* 👑 ADMIN ONLY: RESET BUTTON 👑 */}
                      {isAdmin && hasMediaWarnings && (
                         <button disabled={isResetting} onClick={handleResetMediaWarnings} className="w-full mt-3 bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/50 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-colors">
                            {isResetting ? <RefreshCcw className="animate-spin" size={12}/> : <RefreshCcw size={12}/>} Forgive Media Alerts

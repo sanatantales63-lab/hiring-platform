@@ -10,8 +10,6 @@ import {
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST, SKILL_CATEGORIES } from "@/lib/constants";
-
-// 🔥 Firebase OTP Imports 🔥
 import { auth } from "@/lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
@@ -30,12 +28,13 @@ export default function CandidateProfile() {
     fullName: "", dob: "", gender: "", phone: "", photoURL: "", addressLine: "", city: "", state: "", pincode: "", willingToRelocate: "No",
     panCard: "", bio: "", 
     educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }], 
+    workExperience: [] as { company: string, role: string, duration: string }[], // 🔥 NAYA FEATURE ADDED
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
     preferredLocations: [] as string[],
     experience: "Fresher", currentStatus: "Unemployed", noticePeriod: "Immediate", 
     currentSalary: "", expectedSalary: "", 
-    workMode: "On-site", jobType: "Full-time", availabilityDuration: "",
+    workMode: "On-site", jobType: "Permanent", availabilityDuration: "",
     resumeURL: ""
   });
 
@@ -49,7 +48,6 @@ export default function CandidateProfile() {
   const [skillSearch, setSkillSearch] = useState("");
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(SKILL_CATEGORIES)[0]);
 
-  // 🔥 OTP States 🔥
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpInput, setOtpInput] = useState("");
@@ -65,19 +63,20 @@ export default function CandidateProfile() {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         if (data && data.fullName) {
           setFormData({ 
-            ...formData, ...data,
+              ...formData, ...data,
               bio: data.bio || "",
               panCard: data.panCard || "",
               currentSalary: data.currentSalary || "",
               expectedSalary: data.expectedSalary || "",
+              jobType: data.jobType || "Permanent",
               educations: data.educations?.length ? data.educations : formData.educations,
+              workExperience: data.workExperience || [], // 🔥 FETCH PAST WORK EXP
               languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
               preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
               skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
 
           if(data.phone) setPhoneVerified(true);
-          
           setIsEditing(false);
           setShowGatekeeper(false);
         } else { 
@@ -142,21 +141,23 @@ export default function CandidateProfile() {
   };
 
   const removeLocation = (loc: string) => setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
-  
   const addEducation = () => setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }] }));
-  
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value };
     setFormData(p => ({ ...p, educations: newEdu }));
   };
-
   const removeEducation = (index: number) => {
     if (formData.educations.length === 1) return;
     const newEdu = [...formData.educations];
     newEdu.splice(index, 1);
     setFormData(p => ({ ...p, educations: newEdu }));
   };
+
+  // 🔥 WORK EXPERIENCE FUNCTIONS 🔥
+  const addWorkExp = () => setFormData(p => ({ ...p, workExperience: [...p.workExperience, { company: "", role: "", duration: "" }] }));
+  const updateWorkExp = (index: number, field: string, value: string) => { const newWork = [...formData.workExperience]; newWork[index] = { ...newWork[index], [field]: value }; setFormData(p => ({ ...p, workExperience: newWork })); };
+  const removeWorkExp = (index: number) => { const newWork = [...formData.workExperience]; newWork.splice(index, 1); setFormData(p => ({ ...p, workExperience: newWork })); };
 
   const addLanguage = () => {
     if (langInput && !formData.languages.find(l => l.language === langInput)) {
@@ -207,6 +208,7 @@ export default function CandidateProfile() {
             currentSalary: aiData.currentSalary || prev.currentSalary || "", 
             expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
+            workExperience: aiData.workExperience?.length > 0 ? aiData.workExperience : prev.workExperience, // 🔥 AI INJECTS WORK EXP
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
             skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
             languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
@@ -218,8 +220,7 @@ export default function CandidateProfile() {
          setFormData(prev => ({ ...prev, resumeURL: publicUrlData.publicUrl }));
          setShowGatekeeper(false); alert("Resume Uploaded! Please fill remaining details manually.");
       }
-    } catch (e: any) { alert("Upload Failed: " + e.message);
-    } 
+    } catch (e: any) { alert("Upload Failed: " + e.message); } 
     finally { setUploading(false); }
   };
 
@@ -228,16 +229,13 @@ export default function CandidateProfile() {
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
         }
-
         const cleanPhone = formData.phone.replace(/\D/g, '');
         if (cleanPhone.length < 10) {
            return alert("🛑 Invalid Phone Number! Please enter a valid 10-digit number.");
         }
-        
         if (!phoneVerified) {
            return alert("🛑 Please verify your phone number with OTP first!");
         }
-
         if (formData.panCard && formData.panCard.trim() !== "") {
            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
            if (!panRegex.test(formData.panCard.toUpperCase())) {
@@ -249,7 +247,7 @@ export default function CandidateProfile() {
            return alert("🛑 Please complete at least one Education block completely.");
         }
 
-        // 🧠 THE NEW STRICT VALIDATION FOR CA/CMA/CS/ACCA 🧠
+        // 🧠 TUMHARA ORIGINAL STRICT CA/CMA VALIDATION 🧠
         for (const edu of formData.educations) {
            if (edu.qualification) {
               const isProfessional = ['CA', 'CMA', 'CS', 'ACCA'].some(keyword => edu.qualification.includes(keyword));
@@ -277,21 +275,19 @@ export default function CandidateProfile() {
       
       setIsEditing(false); 
       alert("Profile Saved Successfully!");
-    } catch (e: any) { alert("Error saving profile: " + e.message);
-    }
+    } catch (e: any) { alert("Error saving profile: " + e.message); }
   };
 
   const toggleSkill = (skill: string) => setFormData(prev => ({ ...prev, skills: prev.skills.includes(skill) ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] }));
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
   
   if (loading) return <div className="h-screen bg-[#020617] text-white flex gap-3 items-center justify-center"><Loader2 className="animate-spin text-blue-500" /> Loading...</div>;
-  
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-12 font-sans relative overflow-hidden">
       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none"></div>
       
       <div className="max-w-4xl mx-auto relative z-10">
-         
          <div className="flex justify-between items-center mb-10">
             <button onClick={() => router.push('/student/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold"><ArrowLeft size={18} /> Dashboard</button>
             {!isEditing && (
@@ -321,7 +317,7 @@ export default function CandidateProfile() {
                  </div>
 
                  <div className="flex flex-col sm:flex-row gap-5 max-w-xl mx-auto">
-                    <div className="flex-1 relative group">
+                    <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above."); }}>
                        <input type="file" accept=".pdf" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
                        <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-500 hover:-translate-y-1' : 'bg-slate-800 text-slate-500'}`}>
                           {uploading ? <Loader2 size={22} className="animate-spin"/> : <Sparkles size={22}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
@@ -333,7 +329,6 @@ export default function CandidateProfile() {
            </motion.div>
         ) : (
           <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
-            
             <div className="mb-12">
                <div className="flex justify-between text-sm md:text-base font-bold mb-4">
                   <span className={currentStep >= 1 ? "text-blue-400" : "text-slate-600"}>1. Personal Info</span>
@@ -351,10 +346,9 @@ export default function CandidateProfile() {
                {currentStep === 1 && (
                   <div className="space-y-8">
                      <h2 className="text-3xl font-extrabold text-white mb-6">Personal Details</h2>
-                     
                      <div className="md:col-span-2 bg-slate-950/50 border border-slate-800 p-6 rounded-2xl">
-                        <label className="form-label flex items-center gap-2"><Sparkles size={16} className="text-blue-400"/> AI Generated Professional Bio</label>
-                        <textarea value={formData.bio || ""} onChange={(e)=>setFormData({...formData, bio: e.target.value})} className="input-field min-h-[80px]" placeholder="A short, professional summary about your career objective..."/>
+                       <label className="form-label flex items-center gap-2"><Sparkles size={16} className="text-blue-400"/> AI Generated Professional Bio</label>
+                        <textarea value={formData.bio || ""} onChange={(e)=>setFormData({...formData, bio: e.target.value})} className="input-field min-h-[80px]"/>
                      </div>
 
                      <div className="flex items-center gap-8 mb-8">
@@ -372,45 +366,14 @@ export default function CandidateProfile() {
                            <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
                            <div className="flex flex-col gap-3">
                               <div className="flex gap-2">
-                                 <input 
-                                    type="text" 
-                                    value={formData.phone} 
-                                    onChange={(e)=>{ 
-                                       setFormData({...formData, phone: e.target.value});
-                                       setPhoneVerified(false); 
-                                       setOtpSent(false); 
-                                    }} 
-                                    className={`input-field flex-1 ${phoneVerified ? 'border-green-500/50 text-green-400 bg-green-500/5' : ''}`} 
-                                    placeholder="10-digit mobile number" 
-                                    disabled={phoneVerified}
-                                 />
-                                 
-                                 {!phoneVerified && (
-                                    <button onClick={handleSendOtp} disabled={otpLoading} className="bg-slate-800 hover:bg-slate-700 text-white px-5 rounded-xl font-bold transition-all border border-slate-700 whitespace-nowrap min-w-[110px]">
-                                       {otpLoading ? <Loader2 className="animate-spin mx-auto" size={20}/> : "Get OTP"}
-                                    </button>
-                                 )}
-                                 
-                                 {phoneVerified && (
-                                    <div className="bg-green-600/20 text-green-400 border border-green-500/30 px-5 rounded-xl flex items-center justify-center font-bold gap-2 whitespace-nowrap">
-                                       <Check size={18}/> Verified
-                                    </div>
-                                 )}
+                                 <input type="text" value={formData.phone} onChange={(e)=>{ setFormData({...formData, phone: e.target.value}); setPhoneVerified(false); setOtpSent(false); }} className={`input-field flex-1 ${phoneVerified ? 'border-green-500/50 text-green-400 bg-green-500/5' : ''}`} disabled={phoneVerified} />
+                                 {!phoneVerified && (<button onClick={handleSendOtp} disabled={otpLoading} className="bg-slate-800 hover:bg-slate-700 text-white px-5 rounded-xl font-bold min-w-[110px]">{otpLoading ? <Loader2 className="animate-spin mx-auto" size={20}/> : "Get OTP"}</button>)}
+                                 {phoneVerified && (<div className="bg-green-600/20 text-green-400 px-5 rounded-xl flex items-center justify-center font-bold gap-2"><Check size={18}/></div>)}
                               </div>
-
                               {otpSent && !phoneVerified && (
                                  <div className="flex gap-2 p-3 bg-slate-900/80 border border-blue-500/30 rounded-xl animate-in zoom-in duration-300">
-                                    <input 
-                                       type="text" 
-                                       value={otpInput} 
-                                       onChange={(e)=>setOtpInput(e.target.value)} 
-                                       className="input-field py-2 text-center tracking-[0.5em] font-mono text-xl" 
-                                       placeholder="------" 
-                                       maxLength={6}
-                                    />
-                                    <button onClick={handleVerifyOtp} className="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20">
-                                       Verify
-                                    </button>
+                                    <input type="text" value={otpInput} onChange={(e)=>setOtpInput(e.target.value)} className="input-field py-2 text-center tracking-[0.5em] font-mono text-xl" maxLength={6} />
+                                    <button onClick={handleVerifyOtp} className="bg-blue-600 text-white px-6 rounded-xl font-bold">Verify</button>
                                  </div>
                               )}
                            </div>
@@ -420,7 +383,7 @@ export default function CandidateProfile() {
                         <div><label className="form-label">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
                         <div><label className="form-label">Gender <span className="text-red-500">*</span></label><select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
                         <div><label className="form-label">City <span className="text-red-500">*</span></label><input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Mumbai"/></div>
-                        <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" placeholder="ABCDE1234F" maxLength={10}/></div>
+                        <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/></div>
                      </div>
                   </div>
                )}
@@ -437,48 +400,33 @@ export default function CandidateProfile() {
                               <div key={index} className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800 relative">
                                  {formData.educations.length > 1 && (<button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 p-2"><X size={18}/></button>)}
                                  <div className="grid md:grid-cols-2 gap-6 mt-2">
-                                    
                                     <div>
                                        <label className="form-label">Qualification <span className="text-red-500">*</span></label>
-                                       <input 
-                                          type="text" 
-                                          list="qualifications-list"
-                                          value={edu.qualification} 
-                                          onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} 
-                                          className="input-field" 
-                                          placeholder="Type to search (e.g. CA, B.Com)..."
-                                       />
+                                       <input type="text" list="qualifications-list" value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="input-field"/>
                                     </div>
                                     
                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
                                        <div className="grid grid-cols-2 gap-4">
-                                          {/* 🔥 Added Required Astersiks 🔥 */}
-                                          <div><label className="form-label text-yellow-400">Stage Cleared <span className="text-red-500">*</span></label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 focus:border-yellow-500 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
-                                          <div><label className="form-label text-red-400">Attempts <span className="text-red-500">*</span></label><input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30 focus:border-red-500" placeholder="e.g. 1st, Multiple"/></div>
+                                          <div><label className="form-label text-yellow-400">Stage Cleared <span className="text-red-500">*</span></label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
+                                          <div><label className="form-label text-red-400">Attempts <span className="text-red-500">*</span></label><input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30"/></div>
                                        </div>
                                     )}
-
-                                    <div className="md:col-span-2"><label className="form-label">College / Institution <span className="text-red-500">*</span></label><input type="text" value={edu.collegeName} onChange={(e)=>updateEducation(index, 'collegeName', e.target.value)} className="input-field" placeholder="e.g. Mumbai University"/></div>
-                                    <div><label className="form-label">Passing Year <span className="text-red-500">*</span></label><input type="text" value={edu.passingYear} onChange={(e)=>updateEducation(index, 'passingYear', e.target.value)} className="input-field" placeholder="2024 or Pursuing"/></div>
-                                    <div><label className="form-label">Score (%)</label><input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="input-field" placeholder="e.g. 75%"/></div>
+                                    <div className="md:col-span-2"><label className="form-label">College / Institution <span className="text-red-500">*</span></label><input type="text" value={edu.collegeName} onChange={(e)=>updateEducation(index, 'collegeName', e.target.value)} className="input-field"/></div>
+                                    <div><label className="form-label">Passing Year <span className="text-red-500">*</span></label><input type="text" value={edu.passingYear} onChange={(e)=>updateEducation(index, 'passingYear', e.target.value)} className="input-field"/></div>
+                                    <div><label className="form-label">Score (%)</label><input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="input-field"/></div>
                                  </div>
                               </div>
                            ))}
-                           <datalist id="qualifications-list">
-                              {QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}
-                           </datalist>
+                           <datalist id="qualifications-list">{QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}</datalist>
                         </div>
                      </div>
 
                      <div className="pt-8 border-t border-slate-800/80">
                         <h2 className="text-2xl font-extrabold text-white mb-6">Technical Skills & Certifications</h2>
-                        
                         {formData.skills.length > 0 && (
                            <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
                               {formData.skills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-blue-600 border border-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
-                                    {skill} <X size={16} className="cursor-pointer hover:text-red-300" onClick={() => toggleSkill(skill)}/>
-                                 </span>
+                                 <span key={skill} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">{skill} <X size={16} className="cursor-pointer" onClick={() => toggleSkill(skill)}/></span>
                               ))}
                            </div>
                         )}
@@ -486,16 +434,9 @@ export default function CandidateProfile() {
                         <div className="flex gap-4 mb-6">
                            <div className="relative flex-1">
                               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20}/>
-                              <input 
-                                 type="text" 
-                                 value={skillSearch} 
-                                 onChange={(e) => setSkillSearch(e.target.value)} 
-                                 onKeyDown={(e) => { if (e.key === 'Enter' && skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); e.preventDefault(); } }} 
-                                 className="input-field pl-12" 
-                                 placeholder="Search a skill or certification (e.g. SAP FICO)..."
-                              />
+                              <input type="text" value={skillSearch} onChange={(e) => setSkillSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); e.preventDefault(); } }} className="input-field pl-12" placeholder="Search a skill..."/>
                            </div>
-                           <button onClick={() => { if(skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); } }} className="bg-slate-800 hover:bg-slate-700 px-6 rounded-xl font-bold text-white transition-colors">Add</button>
+                           <button onClick={() => { if(skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); } }} className="bg-slate-800 px-6 rounded-xl font-bold text-white">Add</button>
                         </div>
 
                         {skillSearch.trim() !== "" ? (
@@ -503,32 +444,21 @@ export default function CandidateProfile() {
                               <p className="text-sm text-slate-400 mb-4 font-bold tracking-wider uppercase">Search Results</p>
                               <div className="flex flex-wrap gap-2">
                                  {Object.values(SKILL_CATEGORIES).flat().filter(s => s.toLowerCase().includes(skillSearch.toLowerCase()) && !formData.skills.includes(s)).map(skill => (
-                                       <button key={skill} onClick={() => { toggleSkill(skill); setSkillSearch(""); }} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-800 border border-slate-700 text-blue-400 hover:bg-slate-700 hover:text-white transition-colors">
-                                          + Add {skill}
-                                       </button>
+                                       <button key={skill} onClick={() => { toggleSkill(skill); setSkillSearch(""); }} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-800 text-blue-400">+ Add {skill}</button>
                                  ))}
-                                 
-                                 {!Object.values(SKILL_CATEGORIES).flat().some(s => s.toLowerCase() === skillSearch.toLowerCase()) && (
-                                    <button onClick={() => { toggleSkill(skillSearch.trim()); setSkillSearch(""); }} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-blue-900/30 border border-blue-800 text-blue-300 hover:bg-blue-800/50 transition-colors">
-                                       + Add "{skillSearch}" as custom skill
-                                    </button>
-                                 )}
                               </div>
                            </div>
                         ) : (
                            <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50">
                               <div className="flex flex-wrap gap-2 p-3 bg-slate-900/40 border-b border-slate-800 rounded-t-2xl">
                                  {(Object.keys(SKILL_CATEGORIES) as Array<keyof typeof SKILL_CATEGORIES>).map((cat) => (
-                                    <button key={cat} onClick={() => setActiveSkillTab(cat)} className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSkillTab === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-slate-200'}`}>
-                                       {cat}
-                                    </button>
+                                    <button key={cat} onClick={() => setActiveSkillTab(cat)} className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSkillTab === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800/80 text-slate-400'}`}>{cat}</button>
                                  ))}
                               </div>
-
                               <div className="p-6">
                                  <div className="flex flex-wrap gap-3">
                                     {(SKILL_CATEGORIES[activeSkillTab as keyof typeof SKILL_CATEGORIES] || []).map((skill: string) => (
-                                       <button key={skill} onClick={()=>toggleSkill(skill)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${formData.skills.includes(skill) ? 'bg-blue-600 border-blue-500 text-white shadow-md' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600 hover:text-slate-200'}`}>
+                                       <button key={skill} onClick={()=>toggleSkill(skill)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${formData.skills.includes(skill) ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900 text-slate-400'}`}>
                                           {formData.skills.includes(skill) ? <span className="flex items-center gap-1"><Check size={14}/> {skill}</span> : <span className="flex items-center gap-1"><Plus size={14}/> {skill}</span>}
                                        </button>
                                     ))}
@@ -537,58 +467,75 @@ export default function CandidateProfile() {
                            </div>
                         )}
                      </div>
-
-                     <div className="pt-8 border-t border-slate-800/80">
-                        <h2 className="text-2xl font-extrabold text-white mb-6">Languages</h2>
-                        <div className="flex flex-col md:flex-row gap-6 mb-6">
-                           <div className="flex-1"><label className="form-label">Language</label><select value={langInput} onChange={(e)=>setLangInput(e.target.value)} className="input-field [color-scheme:dark]"><option value="">Select</option>{languageOptions.map(l=><option key={l}>{l}</option>)}</select></div>
-                           <div className="flex-1"><label className="form-label">Proficiency</label><select value={profInput} onChange={(e)=>setProfInput(e.target.value)} className="input-field [color-scheme:dark]">{proficiencyOptions.map(p=><option key={p}>{p}</option>)}</select></div>
-                           <div className="flex items-end"><button onClick={addLanguage} className="h-[52px] px-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-colors">Add</button></div>
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                           {formData.languages.map((lang, i) => (
-                              <div key={i} className="flex items-center gap-3 bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl">
-                                 <div><span className="text-white font-bold">{lang.language}</span><span className="text-xs text-slate-400 font-medium ml-3 px-2 py-0.5 bg-slate-900 rounded-md">{lang.proficiency}</span></div>
-                                 <button onClick={()=>removeLanguage(lang.language)} className="text-slate-500 hover:text-red-400 ml-2"><X size={16}/></button>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
                   </div>
                )}
 
                {currentStep === 3 && (
-                  <div className="space-y-8">
-                     <h2 className="text-3xl font-extrabold text-white mb-8">Work & Salary Preferences</h2>
-                     <div className="grid md:grid-cols-2 gap-8">
-                        <div><label className="form-label">Total Experience <span className="text-red-500">*</span></label><select value={formData.experience} onChange={(e)=>setFormData({...formData, experience: e.target.value})} className="input-field [color-scheme:dark]"><option>Fresher</option><option>0-1 Years</option><option>1-3 Years</option><option>3-5 Years</option><option>5+ Years</option></select></div>
-                        <div><label className="form-label">Notice Period <span className="text-red-500">*</span></label><select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:dark]"><option>Immediate Joiner</option><option>15 Days</option><option>1 Month</option><option>2 Months</option></select></div>
-                        
-                        {formData.experience !== "Fresher" && (
+                  <div className="space-y-12">
+                     
+                     {/* 🔥 NAYA WORK EXPERIENCE SECTION 🔥 */}
+                     <div>
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-3xl font-extrabold text-white">Past Work Experience</h2>
+                           <button onClick={addWorkExp} className="text-sm font-bold text-green-400 bg-green-500/10 px-4 py-2 rounded-xl"><Plus size={18} className="inline"/> Add Company</button>
+                        </div>
+                        <div className="space-y-4">
+                           {formData.workExperience.map((work, index) => (
+                              <div key={index} className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 relative">
+                                 <button onClick={() => removeWorkExp(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500"><X size={18}/></button>
+                                 <div className="grid md:grid-cols-3 gap-4 mt-2">
+                                    <div><label className="form-label">Company Name</label><input type="text" value={work.company} onChange={(e)=>updateWorkExp(index, 'company', e.target.value)} className="input-field" placeholder="e.g. TCS"/></div>
+                                    <div><label className="form-label">Job Role</label><input type="text" value={work.role} onChange={(e)=>updateWorkExp(index, 'role', e.target.value)} className="input-field" placeholder="e.g. Audit Exec"/></div>
+                                    <div><label className="form-label">Duration</label><input type="text" value={work.duration} onChange={(e)=>updateWorkExp(index, 'duration', e.target.value)} className="input-field" placeholder="e.g. 2021 - 2023"/></div>
+                                 </div>
+                              </div>
+                           ))}
+                           {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm">No past experience added. AI will auto-fill if found on resume.</p>}
+                        </div>
+                     </div>
+
+                     <div className="pt-8 border-t border-slate-800/80">
+                        <h2 className="text-3xl font-extrabold text-white mb-8">Work & Salary Preferences</h2>
+                        <div className="grid md:grid-cols-2 gap-8">
+                           <div><label className="form-label">Total Experience <span className="text-red-500">*</span></label><select value={formData.experience} onChange={(e)=>setFormData({...formData, experience: e.target.value})} className="input-field [color-scheme:dark]"><option>Fresher</option><option>0-1 Years</option><option>1-3 Years</option><option>3-5 Years</option><option>5+ Years</option></select></div>
+                           <div><label className="form-label">Notice Period <span className="text-red-500">*</span></label><select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:dark]"><option>Immediate Joiner</option><option>15 Days</option><option>1 Month</option><option>2 Months</option></select></div>
+                           
+                           {formData.experience !== "Fresher" && (
+                              <div>
+                                 <label className="form-label">Current Salary (CTC)</label>
+                                 <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹4,50,000"/>
+                              </div>
+                           )}
                            <div>
-                              <label className="form-label">Current Salary (CTC)</label>
-                              <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹4,50,000"/>
+                              <label className="form-label flex items-center gap-2">Expected Salary <span className="text-red-500">*</span></label>
+                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30" placeholder="e.g. ₹6,00,000"/>
                            </div>
-                        )}
-                        <div>
-                           <label className="form-label flex items-center gap-2">Expected Salary <span className="text-red-500">*</span> <Sparkles size={14} className="text-blue-400"/></label>
-                           <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30 focus:border-blue-500" placeholder="e.g. ₹6,00,000"/>
-                        </div>
 
-                        <div className="md:col-span-2 bg-slate-950/50 p-8 rounded-3xl border border-slate-800/80 mt-4">
-                           <label className="text-slate-300 font-bold mb-4 block text-base">Preferred Work Locations <span className="text-slate-500 font-normal text-sm ml-2">(Type city & press Enter)</span></label>
-                           <div className="flex flex-wrap gap-3 mb-4">
-                              {formData.preferredLocations.map((loc, i) => (
-                                 <span key={i} className="flex items-center gap-2 bg-blue-600/10 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-sm font-bold">
-                                    {loc} <X size={16} className="cursor-pointer text-blue-400/70 hover:text-white" onClick={() => removeLocation(loc)}/>
-                                 </span>
-                              ))}
+                           {/* 🔥 ROLE TYPE (PERMANENT / CONTRACT) 🔥 */}
+                           <div>
+                              <label className="form-label text-yellow-400">Looking For (Role Type) <span className="text-red-500">*</span></label>
+                              <select value={formData.jobType} onChange={(e)=>setFormData({...formData, jobType: e.target.value})} className="input-field border-yellow-500/30 [color-scheme:dark]">
+                                 <option value="Permanent">Permanent Role</option>
+                                 <option value="3-Month Contract">3-Month Contract</option>
+                                 <option value="Internship">Internship</option>
+                              </select>
                            </div>
-                           <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-700 pb-3 outline-none text-white text-base font-medium placeholder:text-slate-600 focus:border-blue-500" placeholder="e.g. Mumbai, Bangalore..."/>
-                        </div>
+                           <div><label className="form-label">Work Mode</label><select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="input-field [color-scheme:dark]"><option>On-site</option><option>Hybrid</option><option>Remote</option></select></div>
 
-                        <div><label className="form-label">Work Mode</label><select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="input-field [color-scheme:dark]"><option>On-site</option><option>Hybrid</option><option>Remote</option></select></div>
-                        <div><label className="form-label">Willing to Relocate?</label><select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="input-field [color-scheme:dark]"><option>No</option><option>Yes</option></select></div>
+                           <div className="md:col-span-2 bg-slate-950/50 p-8 rounded-3xl border border-slate-800/80 mt-4">
+                              <label className="text-slate-300 font-bold mb-4 block text-base">Preferred Work Locations <span className="text-slate-500 font-normal text-sm ml-2">(Type city & press Enter)</span></label>
+                              <div className="flex flex-wrap gap-3 mb-4">
+                                 {formData.preferredLocations.map((loc, i) => (
+                                    <span key={i} className="flex items-center gap-2 bg-blue-600/10 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-sm font-bold">
+                                       {loc} <X size={16} className="cursor-pointer text-blue-400/70 hover:text-white" onClick={() => removeLocation(loc)}/>
+                                    </span>
+                                 ))}
+                              </div>
+                              <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-700 pb-3 outline-none text-white text-base font-medium placeholder:text-slate-600 focus:border-blue-500" placeholder="e.g. Mumbai, Bangalore..."/>
+                           </div>
+
+                           <div><label className="form-label">Willing to Relocate?</label><select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="input-field [color-scheme:dark]"><option>No</option><option>Yes</option></select></div>
+                        </div>
                      </div>
                   </div>
                )}
@@ -597,11 +544,11 @@ export default function CandidateProfile() {
             </AnimatePresence>
 
             <div className="flex justify-between mt-12 pt-8 border-t border-slate-800/80">
-               {currentStep > 1 ? (<button onClick={prevStep} className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold flex items-center gap-3 text-white transition-all hover:-translate-x-1"><ChevronLeft size={20}/> Back</button>) : <div></div>}
+               {currentStep > 1 ? (<button onClick={prevStep} className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold flex items-center gap-3 text-white transition-all"><ChevronLeft size={20}/> Back</button>) : <div></div>}
                {currentStep < 3 ? (
-                  <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-blue-500/20 transition-all hover:translate-x-1 text-lg">Next <ChevronRight size={20}/></button>
+                  <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-blue-500/20 text-lg">Next <ChevronRight size={20}/></button>
                ) : (
-                  <button onClick={handleSave} className="px-10 py-4 rounded-xl bg-green-600 hover:bg-green-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-green-500/20 transition-all hover:-translate-y-1 text-lg"><Save size={20}/> Save Profile</button>
+                  <button onClick={handleSave} className="px-10 py-4 rounded-xl bg-green-600 hover:bg-green-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-green-500/20 text-lg"><Save size={20}/> Save Profile</button>
                )}
             </div>
           </div>

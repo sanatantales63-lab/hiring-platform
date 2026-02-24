@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   Search, MapPin, Briefcase, GraduationCap, 
-  Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock
+  Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus
 } from "lucide-react";
 
 export default function CompanyDashboard() {
@@ -18,7 +18,6 @@ export default function CompanyDashboard() {
   const [approvalStatus, setApprovalStatus] = useState<string>("pending");
   const [activeTab, setActiveTab] = useState("assigned"); 
 
-  // Review Modal States
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewStudent, setReviewStudent] = useState<any>(null);
   const [rating, setRating] = useState(0);
@@ -56,19 +55,36 @@ export default function CompanyDashboard() {
 
   const handleLogout = async () => { await supabase.auth.signOut(); router.push("/"); };
 
-  const markAsHired = async (student: any) => {
-    if(!confirm(`Are you sure you want to send a Hiring Offer to ${student.fullName}?`)) return;
+  // 🔥 NEW SHORTLIST ACTION 🔥
+  const shortlistCandidate = async (student: any) => {
+    if(!confirm(`Shortlist ${student.fullName} for an interview? The Admin will be notified to arrange it.`)) return;
     try {
       const { error } = await supabase.from("profiles").update({ 
-        hired_status: "pending", 
+        hired_status: "shortlisted", 
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
       
       if (error) throw error;
-      alert("Offer sent! Waiting for candidate to verify.");
-      setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "pending", hired_company_id: companyId} : c));
-    } catch (e) { alert("Error sending offer."); }
+      alert("Shortlisted! Admin has been notified.");
+      setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "shortlisted", hired_company_id: companyId} : c));
+    } catch (e) { alert("Error sending request."); }
+  };
+
+  // 🔥 NEW HIRE REQUEST ACTION 🔥
+  const requestHire = async (student: any) => {
+    if(!confirm(`Send official Hire request for ${student.fullName}? Admin will verify and finalize this offline.`)) return;
+    try {
+      const { error } = await supabase.from("profiles").update({ 
+        hired_status: "hire_requested",
+        hired_company_id: companyId,
+        hired_company_name: companyName
+      }).eq("id", student.id);
+      
+      if (error) throw error;
+      alert("Hire Request sent to Admin!");
+      setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "hire_requested", hired_company_id: companyId} : c));
+    } catch (e) { alert("Error sending request."); }
   };
 
   const submitReview = async () => {
@@ -91,14 +107,16 @@ export default function CompanyDashboard() {
     (c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
-  const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "pending");
-  const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "pending"));
+  const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "shortlisted" && c.hired_status !== "hire_requested");
+  const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "shortlisted" || c.hired_status === "hire_requested"));
   
+  // 🔥 SMART REVIEW TIMER LOGIC 🔥
   const pendingReviews = hiredList.filter(c => {
      if(c.hired_status !== "hired" || c.company_rating) return false;
      if(!c.hire_date) return false;
      const daysSinceHire = Math.floor((new Date().getTime() - new Date(c.hire_date).getTime()) / (1000 * 60 * 60 * 24));
-     return daysSinceHire >= 60; 
+     const requiredDays = c.jobType === '3-Month Contract' ? 90 : 60; // Dynamic check based on role type
+     return daysSinceHire >= requiredDays; // change to 0 for instant testing
   });
 
   if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500 w-10 h-10" /></div>;
@@ -121,15 +139,12 @@ export default function CompanyDashboard() {
         <nav className="space-y-4 flex-1">
           <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'assigned' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><LayoutDashboard size={20}/> <span className="font-medium">Talent Pool</span></div>
           <div onClick={() => setActiveTab('hired')} className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'hired' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-             <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span className="font-medium">My Hires</span></div>
+             <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span className="font-medium">My Pipeline</span></div>
              {pendingReviews.length > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">{pendingReviews.length}</span>}
           </div>
-          
-          {/* 🔥 COMPANY PROFILE BUTTON RESTORED HERE 🔥 */}
           <div onClick={() => router.push('/company/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-white transition-all border border-slate-800 mt-4">
              <BriefcaseIcon size={20}/> <span className="font-medium">My Requirements</span>
           </div>
-
         </nav>
         <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 mt-auto font-bold"><LogOut size={20} /> Logout</button>
       </aside>
@@ -142,7 +157,7 @@ export default function CompanyDashboard() {
                  <div className="bg-red-500/20 p-3 rounded-full"><AlertCircle className="text-red-500" size={28}/></div>
                  <div>
                     <h3 className="text-xl font-bold text-red-400">Action Required: Leave a Review!</h3>
-                    <p className="text-red-200/70 text-sm">You have candidates who completed 60+ days. Please rate their performance.</p>
+                    <p className="text-red-200/70 text-sm">You have candidates who completed their timeline. Please rate their performance.</p>
                  </div>
               </div>
               <button onClick={() => setActiveTab('hired')} className="bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg transition-colors">Review Now</button>
@@ -151,8 +166,8 @@ export default function CompanyDashboard() {
 
         <header className="flex justify-between items-center mb-8">
           <div>
-             <h1 className="text-4xl font-extrabold">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Hired Team'}</h1>
-             <p className="text-slate-400 mt-2">{activeTab === 'assigned' ? 'Candidates verified by Talexo AI matching your needs.' : 'Manage your hired candidates and their performance.'}</p>
+             <h1 className="text-4xl font-extrabold">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
+             <p className="text-slate-400 mt-2">{activeTab === 'assigned' ? 'Candidates verified by Talexo AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
           </div>
         </header>
 
@@ -179,21 +194,40 @@ export default function CompanyDashboard() {
                 {activeTab === 'assigned' && (
                   <div className="mt-auto flex gap-3">
                      <button onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-all border border-slate-700">View Profile</button>
-                     <button onClick={() => markAsHired(candidate)} className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold shadow-lg shadow-green-900/20 transition-all">Mark as Hired</button>
+                     <button onClick={() => shortlistCandidate(candidate)} className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2">Shortlist</button>
                   </div>
                 )}
 
                 {activeTab === 'hired' && (
-                   <div className="mt-auto border-t border-slate-800 pt-4">
-                      {candidate.hired_status === 'pending' && <p className="text-yellow-500 text-sm font-bold flex items-center gap-2"><Clock size={16}/> Waiting for Student to Verify</p>}
+                   <div className="mt-auto border-t border-slate-800 pt-4 space-y-3">
                       
+                      {/* STATUS: SHORTLISTED */}
+                      {candidate.hired_status === 'shortlisted' && (
+                         <>
+                            <p className="text-blue-400 text-sm font-bold flex items-center gap-2"><UserPlus size={16}/> Shortlisted for Interview</p>
+                            <div className="flex gap-2">
+                               <button onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-bold border border-slate-700">Profile</button>
+                               <button onClick={() => requestHire(candidate)} className="flex-1 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-green-900/20">Request Hire</button>
+                            </div>
+                         </>
+                      )}
+
+                      {/* STATUS: HIRE REQUESTED */}
+                      {candidate.hired_status === 'hire_requested' && (
+                         <div className="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-xl">
+                            <p className="text-yellow-500 text-sm font-bold flex items-center gap-2"><Clock size={16}/> Hire Request Sent</p>
+                            <p className="text-xs text-yellow-500/70 mt-1">Admin is verifying offline.</p>
+                         </div>
+                      )}
+                      
+                      {/* STATUS: HIRED (REVIEW SYSTEM) */}
                       {candidate.hired_status === 'hired' && !candidate.company_rating && (
                          <div className="space-y-3">
-                            <p className="text-green-500 text-sm font-bold flex items-center gap-2"><CheckCircle size={16}/> Successfully Hired</p>
+                            <p className="text-green-500 text-sm font-bold flex items-center gap-2"><CheckCircle size={16}/> Officially Hired</p>
                             {pendingReviews.find(c => c.id === candidate.id) ? (
                                <button onClick={() => {setReviewStudent(candidate); setShowReviewModal(true);}} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg"><Star size={18}/> Leave Review Now</button>
                             ) : (
-                               <button disabled className="w-full py-2.5 bg-slate-800 text-slate-500 rounded-xl text-sm font-bold border border-slate-700 flex items-center justify-center gap-2"><Lock size={14}/> Review unlocks after 60 days</button>
+                               <button disabled className="w-full py-2.5 bg-slate-800 text-slate-500 rounded-xl text-sm font-bold border border-slate-700 flex items-center justify-center gap-2"><Lock size={14}/> Review locked (Time pending)</button>
                             )}
                          </div>
                       )}

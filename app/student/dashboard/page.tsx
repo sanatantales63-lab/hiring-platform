@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, UserCircle, LogOut, 
-  ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, XCircle
+  ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -28,7 +28,10 @@ export default function Dashboard() {
 
         if (data) {
           setProfileData(data);
-          if (data.fullName && data.phone && data.skills && data.skills.length > 0) setProfileComplete(true);
+          // Strict Profile Check
+          if (data.fullName && data.phone && data.skills && data.skills.length > 0 && data.educations && data.experience) {
+             setProfileComplete(true);
+          }
           if (data.examAccess) setExamStatus(data.examAccess);
           else setExamStatus("none");
           if (data.meta?.totalScore !== undefined) setLastScore(data.meta.totalScore);
@@ -51,46 +54,27 @@ export default function Dashboard() {
     } catch (e) { alert("Error sending request."); }
   };
 
-  const handleOfferResponse = async (accepted: boolean) => {
-    try {
-      const newStatus = accepted ? 'hired' : 'disputed';
-      const updates: any = { hired_status: newStatus };
-      if (accepted) updates.hire_date = new Date().toISOString();
-
-      const { error } = await supabase.from("profiles").update(updates).eq("id", user.id);
-      if (error) throw error;
-      
-      setProfileData({...profileData, hired_status: newStatus});
-      if(accepted) alert("Congratulations on your new job! 🎉");
-      else alert("Report submitted to Admin. Your profile is safe.");
-    } catch (e) { alert("Action failed."); }
-  };
-
   if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" size={48} /></div>;
 
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex font-sans relative">
       
-      {/* 🚨 OFFER VERIFICATION MODAL 🚨 */}
-      {profileData?.hired_status === 'pending' && (
-         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in zoom-in-95 duration-300">
-            <div className="bg-slate-900 border border-blue-500/30 max-w-lg w-full rounded-3xl p-8 text-center shadow-[0_0_50px_rgba(59,130,246,0.2)]">
+      {/* 🔥 THE FULL-SCREEN BLUR GATEKEEPER 🔥 */}
+      {!profileComplete && (
+         <div className="fixed inset-0 z-[100] bg-[#0A0F1F]/70 backdrop-blur-xl flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-slate-900 border border-blue-500/30 p-10 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.15)] text-center max-w-lg w-full">
                <div className="w-24 h-24 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <PartyPopper size={48} className="text-blue-400"/>
+                  <UserCircle size={48} className="text-blue-400" />
                </div>
-               <h2 className="text-3xl font-extrabold text-white mb-2">Offer Alert!</h2>
-               <p className="text-lg text-slate-300 mb-8"><strong className="text-white">{profileData.hired_company_name}</strong> has marked you as Hired on Talexo. Did you accept their offer and join?</p>
-               
-               <div className="space-y-4">
-                  <button onClick={() => handleOfferResponse(true)} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg flex justify-center items-center gap-2">
-                     <CheckCircle size={24}/> Yes, I Joined!
-                  </button>
-                  <button onClick={() => handleOfferResponse(false)} className="w-full bg-slate-950 border border-slate-800 hover:border-red-500/50 hover:bg-red-950/20 text-slate-400 hover:text-red-400 py-4 rounded-xl font-bold transition-all flex justify-center items-center gap-2">
-                     <XCircle size={20}/> No, this is a fake update
-                  </button>
-               </div>
-               <p className="text-xs text-slate-500 mt-6">Pressing 'No' will report this company to the Admin.</p>
-            </div>
+               <h2 className="text-3xl font-extrabold mb-3 text-white">Profile Incomplete 🚧</h2>
+               <p className="text-slate-400 mb-8">You need to complete your profile with your skills, education, and experience to unlock the dashboard and assessments.</p>
+               <button onClick={() => router.push('/student/profile')} className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white shadow-lg shadow-blue-900/20 transition-all text-lg flex items-center justify-center gap-2">
+                  Complete Profile Now &rarr;
+               </button>
+               <button onClick={handleLogout} className="mt-6 text-slate-500 hover:text-red-400 text-sm font-bold transition-colors">
+                 Logout
+               </button>
+            </motion.div>
          </div>
       )}
 
@@ -103,8 +87,17 @@ export default function Dashboard() {
         <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 transition-colors mt-auto font-bold"><LogOut size={20} /> Logout</button>
       </aside>
 
+      {/* DASHBOARD CONTENT (Will be blurred out if profile is not complete) */}
       <main className="flex-1 p-8 md:p-12 overflow-y-auto ml-0 md:ml-64">
         
+        <header className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="text-4xl font-extrabold mb-2">Welcome, {user?.user_metadata?.name?.split(' ')[0] || "Candidate"}! 👋</h1>
+            <p className="text-slate-400">Manage your profile and assessment status.</p>
+          </div>
+          <button onClick={handleLogout} className="md:hidden text-red-400 text-sm font-bold">Logout</button>
+        </header>
+
         {profileData?.hired_status === 'hired' && (
            <div className="mb-10 bg-green-900/30 border border-green-500/50 p-6 rounded-2xl flex items-center gap-4">
               <PartyPopper className="text-green-400" size={32}/>
@@ -115,28 +108,20 @@ export default function Dashboard() {
            </div>
         )}
 
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <h1 className="text-4xl font-extrabold mb-2">Welcome, {user?.user_metadata?.name?.split(' ')[0] || "Candidate"}! 👋</h1>
-            <p className="text-slate-400">Manage your profile and assessment status.</p>
-          </div>
-          <button onClick={handleLogout} className="md:hidden text-red-400 text-sm font-bold">Logout</button>
-        </header>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <StatCard title="Profile Status" value={profileComplete ? "Complete" : "Incomplete"} sub={profileComplete ? "Ready for Jobs" : "Update Required"} color={profileComplete ? "text-green-400" : "text-yellow-400"} borderColor={profileComplete ? "border-green-500/30" : "border-yellow-500/30"} />
+          <StatCard title="Profile Status" value="Complete" sub="Ready for Jobs" color="text-green-400" borderColor="border-green-500/30" />
           <StatCard title="Assessment Status" value={examStatus === "granted" || examStatus === "none" ? "Ready" : examStatus === "pending" ? "Pending Approval" : examStatus === "completed" ? "Completed" : "Disqualified"} sub={examStatus === "granted" || examStatus === "none" ? "Start Test Now" : "Action Required"} color="text-blue-400" borderColor="border-blue-500/30" />
           <StatCard title="Skill Score" value={lastScore !== null ? lastScore : "N/A"} sub="Latest Result" color="text-purple-400" borderColor="border-purple-500/30" />
         </div>
 
         <h3 className="text-xl font-bold mb-6">Your Actions</h3>
         <div className="grid md:grid-cols-2 gap-6">
-          <motion.div onClick={() => router.push('/student/profile')} whileHover={{ scale: 1.02 }} className={`p-6 rounded-2xl flex items-start gap-4 cursor-pointer border transition-colors ${profileComplete ? 'bg-green-900/20 border-green-500/50' : 'bg-slate-900/50 border-slate-800'}`}>
-            <div className={`p-3 rounded-lg ${profileComplete ? 'bg-green-500/20' : 'bg-blue-500/20'}`}>{profileComplete ? <CheckCircle className="text-green-500" size={24} /> : <UserCircle className="text-blue-500" size={24} />}</div>
+          <motion.div onClick={() => router.push('/student/profile')} whileHover={{ scale: 1.02 }} className={`p-6 rounded-2xl flex items-start gap-4 cursor-pointer border transition-colors bg-green-900/20 border-green-500/50`}>
+            <div className="p-3 rounded-lg bg-green-500/20"><CheckCircle className="text-green-500" size={24} /></div>
             <div>
-              <h4 className="text-lg font-bold mb-1">{profileComplete ? "Edit Profile" : "Complete Profile"}</h4>
-              <p className="text-slate-400 text-sm mb-4">Add your skills and experience to get hired.</p>
-              <span className="text-blue-400 text-sm font-bold">{profileComplete ? "Update Details" : "Complete Now"} &rarr;</span>
+              <h4 className="text-lg font-bold mb-1">Edit Profile</h4>
+              <p className="text-slate-400 text-sm mb-4">Keep your skills and experience updated.</p>
+              <span className="text-blue-400 text-sm font-bold">Update Details &rarr;</span>
             </div>
           </motion.div>
 
@@ -147,7 +132,7 @@ export default function Dashboard() {
             <div className="flex-1">
               <h4 className="text-lg font-bold mb-1">Final Skill Assessment</h4>
               {(examStatus === "none" || !examStatus || examStatus === "granted") && (
-                <><p className="text-purple-300 text-sm mb-4">You have 1 attempt available. Take the test securely.</p><button onClick={() => { if (!profileComplete) return alert("Complete your profile first!"); router.push('/student/test'); }} className="bg-purple-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 shadow-lg shadow-purple-900/20 transition-all">Start Assessment &rarr;</button></>
+                <><p className="text-purple-300 text-sm mb-4">You have 1 attempt available. Take the test securely.</p><button onClick={() => router.push('/student/test')} className="bg-purple-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-purple-700 shadow-lg shadow-purple-900/20 transition-all">Start Assessment &rarr;</button></>
               )}
               {examStatus === "pending" && (
                 <><p className="text-yellow-400 text-sm mb-4">Re-test request sent to Admin. Waiting for approval.</p><button disabled className="bg-slate-800 text-slate-500 px-4 py-2 rounded-lg text-sm font-bold cursor-not-allowed border border-slate-700">Approval Pending...</button></>
@@ -161,7 +146,6 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          {/* 🔥 DEMO TEST CARD RESTORED HERE 🔥 */}
           <motion.div onClick={() => router.push('/student/demo-test')} whileHover={{ scale: 1.02 }} className="p-6 rounded-2xl flex items-start gap-4 cursor-pointer bg-slate-800/50 border border-slate-700 hover:border-blue-400 transition-colors md:col-span-2">
             <div className="p-3 bg-blue-500/20 rounded-lg"><PlayCircle className="text-blue-400" size={24} /></div>
             <div>
@@ -170,8 +154,8 @@ export default function Dashboard() {
               <span className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 transition-all">Start Demo &rarr;</span>
             </div>
           </motion.div>
-
         </div>
+
       </main>
     </div>
   );
