@@ -2,10 +2,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Timer, Lock, ShieldAlert, CheckCircle, Loader2, FileText, AlertTriangle, 
-  MousePointer2, Monitor, Wifi, Ban, Target, Award, Mic, Camera, Video
+  MousePointer2, Monitor, Wifi, Ban, Target, Award, Mic, Camera, Video, Sparkles
 } from "lucide-react";
 
 export default function LiveTestPage() {
@@ -32,6 +32,11 @@ export default function LiveTestPage() {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(0); 
+  
+  // 🔥 BONUS ROUND STATES 🔥
+  const [showBonusPopup, setShowBonusPopup] = useState(false);
+  const [bonusRoundTaken, setBonusRoundTaken] = useState(false);
+  const [extraQuestionsPool, setExtraQuestionsPool] = useState<any[]>([]); // Baki bache hue questions yahan save karenge
   
   // 🚨 SEPARATED WARNINGS 
   const [tabWarnings, setTabWarnings] = useState(0);
@@ -77,6 +82,56 @@ export default function LiveTestPage() {
     }).eq("id", user.id);
   }, [user, tabWarnings, micWarnings, camWarnings, stopProctoring]);
 
+  // 🔥 CALCULATE SCORE HELPER (Bonus Round Check ke liye)
+  const calculateCurrentScore = () => {
+     let calcScore = 0;
+     questions.forEach((q, i) => {
+        const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
+        if (selectedOptionText === q.correct_answer) calcScore += 1;
+     });
+     return calcScore;
+  };
+
+  const handlePreSubmit = () => {
+     if (isTerminated || isSubmitted) return;
+     
+     const currentScore = calculateCurrentScore();
+     const percentage = (currentScore / questions.length) * 100;
+
+     // Agar score 30% se kam hai aur bonus round nahi liya hai
+     if (percentage < 30 && !bonusRoundTaken && extraQuestionsPool.length >= 5) {
+         setShowBonusPopup(true);
+     } else {
+         submitTest();
+     }
+  };
+
+  const acceptBonusRound = () => {
+     // Take 5 random questions from the extra pool
+     const extraQs = extraQuestionsPool.sort(() => 0.5 - Math.random()).slice(0, 5);
+     
+     setQuestions(prev => [...prev, ...extraQs]);
+     
+     // Update answers array to match new length
+     const newAnswers = [...answers];
+     for(let i=0; i<5; i++) newAnswers.push(-1);
+     setAnswers(newAnswers);
+     
+     // Add 5 minutes to timer
+     setTimeLeft(prev => prev + (5 * 60));
+     
+     setBonusRoundTaken(true);
+     setShowBonusPopup(false);
+     
+     // Move to the first new question
+     setCurrentQ(questions.length);
+  };
+
+  const rejectBonusRound = () => {
+     setShowBonusPopup(false);
+     submitTest();
+  };
+
   const submitTest = useCallback(async (forceReason?: string) => {
     if (!user || isTerminated || isSubmitted) return;
     setLoading(true);
@@ -91,7 +146,7 @@ export default function LiveTestPage() {
        }
        analyticsData[q.skill].total += 1;
 
-       const selectedOptionText = answers[i] !== -1 ? q.options[answers[i]] : null;
+       const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
        const isCorrect = selectedOptionText === q.correct_answer;
 
        if (isCorrect) {
@@ -105,9 +160,10 @@ export default function LiveTestPage() {
 
     for (const skill in analyticsData) {
         const data = analyticsData[skill];
-        if (data.correct < 4) data.aiLevel = "Beginner Level 🔴";
-        else if (data.correct >= 7 && data.advanced >= 2) data.aiLevel = "Expert Level 🟢";
-        else if (data.correct >= 4 && (data.intermediate >= 2 || data.advanced >= 1)) data.aiLevel = "Intermediate Level 🟡";
+        // Rules adjusted slightly for 5 questions
+        if (data.correct < 2) data.aiLevel = "Beginner Level 🔴";
+        else if (data.correct >= 4 && data.advanced >= 1) data.aiLevel = "Expert Level 🟢";
+        else if (data.correct >= 2) data.aiLevel = "Intermediate Level 🟡";
         else data.aiLevel = "Beginner Level 🔴";
 
         await supabase.from("test_results").insert({
@@ -168,7 +224,6 @@ export default function LiveTestPage() {
     }
   }, [isTerminated, isSubmitted, terminateTest, submitTest]);
 
-  // Ensures stream is bound to video tag
   useEffect(() => {
     if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
        videoRef.current.srcObject = streamRef.current;
@@ -196,7 +251,6 @@ export default function LiveTestPage() {
         if (isSubmitted || isTerminated) return;
         frameCount++;
 
-        // Audio Check
         analyser.getByteFrequencyData(dataArray);
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
@@ -212,7 +266,6 @@ export default function LiveTestPage() {
           noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
         }
 
-        // 🔥 HIGH SENSITIVITY VIDEO PIXEL DIFF CHECK 🔥
         if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
             const video = videoRef.current;
             const canvas = canvasRef.current;
@@ -240,7 +293,6 @@ export default function LiveTestPage() {
                         let diffCount = 0;
                         const totalPixels = currentFrame.length / 4;
                         for (let i = 0; i < currentFrame.length; i += 4) {
-                            // RGB Color Difference threshold lowered to 60 for higher sensitivity
                             const rDiff = Math.abs(currentFrame[i] - previousFrameRef.current[i]);
                             const gDiff = Math.abs(currentFrame[i+1] - previousFrameRef.current[i+1]);
                             const bDiff = Math.abs(currentFrame[i+2] - previousFrameRef.current[i+2]);
@@ -248,10 +300,9 @@ export default function LiveTestPage() {
                         }
                         const diffPercentage = (diffCount / totalPixels) * 100;
                         
-                        // If more than 15% of the screen changes (like head moving away), trigger
                         if (diffPercentage > 15) {
                             movementFramesRef.current += 1;
-                            if (movementFramesRef.current > 1) { // Triggers almost instantly (approx 1 sec of movement)
+                            if (movementFramesRef.current > 1) { 
                                 movementFramesRef.current = 0; 
                                 triggerWarning('cam'); 
                             }
@@ -263,7 +314,6 @@ export default function LiveTestPage() {
                 }
             }
         }
-
         animationFrameRef.current = requestAnimationFrame(checkActivity);
       };
       
@@ -322,13 +372,32 @@ export default function LiveTestPage() {
 
       try {
         let finalQuestions: any[] = [];
+        let backupQuestions: any[] = []; // Bonus round ke liye
+
         for (const skill of testableSkills) {
             const { data: skillQs } = await supabase.from("question_bank").select("*").eq("skill", skill);
             if (skillQs && skillQs.length > 0) {
-                const beginnerQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random()).slice(0, 3);
-                const interQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random()).slice(0, 4);
-                const advancedQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random()).slice(0, 3);
-                finalQuestions = [...finalQuestions, ...beginnerQs, ...interQs, ...advancedQs];
+                // 🔥 ONLY 5 QUESTIONS PER SKILL 🔥
+                const beginnerQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
+                const interQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random());
+                const advancedQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random());
+                
+                // Select 5 for main test
+                const mainQs = [
+                    ...beginnerQs.slice(0, 2), 
+                    ...interQs.slice(0, 2), 
+                    ...advancedQs.slice(0, 1)
+                ];
+                
+                // Save remaining in backup pool
+                const remainingQs = [
+                    ...beginnerQs.slice(2), 
+                    ...interQs.slice(2), 
+                    ...advancedQs.slice(1)
+                ];
+
+                finalQuestions = [...finalQuestions, ...mainQs];
+                backupQuestions = [...backupQuestions, ...remainingQs];
             }
         }
 
@@ -337,6 +406,7 @@ export default function LiveTestPage() {
            setQuestions(finalQuestions);
            setAnswers(new Array(finalQuestions.length).fill(-1));
            setTimeLeft(finalQuestions.length * 60); 
+           setExtraQuestionsPool(backupQuestions); // Save for bonus round
         } else {
            alert("Question Bank is empty for your matched skills. Please check database.");
            router.push("/student/dashboard");
@@ -349,7 +419,7 @@ export default function LiveTestPage() {
   }, [router, stopProctoring]);
 
   useEffect(() => {
-    if (loading || !testStarted || isSubmitted || isTerminated) return;
+    if (loading || !testStarted || isSubmitted || isTerminated || showBonusPopup) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) { submitTest(); return 0; }
@@ -357,7 +427,7 @@ export default function LiveTestPage() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [loading, testStarted, isSubmitted, isTerminated, submitTest]);
+  }, [loading, testStarted, isSubmitted, isTerminated, showBonusPopup, submitTest]);
 
   const handleVisibilityChange = useCallback(() => {
     if (document.hidden && testStarted && !isSubmitted && !isTerminated) {
@@ -564,11 +634,37 @@ export default function LiveTestPage() {
        </div>
        <canvas ref={canvasRef} width="64" height="48" className="hidden" />
 
+       {/* 🔥 THE BONUS ROUND POPUP 🔥 */}
+       <AnimatePresence>
+         {showBonusPopup && (
+           <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-slate-900 border border-purple-500/50 p-8 rounded-3xl max-w-lg text-center shadow-[0_0_50px_rgba(168,85,247,0.2)]">
+                 <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Sparkles size={40} className="text-purple-400"/>
+                 </div>
+                 <h2 className="text-3xl font-bold mb-4">You Can Do Better!</h2>
+                 <p className="text-slate-400 text-lg mb-8">Your current score seems a bit low. We want to give you a <strong className="text-white">Second Chance</strong> to improve your profile rating before submitting.</p>
+                 
+                 <div className="bg-slate-950 p-4 rounded-xl mb-8 border border-slate-800">
+                    <p className="text-purple-400 font-bold mb-1">🎁 Take 5 Bonus Questions</p>
+                    <p className="text-xs text-slate-500">5 minutes will be added to your timer.</p>
+                 </div>
+
+                 <div className="flex gap-4">
+                    <button onClick={rejectBonusRound} className="flex-1 px-4 py-3 rounded-xl border border-slate-700 text-slate-400 hover:bg-slate-800 font-bold transition-all">Submit Anyway</button>
+                    <button onClick={acceptBonusRound} className="flex-[2] bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-bold text-white shadow-lg shadow-purple-900/30 transition-all">Accept Bonus Round</button>
+                 </div>
+              </motion.div>
+           </div>
+         )}
+       </AnimatePresence>
+
        <div className="max-w-5xl mx-auto flex justify-between items-center bg-slate-900 border border-red-500/30 p-4 rounded-xl mb-6 shadow-lg">
           <div className="flex items-center gap-3">
              <div className="flex items-center gap-2 text-red-400 bg-red-900/20 px-3 py-1 rounded-lg border border-red-500/20">
                 <Lock size={16}/> <span className="text-xs font-bold uppercase tracking-wider">Secure Exam</span>
              </div>
+             {bonusRoundTaken && <div className="text-xs font-bold text-purple-400 bg-purple-900/20 border border-purple-500/30 px-3 py-1 rounded-lg">✨ Bonus Round Active</div>}
           </div>
           <div className="flex gap-4 text-xs font-bold uppercase tracking-wider">
              <div className={`px-2 py-1 rounded border ${tabWarnings > 0 ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings} Left</div>
@@ -609,7 +705,7 @@ export default function LiveTestPage() {
              <button onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-6 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Previous</button>
              {currentQ < questions.length - 1 ?
                <button onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20">Next Question</button> :
-               <button onClick={() => submitTest()} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-900/20">Submit Assessment</button>
+               <button onClick={handlePreSubmit} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-900/20">Submit Assessment</button>
              }
           </div>
        </div>

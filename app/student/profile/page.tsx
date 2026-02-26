@@ -6,19 +6,42 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, ShieldCheck, Check, Globe, FileText, Search
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
-import { QUALIFICATIONS_LIST, EXCEL_SKILLS_DATA } from "@/lib/constants";
+import { QUALIFICATIONS_LIST } from "@/lib/constants";
+import { auth } from "@/lib/firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+
+// 🔥 EXCEL MASTER SKILLS DATA 🔥
+const MASTER_SKILLS_DATA: Record<string, string[]> = {
+  "Financiacial Reporting and Accounting": ["Data Entry", "Accounting", "BookKeeping", "Journal Entries", "Chart Of Accounts Design", "Accounting Standards", "Month-End Books Closure", "Vendor/Customer Reconcilations", "IND AS Accounting", "IND AS Implementation & Transition", "US GAAP", "Restatement of Accounts", "IPO Assistance", "Accounts Payable", "Accounts Receivables", "Lease Accounting", "Consolidation of Accounts", "Share-Based Payment", "Financial Derivatives", "MIS Prepration"],
+  "Internal Audit & Risk assessment & testing": ["Internal Audit", "Audit Report Drafting", "SOP Prepration & Implementation", "Audit Program Devlopment", "SOXs Audit", "Internal Control Testing", "RCM Preparation", "Process Narratives", "Fraud Risk Assessment", "Digital Forensic", "Regulatory compliance testing", "Corporate governance", "AML Investigation"],
+  "Statutory Audit & Compliances": ["Engagement formalities", "Audit Reports drafting", "Financial Due Diligence", "Control Testing", "Substantive Testing", "Compliance & Legal Verifications", "Group Audit", "Bank Audit", "NBFCs Audit", "Physical verification of Fixed Assets", "Physical verification of Inventory", "Audit Documentations"],
+  "Direct & International Taxation": ["Income Tax Return Preparation", "ITR 1/2/3/4/5/6/7 Filling", "TDS/TCS Filing", "Tax Structuring Advisory", "MAT/AMT Computation", "Tax Audit Assistance", "Transfer Pricing Benchmarking", "Permanent Establishment Analysis", "GAAR Interpretation", "Cross-Border Structuring", "Tax Treaty Interpretation"],
+  "Indirect Taxation & Transaction Taxes": ["GSTR 1/3B/9/9C Filling", "GST Audit", "GST Reconcilation", "E-Way Bill Compliance", "GST Advisory", "Input Tax Credit Optimisation", "E-Invoicing Compliance", "Refund Claim Processing", "Customs Valuation", "M&A Tax Due Diligence"],
+  "Costing & Strategic Cost Management": ["MIS for Cost analysis", "MIS for Variance Analysis", "Process Costing", "Job Costing", "Contract Costing", "Standard Costing Systems", "Throughput Accounting", "Lean Accounting Integration", "Life-Cycle Costing", "Kaizen Costing", "Target Costing", "Break-Even Optimization"],
+  "Financial Modeling & Valuation Engineering": ["Three-Statement Integrated Modeling", "Dynamic Scenario Simulation", "Sensitivity Matrix Design", "DCF Valuation Construction", "Comparable Company Analysis", "Precedent Transaction Analysis", "Leveraged Buyout Modeling", "Project Finance Modeling", "Startup Valuation", "Model Audit"],
+  "Investment & Portfolio Analytics": ["Equity Valuation Frameworks", "Fixed Income Duration Analysis", "Credit Spread Modeling", "Alternative Asset Evaluation", "Hedge Fund Performance", "Portfolio Optimisation (Markowitz)", "CAPM & Multifactor Modeling", "Derivatives Pricing Models"],
+  "Treasury & Corporate Liquidity Management": ["Bank Reconcilations", "Treasury operation management", "Working Capital Structuring", "Cash Forecasting Architecture", "Bank Relationship Management", "Foreign Exchange Exposure Hedging", "Interest Rate Swap Structuring", "Debt Issuance Strategy"],
+  "Corporate Law, Governance & Secretarial Practice": ["Company Incorporation", "MCA filings", "MOA/AOA/Deeds drafting", "Compliance Checklist drafting", "Companies Act Compliance", "Board Process Advisory", "SEBI Listing Regulations", "Insider Trading Compliance", "Secretarial Audit Execution", "FEMA Compliance"],
+  "Information Systems Audit & IT Governance": ["ITGC Testing", "ERP Control Mapping", "Access Rights Review", "Cybersecurity Audit", "Data Integrity Verification", "SOC Report Evaluation", "Cloud Risk Assessment", "Change Management Audit", "Business Continuity System Review"],
+  "Insolvency, Restructuring & Distressed Advisory": ["CIRP Process Management", "Resolution Plan Evaluation", "Liquidation Waterfall Distribution", "Forensic Transaction Review", "Avoidance Transaction Analysis", "Insolvency Law Compliance", "Revival Feasibility Assessment", "Debt Restructuring Modeling"],
+  "Wealth Management & Financial Planning": ["Retirement Corpus Planning", "Estate Planning Structuring", "Tax-Efficient Investment Strategy", "Insurance Planning", "Succession Planning", "Client Risk Profiling", "Portfolio Rebalancing Strategy"],
+  "Financial Operations & Process Optimization": ["Procure-To-Pay Cycle Control", "Order-To-Cash Optimization", "Record-To-Report Efficiency", "Financial Close Acceleration", "Shared Services Setup", "ERP Migration Planning", "Internal SOP Drafting", "Process Automation Evaluation"]
+};
 
 export default function CandidateProfile() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   
   const [isEditing, setIsEditing] = useState(false);
+  const [isOnboarding, setIsOnboarding] = useState(false); // 🔥 NAYA STATE: Pata lagayega ki naya user hai ya edit mode hai
+  
   const [showGatekeeper, setShowGatekeeper] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [savingData, setSavingData] = useState(false); 
   const [currentStep, setCurrentStep] = useState(1);
   const [userEmail, setUserEmail] = useState("");
   
@@ -43,7 +66,13 @@ export default function CandidateProfile() {
   const [langInput, setLangInput] = useState("");
   const [profInput, setProfInput] = useState("Fluent");
   
-  const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(EXCEL_SKILLS_DATA)[0]);
+  const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
+
+  // Phone Auth States
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpInput, setOtpInput] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,29 +84,71 @@ export default function CandidateProfile() {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         if (data && data.fullName) {
           setFormData({ 
-              ...formData, ...data,
-              bio: data.bio || "",
-              panCard: data.panCard || "",
-              currentSalary: data.currentSalary || "",
-              expectedSalary: data.expectedSalary || "",
-              jobType: data.jobType || "Permanent",
-              educations: data.educations?.length ? data.educations : formData.educations,
-              workExperience: data.workExperience || [],
-              languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
-              preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
-              skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
+            ...formData, ...data,
+            bio: data.bio || "",
+            panCard: data.panCard || "",
+            currentSalary: data.currentSalary || "",
+            expectedSalary: data.expectedSalary || "",
+            jobType: data.jobType || "Permanent",
+            educations: data.educations?.length ? data.educations : formData.educations,
+            workExperience: data.workExperience || [],
+            languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
+            preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
+            skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
 
-          setIsEditing(false);
-          setShowGatekeeper(false);
+          if(data.phone) setPhoneVerified(true);
+
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('step') === '4') {
+             setIsEditing(true); 
+             setShowGatekeeper(false);
+             setCurrentStep(4); 
+             setIsOnboarding(true); // Demo test se wapas aaya hai toh onboarding mode on rakho
+          } else {
+             setIsEditing(false);
+             setShowGatekeeper(false);
+             setIsOnboarding(false); // Normal profile load
+          }
         } else { 
+          // New Profile
           setIsEditing(true); 
           setShowGatekeeper(true);
+          setIsOnboarding(true);
         }
       } catch (e) {} finally { setLoading(false); }
     };
     fetchProfile();
   }, [router]);
+
+  // --- 🔥 PHONE OTP LOGIC 🔥 ---
+  const setupRecaptcha = () => {
+     if (!(window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
+     }
+  };
+
+  const handleSendOtp = async () => {
+     const cleanPhone = formData.phone.replace(/\D/g, '');
+     if (cleanPhone.length < 10) return alert("🛑 Enter valid 10-digit number!");
+     setOtpLoading(true);
+     try {
+        setupRecaptcha();
+        const phoneNumberWithCode = "+91" + cleanPhone.slice(-10);
+        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumberWithCode, (window as any).recaptchaVerifier);
+        (window as any).confirmationResult = confirmationResult;
+        setOtpSent(true);
+        alert("✅ OTP Sent Successfully!");
+     } catch (error) { alert("Failed to send OTP."); } finally { setOtpLoading(false); }
+  };
+
+  const handleVerifyOtp = async () => {
+     try {
+        const result = await (window as any).confirmationResult.confirm(otpInput);
+        if(result.user) { setPhoneVerified(true); setOtpSent(false); }
+     } catch (error) { alert("🛑 Invalid OTP!"); }
+  };
+  // ------------------------------
 
   const handleAddLocation = (e: any) => {
     if (e.key === 'Enter' && locInput.trim() !== '') {
@@ -86,8 +157,8 @@ export default function CandidateProfile() {
       setLocInput("");
     }
   };
-
   const removeLocation = (loc: string) => setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
+  
   const addEducation = () => setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }] }));
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
@@ -100,12 +171,13 @@ export default function CandidateProfile() {
     newEdu.splice(index, 1);
     setFormData(p => ({ ...p, educations: newEdu }));
   };
-
+  
   const addWorkExp = () => setFormData(p => ({ ...p, workExperience: [...p.workExperience, { company: "", role: "", duration: "" }] }));
-  const updateWorkExp = (index: number, field: string, value: string) => { const newWork = [...formData.workExperience]; newWork[index] = { ...newWork[index], [field]: value }; setFormData(p => ({ ...p, workExperience: newWork })); };
-  const removeWorkExp = (index: number) => { const newWork = [...formData.workExperience]; newWork.splice(index, 1); setFormData(p => ({ ...p, workExperience: newWork })); };
+  const updateWorkExp = (index: number, field: string, value: string) => { const newWork = [...formData.workExperience];
+    newWork[index] = { ...newWork[index], [field]: value }; setFormData(p => ({ ...p, workExperience: newWork })); };
+  const removeWorkExp = (index: number) => { const newWork = [...formData.workExperience]; newWork.splice(index, 1); setFormData(p => ({ ...p, workExperience: newWork }));
+  };
 
-  // 🔥 ADD LANGUAGE LOGIC 🔥
   const addLanguage = () => {
     if (langInput && !formData.languages.find(l => l.language.toLowerCase() === langInput.toLowerCase())) {
       setFormData(p => ({ ...p, languages: [...p.languages, { language: langInput, proficiency: profInput }] }));
@@ -131,7 +203,6 @@ export default function CandidateProfile() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if(!session) return;
-      
       const fileExt = file.name.split('.').pop();
       const fileName = `${session.user.id}_resume_${Date.now()}.${fileExt}`;
       await supabase.storage.from('resumes').upload(fileName, file, { upsert: true });
@@ -139,14 +210,12 @@ export default function CandidateProfile() {
 
       const formDataForAPI = new FormData();
       formDataForAPI.append('file', file);
-      
       const aiResponse = await fetch('/api/parse-resume', { method: 'POST', body: formDataForAPI });
       
       if (aiResponse.ok) {
          const aiData = await aiResponse.json();
          const rawLocs = aiData.preferredLocations || [];
          const cleanedLocs = rawLocs.filter((l:string) => l.toLowerCase() !== 'remote');
-         
          setFormData(prev => ({ 
             ...prev, resumeURL: publicUrlData.publicUrl,
             fullName: aiData.fullName || prev.fullName, dob: aiData.dob || prev.dob, gender: aiData.gender || prev.gender, phone: aiData.phone || prev.phone,
@@ -167,7 +236,8 @@ export default function CandidateProfile() {
          setFormData(prev => ({ ...prev, resumeURL: publicUrlData.publicUrl }));
          setShowGatekeeper(false); alert("Resume Uploaded! Please fill remaining details manually.");
       }
-    } catch (e: any) { alert("Upload Failed: " + e.message); } 
+    } catch (e: any) { alert("Upload Failed: " + e.message);
+    } 
     finally { setUploading(false); }
   };
 
@@ -176,10 +246,8 @@ export default function CandidateProfile() {
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
         }
-        const cleanPhone = formData.phone.replace(/\D/g, '');
-        if (cleanPhone.length < 10) {
-           return alert("🛑 Invalid Phone Number! Please enter a valid 10-digit number.");
-        }
+        if (!phoneVerified) return alert("🛑 Please verify phone with OTP first!");
+        
         if (formData.panCard && formData.panCard.trim() !== "") {
            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
            if (!panRegex.test(formData.panCard.toUpperCase())) {
@@ -190,7 +258,6 @@ export default function CandidateProfile() {
         if (!formData.educations[0].qualification || !formData.educations[0].collegeName || !formData.educations[0].passingYear) {
            return alert("🛑 Please complete at least one Education block completely.");
         }
-
         for (const edu of formData.educations) {
            if (edu.qualification) {
               const isProfessional = ['CA', 'CMA', 'CS', 'ACCA'].some(keyword => edu.qualification.includes(keyword));
@@ -205,11 +272,31 @@ export default function CandidateProfile() {
            }
         }
      }
-     setCurrentStep(p => Math.min(3, p + 1));
+     setCurrentStep(p => Math.min(4, p + 1));
   };
 
-  const handleSave = async () => {
+  // 🔥 FOR NEW USERS: Save & Go to Test FOMO (Step 4)
+  const handleSaveAndGoToStep4 = async () => {
     if (!formData.experience || !formData.expectedSalary) return alert("🛑 Please fill your Experience and Expected Salary.");
+    setSavingData(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    try {
+      const { error } = await supabase.from("profiles").upsert({ id: session.user.id, ...formData, email: session.user.email, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      
+      setCurrentStep(4); 
+    } catch (e: any) { 
+      alert("Error saving profile: " + e.message);
+    } finally {
+      setSavingData(false);
+    }
+  };
+
+  // 🔥 FOR EXISTING USERS: Save & Go to Profile View Mode (Skip Step 4)
+  const handleSaveChanges = async () => {
+    if (!formData.experience || !formData.expectedSalary) return alert("🛑 Please fill your Experience and Expected Salary.");
+    setSavingData(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     try {
@@ -217,13 +304,17 @@ export default function CandidateProfile() {
       if (error) throw error;
       
       setIsEditing(false); 
-      alert("Profile Saved Successfully!");
-    } catch (e: any) { alert("Error saving profile: " + e.message); }
+      alert("Profile Updates Saved Successfully!");
+    } catch (e: any) { 
+      alert("Error updating profile: " + e.message);
+    } finally {
+      setSavingData(false);
+    }
   };
 
   const toggleSkill = (skill: string) => setFormData(prev => ({ ...prev, skills: prev.skills.includes(skill) ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] }));
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
-  
+
   if (loading) return <div className="h-screen bg-[#020617] text-white flex gap-3 items-center justify-center"><Loader2 className="animate-spin text-blue-500" /> Loading...</div>;
 
   return (
@@ -234,7 +325,8 @@ export default function CandidateProfile() {
          <div className="flex justify-between items-center mb-10">
             <button onClick={() => router.push('/student/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold"><ArrowLeft size={18} /> Dashboard</button>
             {!isEditing && (
-               <button onClick={() => { setIsEditing(true); setShowGatekeeper(false); setCurrentStep(1); }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25">
+               // 🔥 USER CLICKED EDIT: Set isOnboarding to FALSE so Step 4 doesn't show
+               <button onClick={() => { setIsEditing(true); setShowGatekeeper(false); setCurrentStep(1); setIsOnboarding(false); }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25">
                   <Edit size={16}/> Edit Profile
                </button>
             )}
@@ -260,7 +352,7 @@ export default function CandidateProfile() {
                  </div>
 
                  <div className="flex flex-col sm:flex-row gap-5 max-w-xl mx-auto">
-                    <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above."); }}>
+                    <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above.");}}>
                        <input type="file" accept=".pdf" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
                        <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-500 hover:-translate-y-1' : 'bg-slate-800 text-slate-500'}`}>
                           {uploading ? <Loader2 size={22} className="animate-spin"/> : <Sparkles size={22}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
@@ -274,12 +366,15 @@ export default function CandidateProfile() {
           <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
             <div className="mb-12">
                <div className="flex justify-between text-sm md:text-base font-bold mb-4">
-                  <span className={currentStep >= 1 ? "text-blue-400" : "text-slate-600"}>1. Personal Info</span>
+                  <span className={currentStep >= 1 ? "text-blue-400" : "text-slate-600"}>1. Personal</span>
                   <span className={currentStep >= 2 ? "text-blue-400" : "text-slate-600"}>2. Education</span>
                   <span className={currentStep >= 3 ? "text-blue-400" : "text-slate-600"}>3. Preferences</span>
+                  {/* 🔥 Agar naya user hai tabhi Step 4 ka text dikhao */}
+                  {isOnboarding && <span className={currentStep >= 4 ? "text-purple-400" : "text-slate-600 hidden md:inline"}>4. Unlock Profile</span>}
                </div>
                <div className="h-2 bg-slate-800/80 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500" style={{ width: `${(currentStep / 3) * 100}%` }}></div>
+                  {/* 🔥 Progress bar width dynamically adjust hogi (3 ya 4 steps ke hisaab se) */}
+                  <div className={`h-full transition-all duration-500 ${currentStep === 4 ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`} style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
                </div>
             </div>
 
@@ -291,7 +386,7 @@ export default function CandidateProfile() {
                      <h2 className="text-3xl font-extrabold text-white mb-6">Personal Details</h2>
                      <div className="md:col-span-2 bg-slate-950/50 border border-slate-800 p-6 rounded-2xl">
                        <label className="form-label flex items-center gap-2"><Sparkles size={16} className="text-blue-400"/> AI Generated Professional Bio</label>
-                        <textarea value={formData.bio || ""} onChange={(e)=>setFormData({...formData, bio: e.target.value})} className="input-field min-h-[80px]"/>
+                       <textarea value={formData.bio || ""} onChange={(e)=>setFormData({...formData, bio: e.target.value})} className="input-field min-h-[80px]"/>
                      </div>
 
                      <div className="flex items-center gap-8 mb-8">
@@ -306,7 +401,12 @@ export default function CandidateProfile() {
                         <div><label className="form-label">Full Name <span className="text-red-500">*</span></label><input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field" placeholder="e.g. Rahul Sharma"/></div>
                         <div>
                            <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
-                           <input type="tel" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field" placeholder="10-digit mobile number" maxLength={10} />
+                           <div className="flex gap-2">
+                              <input type="text" value={formData.phone} disabled={phoneVerified} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field flex-1" />
+                              {!phoneVerified && <button onClick={handleSendOtp} className="bg-slate-800 px-5 rounded-xl font-bold">OTP</button>}
+                           </div>
+                           {otpSent && !phoneVerified && <div className="flex gap-2 mt-2"><input type="text" value={otpInput} onChange={(e)=>setOtpInput(e.target.value)} className="input-field text-center" maxLength={6}/><button onClick={handleVerifyOtp} className="bg-blue-600 px-6 rounded-xl font-bold">Verify</button></div>}
+                           <div id="recaptcha-container"></div>
                         </div>
                         <div><label className="form-label">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
                         <div><label className="form-label">Gender <span className="text-red-500">*</span></label><select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
@@ -314,7 +414,6 @@ export default function CandidateProfile() {
                         <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/></div>
                      </div>
 
-                     {/* 🔥 NEW LANGUAGES UI SECTION 🔥 */}
                      <div className="pt-8 border-t border-slate-800/80 mt-8">
                         <h3 className="text-xl font-extrabold text-white mb-6 flex items-center gap-2"><Globe className="text-blue-400" size={20}/> Languages Known</h3>
                         <div className="flex flex-col md:flex-row gap-4 mb-4">
@@ -346,7 +445,6 @@ export default function CandidateProfile() {
                            </div>
                         )}
                      </div>
-
                   </div>
                )}
 
@@ -397,8 +495,8 @@ export default function CandidateProfile() {
                         )}
 
                         <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50 flex flex-col md:flex-row">
-                           <div className="md:w-1/3 bg-slate-900/40 border-r border-slate-800 p-3 max-h-[350px] overflow-y-auto">
-                              {(Object.keys(EXCEL_SKILLS_DATA) as Array<keyof typeof EXCEL_SKILLS_DATA>).map((mainSkill) => (
+                           <div className="md:w-1/3 bg-slate-900/40 border-r border-slate-800 p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
+                              {(Object.keys(MASTER_SKILLS_DATA) as Array<keyof typeof MASTER_SKILLS_DATA>).map((mainSkill) => (
                                  <button 
                                     key={mainSkill} 
                                     onClick={() => setActiveSkillTab(mainSkill)} 
@@ -412,12 +510,12 @@ export default function CandidateProfile() {
                                  </button>
                               ))}
                            </div>
-                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto">
+                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto custom-scrollbar">
                               <h4 className="text-white font-bold mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
                                  Select Sub-Skills for <span className="text-blue-400">{activeSkillTab}</span>
                               </h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                 {(EXCEL_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
+                                 {(MASTER_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
                                     const isSelected = formData.skills.includes(subSkill);
                                     return (
                                        <button 
@@ -510,17 +608,66 @@ export default function CandidateProfile() {
                   </div>
                )}
 
+               {/* 🔥 ONLY SHOW STEP 4 IF isOnboarding IS TRUE 🔥 */}
+               {currentStep === 4 && isOnboarding && (
+                  <div className="space-y-8 text-center py-6">
+                     <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                        <ShieldAlert size={48} className="text-red-500" />
+                     </div>
+                     <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+                        Profile Saved, but <span className="text-red-500">HIDDEN</span> 🔒
+                     </h2>
+                     <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                        To maintain trust, companies can only see profiles that have passed the AI Skill Assessment. Unlock your profile now to get hired.
+                     </p>
+                     
+                     <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
+                        {/* Demo Test Card */}
+                        <div className="bg-slate-950 p-8 rounded-[2rem] border border-slate-800 hover:border-blue-500 transition-all text-left flex flex-col">
+                           <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3"><PlayCircle className="text-blue-400" size={28}/> Practice First</h3>
+                           <p className="text-slate-400 text-sm mb-8 flex-1">Take a quick 2-min dummy test to understand how the secure camera/mic tracking works before the real deal.</p>
+                           <button onClick={() => router.push('/student/demo-test?returnTo=profile')} className="w-full bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-transparent text-white py-4 rounded-xl font-bold transition-all shadow-lg text-lg">Take Demo Test</button>
+                        </div>
+                        
+                        {/* Real Test Card */}
+                        <div className="bg-gradient-to-b from-purple-900/20 to-slate-950 p-8 rounded-[2rem] border border-purple-500/50 hover:border-purple-400 transition-all text-left shadow-[0_0_40px_rgba(168,85,247,0.15)] relative overflow-hidden flex flex-col">
+                           <div className="absolute top-0 right-0 bg-purple-600 text-xs font-black tracking-widest px-4 py-1.5 rounded-bl-xl shadow-lg">REQUIRED</div>
+                           <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3"><Target className="text-purple-400" size={28}/> Final Assessment</h3>
+                           <p className="text-purple-200/60 text-sm mb-8 flex-1">Questions will be strictly based on the skills you just selected. Ensure you are in a quiet room.</p>
+                           <button onClick={() => router.push('/student/test')} className="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-xl font-bold shadow-xl shadow-purple-900/30 transition-all text-lg flex justify-center items-center gap-2">Start AI Test Now <ChevronRight size={20}/></button>
+                        </div>
+                     </div>
+
+                     <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-slate-500 hover:text-white font-medium underline underline-offset-4 transition-colors">
+                        I'm busy, save as draft & take test later
+                     </button>
+                  </div>
+               )}
+
                </motion.div>
             </AnimatePresence>
 
-            <div className="flex justify-between mt-12 pt-8 border-t border-slate-800/80">
-               {currentStep > 1 ? (<button onClick={prevStep} className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold flex items-center gap-3 text-white transition-all"><ChevronLeft size={20}/> Back</button>) : <div></div>}
-               {currentStep < 3 ? (
-                  <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-blue-500/20 text-lg">Next <ChevronRight size={20}/></button>
-               ) : (
-                  <button onClick={handleSave} className="px-10 py-4 rounded-xl bg-green-600 hover:bg-green-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-green-500/20 text-lg"><Save size={20}/> Save Profile</button>
-               )}
-            </div>
+            {/* 🔥 BUTTONS LOGIC 🔥 */}
+            {currentStep < 4 && (
+               <div className="flex justify-between mt-12 pt-8 border-t border-slate-800/80">
+                  {currentStep > 1 ? (<button onClick={prevStep} className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold flex items-center gap-3 text-white transition-all"><ChevronLeft size={20}/> Back</button>) : <div></div>}
+                  
+                  {currentStep < 3 ? (
+                     <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-blue-500/20 text-lg">Next <ChevronRight size={20}/></button>
+                  ) : (
+                     // Naya vs Purana user Logic for Save Button
+                     isOnboarding ? (
+                        <button onClick={handleSaveAndGoToStep4} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 font-bold flex items-center gap-3 text-white shadow-xl shadow-purple-500/20 text-lg transition-all">
+                           {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={20}/></>}
+                        </button>
+                     ) : (
+                        <button onClick={handleSaveChanges} disabled={savingData} className="px-10 py-4 rounded-xl bg-green-600 hover:bg-green-500 font-bold flex items-center gap-3 text-white shadow-xl shadow-green-500/20 text-lg transition-all">
+                           {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <><Save size={20}/> Save Changes</>}
+                        </button>
+                     )
+                  )}
+               </div>
+            )}
           </div>
         )}
       </div>
@@ -529,7 +676,10 @@ export default function CandidateProfile() {
         .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.6rem; }
         .input-field { width: 100%; background-color: #0f172a; border: 2px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; color: white; outline: none; transition: all 0.2s; font-size: 1rem; font-weight: 500; appearance: none; }
         .input-field:focus { border-color: #3b82f6; background-color: #020617; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
-        select.input-field { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1.2rem top 50%; background-size: 0.75rem auto; }
+        select.input-field { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat; background-position: right 1.2rem top 50%; background-size: 0.75rem auto; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
       `}</style>
     </div>
   );

@@ -1,11 +1,14 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Timer, CheckCircle, HelpCircle, ArrowRight, Mic, ShieldAlert, AlertTriangle, Video, Camera } from "lucide-react";
+import { Timer, CheckCircle, HelpCircle, ArrowRight, Mic, ShieldAlert, AlertTriangle, Video, Camera, Loader2, Play } from "lucide-react";
+import { supabase } from "@/lib/supabase"; // 🔥 Supabase import kiya status check karne ke liye
 
-export default function DemoTestPage() {
+function DemoTestContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo'); 
 
   const demoQuestions = [
     { text: "Which is the shortcut key to copy in Excel?", options: ["Ctrl + V", "Ctrl + C", "Ctrl + X", "Ctrl + Z"], correct: 1 },
@@ -19,6 +22,9 @@ export default function DemoTestPage() {
   const [finished, setFinished] = useState(false);
   const [started, setStarted] = useState(false);
   const [score, setScore] = useState(0);
+  
+  // 🔥 NAYA STATE: Real test check karne ke liye
+  const [hasCompletedRealTest, setHasCompletedRealTest] = useState(false);
 
   // 🎙️📷 MEDIA STATES
   const [mediaAllowed, setMediaAllowed] = useState(false);
@@ -34,7 +40,21 @@ export default function DemoTestPage() {
   
   const [demoWarnings, setDemoWarnings] = useState(0);
 
-  // Ensures stream is bound to video tag
+  // 🔥 CHECK KAREGA KI KYA BACHHE NE ASLI TEST DE DIYA HAI?
+  useEffect(() => {
+    const checkTestStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data } = await supabase.from('profiles').select('meta').eq('id', session.user.id).single();
+        if (data && data.meta && data.meta.status) {
+          // Agar status kuch bhi hai (Passed, Failed, Auto-Submitted), mtlb test de chuka hai
+          setHasCompletedRealTest(true);
+        }
+      }
+    };
+    checkTestStatus();
+  }, []);
+
   useEffect(() => {
     if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
        videoRef.current.srcObject = streamRef.current;
@@ -74,7 +94,6 @@ export default function DemoTestPage() {
         if (finished) return;
         frameCount++;
 
-        // Audio
         analyser.getByteFrequencyData(dataArray);
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
@@ -83,7 +102,6 @@ export default function DemoTestPage() {
           if (noiseFramesRef.current > 150) { noiseFramesRef.current = 0; triggerWarning(); }
         } else noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
 
-        // 🔥 HIGH SENSITIVITY VIDEO PIXEL DIFF CHECK 🔥
         if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
             const video = videoRef.current;
             const canvas = canvasRef.current;
@@ -106,13 +124,11 @@ export default function DemoTestPage() {
                     } else if (previousFrameRef.current) {
                         let diffCount = 0;
                         for (let i = 0; i < currentFrame.length; i += 4) {
-                            // Sensitivity increased
                             const r = Math.abs(currentFrame[i] - previousFrameRef.current[i]);
                             const g = Math.abs(currentFrame[i+1] - previousFrameRef.current[i+1]);
                             const b = Math.abs(currentFrame[i+2] - previousFrameRef.current[i+2]);
                             if (r + g + b > 60) diffCount++; 
                         }
-                        // Triggers if just 15% of the frame changes
                         if ((diffCount / (currentFrame.length / 4)) * 100 > 15) { 
                             movementFramesRef.current += 1;
                             if (movementFramesRef.current > 1) { movementFramesRef.current = 0; triggerWarning(); }
@@ -170,6 +186,7 @@ export default function DemoTestPage() {
     setFinished(true);
   };
 
+  // 🔥 COMPLETION SCREEN 🔥
   if (finished) {
     return (
       <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4">
@@ -183,12 +200,37 @@ export default function DemoTestPage() {
              <p className="text-slate-500 text-sm">You Scored</p>
              <p className="text-2xl font-bold text-white">{score} / {demoQuestions.length}</p>
           </div>
-          <button onClick={() => router.push('/student/dashboard')} className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition-all">Go to Dashboard & Start Real Test</button>
+          
+          {/* 🔥 3 ALAG ALAG CONDITIONS KA LOGIC 🔥 */}
+          {returnTo === 'profile' ? (
+             <button onClick={() => router.push('/student/profile?step=4')} className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg shadow-blue-500/20">
+                Return to Profile Setup <ArrowRight size={18}/>
+             </button>
+          ) : hasCompletedRealTest ? (
+             <div className="space-y-5">
+                <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl text-green-400 font-bold text-sm">
+                   ✅ You have already completed your Final AI Assessment.
+                </div>
+                <button onClick={() => router.push('/student/dashboard')} className="w-full bg-slate-800 hover:bg-slate-700 py-4 rounded-xl font-bold transition-all border border-slate-700 text-slate-300 hover:text-white">
+                   Return to Dashboard
+                </button>
+             </div>
+          ) : (
+             <div className="space-y-4">
+                <button onClick={() => router.push('/student/test')} className="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-xl font-bold transition-all shadow-lg shadow-purple-500/20 flex justify-center items-center gap-2">
+                   <Play size={18}/> Start Real AI Test Now
+                </button>
+                <button onClick={() => router.push('/student/dashboard')} className="w-full bg-slate-800 hover:bg-slate-700 py-4 rounded-xl font-bold transition-all border border-slate-700 text-slate-300 hover:text-white">
+                   Return to Dashboard
+                </button>
+             </div>
+          )}
         </div>
       </div>
     );
   }
 
+  // 🔥 START SCREEN 🔥
   if (!started) {
     return (
       <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4">
@@ -227,10 +269,9 @@ export default function DemoTestPage() {
     );
   }
 
+  // 🔥 TEST SCREEN 🔥
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center justify-center p-4 select-none">
-       
-       {/* 📷 DEMO CAMERA PIP + CANVAS 📷 */}
        <div className="fixed bottom-6 right-6 w-32 h-24 bg-black border border-red-500/50 rounded-xl overflow-hidden shadow-2xl z-50 pointer-events-none opacity-80">
           <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100" />
           <div className="absolute top-1 left-1 bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded uppercase animate-pulse">Demo Track</div>
@@ -269,10 +310,19 @@ export default function DemoTestPage() {
            <button onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-6 py-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Previous</button>
            {currentQ < demoQuestions.length - 1 ? 
              <button onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 rounded-xl font-semibold hover:bg-blue-700">Next Question</button> :
-             <button onClick={submitTest} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700">Finish Demo</button>
+             <button onClick={submitTest} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-900/20">Finish Demo</button>
            }
         </div>
       </div>
     </div>
+  );
+}
+
+// Next.js ke Hydration/Build Errors se bachne ke liye poore logic ko Suspense ke andar daal diya
+export default function DemoTestPage() {
+  return (
+    <Suspense fallback={<div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" size={48}/></div>}>
+      <DemoTestContent />
+    </Suspense>
   );
 }
