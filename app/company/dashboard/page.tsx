@@ -24,6 +24,8 @@ export default function CompanyDashboard() {
   const [reviewText, setReviewText] = useState("");
 
   useEffect(() => {
+    let subscription: any; // 🔥 Realtime connection save karne ke liye
+
     const fetchDashboard = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/company/login"); return; }
@@ -46,16 +48,41 @@ export default function CompanyDashboard() {
                setCandidates(visibleCandidates);
             }
           }
+
+          // 🔥 THE REALTIME MAGIC (WALKIE-TALKIE) 🔥
+          // Yeh background mein chupke se dekhta rahega ki Admin ne status change kiya ya nahi
+          subscription = supabase
+            .channel('company_status_updates')
+            .on('postgres_changes', 
+               { event: 'UPDATE', schema: 'public', table: 'companies', filter: `id=eq.${session.user.id}` }, 
+               (payload: any) => {
+                  console.log("Live Update Received!", payload.new.status);
+                  setApprovalStatus(payload.new.status);
+                  
+                  // Agar live approve ho gaya, toh automatically bachho ki list mangwa lo
+                  if (payload.new.status === "approved") {
+                     fetchDashboard();
+                  }
+               }
+            ).subscribe();
         }
       } catch (error) { console.error(error); } 
       finally { setLoading(false); }
     };
+    
     fetchDashboard();
+
+    // 🔥 CLEANUP: Jab tab band ho, toh Realtime connection disconnect kar do
+    return () => {
+       if (subscription) {
+          supabase.removeChannel(subscription);
+       }
+    };
   }, [router]);
 
   const handleLogout = async () => { await supabase.auth.signOut(); router.push("/"); };
 
-  // 🔥 NEW SHORTLIST ACTION 🔥
+  // 🔥 SHORTLIST ACTION 🔥
   const shortlistCandidate = async (student: any) => {
     if(!confirm(`Shortlist ${student.fullName} for an interview? The Admin will be notified to arrange it.`)) return;
     try {
@@ -64,14 +91,13 @@ export default function CompanyDashboard() {
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
-      
       if (error) throw error;
       alert("Shortlisted! Admin has been notified.");
       setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "shortlisted", hired_company_id: companyId} : c));
     } catch (e) { alert("Error sending request."); }
   };
 
-  // 🔥 NEW HIRE REQUEST ACTION 🔥
+  // 🔥 HIRE REQUEST ACTION 🔥
   const requestHire = async (student: any) => {
     if(!confirm(`Send official Hire request for ${student.fullName}? Admin will verify and finalize this offline.`)) return;
     try {
@@ -80,7 +106,6 @@ export default function CompanyDashboard() {
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
-      
       if (error) throw error;
       alert("Hire Request sent to Admin!");
       setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "hire_requested", hired_company_id: companyId} : c));
@@ -94,7 +119,6 @@ export default function CompanyDashboard() {
         company_rating: rating,
         company_review: reviewText
       }).eq("id", reviewStudent.id);
-      
       if (error) throw error;
       alert("Review submitted successfully!");
       setCandidates(candidates.map(c => c.id === reviewStudent.id ? {...c, company_rating: rating, company_review: reviewText} : c));
@@ -109,7 +133,7 @@ export default function CompanyDashboard() {
 
   const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "shortlisted" && c.hired_status !== "hire_requested");
   const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "shortlisted" || c.hired_status === "hire_requested"));
-  
+
   // 🔥 SMART REVIEW TIMER LOGIC 🔥
   const pendingReviews = hiredList.filter(c => {
      if(c.hired_status !== "hired" || c.company_rating) return false;
@@ -138,6 +162,7 @@ export default function CompanyDashboard() {
         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-10">Recruiter Panel</h2>
         <nav className="space-y-4 flex-1">
           <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'assigned' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><LayoutDashboard size={20}/> <span className="font-medium">Talent Pool</span></div>
+         
           <div onClick={() => setActiveTab('hired')} className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'hired' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
              <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span className="font-medium">My Pipeline</span></div>
              {pendingReviews.length > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">{pendingReviews.length}</span>}

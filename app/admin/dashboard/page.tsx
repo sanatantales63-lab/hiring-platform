@@ -7,6 +7,8 @@ import {
   UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
+// 🔥 NAYA IMPORT: Company Profile dekhne ke liye
+import CompanyProfileView from "@/app/components/CompanyProfileView"; 
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -16,33 +18,35 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   
-  // 🚨 NEW REQUESTS & PIPELINE ALERTS
   const [examRequests, setExamRequests] = useState<any[]>([]);
   const [shortlistedProfiles, setShortlistedProfiles] = useState<any[]>([]);
   const [hireRequests, setHireRequests] = useState<any[]>([]);
   
   const [loading, setLoading] = useState(true);
 
-  // COMPANY MODAL STATES
+  // MODAL STATES
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [assignedStudentIds, setAssignedStudentIds] = useState<string[]>([]);
   const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
+
   const [modalSearch, setModalSearch] = useState("");
   const [filterCityModal, setFilterCityModal] = useState("");
   const [filterQualModal, setFilterQualModal] = useState("");
 
-  // AI SEARCH & FILTER STATES 
   const [aiSearchQuery, setAiSearchQuery] = useState("");
   const [isAILoading, setIsAILoading] = useState(false);
+
   const [advCity, setAdvCity] = useState("");
   const [advQual, setAdvQual] = useState("");
   const [advExp, setAdvExp] = useState("");
   const [advMinScore, setAdvMinScore] = useState<number | "">("");
   const [advStatus, setAdvStatus] = useState("");
   const [aiSkills, setAiSkills] = useState<string[]>([]);
-  
+
   const [viewingStudent, setViewingStudent] = useState<any>(null);
+  // 🔥 NAYA STATE: Company Profile Popup manage karne ke liye
+  const [viewingCompany, setViewingCompany] = useState<any>(null);
 
   useEffect(() => {
     const fetchSessionAndData = async () => {
@@ -63,6 +67,7 @@ export default function AdminDashboard() {
           setShortlistedProfiles(allStudents.filter((s: any) => s.hired_status === "shortlisted"));
           setHireRequests(allStudents.filter((s: any) => s.hired_status === "hire_requested"));
         }
+       
         const { data: allCompanies } = await supabase.from("companies").select("*");
         if (allCompanies) setCompanies(allCompanies);
       } catch (e) { console.error("Error:", e); } 
@@ -101,7 +106,6 @@ export default function AdminDashboard() {
     } catch (error) { alert("Failed to grant access."); }
   };
 
-  // 🔥 ADMIN ACTIONS FOR SHORTLIST & HIRE 🔥
   const clearShortlist = async (id: string) => {
     if(!confirm("Clear Shortlist? This returns the candidate to the available talent pool.")) return;
     try {
@@ -147,7 +151,8 @@ export default function AdminDashboard() {
 
   const handleAISearch = async () => {
     if (!aiSearchQuery.trim()) {
-      setAdvCity(""); setAdvQual(""); setAdvExp(""); setAdvMinScore(""); setAdvStatus(""); setAiSkills([]);
+      setAdvCity(""); setAdvQual("");
+      setAdvExp(""); setAdvMinScore(""); setAdvStatus(""); setAiSkills([]);
       return;
     }
     setIsAILoading(true);
@@ -162,7 +167,7 @@ export default function AdminDashboard() {
       if (data.qualification) setAdvQual(data.qualification);
       if (data.experience) setAdvExp(data.experience);
       if (data.minScore) setAdvMinScore(data.minScore);
-      if (data.hiringStatus) setAdvStatus(data.hiringStatus); 
+      if (data.hiringStatus) setAdvStatus(data.hiringStatus);
       if (data.skills && data.skills.length > 0) setAiSkills(data.skills);
     } catch (error) {
       alert("AI failed to process the request. Try manual filters.");
@@ -385,17 +390,18 @@ export default function AdminDashboard() {
            </div>
         )}
 
+        {/* 🔥 UPDATED COMPANIES TAB WITH "VIEW PROFILE" BUTTON 🔥 */}
         {activeTab === "companies" && (
           <div className="animate-in fade-in duration-300">
             <h2 className="text-4xl font-extrabold text-white tracking-tight mb-2">Registered Companies</h2>
             <p className="text-slate-400 mb-8">Manage approvals and assign candidates.</p>
             <div className="grid gap-6">
               {companies.map((c) => (
-                <div key={c.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex justify-between items-center shadow-lg hover:border-slate-700 transition-all">
+                <div key={c.id} className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-lg hover:border-slate-700 transition-all">
                   <div>
                     <h3 className="text-xl font-bold flex items-center gap-2">{c.name} {c.status === 'approved' && <CheckCircle size={16} className="text-green-500"/>}</h3>
                     <p className="text-slate-400 text-sm mb-3">{c.email}</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                        {c.requirements?.map((req:string, k:number) => (
                           <span key={k} className="bg-purple-900/20 text-purple-300 text-xs px-2 py-1 rounded border border-purple-500/10">{req}</span>
                        ))}
@@ -404,13 +410,18 @@ export default function AdminDashboard() {
                       Assigned Candidates: {c.allowedStudents?.length || 0}
                     </p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                    {/* 🔥 NAYA VIEW PROFILE BUTTON 🔥 */}
+                    <button onClick={() => setViewingCompany(c)} className="flex-1 md:flex-none justify-center bg-slate-800 hover:bg-slate-700 px-4 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all text-slate-300 hover:text-white border border-slate-700">
+                       <ExternalLink size={18}/> View Profile
+                    </button>
+
                     {c.status === 'approved' && (
-                       <button onClick={() => openAccessModal(c)} className="bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-900/20 transition-all">
+                       <button onClick={() => openAccessModal(c)} className="flex-1 md:flex-none justify-center bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-900/20 transition-all">
                           <UserPlus size={18}/> Assign Candidates
                        </button>
                     )}
-                    <button onClick={() => toggleCompanyStatus(c.id, c.status)} className={`px-5 py-2.5 rounded-xl font-bold border transition-all ${c.status === 'pending' ? 'bg-green-600/10 text-green-400 border-green-500 hover:bg-green-600 hover:text-white' : 'bg-red-600/10 text-red-400 border-red-500 hover:bg-red-600 hover:text-white'}`}>
+                    <button onClick={() => toggleCompanyStatus(c.id, c.status)} className={`flex-1 md:flex-none justify-center px-5 py-2.5 rounded-xl font-bold border transition-all ${c.status === 'pending' ? 'bg-green-600/10 text-green-400 border-green-500 hover:bg-green-600 hover:text-white' : 'bg-red-600/10 text-red-400 border-red-500 hover:bg-red-600 hover:text-white'}`}>
                       {c.status === 'pending' ? "Approve" : "Revoke"}
                     </button>
                   </div>
@@ -421,11 +432,9 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* 🔥 NEW MANAGED ALERTS PIPELINE 🔥 */}
+        {/* ALERTS PIPELINE */}
         {activeTab === "requests" && (
            <div className="animate-in fade-in duration-300 grid gap-8">
-             
-             {/* HIRE REQUESTS */}
              <div>
                <h2 className="text-3xl font-extrabold text-green-400 tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hire Requests</h2>
                <p className="text-slate-400 mb-6">Companies requesting to officially hire these candidates. Verify offline, then approve to lock their profiles.</p>
@@ -449,7 +458,6 @@ export default function AdminDashboard() {
 
              <div className="border-t border-slate-800 my-4"></div>
 
-             {/* SHORTLIST REQUESTS */}
              <div>
                <h2 className="text-3xl font-extrabold text-blue-400 tracking-tight mb-2 flex items-center gap-2"><UserPlus/> Interview Shortlists</h2>
                <p className="text-slate-400 mb-6">Call the students and arrange offline interviews with the companies.</p>
@@ -493,7 +501,6 @@ export default function AdminDashboard() {
                  )}
                </div>
              </div>
-
            </div>
         )}
 
@@ -501,7 +508,7 @@ export default function AdminDashboard() {
            <div className="animate-in fade-in duration-300 flex flex-col items-center justify-center h-[60vh] text-center">
               <div className="w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-6">
                  <CreditCard size={40} className="text-blue-400"/>
-              </div>
+               </div>
               <h2 className="text-3xl font-extrabold text-white mb-3">Billing Dashboard</h2>
               <p className="text-slate-400 max-w-md mx-auto">Payment integration and analytics will be activated once the platform generates its first revenue.</p>
            </div>
@@ -525,6 +532,23 @@ export default function AdminDashboard() {
          </div>
       )}
 
+      {/* 🔥 NAYA MODAL: COMPANY PROFILE DEKHNE KE LIYE 🔥 */}
+      {viewingCompany && (
+         <div className="fixed inset-0 bg-[#020617]/95 backdrop-blur-md z-[100] overflow-y-auto p-4 md:p-8 animate-in zoom-in-95 duration-200 custom-scrollbar">
+            <div className="max-w-5xl mx-auto relative mt-4 md:mt-10 mb-10">
+               <div className="sticky top-0 z-50 mb-8 flex justify-between items-center bg-[#020617]/80 backdrop-blur-xl p-4 rounded-2xl border border-slate-800 shadow-2xl">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2"><Building2 size={20} className="text-purple-400"/> Company Details</h3>
+                  <button onClick={() => setViewingCompany(null)} className="flex items-center gap-2 text-white font-bold bg-slate-800 hover:bg-red-600 px-5 py-2.5 rounded-xl transition-colors shadow-lg">
+                     <X size={18}/> Close Profile
+                  </button>
+               </div>
+               <div className="shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-[2.5rem]">
+                  <CompanyProfileView company={viewingCompany} isAdminView={true} />
+               </div>
+            </div>
+         </div>
+      )}
+
       {showAccessModal && selectedCompany && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[90] p-4 animate-in fade-in duration-200">
              <div className="bg-[#0f172a] border border-slate-700 w-full max-w-4xl rounded-3xl max-h-[90vh] flex flex-col shadow-2xl">
@@ -542,7 +566,7 @@ export default function AdminDashboard() {
                          <Search className="absolute left-3 top-3 text-slate-500" size={18}/>
                          <input type="text" placeholder="Search by name or skill..." value={modalSearch} onChange={(e) => setModalSearch(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-blue-500 outline-none transition-colors" />
                       </div>
-                      <select value={filterCityModal} onChange={(e)=>setFilterCityModal(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm focus:border-blue-500 outline-none w-full md:w-36 text-slate-300">
+                     <select value={filterCityModal} onChange={(e)=>setFilterCityModal(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm focus:border-blue-500 outline-none w-full md:w-36 text-slate-300">
                          <option value="">All Cities</option>
                          {uniqueCities.map((city:any, i) => <option key={i} value={city}>{city}</option>)}
                       </select>
@@ -560,11 +584,10 @@ export default function AdminDashboard() {
                       const score = s.meta?.totalScore || 0;
                       const warnings = s.meta?.warningsCount || 0;
                       const isDisqualified = s.examAccess === 'disqualified';
-
                       return (
                         <div key={s.id} className={`border rounded-2xl transition-all duration-200 ${isSelected ? 'bg-blue-900/20 border-blue-500/50' : isDisqualified ? 'bg-red-950/20 border-red-900/30 opacity-70' : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'}`}>
                            <div className="flex items-center p-5 gap-5 cursor-pointer" onClick={(e) => { if((e.target as HTMLElement).closest('button')) return; toggleAssignment(s.id); }}>
-                              <div className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-600 hover:border-blue-500'}`}>
+                               <div className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-600 hover:border-blue-500'}`}>
                                  {isSelected && <CheckCircle size={16} className="text-white"/>}
                               </div>
                               <div className="flex-1">
@@ -587,7 +610,7 @@ export default function AdminDashboard() {
                                  </div>
                                  <p className="text-xs text-slate-500 flex items-center gap-2">
                                     <span className="flex items-center gap-1"><MapPin size={12}/> {s.city || "Remote"}</span> | 
-                                    <span className="flex items-center gap-1"><GraduationCap size={12}/> {s.qualification || "N/A"}</span> | 
+                                    <span className="flex items-center gap-1"><GraduationCap size={12}/> {s.qualification || "N/A"}</span> |
                                     <span>{s.skills?.slice(0, 3).join(", ")}...</span>
                                  </p>
                               </div>
@@ -610,10 +633,10 @@ export default function AdminDashboard() {
                                    <button onClick={(e) => { e.stopPropagation(); setViewingStudent(s); setShowAccessModal(false); }} className="col-span-2 mt-2 bg-slate-800 hover:bg-blue-600 hover:border-blue-500 border border-slate-700 text-slate-300 hover:text-white py-3 rounded-xl transition-all text-sm font-bold flex items-center justify-center gap-2">
                                      <ExternalLink size={16}/> Open Full Detailed Report
                                    </button>
-                                </div>
+                                 </div>
                              </div>
                            )}
-                        </div>
+                         </div>
                       );
                    })}
                    {filteredStudentsForModal.length === 0 && <div className="text-center py-10 text-slate-500">No candidates found for these filters.</div>}

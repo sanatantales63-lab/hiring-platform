@@ -8,7 +8,7 @@ import {
 
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
   const [showAllEdu, setShowAllEdu] = useState(false);
-  const [showAllWork, setShowAllWork] = useState(false); // 🔥 WORK EXP TOGGLE STATE 🔥
+  const [showAllWork, setShowAllWork] = useState(false); 
   const [isResetting, setIsResetting] = useState(false);
 
   if (!candidate) return null;
@@ -22,13 +22,11 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
   const dobToDisplay = isCompany ? "XX/XX/XXXX" : (candidate.dob || "Not Provided");
 
-  // 🎓 🔥 THE SUPER-SMART BADGE LOGIC 🔥 🎓
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
   const topEdu = candidate.educations?.[0];
   
   if (topEdu && topEdu.qualification) {
      const q = topEdu.qualification.toLowerCase();
-     // Use regex to catch CA, CA-Final, CA-Inter, etc. properly
      if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) {
          smartTitle = 'Chartered Accountant (CA)';
      }
@@ -46,23 +44,16 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
      else smartTitle = topEdu.qualification;
   }
 
-  // Arrays Setup
   const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
   const workExpList = Array.isArray(candidate.workExperience) ? candidate.workExperience : [];
   
   const displayedEducations = showAllEdu ? educationsList : educationsList.slice(0, 3);
   const extraEduCount = educationsList.length > 3 ? educationsList.length - 3 : 0;
 
-  // 🔥 WORK EXP LIMITER LOGIC 🔥
   const displayedWorkExp = showAllWork ? workExpList : workExpList.slice(0, 2);
   const extraWorkCount = workExpList.length > 2 ? workExpList.length - 2 : 0;
 
-  const safeLanguages = Array.isArray(candidate.languages) ? candidate.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [];
-
-  const PREDEFINED_SKILLS = ["Journal Entry", "Book Closure", "Financial Statements", "Ind-AS", "Accounting Standards", "Tally ERP", "SAP", "TDS Return", "GST Return", "Income Tax", "Corporate Tax", "Excel Beginner", "Excel Intermediate", "Excel Advanced", "VLOOKUP", "Macros"];
-  const allSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((skill: any) => typeof skill === 'string') : [];
-  const verifiedSkills = allSkills.filter((skill: string) => PREDEFINED_SKILLS.includes(skill));
-  const additionalSkills = allSkills.filter((skill: string) => !PREDEFINED_SKILLS.includes(skill));
+  const candidateSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((s:any) => typeof s === 'string') : [];
 
   const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
 
@@ -175,7 +166,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                     </div>
                  ))}
 
-                 {/* 🔥 SHOW MORE BUTTON FOR WORK EXP 🔥 */}
                  {extraWorkCount > 0 && (
                     <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
                        {showAllWork ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraWorkCount} More Experiences</>}
@@ -207,6 +197,22 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   </div>
                )}
             </div>
+
+            {/* 🔥 NEW LANGUAGES RENDERER CARD 🔥 */}
+            {candidate.languages && candidate.languages.length > 0 && (
+               <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
+                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Globe className="text-purple-400"/> Languages Known</h3>
+                  <div className="flex flex-wrap gap-3">
+                     {candidate.languages.map((lang: any, idx: number) => (
+                        <div key={idx} className="bg-slate-950/80 px-4 py-2.5 rounded-xl border border-slate-800 flex items-center gap-2 w-full justify-between">
+                           <span className="font-bold text-white text-sm">{lang.language}</span>
+                           <span className="text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-1 rounded-lg">{lang.proficiency}</span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+
          </div>
 
          <div className="md:col-span-2 space-y-8">
@@ -237,26 +243,27 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
             </div>
 
             <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-blue-400"/> Skills & Expertise</h3>
-               <div className="flex flex-wrap gap-2.5">
-                  {verifiedSkills.map((skill:string, i:number) => (
-                     <span key={`v-${i}`} title="AI Testable Skill" className="bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-sm font-bold border border-green-500/20 flex items-center gap-1.5">
-                        <CheckCircle size={14}/> {skill}
-                     </span>
-                  ))}
-
-                  {additionalSkills.map((skill:string, i:number) => (
-                     <span key={`a-${i}`} className="bg-slate-800/80 text-slate-300 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-700/80">
-                        {skill}
-                     </span>
-                  ))}
-
-                  {allSkills.length === 0 && <span className="text-slate-500 text-sm italic">No skills selected.</span>}
-               </div>
+               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-blue-400"/> Technical Skills & Expertise</h3>
+               
+               {candidateSkills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2.5">
+                     {candidateSkills.map((skill:string, i:number) => (
+                        <span 
+                           key={i} 
+                           className="bg-blue-600/10 text-blue-300 px-4 py-2 rounded-xl text-sm font-bold border border-blue-500/30 hover:bg-blue-600/20 transition-all shadow-sm"
+                        >
+                           {skill}
+                        </span>
+                     ))}
+                  </div>
+               ) : (
+                  <span className="text-slate-500 text-sm italic">No skills selected yet.</span>
+               )}
             </div>
          </div>
       </div>
 
+      {/* AI ASSESSMENT REPORT AND WARNINGS */}
       {metaObj.skillScores && Object.keys(metaObj.skillScores).length > 0 && (
          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-10 rounded-[2.5rem] shadow-2xl mt-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-[80px]"></div>

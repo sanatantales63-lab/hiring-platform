@@ -9,9 +9,7 @@ import {
   GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, ShieldCheck, Check, Globe, FileText, Search
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
-import { QUALIFICATIONS_LIST, SKILL_CATEGORIES } from "@/lib/constants";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { QUALIFICATIONS_LIST, EXCEL_SKILLS_DATA } from "@/lib/constants";
 
 export default function CandidateProfile() {
   const router = useRouter();
@@ -28,7 +26,7 @@ export default function CandidateProfile() {
     fullName: "", dob: "", gender: "", phone: "", photoURL: "", addressLine: "", city: "", state: "", pincode: "", willingToRelocate: "No",
     panCard: "", bio: "", 
     educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }], 
-    workExperience: [] as { company: string, role: string, duration: string }[], // 🔥 NAYA FEATURE ADDED
+    workExperience: [] as { company: string, role: string, duration: string }[],
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
     preferredLocations: [] as string[],
@@ -45,13 +43,7 @@ export default function CandidateProfile() {
   const [langInput, setLangInput] = useState("");
   const [profInput, setProfInput] = useState("Fluent");
   
-  const [skillSearch, setSkillSearch] = useState("");
-  const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(SKILL_CATEGORIES)[0]);
-
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpInput, setOtpInput] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
+  const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(EXCEL_SKILLS_DATA)[0]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -70,13 +62,12 @@ export default function CandidateProfile() {
               expectedSalary: data.expectedSalary || "",
               jobType: data.jobType || "Permanent",
               educations: data.educations?.length ? data.educations : formData.educations,
-              workExperience: data.workExperience || [], // 🔥 FETCH PAST WORK EXP
+              workExperience: data.workExperience || [],
               languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
               preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
               skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
 
-          if(data.phone) setPhoneVerified(true);
           setIsEditing(false);
           setShowGatekeeper(false);
         } else { 
@@ -87,50 +78,6 @@ export default function CandidateProfile() {
     };
     fetchProfile();
   }, [router]);
-
-  const setupRecaptcha = () => {
-     if (!(window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-           'size': 'invisible',
-        });
-     }
-  };
-
-  const handleSendOtp = async () => {
-     const cleanPhone = formData.phone.replace(/\D/g, '');
-     if (cleanPhone.length < 10) return alert("🛑 Enter a valid 10-digit number first!");
-     
-     setOtpLoading(true);
-     try {
-        setupRecaptcha();
-        const appVerifier = (window as any).recaptchaVerifier;
-        const phoneNumberWithCode = "+91" + cleanPhone.slice(-10);
-        
-        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumberWithCode, appVerifier);
-        (window as any).confirmationResult = confirmationResult;
-        
-        setOtpSent(true);
-        alert("✅ OTP Sent Successfully!");
-     } catch (error: any) {
-        console.error(error);
-        alert("Failed to send OTP. Try again.");
-     } finally {
-        setOtpLoading(false);
-     }
-  };
-
-  const handleVerifyOtp = async () => {
-     if(otpInput.length < 6) return alert("Enter 6 digit OTP");
-     try {
-        const result = await (window as any).confirmationResult.confirm(otpInput);
-        if(result.user) {
-           setPhoneVerified(true);
-           setOtpSent(false);
-        }
-     } catch (error) {
-        alert("🛑 Invalid OTP! Please check and try again.");
-     }
-  };
 
   const handleAddLocation = (e: any) => {
     if (e.key === 'Enter' && locInput.trim() !== '') {
@@ -154,13 +101,13 @@ export default function CandidateProfile() {
     setFormData(p => ({ ...p, educations: newEdu }));
   };
 
-  // 🔥 WORK EXPERIENCE FUNCTIONS 🔥
   const addWorkExp = () => setFormData(p => ({ ...p, workExperience: [...p.workExperience, { company: "", role: "", duration: "" }] }));
   const updateWorkExp = (index: number, field: string, value: string) => { const newWork = [...formData.workExperience]; newWork[index] = { ...newWork[index], [field]: value }; setFormData(p => ({ ...p, workExperience: newWork })); };
   const removeWorkExp = (index: number) => { const newWork = [...formData.workExperience]; newWork.splice(index, 1); setFormData(p => ({ ...p, workExperience: newWork })); };
 
+  // 🔥 ADD LANGUAGE LOGIC 🔥
   const addLanguage = () => {
-    if (langInput && !formData.languages.find(l => l.language === langInput)) {
+    if (langInput && !formData.languages.find(l => l.language.toLowerCase() === langInput.toLowerCase())) {
       setFormData(p => ({ ...p, languages: [...p.languages, { language: langInput, proficiency: profInput }] }));
       setLangInput("");
     }
@@ -208,7 +155,7 @@ export default function CandidateProfile() {
             currentSalary: aiData.currentSalary || prev.currentSalary || "", 
             expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
-            workExperience: aiData.workExperience?.length > 0 ? aiData.workExperience : prev.workExperience, // 🔥 AI INJECTS WORK EXP
+            workExperience: aiData.workExperience?.length > 0 ? aiData.workExperience : prev.workExperience, 
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
             skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
             languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
@@ -233,9 +180,6 @@ export default function CandidateProfile() {
         if (cleanPhone.length < 10) {
            return alert("🛑 Invalid Phone Number! Please enter a valid 10-digit number.");
         }
-        if (!phoneVerified) {
-           return alert("🛑 Please verify your phone number with OTP first!");
-        }
         if (formData.panCard && formData.panCard.trim() !== "") {
            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
            if (!panRegex.test(formData.panCard.toUpperCase())) {
@@ -247,7 +191,6 @@ export default function CandidateProfile() {
            return alert("🛑 Please complete at least one Education block completely.");
         }
 
-        // 🧠 TUMHARA ORIGINAL STRICT CA/CMA VALIDATION 🧠
         for (const edu of formData.educations) {
            if (edu.qualification) {
               const isProfessional = ['CA', 'CMA', 'CS', 'ACCA'].some(keyword => edu.qualification.includes(keyword));
@@ -361,30 +304,49 @@ export default function CandidateProfile() {
 
                      <div className="grid md:grid-cols-2 gap-6">
                         <div><label className="form-label">Full Name <span className="text-red-500">*</span></label><input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field" placeholder="e.g. Rahul Sharma"/></div>
-                        
                         <div>
                            <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
-                           <div className="flex flex-col gap-3">
-                              <div className="flex gap-2">
-                                 <input type="text" value={formData.phone} onChange={(e)=>{ setFormData({...formData, phone: e.target.value}); setPhoneVerified(false); setOtpSent(false); }} className={`input-field flex-1 ${phoneVerified ? 'border-green-500/50 text-green-400 bg-green-500/5' : ''}`} disabled={phoneVerified} />
-                                 {!phoneVerified && (<button onClick={handleSendOtp} disabled={otpLoading} className="bg-slate-800 hover:bg-slate-700 text-white px-5 rounded-xl font-bold min-w-[110px]">{otpLoading ? <Loader2 className="animate-spin mx-auto" size={20}/> : "Get OTP"}</button>)}
-                                 {phoneVerified && (<div className="bg-green-600/20 text-green-400 px-5 rounded-xl flex items-center justify-center font-bold gap-2"><Check size={18}/></div>)}
-                              </div>
-                              {otpSent && !phoneVerified && (
-                                 <div className="flex gap-2 p-3 bg-slate-900/80 border border-blue-500/30 rounded-xl animate-in zoom-in duration-300">
-                                    <input type="text" value={otpInput} onChange={(e)=>setOtpInput(e.target.value)} className="input-field py-2 text-center tracking-[0.5em] font-mono text-xl" maxLength={6} />
-                                    <button onClick={handleVerifyOtp} className="bg-blue-600 text-white px-6 rounded-xl font-bold">Verify</button>
-                                 </div>
-                              )}
-                           </div>
-                           <div id="recaptcha-container"></div>
+                           <input type="tel" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field" placeholder="10-digit mobile number" maxLength={10} />
                         </div>
-
                         <div><label className="form-label">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
                         <div><label className="form-label">Gender <span className="text-red-500">*</span></label><select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
                         <div><label className="form-label">City <span className="text-red-500">*</span></label><input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Mumbai"/></div>
                         <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/></div>
                      </div>
+
+                     {/* 🔥 NEW LANGUAGES UI SECTION 🔥 */}
+                     <div className="pt-8 border-t border-slate-800/80 mt-8">
+                        <h3 className="text-xl font-extrabold text-white mb-6 flex items-center gap-2"><Globe className="text-blue-400" size={20}/> Languages Known</h3>
+                        <div className="flex flex-col md:flex-row gap-4 mb-4">
+                           <div className="flex-1">
+                              <label className="form-label text-sm">Language</label>
+                              <input type="text" list="language-options" value={langInput} onChange={(e) => setLangInput(e.target.value)} className="input-field" placeholder="e.g. English, Hindi" />
+                              <datalist id="language-options">{languageOptions.map(l => <option key={l} value={l} />)}</datalist>
+                           </div>
+                           <div className="flex-1">
+                              <label className="form-label text-sm">Proficiency</label>
+                              <select value={profInput} onChange={(e) => setProfInput(e.target.value)} className="input-field [color-scheme:dark]">
+                                 {proficiencyOptions.map(p => <option key={p} value={p}>{p}</option>)}
+                              </select>
+                           </div>
+                           <div className="flex items-end">
+                              <button onClick={addLanguage} className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold transition-all h-[56px] w-full md:w-auto shadow-lg shadow-blue-500/20">Add</button>
+                           </div>
+                        </div>
+                        
+                        {formData.languages.length > 0 && (
+                           <div className="flex flex-wrap gap-3 p-5 bg-slate-950/50 rounded-2xl border border-slate-800">
+                              {formData.languages.map((lang, idx) => (
+                                 <span key={idx} className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium border border-slate-700 shadow-sm group">
+                                    <span className="font-bold text-blue-400">{lang.language}</span> 
+                                    <span className="text-slate-400 text-xs px-2 py-0.5 bg-slate-800 rounded-md">{lang.proficiency}</span>
+                                    <X size={16} className="cursor-pointer text-slate-500 hover:text-red-400 ml-1 transition-colors" onClick={() => removeLanguage(lang.language)}/>
+                                 </span>
+                              ))}
+                           </div>
+                        )}
+                     </div>
+
                   </div>
                )}
 
@@ -422,58 +384,67 @@ export default function CandidateProfile() {
                      </div>
 
                      <div className="pt-8 border-t border-slate-800/80">
-                        <h2 className="text-2xl font-extrabold text-white mb-6">Technical Skills & Certifications</h2>
+                        <h2 className="text-2xl font-extrabold text-white mb-6">Technical Skills & Expertise</h2>
+                        
                         {formData.skills.length > 0 && (
                            <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
                               {formData.skills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">{skill} <X size={16} className="cursor-pointer" onClick={() => toggleSkill(skill)}/></span>
+                                 <span key={skill} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
+                                    {skill} <X size={16} className="cursor-pointer hover:text-red-300" onClick={() => toggleSkill(skill)}/>
+                                 </span>
                               ))}
                            </div>
                         )}
 
-                        <div className="flex gap-4 mb-6">
-                           <div className="relative flex-1">
-                              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20}/>
-                              <input type="text" value={skillSearch} onChange={(e) => setSkillSearch(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); e.preventDefault(); } }} className="input-field pl-12" placeholder="Search a skill..."/>
+                        <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50 flex flex-col md:flex-row">
+                           <div className="md:w-1/3 bg-slate-900/40 border-r border-slate-800 p-3 max-h-[350px] overflow-y-auto">
+                              {(Object.keys(EXCEL_SKILLS_DATA) as Array<keyof typeof EXCEL_SKILLS_DATA>).map((mainSkill) => (
+                                 <button 
+                                    key={mainSkill} 
+                                    onClick={() => setActiveSkillTab(mainSkill)} 
+                                    className={`w-full text-left px-4 py-3 mb-2 text-sm font-bold rounded-xl transition-all ${
+                                       activeSkillTab === mainSkill 
+                                       ? 'bg-blue-600 text-white shadow-lg' 
+                                       : 'hover:bg-slate-800/80 text-slate-400'
+                                    }`}
+                                 >
+                                    {mainSkill}
+                                 </button>
+                              ))}
                            </div>
-                           <button onClick={() => { if(skillSearch.trim()) { toggleSkill(skillSearch.trim()); setSkillSearch(""); } }} className="bg-slate-800 px-6 rounded-xl font-bold text-white">Add</button>
-                        </div>
-
-                        {skillSearch.trim() !== "" ? (
-                           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-700 mb-6">
-                              <p className="text-sm text-slate-400 mb-4 font-bold tracking-wider uppercase">Search Results</p>
-                              <div className="flex flex-wrap gap-2">
-                                 {Object.values(SKILL_CATEGORIES).flat().filter(s => s.toLowerCase().includes(skillSearch.toLowerCase()) && !formData.skills.includes(s)).map(skill => (
-                                       <button key={skill} onClick={() => { toggleSkill(skill); setSkillSearch(""); }} className="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-800 text-blue-400">+ Add {skill}</button>
-                                 ))}
-                              </div>
-                           </div>
-                        ) : (
-                           <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50">
-                              <div className="flex flex-wrap gap-2 p-3 bg-slate-900/40 border-b border-slate-800 rounded-t-2xl">
-                                 {(Object.keys(SKILL_CATEGORIES) as Array<keyof typeof SKILL_CATEGORIES>).map((cat) => (
-                                    <button key={cat} onClick={() => setActiveSkillTab(cat)} className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSkillTab === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-800/80 text-slate-400'}`}>{cat}</button>
-                                 ))}
-                              </div>
-                              <div className="p-6">
-                                 <div className="flex flex-wrap gap-3">
-                                    {(SKILL_CATEGORIES[activeSkillTab as keyof typeof SKILL_CATEGORIES] || []).map((skill: string) => (
-                                       <button key={skill} onClick={()=>toggleSkill(skill)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${formData.skills.includes(skill) ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900 text-slate-400'}`}>
-                                          {formData.skills.includes(skill) ? <span className="flex items-center gap-1"><Check size={14}/> {skill}</span> : <span className="flex items-center gap-1"><Plus size={14}/> {skill}</span>}
+                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto">
+                              <h4 className="text-white font-bold mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
+                                 Select Sub-Skills for <span className="text-blue-400">{activeSkillTab}</span>
+                              </h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                 {(EXCEL_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
+                                    const isSelected = formData.skills.includes(subSkill);
+                                    return (
+                                       <button 
+                                          key={subSkill} 
+                                          onClick={() => toggleSkill(subSkill)} 
+                                          className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                                             isSelected 
+                                             ? 'bg-blue-600/20 border-blue-500 text-white shadow-md' 
+                                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
+                                          } flex items-center justify-between group`}
+                                       >
+                                          <span className="truncate pr-2">{subSkill}</span>
+                                          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-600 group-hover:border-slate-500'}`}>
+                                             {isSelected && <Check size={14} className="text-white" />}
+                                          </div>
                                        </button>
-                                    ))}
-                                 </div>
+                                    );
+                                 })}
                               </div>
                            </div>
-                        )}
+                        </div>
                      </div>
                   </div>
                )}
 
                {currentStep === 3 && (
                   <div className="space-y-12">
-                     
-                     {/* 🔥 NAYA WORK EXPERIENCE SECTION 🔥 */}
                      <div>
                         <div className="flex justify-between items-center mb-6">
                            <h2 className="text-3xl font-extrabold text-white">Past Work Experience</h2>
@@ -511,7 +482,6 @@ export default function CandidateProfile() {
                               <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30" placeholder="e.g. ₹6,00,000"/>
                            </div>
 
-                           {/* 🔥 ROLE TYPE (PERMANENT / CONTRACT) 🔥 */}
                            <div>
                               <label className="form-label text-yellow-400">Looking For (Role Type) <span className="text-red-500">*</span></label>
                               <select value={formData.jobType} onChange={(e)=>setFormData({...formData, jobType: e.target.value})} className="input-field border-yellow-500/30 [color-scheme:dark]">
