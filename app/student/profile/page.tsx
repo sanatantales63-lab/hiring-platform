@@ -10,8 +10,6 @@ import {
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
-import { auth } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 // 🔥 EXCEL MASTER SKILLS DATA 🔥
 const MASTER_SKILLS_DATA: Record<string, string[]> = {
@@ -31,12 +29,29 @@ const MASTER_SKILLS_DATA: Record<string, string[]> = {
   "Financial Operations & Process Optimization": ["Procure-To-Pay Cycle Control", "Order-To-Cash Optimization", "Record-To-Report Efficiency", "Financial Close Acceleration", "Shared Services Setup", "ERP Migration Planning", "Internal SOP Drafting", "Process Automation Evaluation"]
 };
 
+// 🔥 LEGAL DATA FETCHER 🔥
+const fetchLegalProof = async () => {
+  let ip = "Unknown IP";
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    ip = data.ip;
+  } catch (err) {
+    console.warn("Could not fetch IP", err);
+  }
+  return {
+    consent_timestamp: new Date().toISOString(),
+    consent_ip: ip,
+    consent_browser: typeof navigator !== 'undefined' ? navigator.userAgent : "Unknown Browser"
+  };
+};
+
 export default function CandidateProfile() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   
   const [isEditing, setIsEditing] = useState(false);
-  const [isOnboarding, setIsOnboarding] = useState(false); // 🔥 NAYA STATE: Pata lagayega ki naya user hai ya edit mode hai
+  const [isOnboarding, setIsOnboarding] = useState(false); 
   
   const [showGatekeeper, setShowGatekeeper] = useState(false);
   const [consentGiven, setConsentGiven] = useState(false);
@@ -68,12 +83,6 @@ export default function CandidateProfile() {
   
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
 
-  // Phone Auth States
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpInput, setOtpInput] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
-
   useEffect(() => {
     const fetchProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -97,22 +106,20 @@ export default function CandidateProfile() {
             skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : []
           });
 
-          if(data.phone) setPhoneVerified(true);
-
           const urlParams = new URLSearchParams(window.location.search);
           if (urlParams.get('step') === '4') {
-             setIsEditing(true); 
+             setIsEditing(true);
              setShowGatekeeper(false);
              setCurrentStep(4); 
-             setIsOnboarding(true); // Demo test se wapas aaya hai toh onboarding mode on rakho
+             setIsOnboarding(true); 
           } else {
              setIsEditing(false);
              setShowGatekeeper(false);
-             setIsOnboarding(false); // Normal profile load
+             setIsOnboarding(false); 
           }
         } else { 
           // New Profile
-          setIsEditing(true); 
+          setIsEditing(true);
           setShowGatekeeper(true);
           setIsOnboarding(true);
         }
@@ -121,35 +128,6 @@ export default function CandidateProfile() {
     fetchProfile();
   }, [router]);
 
-  // --- 🔥 PHONE OTP LOGIC 🔥 ---
-  const setupRecaptcha = () => {
-     if (!(window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
-     }
-  };
-
-  const handleSendOtp = async () => {
-     const cleanPhone = formData.phone.replace(/\D/g, '');
-     if (cleanPhone.length < 10) return alert("🛑 Enter valid 10-digit number!");
-     setOtpLoading(true);
-     try {
-        setupRecaptcha();
-        const phoneNumberWithCode = "+91" + cleanPhone.slice(-10);
-        const confirmationResult = await signInWithPhoneNumber(auth, phoneNumberWithCode, (window as any).recaptchaVerifier);
-        (window as any).confirmationResult = confirmationResult;
-        setOtpSent(true);
-        alert("✅ OTP Sent Successfully!");
-     } catch (error) { alert("Failed to send OTP."); } finally { setOtpLoading(false); }
-  };
-
-  const handleVerifyOtp = async () => {
-     try {
-        const result = await (window as any).confirmationResult.confirm(otpInput);
-        if(result.user) { setPhoneVerified(true); setOtpSent(false); }
-     } catch (error) { alert("🛑 Invalid OTP!"); }
-  };
-  // ------------------------------
-
   const handleAddLocation = (e: any) => {
     if (e.key === 'Enter' && locInput.trim() !== '') {
       e.preventDefault();
@@ -157,24 +135,26 @@ export default function CandidateProfile() {
       setLocInput("");
     }
   };
+
   const removeLocation = (loc: string) => setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
-  
   const addEducation = () => setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }] }));
+  
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value };
     setFormData(p => ({ ...p, educations: newEdu }));
   };
+
   const removeEducation = (index: number) => {
     if (formData.educations.length === 1) return;
     const newEdu = [...formData.educations];
     newEdu.splice(index, 1);
     setFormData(p => ({ ...p, educations: newEdu }));
   };
-  
+
   const addWorkExp = () => setFormData(p => ({ ...p, workExperience: [...p.workExperience, { company: "", role: "", duration: "" }] }));
   const updateWorkExp = (index: number, field: string, value: string) => { const newWork = [...formData.workExperience];
-    newWork[index] = { ...newWork[index], [field]: value }; setFormData(p => ({ ...p, workExperience: newWork })); };
+  newWork[index] = { ...newWork[index], [field]: value }; setFormData(p => ({ ...p, workExperience: newWork })); };
   const removeWorkExp = (index: number) => { const newWork = [...formData.workExperience]; newWork.splice(index, 1); setFormData(p => ({ ...p, workExperience: newWork }));
   };
 
@@ -185,7 +165,7 @@ export default function CandidateProfile() {
     }
   };
   const removeLanguage = (lang: string) => setFormData(p => ({ ...p, languages: p.languages.filter(l => l.language !== lang) }));
-
+  
   const handleImageUpload = (e: any) => {
     const file = e.target.files[0];
     if (!file || file.size > 150 * 1024) return alert("Photo too big! Max 150KB.");
@@ -211,7 +191,6 @@ export default function CandidateProfile() {
       const formDataForAPI = new FormData();
       formDataForAPI.append('file', file);
       const aiResponse = await fetch('/api/parse-resume', { method: 'POST', body: formDataForAPI });
-      
       if (aiResponse.ok) {
          const aiData = await aiResponse.json();
          const rawLocs = aiData.preferredLocations || [];
@@ -246,7 +225,19 @@ export default function CandidateProfile() {
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
         }
-        if (!phoneVerified) return alert("🛑 Please verify phone with OTP first!");
+        // 🔥 18+ AGE VALIDATION 🔥
+        if (formData.dob) {
+            const birthDate = new Date(formData.dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            if (age < 18) {
+                return alert("🛑 You must be at least 18 years old to register on this platform.");
+            }
+        }
         
         if (formData.panCard && formData.panCard.trim() !== "") {
            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
@@ -275,14 +266,21 @@ export default function CandidateProfile() {
      setCurrentStep(p => Math.min(4, p + 1));
   };
 
-  // 🔥 FOR NEW USERS: Save & Go to Test FOMO (Step 4)
   const handleSaveAndGoToStep4 = async () => {
     if (!formData.experience || !formData.expectedSalary) return alert("🛑 Please fill your Experience and Expected Salary.");
     setSavingData(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     try {
-      const { error } = await supabase.from("profiles").upsert({ id: session.user.id, ...formData, email: session.user.email, updated_at: new Date().toISOString() });
+      const legalProof = await fetchLegalProof(); // 🔥 Fetch Legal Proof Data before saving
+
+      const { error } = await supabase.from("profiles").upsert({ 
+          id: session.user.id, 
+          ...formData, 
+          ...legalProof, // 🔥 Saving IP, Timestamp & Browser in DB
+          email: session.user.email, 
+          updated_at: new Date().toISOString() 
+      });
       if (error) throw error;
       
       setCurrentStep(4); 
@@ -293,14 +291,21 @@ export default function CandidateProfile() {
     }
   };
 
-  // 🔥 FOR EXISTING USERS: Save & Go to Profile View Mode (Skip Step 4)
   const handleSaveChanges = async () => {
     if (!formData.experience || !formData.expectedSalary) return alert("🛑 Please fill your Experience and Expected Salary.");
     setSavingData(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     try {
-      const { error } = await supabase.from("profiles").upsert({ id: session.user.id, ...formData, email: session.user.email, updated_at: new Date().toISOString() });
+      const legalProof = await fetchLegalProof(); // 🔥 Fetch Legal Proof Data before saving
+
+      const { error } = await supabase.from("profiles").upsert({ 
+          id: session.user.id, 
+          ...formData, 
+          ...legalProof, // 🔥 Saving IP, Timestamp & Browser in DB
+          email: session.user.email, 
+          updated_at: new Date().toISOString() 
+      });
       if (error) throw error;
       
       setIsEditing(false); 
@@ -325,7 +330,6 @@ export default function CandidateProfile() {
          <div className="flex justify-between items-center mb-10">
             <button onClick={() => router.push('/student/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold"><ArrowLeft size={18} /> Dashboard</button>
             {!isEditing && (
-               // 🔥 USER CLICKED EDIT: Set isOnboarding to FALSE so Step 4 doesn't show
                <button onClick={() => { setIsEditing(true); setShowGatekeeper(false); setCurrentStep(1); setIsOnboarding(false); }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25">
                   <Edit size={16}/> Edit Profile
                </button>
@@ -338,6 +342,7 @@ export default function CandidateProfile() {
            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl mx-auto mt-6">
               <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden text-center">
                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg rotate-3"><FileText size={40} className="text-white -rotate-3"/></div>
+                
                  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Supercharge Your Profile</h1>
                  <p className="text-slate-400 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
                  
@@ -369,11 +374,9 @@ export default function CandidateProfile() {
                   <span className={currentStep >= 1 ? "text-blue-400" : "text-slate-600"}>1. Personal</span>
                   <span className={currentStep >= 2 ? "text-blue-400" : "text-slate-600"}>2. Education</span>
                   <span className={currentStep >= 3 ? "text-blue-400" : "text-slate-600"}>3. Preferences</span>
-                  {/* 🔥 Agar naya user hai tabhi Step 4 ka text dikhao */}
                   {isOnboarding && <span className={currentStep >= 4 ? "text-purple-400" : "text-slate-600 hidden md:inline"}>4. Unlock Profile</span>}
                </div>
                <div className="h-2 bg-slate-800/80 rounded-full overflow-hidden flex">
-                  {/* 🔥 Progress bar width dynamically adjust hogi (3 ya 4 steps ke hisaab se) */}
                   <div className={`h-full transition-all duration-500 ${currentStep === 4 ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`} style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
                </div>
             </div>
@@ -401,14 +404,9 @@ export default function CandidateProfile() {
                         <div><label className="form-label">Full Name <span className="text-red-500">*</span></label><input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field" placeholder="e.g. Rahul Sharma"/></div>
                         <div>
                            <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
-                           <div className="flex gap-2">
-                              <input type="text" value={formData.phone} disabled={phoneVerified} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field flex-1" />
-                              {!phoneVerified && <button onClick={handleSendOtp} className="bg-slate-800 px-5 rounded-xl font-bold">OTP</button>}
-                           </div>
-                           {otpSent && !phoneVerified && <div className="flex gap-2 mt-2"><input type="text" value={otpInput} onChange={(e)=>setOtpInput(e.target.value)} className="input-field text-center" maxLength={6}/><button onClick={handleVerifyOtp} className="bg-blue-600 px-6 rounded-xl font-bold">Verify</button></div>}
-                           <div id="recaptcha-container"></div>
+                           <input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field w-full" placeholder="10-digit number" />
                         </div>
-                        <div><label className="form-label">Date of Birth <span className="text-red-500">*</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
+                        <div><label className="form-label">Date of Birth <span className="text-red-500">*</span> <span className="text-slate-500 text-xs">(Min. 18 Years)</span></label><input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/></div>
                         <div><label className="form-label">Gender <span className="text-red-500">*</span></label><select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
                         <div><label className="form-label">City <span className="text-red-500">*</span></label><input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Mumbai"/></div>
                         <div><label className="form-label">PAN Card Number <span className="text-slate-500 text-xs ml-1">(Optional)</span></label><input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/></div>
@@ -465,6 +463,7 @@ export default function CandidateProfile() {
                                        <input type="text" list="qualifications-list" value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="input-field"/>
                                     </div>
                                     
+                                    {/* 🔥 ONLY CA/CMA/CS/ACCA SHOW STAGES 🔥 */}
                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
                                        <div className="grid grid-cols-2 gap-4">
                                           <div><label className="form-label text-yellow-400">Stage Cleared <span className="text-red-500">*</span></label><select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 [color-scheme:dark]"><option value="">Select</option><option>Group 1</option><option>Group 2</option><option>Both Groups</option><option>Cleared</option></select></div>
@@ -505,7 +504,7 @@ export default function CandidateProfile() {
                                        ? 'bg-blue-600 text-white shadow-lg' 
                                        : 'hover:bg-slate-800/80 text-slate-400'
                                     }`}
-                                 >
+                                  >
                                     {mainSkill}
                                  </button>
                               ))}
@@ -522,7 +521,7 @@ export default function CandidateProfile() {
                                           key={subSkill} 
                                           onClick={() => toggleSkill(subSkill)} 
                                           className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
-                                             isSelected 
+                                          isSelected 
                                              ? 'bg-blue-600/20 border-blue-500 text-white shadow-md' 
                                              : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
                                           } flex items-center justify-between group`}
@@ -571,20 +570,26 @@ export default function CandidateProfile() {
                            
                            {formData.experience !== "Fresher" && (
                               <div>
-                                 <label className="form-label">Current Salary (CTC)</label>
-                                 <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹4,50,000"/>
+                                 {/* 🔥 SALARY LABEL UPDATED 🔥 */}
+                                 <label className="form-label">Monthly Current Salary</label>
+                                 <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹30,000"/>
                               </div>
                            )}
                            <div>
-                              <label className="form-label flex items-center gap-2">Expected Salary <span className="text-red-500">*</span></label>
-                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30" placeholder="e.g. ₹6,00,000"/>
+                              {/* 🔥 SALARY LABEL UPDATED 🔥 */}
+                              <label className="form-label flex items-center gap-2">Monthly Expected Salary <span className="text-red-500">*</span></label>
+                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30" placeholder="e.g. ₹40,000"/>
                            </div>
 
                            <div>
                               <label className="form-label text-yellow-400">Looking For (Role Type) <span className="text-red-500">*</span></label>
                               <select value={formData.jobType} onChange={(e)=>setFormData({...formData, jobType: e.target.value})} className="input-field border-yellow-500/30 [color-scheme:dark]">
-                                 <option value="Permanent">Permanent Role</option>
-                                 <option value="3-Month Contract">3-Month Contract</option>
+                                 {/* 🔥 ROLE OPTIONS EXPANDED 🔥 */}
+                                 <option value="Permanent Role">Permanent Role</option>
+                                 <option value="1-3 Month Contract">1-3 Month Contract</option>
+                                 <option value="3-6 Month Contract">3-6 Month Contract</option>
+                                 <option value="6+ Month Contract">6+ Month Contract</option>
+                                 <option value="Freelance/Project Basis">Freelance/Project Basis</option>
                                  <option value="Internship">Internship</option>
                               </select>
                            </div>
@@ -608,9 +613,8 @@ export default function CandidateProfile() {
                   </div>
                )}
 
-               {/* 🔥 ONLY SHOW STEP 4 IF isOnboarding IS TRUE 🔥 */}
                {currentStep === 4 && isOnboarding && (
-                  <div className="space-y-8 text-center py-6">
+                 <div className="space-y-8 text-center py-6">
                      <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
                         <ShieldAlert size={48} className="text-red-500" />
                      </div>
@@ -618,18 +622,16 @@ export default function CandidateProfile() {
                         Profile Saved, but <span className="text-red-500">HIDDEN</span> 🔒
                      </h2>
                      <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-                        To maintain trust, companies can only see profiles that have passed the AI Skill Assessment. Unlock your profile now to get hired.
+                         To maintain trust, companies can only see profiles that have passed the AI Skill Assessment. Unlock your profile now to get hired.
                      </p>
                      
                      <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
-                        {/* Demo Test Card */}
                         <div className="bg-slate-950 p-8 rounded-[2rem] border border-slate-800 hover:border-blue-500 transition-all text-left flex flex-col">
                            <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3"><PlayCircle className="text-blue-400" size={28}/> Practice First</h3>
                            <p className="text-slate-400 text-sm mb-8 flex-1">Take a quick 2-min dummy test to understand how the secure camera/mic tracking works before the real deal.</p>
                            <button onClick={() => router.push('/student/demo-test?returnTo=profile')} className="w-full bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-transparent text-white py-4 rounded-xl font-bold transition-all shadow-lg text-lg">Take Demo Test</button>
                         </div>
                         
-                        {/* Real Test Card */}
                         <div className="bg-gradient-to-b from-purple-900/20 to-slate-950 p-8 rounded-[2rem] border border-purple-500/50 hover:border-purple-400 transition-all text-left shadow-[0_0_40px_rgba(168,85,247,0.15)] relative overflow-hidden flex flex-col">
                            <div className="absolute top-0 right-0 bg-purple-600 text-xs font-black tracking-widest px-4 py-1.5 rounded-bl-xl shadow-lg">REQUIRED</div>
                            <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3"><Target className="text-purple-400" size={28}/> Final Assessment</h3>
@@ -639,7 +641,7 @@ export default function CandidateProfile() {
                      </div>
 
                      <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-slate-500 hover:text-white font-medium underline underline-offset-4 transition-colors">
-                        I'm busy, save as draft & take test later
+                      Save as draft & take test later
                      </button>
                   </div>
                )}
@@ -647,7 +649,6 @@ export default function CandidateProfile() {
                </motion.div>
             </AnimatePresence>
 
-            {/* 🔥 BUTTONS LOGIC 🔥 */}
             {currentStep < 4 && (
                <div className="flex justify-between mt-12 pt-8 border-t border-slate-800/80">
                   {currentStep > 1 ? (<button onClick={prevStep} className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold flex items-center gap-3 text-white transition-all"><ChevronLeft size={20}/> Back</button>) : <div></div>}
@@ -655,7 +656,6 @@ export default function CandidateProfile() {
                   {currentStep < 3 ? (
                      <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-blue-500/20 text-lg">Next <ChevronRight size={20}/></button>
                   ) : (
-                     // Naya vs Purana user Logic for Save Button
                      isOnboarding ? (
                         <button onClick={handleSaveAndGoToStep4} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 font-bold flex items-center gap-3 text-white shadow-xl shadow-purple-500/20 text-lg transition-all">
                            {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={20}/></>}
@@ -676,8 +676,7 @@ export default function CandidateProfile() {
         .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.6rem; }
         .input-field { width: 100%; background-color: #0f172a; border: 2px solid #1e293b; border-radius: 1rem; padding: 1rem 1.25rem; color: white; outline: none; transition: all 0.2s; font-size: 1rem; font-weight: 500; appearance: none; }
         .input-field:focus { border-color: #3b82f6; background-color: #020617; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
-        select.input-field { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat; background-position: right 1.2rem top 50%; background-size: 0.75rem auto; }
+        select.input-field { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 1.2rem top 50%; background-size: 0.75rem auto; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
       `}</style>

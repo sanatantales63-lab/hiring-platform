@@ -7,23 +7,22 @@ import {
   Building2, Globe, MapPin, Users, Calendar, FileText, 
   Save, Edit, ArrowLeft, Camera, Loader2, CheckCircle, Briefcase, Hash, Factory
 } from "lucide-react";
-import CompanyProfileView from "@/app/components/CompanyProfileView"; // Naya component import kar rahe hain
+import CompanyProfileView from "@/app/components/CompanyProfileView";
 
 export default function CompanyProfile() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
-
   const [formData, setFormData] = useState({
     name: "", tagline: "", website: "", industry: "Finance",
     size: "10-50 Employees", foundedYear: "", address: "", about: "",
     logoURL: "", requirements: [] as string[],
-    gstin: "", cin: "", companyType: "Private Limited" // 🔥 NAYE FIELDS ADD KIYE
+    gstin: "", cin: "", companyType: "Private Limited"
   });
-
+  
   const skillOptions = ["Journal Entry", "GST Return", "TDS Return", "Income Tax", "Excel Advanced", "Ind-AS", "Audit"];
-
+  
   useEffect(() => {
     const fetchProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -32,15 +31,18 @@ export default function CompanyProfile() {
       try {
         const { data, error } = await supabase.from("companies").select("*").eq("id", session.user.id).single();
         if (data) {
-          // NULL values ko handle karna
           const cleanData: any = { ...data };
           Object.keys(cleanData).forEach(key => {
             if (cleanData[key] === null) cleanData[key] = "";
           });
           
+          // Agar name "New Company" hai (jo humne Auto-Insert kiya tha), toh empty mano taaki wo form bhare
+          if (cleanData.name === "New Company") cleanData.name = "";
+
           setFormData({ ...formData, ...cleanData });
           
-          if (!data.industry || !data.name) setIsEditing(true); 
+          if (!data.industry || data.name === "New Company" || !data.name) setIsEditing(true); 
+    
         } else {
           setIsEditing(true);
         }
@@ -86,12 +88,12 @@ export default function CompanyProfile() {
         about: formData.about || "",
         logoURL: formData.logoURL || "",
         requirements: formData.requirements || [],
-        gstin: formData.gstin || "",         // Naya
-        cin: formData.cin || "",             // Naya
-        companyType: formData.companyType || "", // Naya
+        gstin: formData.gstin || "",         
+        cin: formData.cin || "",             
+        companyType: formData.companyType || "", 
         email: session.user.email
       };
-
+      
       const { error } = await supabase.from("companies").upsert(payload);
 
       if (error) {
@@ -106,7 +108,7 @@ export default function CompanyProfile() {
       alert("System Error: " + e.message); 
     }
   };
-
+  
   const toggleRequirement = (skill: string) => {
     setFormData(prev => {
       const currentReqs = prev.requirements || []; 
@@ -120,7 +122,7 @@ export default function CompanyProfile() {
   };
 
   if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500" size={48}/></div>;
-
+  
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white p-6 md:p-12 font-sans">
       <button onClick={() => router.push('/company/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-white mb-8 group transition-colors">
@@ -144,12 +146,10 @@ export default function CompanyProfile() {
         </div>
 
         {!isEditing ? (
-          // NAYA VIEW COMPONENT YAHAN AAYEGA
           <CompanyProfileView company={formData} />
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-slate-900 border border-slate-800 p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
              
-             {/* Upload Logo Section */}
              <div className="flex flex-col items-center mb-10 pb-10 border-b border-slate-800">
                 <div className="relative group cursor-pointer w-28 h-28 rounded-2xl bg-slate-800 border-2 border-dashed border-slate-600 flex items-center justify-center overflow-hidden hover:border-purple-500 transition-colors">
                    {uploading ? <Loader2 className="animate-spin text-purple-500"/> : formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Camera className="text-slate-500"/>}
@@ -159,7 +159,6 @@ export default function CompanyProfile() {
              </div>
 
              <div className="grid md:grid-cols-2 gap-8 mb-8">
-                {/* Left Column */}
                 <div className="space-y-5">
                    <div>
                        <label className="text-slate-400 text-sm font-bold mb-2 block">Company Name *</label>
@@ -194,13 +193,12 @@ export default function CompanyProfile() {
                    </div>
                 </div>
 
-                {/* Right Column */}
                 <div className="space-y-5">
                    <div>
                        <label className="text-slate-400 text-sm font-bold mb-2 block">Industry</label>
                        <select value={formData.industry} onChange={(e)=>setFormData({...formData, industry: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 outline-none [color-scheme:dark]">
                          <option>Finance & CA Firm</option><option>IT / Software</option><option>Marketing</option><option>Manufacturing</option><option>EdTech</option><option>Retail</option>
-                      </select>
+                       </select>
                    </div>
                    
                    <div className="flex gap-4">

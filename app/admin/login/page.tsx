@@ -1,27 +1,32 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Loader2, Lock } from "lucide-react";
+import { ShieldCheck, Loader2, Lock, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase"; 
 import { useRouter } from "next/navigation";
 
 export default function AdminLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleGoogleLogin = async () => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          // Login hone ke baad direct Owner Panel pe bhejega
-          redirectTo: `${window.location.origin}/admin/dashboard`, 
-        },
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
+
       if (error) throw error;
+      
+      // Login hone ke baad direct Owner Panel pe bhejega
+      window.location.href = '/admin/dashboard';
+      
     } catch (error: any) {
-      alert("Login Failed: " + error.message);
+      alert("Admin Login Failed: " + error.message);
       setLoading(false);
     }
   };
@@ -44,17 +49,37 @@ export default function AdminLogin() {
         <h2 className="text-3xl font-bold text-center mb-2">Owner Portal</h2>
         <p className="text-slate-400 text-center mb-8">Secure access to admin controls.</p>
 
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full bg-white text-slate-900 font-bold py-4 rounded-xl shadow-lg hover:bg-slate-200 transition-all flex items-center justify-center gap-3"
-        >
-          {loading ? (
-            <><Loader2 className="animate-spin" size={20}/> Authenticating...</>
-          ) : (
-            <><Lock size={20}/> Admin Login</>
-          )}
-        </button>
+        <form onSubmit={handleEmailLogin} className="space-y-4 mb-6">
+          <div className="relative">
+            <Mail className="absolute left-3 top-3.5 text-slate-500" size={20} />
+            <input 
+              type="email" required placeholder="Admin Email" 
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-red-500 outline-none transition-colors"
+            />
+          </div>
+          
+          <div className="relative">
+            <Lock className="absolute left-3 top-3.5 text-slate-500" size={20} />
+            <input 
+              type="password" required placeholder="Admin Password"
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-red-500 outline-none transition-colors"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white text-slate-900 font-bold py-4 mt-4 rounded-xl shadow-lg hover:bg-slate-200 transition-all flex items-center justify-center gap-3"
+          >
+            {loading ? (
+              <><Loader2 className="animate-spin" size={20}/> Authenticating...</>
+            ) : (
+              <><Lock size={20}/> Admin Login</>
+            )}
+          </button>
+        </form>
       </motion.div>
     </div>
   );

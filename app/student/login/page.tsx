@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Briefcase, CheckCircle, Loader2, Mail, Lock } from "lucide-react";
+import { Briefcase, CheckCircle, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function CandidateLogin() {
   const router = useRouter();
@@ -11,25 +11,25 @@ export default function CandidateLogin() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // 🛡️ Security Guard: Sirf valid emails allowed hain
     if (isSignUp) {
-      const allowedDomains = ["@gmail.com", "@yahoo.com", "@outlook.com", "@hotmail.com"];
-      const isValidEmail = allowedDomains.some(domain => email.toLowerCase().endsWith(domain));
+      const blockedDomains = ["@tempmail.com", "@yopmail.com", "@10minutemail.com", "@guerrillamail.com"];
+      const isFakeEmail = blockedDomains.some(domain => email.toLowerCase().endsWith(domain));
       
-      if (!isValidEmail) {
+      if (isFakeEmail || email.toLowerCase().endsWith(".xyz")) {
         setLoading(false);
-        return alert("Please use a valid personal email (Gmail, Yahoo, Outlook) to register.");
+        return alert("Temporary or disposable emails are not allowed. Please use a valid email.");
       }
     }
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data: authData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -37,9 +37,18 @@ export default function CandidateLogin() {
           }
         });
         if (error) throw error;
+
+        // 🔥 FIX 1: Auto-create student row 
+        if (authData?.user) {
+            await supabase.from('profiles').upsert({
+                id: authData.user.id,
+                email: email,
+                fullName: ""
+            });
+        }
+
         alert("Registration successful! Please check your email to verify your account.");
       } else {
-        // 🔑 Login Process
         const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -47,8 +56,15 @@ export default function CandidateLogin() {
         if (error) throw error;
 
         if (data?.session) {
+          // 🔥 FIX 2: ROLE GUARD - Check if this user is a Company
+          const { data: companyData } = await supabase.from('companies').select('id').eq('id', data.session.user.id).maybeSingle();
+           
+          if (companyData) {
+              await supabase.auth.signOut(); 
+              return alert("🛑 Access Denied: This email is registered as a Company. Please use the Company Portal to login.");
+          }
+
           console.log("Login Successful! Redirecting to dashboard...");
-          // 🚀 Hard Redirect to Dashboard
           window.location.href = '/student/dashboard';
         } else {
           alert("Login successful, but session not found. Please try again.");
@@ -102,10 +118,18 @@ export default function CandidateLogin() {
             <div className="relative">
               <Lock className="absolute left-3 top-3.5 text-slate-500" size={20} />
               <input 
-                type="password" required placeholder="Password (Min 6 chars)" minLength={6}
+                type={showPassword ? "text" : "password"}
+                required placeholder="Password (Min 6 chars)" minLength={6}
                 value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-blue-500 outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-12 text-white placeholder:text-slate-500 focus:border-blue-500 outline-none"
               />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-3.5 text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
             {!isSignUp && (
               <div className="flex justify-end w-full mt-2 mb-1">

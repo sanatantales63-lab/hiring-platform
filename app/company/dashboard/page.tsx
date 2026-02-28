@@ -42,15 +42,24 @@ export default function CompanyDashboard() {
             const { data: allProfiles } = await supabase.from("profiles").select("*");
             if (allProfiles) {
                const allowedIDs = companyData.allowedStudents || [];
-               const visibleCandidates = allProfiles.filter((student: any) => 
-                 allowedIDs.includes(student.id) || student.hired_company_id === companyData.id
-               );
+               
+               // 🔥 STRICT PRIVACY FILTER: Hide Hired Candidates from other companies
+               const visibleCandidates = allProfiles.filter((student: any) => {
+                 // 1. Agar is company ne hire ya shortlist kiya hai, toh hamesha dikhao
+                 if (student.hired_company_id === companyData.id) return true;
+                 
+                 // 2. 🚨 STRICT HIDE: Agar officially kisi aur company ne HIRE kar liya hai, toh poori tarah hide kardo!
+                 if (student.hired_status === 'hired') return false;
+
+                 // 3. Baaki assigned candidates ko dikhao
+                 return allowedIDs.includes(student.id);
+               });
+               
                setCandidates(visibleCandidates);
             }
           }
 
           // 🔥 THE REALTIME MAGIC (WALKIE-TALKIE) 🔥
-          // Yeh background mein chupke se dekhta rahega ki Admin ne status change kiya ya nahi
           subscription = supabase
             .channel('company_status_updates')
             .on('postgres_changes', 
@@ -58,21 +67,22 @@ export default function CompanyDashboard() {
                (payload: any) => {
                   console.log("Live Update Received!", payload.new.status);
                   setApprovalStatus(payload.new.status);
-                  
-                  // Agar live approve ho gaya, toh automatically bachho ki list mangwa lo
                   if (payload.new.status === "approved") {
                      fetchDashboard();
                   }
                }
             ).subscribe();
         }
-      } catch (error) { console.error(error); } 
-      finally { setLoading(false); }
+      } catch (error) { 
+        console.error(error);
+      } finally { 
+        setLoading(false); 
+      }
     };
     
     fetchDashboard();
 
-    // 🔥 CLEANUP: Jab tab band ho, toh Realtime connection disconnect kar do
+    // 🔥 CLEANUP
     return () => {
        if (subscription) {
           supabase.removeChannel(subscription);
@@ -91,6 +101,7 @@ export default function CompanyDashboard() {
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
+
       if (error) throw error;
       alert("Shortlisted! Admin has been notified.");
       setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "shortlisted", hired_company_id: companyId} : c));
@@ -106,6 +117,7 @@ export default function CompanyDashboard() {
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
+
       if (error) throw error;
       alert("Hire Request sent to Admin!");
       setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "hire_requested", hired_company_id: companyId} : c));
@@ -119,6 +131,7 @@ export default function CompanyDashboard() {
         company_rating: rating,
         company_review: reviewText
       }).eq("id", reviewStudent.id);
+
       if (error) throw error;
       alert("Review submitted successfully!");
       setCandidates(candidates.map(c => c.id === reviewStudent.id ? {...c, company_rating: rating, company_review: reviewText} : c));
