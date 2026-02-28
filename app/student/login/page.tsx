@@ -53,27 +53,6 @@ export default function CandidateLogin() {
     }
   };
 
-  const handleLogin = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-      if (error) throw error;
-    } catch (error: any) {
-      console.error(error);
-      alert("Login Error: " + error.message);
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#020617] flex items-center justify-center relative overflow-hidden text-white p-4 font-sans">
       <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2"></div>
@@ -119,7 +98,6 @@ export default function CandidateLogin() {
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-blue-500 outline-none"
               />
             </div>
-            {/* 🔗 Forgot Password Link */}
             {!isSignUp && (
               <div className="flex justify-end w-full mt-2 mb-1">
                 <a href="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 hover:underline">
@@ -140,17 +118,6 @@ export default function CandidateLogin() {
             {isSignUp ? "Login here" : "Sign Up"}
           </button>
         </div>
-
-        <div className="flex items-center gap-4 mb-6">
-           <div className="h-px bg-slate-800 flex-1"></div>
-           <span className="text-slate-500 text-sm">OR</span>
-           <div className="h-px bg-slate-800 flex-1"></div>
-        </div>
-
-        <button onClick={handleLogin} disabled={loading} className="w-full bg-white text-black font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-200 transition-all shadow-xl shadow-white/5 hover:scale-[1.02] active:scale-[0.98] group">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-          Continue with Google
-        </button>
 
         <p className="text-center text-xs text-slate-500 mt-6">
            By continuing, you agree to our Terms & Privacy Policy.

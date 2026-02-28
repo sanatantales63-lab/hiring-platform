@@ -53,22 +53,6 @@ export default function CompanyLogin() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/company/auth/callback`,
-        },
-      });
-      if (error) throw error;
-    } catch (error: any) {
-      alert("Login Failed: " + error.message);
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -101,7 +85,6 @@ export default function CompanyLogin() {
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none"
               />
             </div>
-            {/* 🔗 Forgot Password Link */}
             {!isSignUp && (
               <div className="flex justify-end w-full mt-2 mb-1">
                 <a href="/forgot-password" className="text-xs text-purple-400 hover:text-purple-300 hover:underline">
@@ -122,17 +105,6 @@ export default function CompanyLogin() {
             {isSignUp ? "Login here" : "Sign Up"}
           </button>
         </div>
-
-        <div className="flex items-center gap-4 mb-6">
-           <div className="h-px bg-slate-800 flex-1"></div>
-           <span className="text-slate-500 text-sm">OR</span>
-           <div className="h-px bg-slate-800 flex-1"></div>
-        </div>
-
-        <button type="button" onClick={handleGoogleLogin} disabled={loading} className="w-full bg-white text-slate-900 font-bold py-3.5 rounded-xl shadow-lg hover:bg-slate-200 transition-all flex items-center justify-center gap-3">
-           <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
-           Continue with Google
-        </button>
       </motion.div>
     </div>
   );
