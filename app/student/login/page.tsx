@@ -39,14 +39,23 @@ export default function CandidateLogin() {
         if (error) throw error;
         alert("Registration successful! Please check your email to verify your account.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        // 🔑 Login Process
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        router.push('/auth/callback'); 
+
+        if (data?.session) {
+          console.log("Login Successful! Redirecting to dashboard...");
+          // 🚀 Hard Redirect to Dashboard
+          window.location.href = '/student/dashboard';
+        } else {
+          alert("Login successful, but session not found. Please try again.");
+        }
       }
     } catch (error: any) {
+      console.error("Auth Error:", error.message);
       alert("Error: " + error.message);
     } finally {
       setLoading(false);

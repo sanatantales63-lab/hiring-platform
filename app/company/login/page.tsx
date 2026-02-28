@@ -39,12 +39,19 @@ export default function CompanyLogin() {
         if (error) throw error;
         alert("Success! Please check your email for the verification link.");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        router.push('/company/auth/callback'); 
+        
+        if (data?.session) {
+           console.log("Company Login Successful! Redirecting to dashboard...");
+           // 🚀 Hard Redirect to Company Dashboard
+           window.location.href = '/company/dashboard';
+        } else {
+           alert("Login successful, but session not found. Please try again.");
+        }
       }
     } catch (error: any) {
       alert("Error: " + error.message);
@@ -87,9 +94,9 @@ export default function CompanyLogin() {
             </div>
             {!isSignUp && (
               <div className="flex justify-end w-full mt-2 mb-1">
-                <a href="/forgot-password" className="text-xs text-purple-400 hover:text-purple-300 hover:underline">
+                 <a href="/forgot-password" className="text-xs text-purple-400 hover:text-purple-300 hover:underline">
                   Forgot Password?
-                </a>
+                 </a>
               </div>
             )}
           </div>
