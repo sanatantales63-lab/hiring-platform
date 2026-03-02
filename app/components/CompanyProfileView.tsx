@@ -1,7 +1,7 @@
 "use client";
 import { 
   Building2, Globe, MapPin, Users, Calendar, FileText, 
-  CheckCircle, Briefcase, Hash, Factory, Mail
+  CheckCircle, Briefcase, Hash, Factory, Mail, Phone, User
 } from "lucide-react";
 
 export default function CompanyProfileView({ company, isAdminView = false }: { company: any, isAdminView?: boolean }) {
@@ -71,7 +71,7 @@ export default function CompanyProfileView({ company, isAdminView = false }: { c
             </div>
          </div>
 
-         {/* About & Requirements */}
+         {/* About & Point of Contact */}
          <div className="md:col-span-2 space-y-6">
             <div className="bg-slate-900/60 p-8 rounded-[2rem] border border-slate-800">
                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3"><FileText className="text-purple-400"/> About Us</h3>
@@ -85,20 +85,22 @@ export default function CompanyProfileView({ company, isAdminView = false }: { c
                )}
             </div>
 
-            <div className="bg-slate-900/60 p-8 rounded-[2rem] border border-slate-800">
-               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><CheckCircle className="text-green-500"/> Hiring Requirements</h3>
-               <div className="flex flex-wrap gap-3">
-                  {company.requirements && company.requirements.length > 0 ? (
-                     company.requirements.map((req: string, i: number) => (
-                        <span key={i} className="px-4 py-2 bg-purple-900/20 text-purple-300 border border-purple-500/30 rounded-xl text-sm font-bold shadow-sm">
-                           {req}
-                        </span>
-                     ))
-                  ) : (
-                     <p className="text-slate-500 italic">No specific skills mentioned.</p>
-                  )}
+            {/* 🔥 NEW CONTACT PERSON SECTION 🔥 */}
+            <div className="bg-slate-900/60 p-8 rounded-[2rem] border border-slate-800 relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-1 bg-green-500 h-full"></div>
+               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><User className="text-green-500"/> Point of Contact</h3>
+               <div className="grid md:grid-cols-2 gap-6 text-sm font-medium">
+                  <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800/80">
+                     <span className="text-slate-500 flex items-center gap-2 mb-2"><Briefcase size={14}/> Designation</span>
+                     <span className="text-white font-bold text-lg">{company.designation || "Not specified"}</span>
+                  </div>
+                  <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800/80">
+                     <span className="text-slate-500 flex items-center gap-2 mb-2"><Phone size={14}/> Phone Number</span>
+                     <span className="text-white font-bold tracking-wider">{company.contact_number || "Not provided"}</span>
+                  </div>
                </div>
             </div>
+
          </div>
       </div>
     </div>

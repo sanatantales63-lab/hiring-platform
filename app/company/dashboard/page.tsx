@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   Search, MapPin, Briefcase, GraduationCap, 
-  Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus
+  Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus, Filter
 } from "lucide-react";
 
 export default function CompanyDashboard() {
@@ -14,7 +14,14 @@ export default function CompanyDashboard() {
   const [companyName, setCompanyName] = useState("");
   const [candidates, setCandidates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // 🔥 SEARCH & NEW FILTERS STATES 🔥
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterExp, setFilterExp] = useState("");
+  const [filterLoc, setFilterLoc] = useState("");
+  const [filterNotice, setFilterNotice] = useState("");
+
   const [approvalStatus, setApprovalStatus] = useState<string>("pending");
   const [activeTab, setActiveTab] = useState("assigned"); 
 
@@ -24,7 +31,7 @@ export default function CompanyDashboard() {
   const [reviewText, setReviewText] = useState("");
 
   useEffect(() => {
-    let subscription: any; // 🔥 Realtime connection save karne ke liye
+    let subscription: any;
 
     const fetchDashboard = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -43,15 +50,9 @@ export default function CompanyDashboard() {
             if (allProfiles) {
                const allowedIDs = companyData.allowedStudents || [];
                
-               // 🔥 STRICT PRIVACY FILTER: Hide Hired Candidates from other companies
                const visibleCandidates = allProfiles.filter((student: any) => {
-                 // 1. Agar is company ne hire ya shortlist kiya hai, toh hamesha dikhao
                  if (student.hired_company_id === companyData.id) return true;
-                 
-                 // 2. 🚨 STRICT HIDE: Agar officially kisi aur company ne HIRE kar liya hai, toh poori tarah hide kardo!
                  if (student.hired_status === 'hired') return false;
-
-                 // 3. Baaki assigned candidates ko dikhao
                  return allowedIDs.includes(student.id);
                });
                
@@ -59,7 +60,6 @@ export default function CompanyDashboard() {
             }
           }
 
-          // 🔥 THE REALTIME MAGIC (WALKIE-TALKIE) 🔥
           subscription = supabase
             .channel('company_status_updates')
             .on('postgres_changes', 
@@ -82,17 +82,13 @@ export default function CompanyDashboard() {
     
     fetchDashboard();
 
-    // 🔥 CLEANUP
     return () => {
-       if (subscription) {
-          supabase.removeChannel(subscription);
-       }
+       if (subscription) supabase.removeChannel(subscription);
     };
   }, [router]);
 
   const handleLogout = async () => { await supabase.auth.signOut(); router.push("/"); };
 
-  // 🔥 SHORTLIST ACTION 🔥
   const shortlistCandidate = async (student: any) => {
     if(!confirm(`Shortlist ${student.fullName} for an interview? The Admin will be notified to arrange it.`)) return;
     try {
@@ -101,14 +97,12 @@ export default function CompanyDashboard() {
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
-
       if (error) throw error;
       alert("Shortlisted! Admin has been notified.");
       setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "shortlisted", hired_company_id: companyId} : c));
     } catch (e) { alert("Error sending request."); }
   };
 
-  // 🔥 HIRE REQUEST ACTION 🔥
   const requestHire = async (student: any) => {
     if(!confirm(`Send official Hire request for ${student.fullName}? Admin will verify and finalize this offline.`)) return;
     try {
@@ -117,7 +111,6 @@ export default function CompanyDashboard() {
         hired_company_id: companyId,
         hired_company_name: companyName
       }).eq("id", student.id);
-
       if (error) throw error;
       alert("Hire Request sent to Admin!");
       setCandidates(candidates.map(c => c.id === student.id ? {...c, hired_status: "hire_requested", hired_company_id: companyId} : c));
@@ -131,7 +124,6 @@ export default function CompanyDashboard() {
         company_rating: rating,
         company_review: reviewText
       }).eq("id", reviewStudent.id);
-
       if (error) throw error;
       alert("Review submitted successfully!");
       setCandidates(candidates.map(c => c.id === reviewStudent.id ? {...c, company_rating: rating, company_review: reviewText} : c));
@@ -140,20 +132,35 @@ export default function CompanyDashboard() {
     } catch (e) { alert("Error submitting review."); }
   };
 
-  const filteredCandidates = candidates.filter(c => 
-    (c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase())))
-  );
+  // 🔥 DYNAMIC FILTER OPTIONS MAKER 🔥
+  const uniqueLocations = Array.from(new Set(candidates.map(c => c.city).filter(Boolean)));
+  const uniqueExp = Array.from(new Set(candidates.map(c => c.experience).filter(Boolean)));
+  const uniqueNotice = Array.from(new Set(candidates.map(c => c.noticePeriod).filter(Boolean)));
+
+  // 🔥 APPLY ALL FILTERS 🔥
+  const filteredCandidates = candidates.filter(c => {
+    const matchesSearch = c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    let matchesType = true;
+    if (filterType === "Permanent") matchesType = c.jobType === "Permanent Role";
+    if (filterType === "Contract") matchesType = c.jobType !== "Permanent Role" || c.openToContractRoles === true;
+
+    const matchesExp = filterExp ? c.experience === filterExp : true;
+    const matchesLoc = filterLoc ? c.city === filterLoc : true;
+    const matchesNotice = filterNotice ? c.noticePeriod === filterNotice : true;
+
+    return matchesSearch && matchesType && matchesExp && matchesLoc && matchesNotice;
+  });
 
   const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "shortlisted" && c.hired_status !== "hire_requested");
   const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "shortlisted" || c.hired_status === "hire_requested"));
 
-  // 🔥 SMART REVIEW TIMER LOGIC 🔥
   const pendingReviews = hiredList.filter(c => {
      if(c.hired_status !== "hired" || c.company_rating) return false;
      if(!c.hire_date) return false;
      const daysSinceHire = Math.floor((new Date().getTime() - new Date(c.hire_date).getTime()) / (1000 * 60 * 60 * 24));
-     const requiredDays = c.jobType === '3-Month Contract' ? 90 : 60; // Dynamic check based on role type
-     return daysSinceHire >= requiredDays; // change to 0 for instant testing
+     const requiredDays = c.jobType === '3-Month Contract' ? 90 : 60; 
+     return daysSinceHire >= requiredDays; 
   });
 
   if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500 w-10 h-10" /></div>;
@@ -174,8 +181,9 @@ export default function CompanyDashboard() {
       <aside className="w-64 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col p-6 fixed h-full z-10">
         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-10">Recruiter Panel</h2>
         <nav className="space-y-4 flex-1">
-          <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'assigned' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><LayoutDashboard size={20}/> <span className="font-medium">Talent Pool</span></div>
-         
+          <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'assigned' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+             <LayoutDashboard size={20}/> <span className="font-medium">Talent Pool</span>
+          </div>
           <div onClick={() => setActiveTab('hired')} className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'hired' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
              <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span className="font-medium">My Pipeline</span></div>
              {pendingReviews.length > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">{pendingReviews.length}</span>}
@@ -209,9 +217,39 @@ export default function CompanyDashboard() {
           </div>
         </header>
 
-        <div className="relative max-w-2xl mb-12">
-          <Search className="absolute left-4 top-4 text-slate-500" />
-          <input type="text" placeholder="Search by Name, Skill..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-900 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white focus:border-purple-500 outline-none"/>
+        {/* 🔥 SMART FILTERS SECTION 🔥 */}
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-10 shadow-lg">
+           <div className="relative mb-5">
+             <Search className="absolute left-4 top-4 text-slate-500" />
+             <input type="text" placeholder="Search by Name, Skill (e.g. GST, Excel)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white focus:border-purple-500 outline-none transition-all"/>
+           </div>
+           
+           <div className="flex items-center gap-2 mb-3 text-sm font-bold text-slate-400">
+              <Filter size={16}/> Advanced Filters
+           </div>
+           
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <select value={filterType} onChange={(e)=>setFilterType(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+                 <option value="">Any Role Type</option>
+                 <option value="Permanent">Permanent Roles</option>
+                 <option value="Contract">Contract / Temp Roles</option>
+              </select>
+
+              <select value={filterExp} onChange={(e)=>setFilterExp(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+                 <option value="">Any Experience</option>
+                 {uniqueExp.map((exp:any, i) => <option key={i} value={exp}>{exp}</option>)}
+              </select>
+
+              <select value={filterLoc} onChange={(e)=>setFilterLoc(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+                 <option value="">Any Location</option>
+                 {uniqueLocations.map((loc:any, i) => <option key={i} value={loc}>{loc}</option>)}
+              </select>
+
+              <select value={filterNotice} onChange={(e)=>setFilterNotice(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+                 <option value="">Notice Period</option>
+                 {uniqueNotice.map((np:any, i) => <option key={i} value={np}>{np}</option>)}
+              </select>
+           </div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -238,8 +276,6 @@ export default function CompanyDashboard() {
 
                 {activeTab === 'hired' && (
                    <div className="mt-auto border-t border-slate-800 pt-4 space-y-3">
-                      
-                      {/* STATUS: SHORTLISTED */}
                       {candidate.hired_status === 'shortlisted' && (
                          <>
                             <p className="text-blue-400 text-sm font-bold flex items-center gap-2"><UserPlus size={16}/> Shortlisted for Interview</p>
@@ -250,7 +286,6 @@ export default function CompanyDashboard() {
                          </>
                       )}
 
-                      {/* STATUS: HIRE REQUESTED */}
                       {candidate.hired_status === 'hire_requested' && (
                          <div className="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-xl">
                             <p className="text-yellow-500 text-sm font-bold flex items-center gap-2"><Clock size={16}/> Hire Request Sent</p>
@@ -258,7 +293,6 @@ export default function CompanyDashboard() {
                          </div>
                       )}
                       
-                      {/* STATUS: HIRED (REVIEW SYSTEM) */}
                       {candidate.hired_status === 'hired' && !candidate.company_rating && (
                          <div className="space-y-3">
                             <p className="text-green-500 text-sm font-bold flex items-center gap-2"><CheckCircle size={16}/> Officially Hired</p>
@@ -287,7 +321,9 @@ export default function CompanyDashboard() {
         {filteredCandidates.length === 0 && (
            <div className="text-center p-12 bg-slate-900/50 border border-slate-800 rounded-2xl mt-10">
               <div className="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Search className="text-slate-500" size={32}/></div>
-              <h3 className="text-xl font-bold text-slate-400">No candidates found</h3>
+              <h3 className="text-xl font-bold text-white mb-2">No candidates found</h3>
+              <p className="text-slate-400">Try clearing or changing your filters.</p>
+              <button onClick={()=>{setSearchTerm(""); setFilterType(""); setFilterExp(""); setFilterLoc(""); setFilterNotice("");}} className="mt-4 px-6 py-2 bg-slate-800 rounded-lg text-sm font-bold hover:bg-slate-700 transition-colors">Clear All Filters</button>
            </div>
         )}
       </main>

@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase"; 
+import { supabase } from "@/lib/supabase";
 import { 
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
-  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, PlusCircle, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building
+  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown
 } from "lucide-react";
 
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
@@ -24,23 +24,14 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
   const topEdu = candidate.educations?.[0];
-  
   if (topEdu && topEdu.qualification) {
      const q = topEdu.qualification.toLowerCase();
-     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) {
-         smartTitle = 'Chartered Accountant (CA)';
-     }
-     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) {
-         smartTitle = 'Cost & Management Accountant (CMA)';
-     }
-     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) {
-         smartTitle = 'Company Secretary (CS)';
-     }
+     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) smartTitle = 'Chartered Accountant (CA)';
+     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) smartTitle = 'Cost & Management Accountant (CMA)';
+     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) smartTitle = 'Company Secretary (CS)';
      else if (q.includes('acca')) smartTitle = 'ACCA Professional';
      else if (q.includes('mba')) smartTitle = 'MBA Professional';
-     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) {
-         smartTitle = 'Commerce Graduate (B.Com)';
-     }
+     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
      else smartTitle = topEdu.qualification;
   }
 
@@ -52,11 +43,12 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
   const displayedWorkExp = showAllWork ? workExpList : workExpList.slice(0, 2);
   const extraWorkCount = workExpList.length > 2 ? workExpList.length - 2 : 0;
-
+  
   const candidateSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((s:any) => typeof s === 'string') : [];
+  const candidateStrengths = Array.isArray(candidate.strengths) ? candidate.strengths : [];
+  const candidateWeaknesses = Array.isArray(candidate.weaknesses) ? candidate.weaknesses : [];
 
   const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
-
   const metaObj = candidate.meta || {};
   const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0 };
   const hasMediaWarnings = warns.mic > 0 || warns.cam > 0;
@@ -67,11 +59,10 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
      try {
          const newMeta = { ...metaObj, warnings: { tab: warns.tab, mic: 0, cam: 0 }, warningsCount: warns.tab, status: "Passed" };
          let newAccess = candidate.examAccess;
-         if (isDisqualified && warns.tab < 2) newAccess = 'granted'; 
-
+         if (isDisqualified && warns.tab < 2) newAccess = 'granted';
          await supabase.from("profiles").update({ meta: newMeta, examAccess: newAccess }).eq("id", candidate.id);
          alert("Warnings Cleared! Test access re-granted if applicable.");
-         window.location.reload(); 
+         window.location.reload();
      } catch (e) { alert("Error resetting warnings"); }
      setIsResetting(false);
   };
@@ -126,9 +117,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          <div className="bg-gradient-to-r from-yellow-900/20 to-amber-900/20 border border-yellow-500/30 p-8 rounded-[2rem] shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Star size={100}/></div>
             <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start">
-               <div className="w-16 h-16 bg-yellow-500/20 rounded-2xl flex items-center justify-center shrink-0">
-                  <Briefcase className="text-yellow-500" size={32}/>
-               </div>
+               <div className="w-16 h-16 bg-yellow-500/20 rounded-2xl flex items-center justify-center shrink-0"><Briefcase className="text-yellow-500" size={32}/></div>
                <div>
                   <h3 className="text-xl font-extrabold text-white mb-1 flex items-center gap-2">Verified Corporate Experience <CheckCircle className="text-green-400" size={18}/></h3>
                   <p className="text-slate-300 mb-3 font-medium">Hired by <strong className="text-white">{candidate.hired_company_name}</strong> through Talexo</p>
@@ -165,7 +154,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                        </div>
                     </div>
                  ))}
-
                  {extraWorkCount > 0 && (
                     <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
                        {showAllWork ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraWorkCount} More Experiences</>}
@@ -182,6 +170,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                <div className="space-y-4 text-sm font-medium">
                   <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Total Exp.</span><span className="text-white font-bold bg-slate-800 px-3 py-1 rounded-lg">{candidate.experience}</span></div>
                   <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Current Status</span><span className="text-white">{candidate.currentStatus}</span></div>
+                  <div className="flex justify-between pb-1"><span className="text-slate-400">Open to Work 1-12 Months</span><span className={candidate.openToContractRoles ? "text-green-400 font-bold" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
                </div>
             </div>
 
@@ -198,7 +187,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                )}
             </div>
 
-            {/* 🔥 NEW LANGUAGES RENDERER CARD 🔥 */}
             {candidate.languages && candidate.languages.length > 0 && (
                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                   <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Globe className="text-purple-400"/> Languages Known</h3>
@@ -212,7 +200,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   </div>
                </div>
             )}
-
          </div>
 
          <div className="md:col-span-2 space-y-8">
@@ -233,7 +220,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                          </div>
                       </div>
                    ))}
-
                    {extraEduCount > 0 && (
                       <button onClick={() => setShowAllEdu(!showAllEdu)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
                          {showAllEdu ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraEduCount} More Qualifications</>}
@@ -244,41 +230,48 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
             <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-blue-400"/> Technical Skills & Expertise</h3>
-               
                {candidateSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
                      {candidateSkills.map((skill:string, i:number) => (
-                        <span 
-                           key={i} 
-                           className="bg-blue-600/10 text-blue-300 px-4 py-2 rounded-xl text-sm font-bold border border-blue-500/30 hover:bg-blue-600/20 transition-all shadow-sm"
-                        >
-                           {skill}
-                        </span>
+                        <span key={i} className="bg-blue-600/10 text-blue-300 px-4 py-2 rounded-xl text-sm font-bold border border-blue-500/30 hover:bg-blue-600/20 transition-all shadow-sm">{skill}</span>
                      ))}
                   </div>
-               ) : (
-                  <span className="text-slate-500 text-sm italic">No skills selected yet.</span>
+               ) : <span className="text-slate-500 text-sm italic">No skills selected yet.</span>}
+               
+               {/* 🔥 STRENGTHS & WEAKNESSES 🔥 */}
+               {(candidateStrengths.length > 0 || candidateWeaknesses.length > 0) && (
+                   <div className="mt-8 pt-8 border-t border-slate-800 grid md:grid-cols-2 gap-6">
+                      {candidateStrengths.length > 0 && (
+                         <div>
+                            <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2"><TrendingUp size={18}/> Strengths</h4>
+                            <div className="flex flex-wrap gap-2">
+                               {candidateStrengths.map((str:string, i:number) => <span key={i} className="bg-green-500/10 text-green-300 px-3 py-1 rounded-lg text-xs font-bold border border-green-500/20">{str}</span>)}
+                            </div>
+                         </div>
+                      )}
+                      {candidateWeaknesses.length > 0 && (
+                         <div>
+                            <h4 className="text-red-400 font-bold mb-3 flex items-center gap-2"><TrendingDown size={18}/> Areas of Growth</h4>
+                            <div className="flex flex-wrap gap-2">
+                               {candidateWeaknesses.map((wk:string, i:number) => <span key={i} className="bg-red-500/10 text-red-300 px-3 py-1 rounded-lg text-xs font-bold border border-red-500/20">{wk}</span>)}
+                            </div>
+                         </div>
+                      )}
+                   </div>
                )}
             </div>
          </div>
       </div>
 
-      {/* AI ASSESSMENT REPORT AND WARNINGS */}
+      {/* 🔥 THE NEW AI ASSESSMENT REPORT 🔥 */}
       {metaObj.skillScores && Object.keys(metaObj.skillScores).length > 0 && (
          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-10 rounded-[2.5rem] shadow-2xl mt-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-[80px]"></div>
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 border-b border-slate-800/80 pb-6">
                <div>
-                  <h3 className="text-3xl font-extrabold text-white flex items-center gap-3"><Target className="text-green-400" size={32}/> Detailed Assessment Report</h3>
-                  <p className="text-slate-400 mt-2">Verified Skill-by-Skill AI Analytics</p>
-                  
-                  {metaObj.status && metaObj.status.includes('Auto-Submitted') && (
-                     <div className="mt-4 bg-orange-500/10 border border-orange-500/30 text-orange-400 p-3 rounded-xl flex items-center gap-2 text-sm font-bold">
-                        <AlertTriangle size={18} className="shrink-0"/> 
-                        Test was Auto-Submitted early due to multiple Media/Proctoring Violations.
-                     </div>
-                  )}
+                  <h3 className="text-3xl font-extrabold text-white flex items-center gap-3"><Target className="text-green-400" size={32}/> AI Executive Analysis</h3>
+                  <p className="text-slate-400 mt-2">Comprehensive Performance & Integrity Report</p>
                </div>
                
                <div className="mt-4 md:mt-0 flex gap-4">
@@ -301,17 +294,26 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                      
                      {isAdmin && hasMediaWarnings && (
                         <button disabled={isResetting} onClick={handleResetMediaWarnings} className="w-full mt-3 bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/50 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-colors">
-                           {isResetting ? <RefreshCcw className="animate-spin" size={12}/> : <RefreshCcw size={12}/>} Forgive Media Alerts
+                           {isResetting ? <RefreshCcw className="animate-spin" size={12}/> : <RefreshCcw size={12}/>} Forgive Alerts
                         </button>
                      )}
                   </div>
-
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-center text-center px-6">
+                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-center text-center px-8 shadow-inner">
                      <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Total Score</p>
-                     <p className="text-3xl font-extrabold text-white leading-none">{metaObj.totalScore}</p>
+                     <p className="text-4xl font-extrabold text-green-400 leading-none">{metaObj.totalScore}</p>
                   </div>
                </div>
             </div>
+
+            {/* 🔥 AI GENERATED TEXT (Replaces raw warnings) 🔥 */}
+            {metaObj.ai_detailed_report && (
+               <div className="bg-gradient-to-r from-blue-900/10 to-transparent p-6 rounded-2xl border-l-4 border-blue-500 mb-8 relative z-10 text-slate-300 text-sm md:text-base leading-relaxed space-y-4">
+                  <p className="font-bold text-white mb-2 flex items-center gap-2"><Sparkles className="text-blue-400" size={18}/> AI Review</p>
+                  {metaObj.ai_detailed_report.split('\n').map((para:string, index:number) => (
+                     <p key={index} className="text-justify">{para.replace(/\*\*/g, '')}</p>
+                  ))}
+               </div>
+            )}
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                {Object.keys(metaObj.skillScores).map((skillName) => {
@@ -321,9 +323,9 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   const textClass = percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400';
 
                   return (
-                     <div key={skillName} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80">
+                     <div key={skillName} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 shadow-sm">
                         <div className="flex justify-between items-center mb-4">
-                           <span className="text-slate-200 font-bold">{skillName}</span>
+                           <span className="text-slate-200 font-bold text-sm">{skillName}</span>
                            <span className={`font-bold ${textClass}`}>{data.correct} / {data.total}</span>
                         </div>
                         <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">

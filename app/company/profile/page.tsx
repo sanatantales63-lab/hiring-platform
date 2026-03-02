@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   Building2, Globe, MapPin, Users, Calendar, FileText, 
-  Save, Edit, ArrowLeft, Camera, Loader2, CheckCircle, Briefcase, Hash, Factory
+  Save, Edit, ArrowLeft, Camera, Loader2, Hash, Factory, Phone, User
 } from "lucide-react";
 import CompanyProfileView from "@/app/components/CompanyProfileView";
 
@@ -14,14 +14,23 @@ export default function CompanyProfile() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "", tagline: "", website: "", industry: "Finance",
-    size: "10-50 Employees", foundedYear: "", address: "", about: "",
-    logoURL: "", requirements: [] as string[],
-    gstin: "", cin: "", companyType: "Private Limited"
-  });
   
-  const skillOptions = ["Journal Entry", "GST Return", "TDS Return", "Income Tax", "Excel Advanced", "Ind-AS", "Audit"];
+  const [formData, setFormData] = useState({
+    name: "", 
+    tagline: "", 
+    website: "", 
+    industry: "Finance",
+    size: "10-50 Employees", 
+    foundedYear: "", 
+    address: "", 
+    about: "",
+    logoURL: "", 
+    contact_number: "", // 🔥 Naya Field
+    designation: "", // 🔥 Naya Field
+    gstin: "", 
+    cin: "", 
+    companyType: "Private Limited"
+  });
   
   useEffect(() => {
     const fetchProfile = async () => {
@@ -36,10 +45,14 @@ export default function CompanyProfile() {
             if (cleanData[key] === null) cleanData[key] = "";
           });
           
-          // Agar name "New Company" hai (jo humne Auto-Insert kiya tha), toh empty mano taaki wo form bhare
           if (cleanData.name === "New Company") cleanData.name = "";
 
-          setFormData({ ...formData, ...cleanData });
+          setFormData({ 
+            ...formData, 
+            ...cleanData,
+            contact_number: cleanData.contact_number || "",
+            designation: cleanData.designation || "" 
+          });
           
           if (!data.industry || data.name === "New Company" || !data.name) setIsEditing(true); 
     
@@ -72,6 +85,14 @@ export default function CompanyProfile() {
         return;
     }
 
+    // 🔥 FAKE NUMBER PROTECTION (REGEX) 🔥
+    if (formData.contact_number) {
+       const phoneRegex = /^\+?[1-9]\d{7,14}$/;
+       if (!phoneRegex.test(formData.contact_number)) {
+          return alert("🛑 Invalid Contact Number! Please enter a valid number with your Country Code (e.g. +919876543210)");
+       }
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     
@@ -87,7 +108,8 @@ export default function CompanyProfile() {
         address: formData.address || "",
         about: formData.about || "",
         logoURL: formData.logoURL || "",
-        requirements: formData.requirements || [],
+        contact_number: formData.contact_number || "", // 🔥 Naya
+        designation: formData.designation || "", // 🔥 Naya
         gstin: formData.gstin || "",         
         cin: formData.cin || "",             
         companyType: formData.companyType || "", 
@@ -107,18 +129,6 @@ export default function CompanyProfile() {
     } catch (e: any) { 
       alert("System Error: " + e.message); 
     }
-  };
-  
-  const toggleRequirement = (skill: string) => {
-    setFormData(prev => {
-      const currentReqs = prev.requirements || []; 
-      return {
-        ...prev,
-        requirements: currentReqs.includes(skill) 
-          ? currentReqs.filter(s => s !== skill)
-          : [...currentReqs, skill]
-      };
-    });
   };
 
   if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500" size={48}/></div>;
@@ -177,20 +187,25 @@ export default function CompanyProfile() {
                        </select>
                    </div>
 
-                   <div>
-                       <label className="text-slate-400 text-sm font-bold mb-2 block">GSTIN Number</label>
-                       <input type="text" value={formData.gstin} onChange={(e)=>setFormData({...formData, gstin: e.target.value.toUpperCase()})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none uppercase" placeholder="22AAAAA0000A1Z5"/>
+                   {/* 🔥 NEW CONTACT FIELDS 🔥 */}
+                   <div className="bg-slate-950/50 p-4 border border-slate-800 rounded-2xl">
+                      <label className="text-purple-400 text-xs font-black tracking-widest uppercase mb-4 flex items-center gap-2"><User size={14}/> Point of Contact</label>
+                      <div className="space-y-4">
+                         <div>
+                             <label className="text-slate-400 text-sm font-bold mb-2 block">Your Designation (Job Title)</label>
+                             <input type="text" value={formData.designation} onChange={(e)=>setFormData({...formData, designation: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 focus:border-purple-500 outline-none" placeholder="e.g. HR Manager, Founder..."/>
+                         </div>
+                         <div>
+                             <label className="text-slate-400 text-sm font-bold mb-2 block">Official Contact Number <span className="text-red-500">*</span></label>
+                             <div className="relative">
+                                <Phone className="absolute left-3 top-3.5 text-slate-500" size={18}/>
+                                <input type="tel" value={formData.contact_number} onChange={(e)=>setFormData({...formData, contact_number: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 pr-4 focus:border-purple-500 outline-none" placeholder="e.g. +91 9876543210"/>
+                             </div>
+                             <p className="text-[10px] text-slate-500 mt-1.5 ml-1">Must include country code (+91 for India).</p>
+                         </div>
+                      </div>
                    </div>
 
-                   <div>
-                       <label className="text-slate-400 text-sm font-bold mb-2 block">CIN Number</label>
-                       <input type="text" value={formData.cin} onChange={(e)=>setFormData({...formData, cin: e.target.value.toUpperCase()})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none uppercase" placeholder="L12345XX2000PLC123456"/>
-                   </div>
-
-                   <div>
-                       <label className="text-slate-400 text-sm font-bold mb-2 block">Tagline (One Liner)</label>
-                       <input type="text" value={formData.tagline} onChange={(e)=>setFormData({...formData, tagline: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none" placeholder="e.g. Innovating Future"/>
-                   </div>
                 </div>
 
                 <div className="space-y-5">
@@ -223,23 +238,24 @@ export default function CompanyProfile() {
                        <label className="text-slate-400 text-sm font-bold mb-2 block">Registered Office Address</label>
                        <textarea rows={3} value={formData.address} onChange={(e)=>setFormData({...formData, address: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none" placeholder="Full address..."/>
                    </div>
+
+                   <div className="flex gap-4 pt-2">
+                       <div className="flex-1">
+                           <label className="text-slate-400 text-sm font-bold mb-2 block">GSTIN Number</label>
+                           <input type="text" value={formData.gstin} onChange={(e)=>setFormData({...formData, gstin: e.target.value.toUpperCase()})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none uppercase" placeholder="22AAAAA..."/>
+                       </div>
+                       <div className="flex-1">
+                           <label className="text-slate-400 text-sm font-bold mb-2 block">CIN Number</label>
+                           <input type="text" value={formData.cin} onChange={(e)=>setFormData({...formData, cin: e.target.value.toUpperCase()})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none uppercase" placeholder="L12345XX..."/>
+                       </div>
+                   </div>
                 </div>
              </div>
 
-             <div className="mb-8">
-                <label className="text-slate-400 text-sm font-bold mb-2 block">About Company</label>
+             <div className="mb-10">
+                <label className="text-slate-400 text-sm font-bold mb-2 block">About Company (Tagline & Description)</label>
+                <input type="text" value={formData.tagline} onChange={(e)=>setFormData({...formData, tagline: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none mb-3" placeholder="A short one-liner tagline..."/>
                 <textarea rows={4} value={formData.about} onChange={(e)=>setFormData({...formData, about: e.target.value})} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 focus:border-purple-500 outline-none" placeholder="Tell candidates about your culture, vision, and what makes your company special..."></textarea>
-             </div>
-
-             <div className="mb-10 pt-8 border-t border-slate-800">
-                <label className="text-white font-bold mb-4 block text-lg">Preferred Skills for Hiring</label>
-                <div className="flex flex-wrap gap-3">
-                   {skillOptions.map(skill => (
-                      <button key={skill} onClick={(e)=>{ e.preventDefault(); toggleRequirement(skill); }} className={`px-4 py-2.5 rounded-xl text-sm font-medium border transition-all ${formData.requirements?.includes(skill) ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/20' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}>
-                         {skill} {formData.requirements?.includes(skill) && "✓"}
-                      </button>
-                   ))}
-                </div>
              </div>
 
              <button onClick={handleSave} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-4 rounded-xl font-extrabold text-lg shadow-xl shadow-purple-900/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
