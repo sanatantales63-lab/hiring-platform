@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Timer, CheckCircle, HelpCircle, ArrowRight, Mic, ShieldAlert, AlertTriangle, Video, Camera, Loader2, Play } from "lucide-react";
-import { supabase } from "@/lib/supabase"; // 🔥 Supabase import kiya status check karne ke liye
+import { supabase } from "@/lib/supabase"; 
 
 function DemoTestContent() {
   const router = useRouter();
@@ -22,11 +22,9 @@ function DemoTestContent() {
   const [finished, setFinished] = useState(false);
   const [started, setStarted] = useState(false);
   const [score, setScore] = useState(0);
-  
-  // 🔥 NAYA STATE: Real test check karne ke liye
+
   const [hasCompletedRealTest, setHasCompletedRealTest] = useState(false);
 
-  // 🎙️📷 MEDIA STATES
   const [mediaAllowed, setMediaAllowed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -37,17 +35,14 @@ function DemoTestContent() {
   const noiseFramesRef = useRef(0);
   const movementFramesRef = useRef(0);
   const previousFrameRef = useRef<Uint8Array | null>(null);
-  
   const [demoWarnings, setDemoWarnings] = useState(0);
 
-  // 🔥 CHECK KAREGA KI KYA BACHHE NE ASLI TEST DE DIYA HAI?
   useEffect(() => {
     const checkTestStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const { data } = await supabase.from('profiles').select('meta').eq('id', session.user.id).single();
         if (data && data.meta && data.meta.status) {
-          // Agar status kuch bhi hai (Passed, Failed, Auto-Submitted), mtlb test de chuka hai
           setHasCompletedRealTest(true);
         }
       }
@@ -63,11 +58,12 @@ function DemoTestContent() {
 
   const triggerWarning = useCallback(() => {
     setDemoWarnings(p => {
-       if(p + 1 >= 4) {
+       // 🔥 DEMO WARNING LIMIT UPDATED TO 6 🔥
+       if(p + 1 >= 6) {
           alert("🚨 AUTO-SUBMIT: In the real exam, your test would be Auto-Submitted right now due to Audio/Video violation!");
           submitTest();
        } else {
-          alert(`⚠️ PRACTICE WARNING ${p+1}/4: You moved out of frame or made noise!`);
+          alert(`⚠️ PRACTICE WARNING ${p+1}/6: You moved out of frame or made noise!`);
        }
        return p + 1;
     });
@@ -95,12 +91,23 @@ function DemoTestContent() {
         frameCount++;
 
         analyser.getByteFrequencyData(dataArray);
+        
+        // 🔥 ORIGINAL STRICT AUDIO LOGIC RESTORED FOR DEMO 🔥
         let sum = 0;
-        for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-        if (sum / bufferLength > 35) {
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+
+        if (average > 35) {
           noiseFramesRef.current += 1;
-          if (noiseFramesRef.current > 150) { noiseFramesRef.current = 0; triggerWarning(); }
-        } else noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
+          if (noiseFramesRef.current > 150) { 
+              noiseFramesRef.current = 0; 
+              triggerWarning(); 
+          }
+        } else {
+            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
+        }
 
         if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
             const video = videoRef.current;
@@ -108,7 +115,6 @@ function DemoTestContent() {
             
             const videoTrack = stream.getVideoTracks()[0];
             if (videoTrack && (!videoTrack.enabled || videoTrack.readyState === 'ended')) triggerWarning();
-
             if (video.readyState >= 2) {
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 if (ctx) {
@@ -117,7 +123,6 @@ function DemoTestContent() {
                     
                     let totalBrightness = 0;
                     for(let i=0; i<currentFrame.length; i+=4) totalBrightness += currentFrame[i] + currentFrame[i+1] + currentFrame[i+2];
-                    
                     if (totalBrightness < 1000) {
                         movementFramesRef.current += 1;
                         if (movementFramesRef.current > 2) { movementFramesRef.current = 0; triggerWarning(); }
@@ -186,7 +191,6 @@ function DemoTestContent() {
     setFinished(true);
   };
 
-  // 🔥 COMPLETION SCREEN 🔥
   if (finished) {
     return (
       <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4">
@@ -201,7 +205,6 @@ function DemoTestContent() {
              <p className="text-2xl font-bold text-white">{score} / {demoQuestions.length}</p>
           </div>
           
-          {/* 🔥 3 ALAG ALAG CONDITIONS KA LOGIC 🔥 */}
           {returnTo === 'profile' ? (
              <button onClick={() => router.push('/student/profile?step=4')} className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg shadow-blue-500/20">
                 Return to Profile Setup <ArrowRight size={18}/>
@@ -230,7 +233,6 @@ function DemoTestContent() {
     );
   }
 
-  // 🔥 START SCREEN 🔥
   if (!started) {
     return (
       <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4">
@@ -269,7 +271,6 @@ function DemoTestContent() {
     );
   }
 
-  // 🔥 TEST SCREEN 🔥
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center justify-center p-4 select-none">
        <div className="fixed bottom-6 right-6 w-32 h-24 bg-black border border-red-500/50 rounded-xl overflow-hidden shadow-2xl z-50 pointer-events-none opacity-80">
@@ -308,7 +309,7 @@ function DemoTestContent() {
 
         <div className="flex justify-between mt-8">
            <button onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-6 py-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Previous</button>
-           {currentQ < demoQuestions.length - 1 ? 
+           {currentQ < demoQuestions.length - 1 ?
              <button onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 rounded-xl font-semibold hover:bg-blue-700">Next Question</button> :
              <button onClick={submitTest} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-900/20">Finish Demo</button>
            }

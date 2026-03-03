@@ -11,12 +11,11 @@ import {
 export default function LiveTestPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [studentProfile, setStudentProfile] = useState<any>(null); // 🔥 Profile for AI
+  const [studentProfile, setStudentProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [testStarted, setTestStarted] = useState(false);
   const [agreed, setAgreed] = useState(false);
   
-  // 🎙️📷 MEDIA STATES & REFS 
   const [mediaAllowed, setMediaAllowed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -32,20 +31,19 @@ export default function LiveTestPage() {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(0);
-  
-  // 🔥 BONUS ROUND STATES 🔥
+
   const [showBonusPopup, setShowBonusPopup] = useState(false);
   const [bonusRoundTaken, setBonusRoundTaken] = useState(false);
   const [extraQuestionsPool, setExtraQuestionsPool] = useState<any[]>([]); 
   
-  // 🚨 SEPARATED WARNINGS 
   const [tabWarnings, setTabWarnings] = useState(0);
   const [micWarnings, setMicWarnings] = useState(0);
   const [camWarnings, setCamWarnings] = useState(0);
 
+  // 🔥 WARNING LIMITS UPDATED TO 6 🔥
   const MAX_TAB_WARNINGS = 2;
-  const MAX_MIC_WARNINGS = 4;
-  const MAX_CAM_WARNINGS = 4;
+  const MAX_MIC_WARNINGS = 6;
+  const MAX_CAM_WARNINGS = 6;
 
   const [isTerminated, setIsTerminated] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -90,7 +88,6 @@ export default function LiveTestPage() {
      if (isTerminated || isSubmitted) return;
      const currentScore = calculateCurrentScore();
      const percentage = (currentScore / questions.length) * 100;
-     
      if (percentage < 30 && !bonusRoundTaken && extraQuestionsPool.length >= 5) {
          setShowBonusPopup(true);
      } else {
@@ -105,7 +102,6 @@ export default function LiveTestPage() {
      const newAnswers = [...answers];
      for(let i=0; i<5; i++) newAnswers.push(-1);
      setAnswers(newAnswers);
-     
      setTimeLeft(prev => prev + (5 * 60));
      setBonusRoundTaken(true); 
      setShowBonusPopup(false);
@@ -130,6 +126,7 @@ export default function LiveTestPage() {
        if (!analyticsData[q.skill]) {
            analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, aiLevel: "Beginner" };
        }
+ 
        analyticsData[q.skill].total += 1;
 
        const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
@@ -139,6 +136,7 @@ export default function LiveTestPage() {
            calcScore += 1; 
            analyticsData[q.skill].correct += 1;
            if(q.difficulty.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
+          
            if(q.difficulty.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
            if(q.difficulty.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
        }
@@ -150,7 +148,7 @@ export default function LiveTestPage() {
         else if (data.correct >= 4 && data.advanced >= 1) data.aiLevel = "Expert Level 🟢";
         else if (data.correct >= 2) data.aiLevel = "Intermediate Level 🟡";
         else data.aiLevel = "Beginner Level 🔴";
-        
+
         await supabase.from("test_results").insert({ 
             student_id: user.id, skill: skill, total_score: data.correct, 
             beginner_score: data.beginner, intermediate_score: data.intermediate, 
@@ -162,7 +160,6 @@ export default function LiveTestPage() {
     setSkillAnalytics(analyticsData);
     const finalStatus = forceReason && typeof forceReason === 'string' ? forceReason : "Passed";
 
-    // 🔥 GENERATE AI REPORT 🔥
     let generatedAiReport = "Report generation pending.";
     try {
        const reportRes = await fetch('/api/generate-report', {
@@ -179,7 +176,8 @@ export default function LiveTestPage() {
           const reportData = await reportRes.json();
           if(reportData.report) generatedAiReport = reportData.report;
        }
-    } catch(e) { console.error("AI Report generation failed", e); }
+    } catch(e) { console.error("AI Report generation failed", e);
+    }
 
     await supabase.from("profiles").update({
        examAccess: "completed",
@@ -190,7 +188,7 @@ export default function LiveTestPage() {
           warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings },
           warningsCount: tabWarnings + micWarnings + camWarnings, 
           skillScores: analyticsData,
-          ai_detailed_report: generatedAiReport // 🔥 Saved to DB
+          ai_detailed_report: generatedAiReport 
        }
     }).eq("id", user.id);
 
@@ -215,14 +213,14 @@ export default function LiveTestPage() {
             if (next >= MAX_MIC_WARNINGS) { 
                 alert("🚨 Test Auto-Submitted due to Maximum Audio Warnings!"); 
                 submitTest("Auto-Submitted: Maximum Audio Warnings Exceeded"); 
-            } else alert(`⚠️ AUDIO WARNING ${next}/${MAX_MIC_WARNINGS}: Background Voice Detected!`);
+            } else alert(`⚠️ AUDIO WARNING ${next}/${MAX_MIC_WARNINGS}: Background Noise Detected!`);
             return next;
         });
     } else if (type === 'cam') {
         setCamWarnings(prev => {
             const next = prev + 1;
             if (next >= MAX_CAM_WARNINGS) { 
-                alert("🚨 Test Auto-Submitted due to Maximum Camera Warnings!"); 
+                alert("🚨 Test Auto-Submitted due to Maximum Camera Warnings!");
                 submitTest("Auto-Submitted: Maximum Camera Warnings Exceeded"); 
             } else alert(`⚠️ CAMERA WARNING ${next}/${MAX_CAM_WARNINGS}: Please face the camera and do not move out of frame!`);
             return next;
@@ -259,29 +257,32 @@ export default function LiveTestPage() {
         frameCount++;
         analyser.getByteFrequencyData(dataArray);
         
-        let sum = 0; 
-        for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-        const avgVolume = sum / bufferLength;
+        // 🔥 ORIGINAL STRICT AUDIO LOGIC RESTORED 🔥
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
 
-        if (avgVolume > 35) {
+        if (average > 35) {
           noiseFramesRef.current += 1;
           if (noiseFramesRef.current > 150) { 
-              noiseFramesRef.current = 0; 
+              noiseFramesRef.current = 0;
               triggerWarning('mic'); 
           }
         } else { 
-            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2); 
+            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
         }
 
         if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
-            const video = videoRef.current; 
+            const video = videoRef.current;
             const canvas = canvasRef.current;
             const videoTrack = stream.getVideoTracks()[0]; 
             const audioTrack = stream.getAudioTracks()[0];
-            
+
             if ((videoTrack && (!videoTrack.enabled || videoTrack.readyState === 'ended')) || 
                 (audioTrack && (!audioTrack.enabled || audioTrack.readyState === 'ended'))) { 
-                triggerWarning('cam'); 
+                triggerWarning('cam');
             }
             
             if (video.readyState >= 2) {
@@ -292,15 +293,14 @@ export default function LiveTestPage() {
                     
                     let totalBrightness = 0;
                     for(let i=0; i<currentFrame.length; i+=4) totalBrightness += currentFrame[i] + currentFrame[i+1] + currentFrame[i+2];
-                    
                     if (totalBrightness < 1000) {
                         movementFramesRef.current += 1;
                         if (movementFramesRef.current > 2) { 
-                            movementFramesRef.current = 0; 
+                            movementFramesRef.current = 0;
                             triggerWarning('cam'); 
                         }
                     } else if (previousFrameRef.current) {
-                        let diffCount = 0; 
+                        let diffCount = 0;
                         const totalPixels = currentFrame.length / 4;
                         for (let i = 0; i < currentFrame.length; i += 4) {
                             const rDiff = Math.abs(currentFrame[i] - previousFrameRef.current[i]);
@@ -311,11 +311,11 @@ export default function LiveTestPage() {
                         if ((diffCount / totalPixels) * 100 > 15) {
                             movementFramesRef.current += 1;
                             if (movementFramesRef.current > 1) { 
-                                movementFramesRef.current = 0; 
+                                movementFramesRef.current = 0;
                                 triggerWarning('cam'); 
                             }
                         } else { 
-                            movementFramesRef.current = Math.max(0, movementFramesRef.current - 1); 
+                            movementFramesRef.current = Math.max(0, movementFramesRef.current - 1);
                         }
                     }
                     previousFrameRef.current = new Uint8Array(currentFrame);
@@ -336,7 +336,7 @@ export default function LiveTestPage() {
       setMediaAllowed(true); 
       stream.getTracks().forEach(track => track.stop());
     } catch (err) { 
-      alert("Microphone and Camera permissions are strictly required for this proctored exam."); 
+      alert("Microphone and Camera permissions are strictly required for this proctored exam.");
       setMediaAllowed(false); 
     }
   };
@@ -351,7 +351,8 @@ export default function LiveTestPage() {
       setStudentProfile(profileSnap);
 
       const currentStatus = profileSnap?.examAccess || 'none';
-      if (currentStatus === 'completed' || currentStatus === 'disqualified' || currentStatus === 'pending') {
+      if (currentStatus === 'completed' || currentStatus === 'disqualified' || 
+          currentStatus === 'pending') {
          alert("Your test is locked. Please request a re-test from your dashboard if needed."); 
          router.push("/student/dashboard"); 
          return;
@@ -381,7 +382,7 @@ export default function LiveTestPage() {
       }
 
       try {
-        let finalQuestions: any[] = []; 
+        let finalQuestions: any[] = [];
         let backupQuestions: any[] = []; 
         
         for (const skill of testableSkills) {
@@ -402,13 +403,12 @@ export default function LiveTestPage() {
            setTimeLeft(finalQuestions.length * 60); 
            setExtraQuestionsPool(backupQuestions); 
         } else { 
-           alert("Question Bank is empty for your matched skills. Please check database."); 
+           alert("Question Bank is empty for your matched skills. Please check database.");
            router.push("/student/dashboard"); 
         }
       } catch (e) { console.error(e); }
       setLoading(false);
     };
-    
     initTest(); 
     return () => stopProctoring(); 
   }, [router, stopProctoring]);
@@ -421,6 +421,7 @@ export default function LiveTestPage() {
             return prev - 1; 
         }); 
     }, 1000);
+    
     return () => clearInterval(timer);
   }, [loading, testStarted, isSubmitted, isTerminated, showBonusPopup, submitTest]);
 
@@ -448,7 +449,7 @@ export default function LiveTestPage() {
     document.addEventListener("selectstart", preventSelect);
     
     return () => { 
-        document.removeEventListener("visibilitychange", handleVisibilityChange); 
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
         document.removeEventListener("contextmenu", (e) => e.preventDefault()); 
         window.removeEventListener("keydown", handleKeyDown); 
         document.removeEventListener("selectstart", preventSelect); 
@@ -458,7 +459,6 @@ export default function LiveTestPage() {
   const handleStartTest = () => {
     if(!mediaAllowed) return alert("Please Allow Media access to start the secure test.");
     if(!agreed) return alert("Please read and agree to the Terms & Conditions.");
-    
     navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((stream) => {
         const elem = document.documentElement;
         if (elem.requestFullscreen) { 
@@ -563,7 +563,7 @@ export default function LiveTestPage() {
                                 <MousePointer2 size={18}/> Start Test
                             </button>
                         </div>
-                    </div>
+                     </div>
                 </div>
             </div>
         </div>

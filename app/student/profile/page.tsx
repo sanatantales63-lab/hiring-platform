@@ -86,7 +86,7 @@ export default function CandidateProfile() {
     expectedSalary: "", 
     workMode: "On-site", 
     jobType: "Permanent Role", 
-    openToContractRoles: "", // 🔥 Default to empty string so we know if they skipped it
+    openToContractRoles: "", 
     availabilityDuration: "",
     resumeURL: ""
   });
@@ -102,6 +102,24 @@ export default function CandidateProfile() {
   
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
 
+  // 🔥 LOAD FACE API DYNAMICALLY 🔥
+  useEffect(() => {
+    const loadFaceAPI = async () => {
+      if (typeof window !== 'undefined' && !(window as any).faceapi) {
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
+        script.async = true;
+        script.onload = async () => {
+            try {
+                await (window as any).faceapi.nets.tinyFaceDetector.loadFromUri('https://vladmandic.github.io/face-api/model/');
+            } catch (e) { console.warn("FaceAPI models failed to load", e); }
+        };
+        document.body.appendChild(script);
+      }
+    };
+    loadFaceAPI();
+  }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -113,6 +131,7 @@ export default function CandidateProfile() {
       
       try {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+    
         if (data && data.fullName) {
           setFormData({ 
             ...formData, 
@@ -122,7 +141,6 @@ export default function CandidateProfile() {
             currentSalary: data.currentSalary || "", 
             expectedSalary: data.expectedSalary || "",
             jobType: data.jobType || "Permanent Role",
-            // 🔥 DB saves Boolean, frontend requires String for explicitly forcing choice
             openToContractRoles: data.openToContractRoles === true ? "Yes" : (data.openToContractRoles === false ? "No" : ""),
             educations: data.educations?.length ? data.educations : formData.educations,
             workExperience: data.workExperience || [],
@@ -137,15 +155,15 @@ export default function CandidateProfile() {
           if (urlParams.get('step') === '4') {
              setIsEditing(true); 
              setShowGatekeeper(false); 
-             setCurrentStep(4); 
+             setCurrentStep(4);
              setIsOnboarding(true); 
           } else {
              setIsEditing(false); 
              setShowGatekeeper(false); 
-             setIsOnboarding(false); 
+             setIsOnboarding(false);
           }
         } else { 
-          setIsEditing(true); 
+          setIsEditing(true);
           setShowGatekeeper(true); 
           setIsOnboarding(true);
         }
@@ -167,7 +185,7 @@ export default function CandidateProfile() {
       setLocInput("");
     }
   };
-  
+
   const removeLocation = (loc: string) => {
       setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
   };
@@ -181,6 +199,7 @@ export default function CandidateProfile() {
       setStrInput("");
     }
   };
+
   const removeStr = (val: string) => setFormData(p => ({ ...p, strengths: p.strengths.filter(l => l !== val) }));
 
   const handleAddWeak = (e: any) => {
@@ -192,6 +211,7 @@ export default function CandidateProfile() {
       setWeakInput("");
     }
   };
+
   const removeWeak = (val: string) => setFormData(p => ({ ...p, weaknesses: p.weaknesses.filter(l => l !== val) }));
 
   const addEducation = () => {
@@ -199,14 +219,14 @@ export default function CandidateProfile() {
   };
 
   const updateEducation = (index: number, field: string, value: string) => {
-    const newEdu = [...formData.educations]; 
+    const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value }; 
     setFormData(p => ({ ...p, educations: newEdu }));
   };
 
   const removeEducation = (index: number) => {
     if (formData.educations.length === 1) return;
-    const newEdu = [...formData.educations]; 
+    const newEdu = [...formData.educations];
     newEdu.splice(index, 1); 
     setFormData(p => ({ ...p, educations: newEdu }));
   };
@@ -216,33 +236,58 @@ export default function CandidateProfile() {
   };
 
   const updateWorkExp = (index: number, field: string, value: string) => { 
-      const newWork = [...formData.workExperience]; 
+      const newWork = [...formData.workExperience];
       newWork[index] = { ...newWork[index], [field]: value }; 
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
 
   const removeWorkExp = (index: number) => { 
       const newWork = [...formData.workExperience]; 
-      newWork.splice(index, 1); 
+      newWork.splice(index, 1);
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
 
   const addLanguage = () => {
     if (langInput && !formData.languages.find(l => l.language.toLowerCase() === langInput.toLowerCase())) {
-      setFormData(p => ({ ...p, languages: [...p.languages, { language: langInput, proficiency: profInput }] })); 
+      setFormData(p => ({ ...p, languages: [...p.languages, { language: langInput, proficiency: profInput }] }));
       setLangInput("");
     }
   };
   const removeLanguage = (lang: string) => setFormData(p => ({ ...p, languages: p.languages.filter(l => l.language !== lang) }));
-  
+
+  // 🔥 SMART AI IMAGE UPLOAD VALIDATION 🔥
   const handleImageUpload = (e: any) => {
     const file = e.target.files[0];
-    if (!file || file.size > 150 * 1024) return alert("Photo too big! Max 150KB.");
+    if (!file) return;
+    if (file.size > 150 * 1024) return alert("Photo too big! Max 150KB.");
+    
     setUploading(true);
     const reader = new FileReader();
     reader.onloadend = () => { 
-        setFormData(prev => ({ ...prev, photoURL: reader.result as string })); 
-        setUploading(false); 
+        const img = new Image();
+        img.src = reader.result as string;
+        img.onload = async () => {
+            try {
+                if ((window as any).faceapi && (window as any).faceapi.nets.tinyFaceDetector.isLoaded) {
+                    const detections = await (window as any).faceapi.detectAllFaces(img, new (window as any).faceapi.TinyFaceDetectorOptions());
+                    if (detections.length === 0) {
+                        alert("🛑 Invalid Photo: No face detected! Please upload a clear photo showing your face.");
+                        setUploading(false);
+                        return;
+                    } else if (detections.length > 1) {
+                        alert("🛑 Invalid Photo: Multiple faces detected! Please upload a solo profile photo.");
+                        setUploading(false);
+                        return;
+                    }
+                }
+                // Allowed
+                setFormData(prev => ({ ...prev, photoURL: reader.result as string }));
+            } catch (err) {
+                console.error("Face detection error:", err);
+                setFormData(prev => ({ ...prev, photoURL: reader.result as string }));
+            }
+            setUploading(false); 
+        };
     };
     reader.readAsDataURL(file);
   };
@@ -255,7 +300,6 @@ export default function CandidateProfile() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if(!session) return;
-      
       const fileExt = file.name.split('.').pop();
       const fileName = `${session.user.id}_resume_${Date.now()}.${fileExt}`;
       await supabase.storage.from('resumes').upload(fileName, file, { upsert: true });
@@ -263,7 +307,6 @@ export default function CandidateProfile() {
 
       const formDataForAPI = new FormData();
       formDataForAPI.append('file', file);
-      
       const aiResponse = await fetch('/api/parse-resume', { method: 'POST', body: formDataForAPI });
       if (aiResponse.ok) {
          const aiData = await aiResponse.json();
@@ -291,7 +334,7 @@ export default function CandidateProfile() {
             weaknesses: aiData.weaknesses?.length > 0 ? aiData.weaknesses : prev.weaknesses,
             languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
          }));
-         setShowGatekeeper(false); 
+         setShowGatekeeper(false);
          setCurrentStep(1); 
          alert("✨ AI Auto-Fill Successful!");
       } else {
@@ -300,7 +343,7 @@ export default function CandidateProfile() {
          alert("Resume Uploaded! Please fill remaining details manually.");
       }
     } catch (e: any) { 
-        alert("Upload Failed: " + e.message); 
+        alert("Upload Failed: " + e.message);
     } finally { 
         setUploading(false); 
     }
@@ -308,12 +351,17 @@ export default function CandidateProfile() {
 
   const validateAndProceed = () => {
      if (currentStep === 1) {
+        // 🔥 DP REQUIRED VALIDATION 🔥
+        if (!formData.photoURL || formData.photoURL.trim() === "") {
+            return alert("🛑 Profile Photo is mandatory! Please upload a clear photo showing your face.");
+        }
+
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
             return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
         }
         
         if (formData.dob) {
-            const birthDate = new Date(formData.dob); 
+            const birthDate = new Date(formData.dob);
             const today = new Date();
             let age = today.getFullYear() - birthDate.getFullYear();
             const m = today.getMonth() - birthDate.getMonth();
@@ -356,7 +404,6 @@ export default function CandidateProfile() {
         return alert("🛑 Please fill your Experience and Expected Salary.");
     }
 
-    // 🔥 REQUIRED VALIDATION FOR PERMANENT ROLE OPTIONS 🔥
     if (formData.jobType === "Permanent Role" && (formData.openToContractRoles === "" || formData.openToContractRoles === null)) {
         return alert("🛑 Smart Career Tip: Please explicitly select 'Yes' or 'No' for short-term contract roles to proceed.");
     }
@@ -364,11 +411,8 @@ export default function CandidateProfile() {
     setSavingData(true);
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-
     try {
       const legalProof = await fetchLegalProof();
-      
-      // 🔥 Convert Yes/No string back to Boolean for Supabase
       const payloadToSave = {
           ...formData,
           openToContractRoles: formData.openToContractRoles === "Yes" ? true : false,
@@ -387,10 +431,10 @@ export default function CandidateProfile() {
           setCurrentStep(4);
       } else { 
           setIsEditing(false); 
-          alert("Profile Updates Saved Successfully!"); 
+          alert("Profile Updates Saved Successfully!");
       }
     } catch (e: any) { 
-        alert("Error saving profile: " + e.message); 
+        alert("Error saving profile: " + e.message);
     } finally { 
         setSavingData(false); 
     }
@@ -436,7 +480,7 @@ export default function CandidateProfile() {
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25"
                >
                   <Edit size={16}/> Edit Profile
-               </button>
+                </button>
             )}
          </div>
 
@@ -446,7 +490,7 @@ export default function CandidateProfile() {
            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl mx-auto mt-6">
               <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden text-center">
                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg rotate-3">
-                    <FileText size={40} className="text-white -rotate-3"/>
+                   <FileText size={40} className="text-white -rotate-3"/>
                  </div>
                  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Supercharge Your Profile</h1>
                  <p className="text-slate-400 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
@@ -471,7 +515,7 @@ export default function CandidateProfile() {
                     <button 
                         onClick={() => { 
                             if(consentGiven) { 
-                                setShowGatekeeper(false); 
+                                setShowGatekeeper(false);
                                 setCurrentStep(1); 
                             } else alert("Please accept terms."); 
                         }} 
@@ -516,17 +560,15 @@ export default function CandidateProfile() {
 
                      <div className="flex items-center gap-8 mb-8">
                         <div className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden shadow-xl group cursor-pointer">
-                           {uploading ? 
-                              <Loader2 className="animate-spin text-blue-500"/> : 
-                              formData.photoURL ? 
-                                 <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
+                           {uploading ? <Loader2 className="animate-spin text-blue-500"/> : 
+                              formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
                                  <Camera size={32} className="text-slate-500"/>
                            }
                            <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer"/>
                         </div>
                         <div>
-                           <p className="font-bold text-xl text-white">Profile Photo</p>
-                           <p className="text-sm text-slate-400">Professional headshot</p>
+                           <p className="font-bold text-xl text-white">Profile Photo <span className="text-red-500">*</span></p>
+                           <p className="text-sm text-slate-400">Professional headshot required</p>
                         </div>
                      </div>
 
@@ -781,7 +823,6 @@ export default function CandidateProfile() {
                                  value={formData.jobType} 
                                  onChange={(e)=>{
                                      const val = e.target.value;
-                                     // Clear explicit yes/no choice when switching back to permanent to force decision
                                      setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
                                  }} 
                                  className="input-field border-yellow-500/30 [color-scheme:dark] mb-4"
@@ -792,9 +833,8 @@ export default function CandidateProfile() {
                                  <option value="6+ Month Contract">6+ Month Contract</option>
                                  <option value="Freelance/Project Basis">Freelance/Project Basis</option>
                                  <option value="Internship">Internship</option>
-                              </select>
+                               </select>
                               
-                              {/* 🔥 SMART NUDGE FOR PERMANENT ROLES (UPDATED WITH EXPLICIT YES/NO) 🔥 */}
                               {formData.jobType === "Permanent Role" && (
                                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/50 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-lg shadow-blue-900/20">
                                     <div className="bg-blue-500/20 p-3 rounded-xl shrink-0 mt-1">
@@ -852,7 +892,7 @@ export default function CandidateProfile() {
                                        {loc} <X size={16} className="cursor-pointer text-blue-400/70 hover:text-white" onClick={() => removeLocation(loc)}/>
                                     </span>
                                  ))}
-                              </div>
+                               </div>
                               <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-700 pb-3 outline-none text-white text-base font-medium placeholder:text-slate-600 focus:border-blue-500" placeholder="e.g. Mumbai, Bangalore..."/>
                            </div>
                         </div>
@@ -932,14 +972,14 @@ export default function CandidateProfile() {
 
       <style jsx>{`
         .form-label { 
-            display: block; 
+            display: block;
             font-size: 0.9rem; 
             font-weight: 600; 
             color: #cbd5e1; 
             margin-bottom: 0.6rem; 
         }
         .input-field { 
-            width: 100%; 
+            width: 100%;
             background-color: #0f172a; 
             border: 2px solid #1e293b; 
             border-radius: 1rem; 
@@ -947,26 +987,26 @@ export default function CandidateProfile() {
             color: white; 
             outline: none; 
             transition: all 0.2s; 
-            font-size: 1rem; 
+            font-size: 1rem;
             font-weight: 500; 
             appearance: none; 
         }
         .input-field:focus { 
-            border-color: #3b82f6; 
+            border-color: #3b82f6;
             background-color: #020617; 
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); 
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
         select.input-field { 
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); 
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat; 
             background-position: right 1.2rem top 50%; 
-            background-size: 0.75rem auto; 
+            background-size: 0.75rem auto;
         }
         .custom-scrollbar::-webkit-scrollbar { 
-            width: 6px; 
+            width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: #1e293b; 
+            background: #1e293b;
             border-radius: 10px; 
         }
       `}</style>
