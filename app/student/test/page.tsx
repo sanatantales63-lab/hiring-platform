@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Timer, Lock, ShieldAlert, CheckCircle, Loader2, FileText, AlertTriangle, 
-  MousePointer2, Monitor, Wifi, Ban, Target, Award, Mic, Camera, Video, Sparkles
+  MousePointer2, Monitor, Wifi, Ban, Target, Award, Mic, Camera, Video, Sparkles, UserCheck, ScanFace
 } from "lucide-react";
 
 export default function LiveTestPage() {
@@ -40,7 +40,6 @@ export default function LiveTestPage() {
   const [micWarnings, setMicWarnings] = useState(0);
   const [camWarnings, setCamWarnings] = useState(0);
 
-  // 🔥 WARNING LIMITS UPDATED TO 6 🔥
   const MAX_TAB_WARNINGS = 2;
   const MAX_MIC_WARNINGS = 6;
   const MAX_CAM_WARNINGS = 6;
@@ -50,6 +49,34 @@ export default function LiveTestPage() {
   const [score, setScore] = useState(0);
   const [skillAnalytics, setSkillAnalytics] = useState<any>({});
   const [aiReportGenerating, setAiReportGenerating] = useState(false);
+
+  const [faceMatched, setFaceMatched] = useState(false);
+  const [verifyingFace, setVerifyingFace] = useState(false);
+  const [aiModelsLoaded, setAiModelsLoaded] = useState(false);
+  const [livenessChallenge, setLivenessChallenge] = useState("SMILE");
+
+  useEffect(() => {
+    const loadFaceAPI = async () => {
+      if (typeof window !== 'undefined' && !(window as any).faceapi) {
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js";
+        script.async = true;
+        script.onload = async () => {
+            try {
+                await (window as any).faceapi.nets.tinyFaceDetector.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                await (window as any).faceapi.nets.faceLandmark68Net.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                await (window as any).faceapi.nets.faceRecognitionNet.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                await (window as any).faceapi.nets.faceExpressionNet.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                setAiModelsLoaded(true);
+            } catch (e) { console.warn("FaceAPI models failed to load", e); }
+        };
+        document.body.appendChild(script);
+      } else if ((window as any).faceapi) {
+          setAiModelsLoaded(true);
+      }
+    };
+    loadFaceAPI();
+  }, []);
 
   const stopProctoring = useCallback(() => {
     if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
@@ -119,9 +146,9 @@ export default function LiveTestPage() {
     setAiReportGenerating(true);
     stopProctoring(); 
     
-    let calcScore = 0;
     let analyticsData: any = {};
 
+    // 1. Grade the current attempt
     questions.forEach((q, i) => {
        if (!analyticsData[q.skill]) {
            analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, aiLevel: "Beginner" };
@@ -133,15 +160,14 @@ export default function LiveTestPage() {
        const isCorrect = selectedOptionText === q.correct_answer;
 
        if (isCorrect) {
-           calcScore += 1; 
            analyticsData[q.skill].correct += 1;
            if(q.difficulty.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
-          
            if(q.difficulty.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
            if(q.difficulty.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
        }
     });
 
+    // 2. Assign AI Level for current attempt and insert into test_results history
     for (const skill in analyticsData) {
         const data = analyticsData[skill];
         if (data.correct < 2) data.aiLevel = "Beginner Level 🔴";
@@ -156,8 +182,31 @@ export default function LiveTestPage() {
         });
     }
 
-    setScore(calcScore);
-    setSkillAnalytics(analyticsData);
+    // 🔥 3. HIGHEST SCORE LOGIC (Compare & Merge with Past Data) 🔥
+    const existingMeta = studentProfile?.meta || {};
+    const existingSkillScores = existingMeta.skillScores || {};
+    let mergedAnalyticsData: any = { ...existingSkillScores };
+    let highestTotalScore = 0;
+
+    for (const skill in analyticsData) {
+        const currentData = analyticsData[skill];
+        const previousData = mergedAnalyticsData[skill];
+
+        // Agar purana score nahi hai, ya fir naya score pichle score se zyada hai, tabhi update karo
+        if (!previousData || currentData.correct > previousData.correct) {
+            mergedAnalyticsData[skill] = currentData;
+        }
+    }
+
+    // Sabhi sub-topics ke highest scores ko mila kar Final Total Score banao
+    for (const skill in mergedAnalyticsData) {
+        highestTotalScore += mergedAnalyticsData[skill].correct;
+    }
+
+    // UI ko naye Highest Score ke sath update karo
+    setScore(highestTotalScore);
+    setSkillAnalytics(mergedAnalyticsData);
+    
     const finalStatus = forceReason && typeof forceReason === 'string' ? forceReason : "Passed";
 
     let generatedAiReport = "Report generation pending.";
@@ -168,7 +217,7 @@ export default function LiveTestPage() {
            body: JSON.stringify({
               name: studentProfile?.fullName || "Candidate",
               claimedSkills: studentProfile?.skills || [],
-              testScores: analyticsData,
+              testScores: mergedAnalyticsData, // 🔥 AI ko best score bhejo report ke liye
               warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings }
            })
        });
@@ -176,18 +225,18 @@ export default function LiveTestPage() {
           const reportData = await reportRes.json();
           if(reportData.report) generatedAiReport = reportData.report;
        }
-    } catch(e) { console.error("AI Report generation failed", e);
-    }
+    } catch(e) { console.error("AI Report generation failed", e); }
 
+    // 🔥 4. Profile Meta mein Best Score Save karo
     await supabase.from("profiles").update({
        examAccess: "completed",
        meta: {
           lastAttempt: new Date(),
-          totalScore: calcScore,
+          totalScore: highestTotalScore, // Highest Total Score
           status: finalStatus,
           warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings },
           warningsCount: tabWarnings + micWarnings + camWarnings, 
-          skillScores: analyticsData,
+          skillScores: mergedAnalyticsData, // Highest Sub-topic Scores
           ai_detailed_report: generatedAiReport 
        }
     }).eq("id", user.id);
@@ -257,7 +306,6 @@ export default function LiveTestPage() {
         frameCount++;
         analyser.getByteFrequencyData(dataArray);
         
-        // 🔥 ORIGINAL STRICT AUDIO LOGIC RESTORED 🔥
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
             sum += dataArray[i];
@@ -332,13 +380,96 @@ export default function LiveTestPage() {
 
   const requestMediaPermission = async () => {
     try {
+      const challenges = ["SMILE", "LOOK_LEFT", "LOOK_RIGHT"];
+      const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+      setLivenessChallenge(randomChallenge);
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
       setMediaAllowed(true); 
-      stream.getTracks().forEach(track => track.stop());
+      streamRef.current = stream; 
+      if (videoRef.current) videoRef.current.srcObject = stream;
     } catch (err) { 
       alert("Microphone and Camera permissions are strictly required for this proctored exam.");
       setMediaAllowed(false); 
     }
+  };
+
+  const verifyFace = async () => {
+    if (!studentProfile?.photoURL) {
+        alert("🛑 No profile photo found! Please go back to your profile and capture your live photo first.");
+        return;
+    }
+    if (!videoRef.current || videoRef.current.readyState < 2) {
+        alert("Camera not ready. Please allow camera access and wait a moment.");
+        return;
+    }
+    
+    setVerifyingFace(true);
+    try {
+        const faceapi = (window as any).faceapi;
+        
+        const profileImg = new Image();
+        profileImg.crossOrigin = "anonymous";
+        profileImg.src = studentProfile.photoURL;
+        await new Promise((resolve) => { profileImg.onload = resolve; });
+        
+        const profileDetection = await faceapi.detectSingleFace(profileImg, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+        
+        if (!profileDetection) {
+            alert("🛑 Could not detect a clear face in your saved profile photo. Please update your profile.");
+            setVerifyingFace(false);
+            return;
+        }
+
+        const liveDetection = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+                                .withFaceLandmarks()
+                                .withFaceExpressions()
+                                .withFaceDescriptor();
+
+        if (!liveDetection) {
+            alert("🛑 Could not detect your face in the live camera. Please look straight into the camera.");
+            setVerifyingFace(false);
+            return;
+        }
+
+        if (livenessChallenge === "SMILE") {
+            if (liveDetection.expressions.happy < 0.6) {
+                alert("🛑 Liveness Failed: You didn't SMILE widely. Please follow the on-screen instruction.");
+                setVerifyingFace(false);
+                return;
+            }
+        } else if (livenessChallenge === "LOOK_LEFT" || livenessChallenge === "LOOK_RIGHT") {
+            const jaw = liveDetection.landmarks.getJawOutline();
+            const nose = liveDetection.landmarks.getNose();
+            
+            const leftDist = nose[3].x - jaw[0].x;
+            const rightDist = jaw[16].x - nose[3].x;
+            const ratio = leftDist / rightDist;
+
+            if (livenessChallenge === "LOOK_LEFT" && ratio > 0.75) {
+                alert("🛑 Liveness Failed: Please turn your head slightly more to the LEFT.");
+                setVerifyingFace(false);
+                return;
+            }
+            if (livenessChallenge === "LOOK_RIGHT" && ratio < 1.35) {
+                alert("🛑 Liveness Failed: Please turn your head slightly more to the RIGHT.");
+                setVerifyingFace(false);
+                return;
+            }
+        }
+
+        const distance = faceapi.euclideanDistance(profileDetection.descriptor, liveDetection.descriptor);
+        
+        if (distance <= 0.55) { 
+            setFaceMatched(true);
+        } else {
+            alert("🛑 IDENTITY MISMATCH! The person in the camera does not match the saved profile photo.");
+        }
+    } catch (error) {
+        console.error("Verification error:", error);
+        alert("System loading AI models, please try again in a few seconds.");
+    }
+    setVerifyingFace(false);
   };
 
   useEffect(() => {
@@ -458,26 +589,25 @@ export default function LiveTestPage() {
 
   const handleStartTest = () => {
     if(!mediaAllowed) return alert("Please Allow Media access to start the secure test.");
+    if(!faceMatched) return alert("Please complete Identity and Liveness Verification before starting.");
     if(!agreed) return alert("Please read and agree to the Terms & Conditions.");
-    navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((stream) => {
+    
+    if (streamRef.current) {
         const elem = document.documentElement;
         if (elem.requestFullscreen) { 
             elem.requestFullscreen().then(() => { 
                 setTestStarted(true); 
-                startProctoringEngine(stream); 
+                startProctoringEngine(streamRef.current!); 
             }).catch(() => { 
                 alert("Fullscreen is required."); 
                 setTestStarted(true); 
-                startProctoringEngine(stream); 
+                startProctoringEngine(streamRef.current!); 
             }); 
         } else { 
             setTestStarted(true); 
-            startProctoringEngine(stream); 
+            startProctoringEngine(streamRef.current!); 
         }
-    }).catch((err) => { 
-        alert("SECURITY LOCK: Camera or Microphone access was revoked. You cannot start the test."); 
-        setMediaAllowed(false); 
-    });
+    }
   };
 
   if (loading) return (
@@ -522,19 +652,42 @@ export default function LiveTestPage() {
                     </div>
 
                     <div className="flex flex-col h-full">
-                        <div className={`p-5 rounded-2xl border flex flex-col gap-3 mb-4 transition-colors ${mediaAllowed ? 'bg-green-900/20 border-green-500/50' : 'bg-slate-950 border-slate-800'}`}>
-                           <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                 <Camera className={mediaAllowed ? "text-green-500" : "text-blue-400"} size={20} />
-                                 <span className="text-sm font-bold text-white">Camera & Mic Check</span>
-                              </div>
-                              {mediaAllowed ? (
-                                 <span className="text-xs font-bold text-green-500 bg-green-500/20 px-3 py-1 rounded-lg flex items-center gap-1"><CheckCircle size={12}/> Granted</span>
-                              ) : (
-                                 <button onClick={requestMediaPermission} className="text-xs font-bold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 shadow-lg transition-all">Allow Access</button>
-                              )}
+                        <div className={`p-5 rounded-2xl border flex flex-col gap-4 mb-4 transition-colors ${faceMatched ? 'bg-green-900/20 border-green-500/50' : 'bg-slate-950 border-slate-800'}`}>
+                           <h3 className="font-bold flex items-center justify-between text-white">
+                              <span className="flex items-center gap-2"><UserCheck size={18} className={faceMatched ? "text-green-400" : "text-blue-400"}/> Identity Verification</span>
+                              {faceMatched && <span className="text-xs font-bold text-green-500 bg-green-500/20 px-3 py-1 rounded-lg">Verified</span>}
+                           </h3>
+                           
+                           <div className="flex flex-col items-center gap-4">
+                               {mediaAllowed && !faceMatched && (
+                                   <div className="bg-blue-900/30 border border-blue-500/50 p-3 rounded-xl w-full text-center">
+                                      <p className="text-[10px] text-blue-300 mb-1 uppercase tracking-widest font-bold">Liveness Challenge</p>
+                                      <p className="text-sm font-bold text-white">
+                                          {livenessChallenge === "SMILE" && "😊 Please SMILE widely"}
+                                          {livenessChallenge === "LOOK_LEFT" && "⬅️ Turn head slightly LEFT"}
+                                          {livenessChallenge === "LOOK_RIGHT" && "➡️ Turn head slightly RIGHT"}
+                                      </p>
+                                   </div>
+                               )}
+                               
+                               <div className="w-32 h-32 bg-black rounded-full overflow-hidden border-4 border-slate-800 relative">
+                                   <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100"></video>
+                                   {!mediaAllowed && <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-500 text-center px-2">Camera Off</div>}
+                               </div>
+                               
+                               {!mediaAllowed ? (
+                                   <button onClick={requestMediaPermission} className="text-xs font-bold bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-500 shadow-lg transition-all w-full">1. Enable Camera & Mic</button>
+                               ) : !aiModelsLoaded ? (
+                                   <div className="text-blue-400 font-bold text-xs flex items-center gap-2 py-2"><Loader2 size={16} className="animate-spin"/> Loading Face AI...</div>
+                               ) : !faceMatched ? (
+                                   <button onClick={verifyFace} disabled={verifyingFace} className="text-xs font-bold bg-purple-600 text-white px-6 py-2.5 rounded-xl hover:bg-purple-500 shadow-lg transition-all w-full flex items-center justify-center gap-2">
+                                       {verifyingFace ? <Loader2 size={16} className="animate-spin"/> : <ScanFace size={16}/>} 
+                                       {verifyingFace ? "Scanning Identity..." : "2. Verify Identity"}
+                                   </button>
+                               ) : (
+                                   <div className="text-green-500 font-bold text-sm">Identity Confirmed!</div>
+                               )}
                            </div>
-                           <p className="text-xs text-slate-400">Required to monitor test environment. Media is not recorded.</p>
                         </div>
 
                         <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 mb-6 flex-1">
@@ -559,7 +712,7 @@ export default function LiveTestPage() {
                             <button onClick={() => router.push('/student/dashboard')} className="px-6 py-3 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 transition-colors">
                                 Cancel
                             </button>
-                            <button onClick={handleStartTest} disabled={!agreed || !mediaAllowed || questions.length === 0} className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${agreed && mediaAllowed && questions.length > 0 ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}>
+                            <button onClick={handleStartTest} disabled={!agreed || !mediaAllowed || !faceMatched || questions.length === 0} className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${agreed && mediaAllowed && faceMatched && questions.length > 0 ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}>
                                 <MousePointer2 size={18}/> Start Test
                             </button>
                         </div>
@@ -624,12 +777,14 @@ export default function LiveTestPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white p-4 select-none" onContextMenu={(e)=>e.preventDefault()}>
-       <div className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-black border-2 border-red-500/50 rounded-2xl overflow-hidden shadow-2xl z-50 pointer-events-none">
-          <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-80" />
-          <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1">
-             <Video size={10}/> Proctoring Active
-          </div>
-       </div>
+       {testStarted && (
+           <div className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-black border-2 border-red-500/50 rounded-2xl overflow-hidden shadow-2xl z-50 pointer-events-none">
+              <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-80" />
+              <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1">
+                 <Video size={10}/> Proctoring Active
+              </div>
+           </div>
+       )}
        <canvas ref={canvasRef} width="64" height="48" className="hidden" />
 
        <AnimatePresence>

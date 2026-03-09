@@ -23,13 +23,13 @@ export default function Home() {
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
             <Briefcase className="text-blue-500" strokeWidth={2.5} /> Talexo
           </div>
-          <div className="hidden md:flex gap-6 items-center text-sm font-medium text-slate-400">
-            {/* 🛑 Naya Admin Navbar Button 🛑 */}
-            <button onClick={() => router.push("/admin/login")} className="hover:text-red-400 transition-colors flex items-center gap-1">
-              <ShieldCheck size={16} /> Admin Panel
-            </button>
-            <button onClick={() => router.push("/student/login")} className="px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-white hover:text-black transition-all font-semibold">
-              Sign In
+          <div className="flex items-center">
+            {/* 🛑 Updated Admin Navbar Button 🛑 */}
+            <button 
+              onClick={() => router.push("/admin/login")} 
+              className="px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 hover:bg-slate-700 hover:border-slate-500 transition-all font-semibold flex items-center gap-2 text-slate-300 hover:text-white"
+            >
+              <ShieldCheck size={18} className="text-red-400" /> Admin Panel
             </button>
           </div>
         </div>
@@ -40,7 +40,7 @@ export default function Home() {
         
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-bold uppercase tracking-wider mb-8 shadow-[0_0_20px_rgba(168,85,247,0.2)]">
-             🚀 The Future of Hiring
+              🚀 The Future of Hiring
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">

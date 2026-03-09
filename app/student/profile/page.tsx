@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; 
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
@@ -29,7 +29,6 @@ const MASTER_SKILLS_DATA: Record<string, string[]> = {
   "Financial Operations & Process Optimization": ["Procure-To-Pay Cycle Control", "Order-To-Cash Optimization", "Record-To-Report Efficiency", "Financial Close Acceleration", "Shared Services Setup", "ERP Migration Planning", "Internal SOP Drafting", "Process Automation Evaluation"]
 };
 
-// 🔥 LEGAL DATA FETCHER 🔥
 const fetchLegalProof = async () => {
   let ip = "Unknown IP";
   try {
@@ -59,6 +58,13 @@ export default function CandidateProfile() {
   const [currentStep, setCurrentStep] = useState(1);
   const [userEmail, setUserEmail] = useState("");
   
+  // 🔥 LIVE CAMERA STATES 🔥
+  const [showCamera, setShowCamera] = useState(false);
+  const [aiModelsLoaded, setAiModelsLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
   const [formData, setFormData] = useState({
     fullName: "", 
     dob: "", 
@@ -91,12 +97,7 @@ export default function CandidateProfile() {
     resumeURL: ""
   });
 
-  const languageOptions = ["English", "Hindi", "Marathi", "Gujarati", "Tamil", "Telugu", "Kannada", "Bengali", "French", "German"];
-  const proficiencyOptions = ["Native / Bilingual", "Fluent", "Intermediate", "Beginner"];
-
   const [locInput, setLocInput] = useState("");
-  const [langInput, setLangInput] = useState("");
-  const [profInput, setProfInput] = useState("Fluent");
   const [strInput, setStrInput] = useState("");
   const [weakInput, setWeakInput] = useState("");
   
@@ -112,9 +113,12 @@ export default function CandidateProfile() {
         script.onload = async () => {
             try {
                 await (window as any).faceapi.nets.tinyFaceDetector.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                setAiModelsLoaded(true);
             } catch (e) { console.warn("FaceAPI models failed to load", e); }
         };
         document.body.appendChild(script);
+      } else if ((window as any).faceapi) {
+          setAiModelsLoaded(true);
       }
     };
     loadFaceAPI();
@@ -175,6 +179,10 @@ export default function CandidateProfile() {
     };
     fetchProfile();
   }, [router]);
+
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
 
   const handleAddLocation = (e: any) => {
     if (e.key === 'Enter' && locInput.trim() !== '') {
@@ -247,49 +255,67 @@ export default function CandidateProfile() {
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
 
-  const addLanguage = () => {
-    if (langInput && !formData.languages.find(l => l.language.toLowerCase() === langInput.toLowerCase())) {
-      setFormData(p => ({ ...p, languages: [...p.languages, { language: langInput, proficiency: profInput }] }));
-      setLangInput("");
+  // 🔥 FAST CAMERA START 🔥
+  const startCamera = async () => {
+    try {
+        setShowCamera(true);
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = stream;
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+        }
+    } catch (err) {
+        alert("Camera permission denied! Please allow camera access to capture your profile photo.");
+        setShowCamera(false);
     }
   };
-  const removeLanguage = (lang: string) => setFormData(p => ({ ...p, languages: p.languages.filter(l => l.language !== lang) }));
 
-  // 🔥 SMART AI IMAGE UPLOAD VALIDATION 🔥
-  const handleImageUpload = (e: any) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 150 * 1024) return alert("Photo too big! Max 150KB.");
+  const stopCamera = () => {
+    if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    setShowCamera(false);
+  };
+
+  // 🔥 FAST & STRAIGHT FACE CAPTURE (NO LEFT/RIGHT CHALLENGE HERE) 🔥
+  const capturePhoto = async () => {
+    if (!videoRef.current) return;
     
+    const faceapi = (window as any).faceapi;
+    if (!faceapi || !faceapi.nets.tinyFaceDetector.isLoaded) {
+        alert("AI Models are still loading. Please wait 2 seconds and click again.");
+        return;
+    }
+
     setUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => { 
-        const img = new Image();
-        img.src = reader.result as string;
-        img.onload = async () => {
-            try {
-                if ((window as any).faceapi && (window as any).faceapi.nets.tinyFaceDetector.isLoaded) {
-                    const detections = await (window as any).faceapi.detectAllFaces(img, new (window as any).faceapi.TinyFaceDetectorOptions());
-                    if (detections.length === 0) {
-                        alert("🛑 Invalid Photo: No face detected! Please upload a clear photo showing your face.");
-                        setUploading(false);
-                        return;
-                    } else if (detections.length > 1) {
-                        alert("🛑 Invalid Photo: Multiple faces detected! Please upload a solo profile photo.");
-                        setUploading(false);
-                        return;
-                    }
+    try {
+        // Directly process video feed (super fast)
+        const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions());
+        
+        if (detections.length === 0) {
+            alert("🛑 No face detected! Please look straight into the camera.");
+        } else if (detections.length > 1) {
+            alert("🛑 Multiple faces detected! Please ensure only you are in the frame.");
+        } else {
+            // Success - Single Face Detected. Let's Capture it!
+            if (canvasRef.current) {
+                const canvas = canvasRef.current;
+                canvas.width = videoRef.current.videoWidth;
+                canvas.height = videoRef.current.videoHeight;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+                    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    setFormData(prev => ({ ...prev, photoURL: imageDataUrl }));
+                    stopCamera();
                 }
-                // Allowed
-                setFormData(prev => ({ ...prev, photoURL: reader.result as string }));
-            } catch (err) {
-                console.error("Face detection error:", err);
-                setFormData(prev => ({ ...prev, photoURL: reader.result as string }));
             }
-            setUploading(false); 
-        };
-    };
-    reader.readAsDataURL(file);
+        }
+    } catch (err) {
+        console.error("Face detection error:", err);
+        alert("Technical error. Please try again.");
+    }
+    setUploading(false); 
   };
 
   const handleResumeUpload = async (e: any) => {
@@ -351,9 +377,8 @@ export default function CandidateProfile() {
 
   const validateAndProceed = () => {
      if (currentStep === 1) {
-        // 🔥 DP REQUIRED VALIDATION 🔥
         if (!formData.photoURL || formData.photoURL.trim() === "") {
-            return alert("🛑 Profile Photo is mandatory! Please upload a clear photo showing your face.");
+            return alert("🛑 Profile Photo is mandatory! Please click a clear profile photo to proceed.");
         }
 
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
@@ -558,19 +583,48 @@ export default function CandidateProfile() {
                        />
                      </div>
 
+                     {/* 🔥 LIVE DP CAMERA CAPTURE SECTION 🔥 */}
                      <div className="flex items-center gap-8 mb-8">
-                        <div className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden shadow-xl group cursor-pointer">
+                        <div onClick={startCamera} className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden shadow-xl group cursor-pointer hover:border-blue-500 transition-colors">
                            {uploading ? <Loader2 className="animate-spin text-blue-500"/> : 
                               formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
-                                 <Camera size={32} className="text-slate-500"/>
+                                 <Camera size={32} className="text-slate-500 group-hover:text-blue-400"/>
                            }
-                           <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer"/>
+                           <div className="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center text-center p-2">
+                              <Camera size={20} className="text-white mb-1"/>
+                              <span className="text-[10px] text-white font-bold leading-tight">Live Capture</span>
+                           </div>
                         </div>
                         <div>
                            <p className="font-bold text-xl text-white">Profile Photo <span className="text-red-500">*</span></p>
-                           <p className="text-sm text-slate-400">Professional headshot required</p>
+                           <p className="text-sm text-slate-400">Click to capture a professional photo</p>
                         </div>
                      </div>
+
+                     {/* 🔥 CAMERA MODAL 🔥 */}
+                     <AnimatePresence>
+                        {showCamera && (
+                           <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+                              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-slate-900 border border-slate-700 p-6 rounded-3xl max-w-md w-full shadow-2xl">
+                                 <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-xl font-bold text-white flex items-center gap-2"><ScanFace className="text-blue-400"/> Capture Profile Picture</h3>
+                                    <button onClick={stopCamera} className="text-slate-400 hover:text-red-500"><X size={24}/></button>
+                                 </div>
+                                 
+                                 <p className="text-sm text-slate-400 text-center mb-4">Please look straight into the camera to capture a clear photo.</p>
+
+                                 <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden mb-6 border-2 border-slate-800">
+                                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100"></video>
+                                    <canvas ref={canvasRef} className="hidden"></canvas>
+                                    <div className="absolute inset-0 border-[3px] border-dashed border-blue-500/30 rounded-full m-8 pointer-events-none"></div>
+                                 </div>
+                                 <button onClick={capturePhoto} disabled={uploading || !aiModelsLoaded} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+                                    {!aiModelsLoaded ? <><Loader2 className="animate-spin"/> Loading AI Models...</> : uploading ? <><Loader2 className="animate-spin"/> Capturing...</> : <><Camera/> Capture Photo</>}
+                                 </button>
+                              </motion.div>
+                           </div>
+                        )}
+                     </AnimatePresence>
 
                      <div className="grid md:grid-cols-2 gap-6">
                         <div>
@@ -604,7 +658,6 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 STRENGTHS & WEAKNESSES 🔥 */}
                      <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-slate-800/80">
                          <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800/80">
                             <label className="text-white font-bold mb-4 flex items-center gap-2">
