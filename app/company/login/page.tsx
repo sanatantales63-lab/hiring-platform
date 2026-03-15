@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function CompanyLogin() {
   const router = useRouter();
@@ -13,11 +14,35 @@ export default function CompanyLogin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  const fetchLegalProof = async () => {
+    let ip = "Unknown IP";
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      ip = data.ip;
+    } catch (err) {
+      console.warn("Could not fetch IP", err);
+    }
+    return {
+      consent_timestamp: new Date().toISOString(),
+      consent_ip: ip,
+      consent_browser: typeof navigator !== 'undefined' ? navigator.userAgent : "Unknown Browser",
+      agreed_to_terms: true
+    };
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 🛑 Strict Consent Check ONLY for Sign Up 🛑
+    if (isSignUp && !agreedToTerms) {
+        return alert("🛑 Legal Requirement: Please read and tick the Terms & Conditions box to proceed.");
+    }
+
     setLoading(true);
 
-    // 🛡️ Security Guard: Temp mails blocked
     if (isSignUp) {
       const blockedDomains = ["@tempmail.com", "@yopmail.com", "@10minutemail.com", "@guerrillamail.com"];
       const isFakeEmail = blockedDomains.some(domain => email.toLowerCase().endsWith(domain));
@@ -29,6 +54,8 @@ export default function CompanyLogin() {
     }
 
     try {
+      let authUserId = null;
+
       if (isSignUp) {
         const { data: authData, error } = await supabase.auth.signUp({
           email,
@@ -38,14 +65,18 @@ export default function CompanyLogin() {
           }
         });
         if (error) throw error;
+        
+        authUserId = authData?.user?.id;
 
-        // 🔥 FIX 1: Auto-create company row so Admin can see it immediately
-        if (authData?.user) {
+        // 🔥 Auto-create company row with Legal Proof
+        if (authUserId) {
+            const legalData = await fetchLegalProof();
             await supabase.from('companies').upsert({
-                id: authData.user.id,
+                id: authUserId,
                 email: email,
                 name: "New Company", 
-                status: "pending" 
+                status: "pending",
+                ...legalData
             });
         }
 
@@ -58,11 +89,12 @@ export default function CompanyLogin() {
         if (error) throw error;
         
         if (data?.session) {
-           // 🔥 FIX 2: ROLE GUARD - Check if this user is actually a Student
-           const { data: studentData } = await supabase.from('profiles').select('id').eq('id', data.session.user.id).maybeSingle();
+           authUserId = data.session.user.id;
+
+           const { data: studentData } = await supabase.from('profiles').select('id').eq('id', authUserId).maybeSingle();
            
            if (studentData) {
-               await supabase.auth.signOut(); // Turant bahar nikalo
+               await supabase.auth.signOut(); 
                return alert("🛑 Access Denied: This email is registered as a Candidate. Please use the Candidate Portal to login.");
            }
 
@@ -98,7 +130,7 @@ export default function CompanyLogin() {
             <input 
               type="email" required placeholder="Company Email" 
               value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none transition-all"
             />
           </div>
           
@@ -109,7 +141,7 @@ export default function CompanyLogin() {
                 type={showPassword ? "text" : "password"} 
                 required placeholder="Password (Min 6 chars)" minLength={6}
                 value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-12 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-12 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none transition-all"
               />
               <button 
                 type="button"
@@ -128,14 +160,36 @@ export default function CompanyLogin() {
             )}
           </div>
 
-          <button type="submit" disabled={loading} className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3">
+          {/* 🔥 SMART CONDITIONAL CONSENT 🔥 */}
+          {isSignUp ? (
+            <div className="flex items-start gap-3 mt-4 bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
+               <input 
+                  type="checkbox" 
+                  id="terms" 
+                  checked={agreedToTerms} 
+                  onChange={(e) => setAgreedToTerms(e.target.checked)} 
+                  className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-900 text-purple-500 focus:ring-purple-500 cursor-pointer"
+               />
+               <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed cursor-pointer select-none">
+                  By creating an account, I confirm that I have read, understood, and agree to be legally bound by Talexo's <Link href="/terms-of-service" className="text-purple-400 hover:underline font-bold" target="_blank">Terms & Conditions</Link>, and I authorise Talexo to securely store my access logs.
+               </label>
+            </div>
+          ) : (
+            <div className="mt-4 text-center">
+               <p className="text-xs text-slate-500">
+                  By logging in, you agree to our <Link href="/terms-of-service" className="text-purple-400 hover:underline" target="_blank">Terms & Conditions</Link>.
+               </p>
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-2">
             {loading ? <><Loader2 className="animate-spin" size={20}/> Processing...</> : (isSignUp ? "Sign Up" : "Login")}
           </button>
         </form>
 
         <div className="text-center text-sm text-slate-400 mb-6">
           {isSignUp ? "Already have an account?" : "Don't have an account?"} 
-          <button onClick={() => setIsSignUp(!isSignUp)} className="text-purple-400 font-bold ml-2 hover:underline">
+          <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-purple-400 font-bold ml-2 hover:underline transition-colors">
             {isSignUp ? "Login here" : "Sign Up"}
           </button>
         </div>
