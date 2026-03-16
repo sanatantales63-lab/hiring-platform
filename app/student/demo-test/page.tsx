@@ -10,10 +10,11 @@ function DemoTestContent() {
   const searchParams = useSearchParams();
   const returnTo = searchParams.get('returnTo'); 
 
+  // 🔥 UPDATED: Added "I Don't Know" to all demo questions 🔥
   const demoQuestions = [
-    { text: "Which is the shortcut key to copy in Excel?", options: ["Ctrl + V", "Ctrl + C", "Ctrl + X", "Ctrl + Z"], correct: 1 },
-    { text: "What is the full form of GST?", options: ["Goods and Supply Tax", "Grand Service Tax", "Goods and Services Tax", "General Sales Tax"], correct: 2 },
-    { text: "This is a sample question to check UI. Select Option 1.", options: ["Option 1 (Correct)", "Option 2", "Option 3", "Option 4"], correct: 0 }
+    { text: "Which is the shortcut key to copy in Excel?", options: ["Ctrl + V", "Ctrl + C", "Ctrl + X", "Ctrl + Z", "I Don't Know"], correct: 1 },
+    { text: "What is the full form of GST?", options: ["Goods and Supply Tax", "Grand Service Tax", "Goods and Services Tax", "General Sales Tax", "I Don't Know"], correct: 2 },
+    { text: "This is a sample question to check UI. Select Option 1.", options: ["Option 1 (Correct)", "Option 2", "Option 3", "Option 4", "I Don't Know"], correct: 0 }
   ];
 
   const [currentQ, setCurrentQ] = useState(0);
@@ -58,7 +59,6 @@ function DemoTestContent() {
 
   const triggerWarning = useCallback(() => {
     setDemoWarnings(p => {
-       // 🔥 DEMO WARNING LIMIT UPDATED TO 6 🔥
        if(p + 1 >= 6) {
           alert("🚨 AUTO-SUBMIT: In the real exam, your test would be Auto-Submitted right now due to Audio/Video violation!");
           submitTest();
@@ -92,7 +92,6 @@ function DemoTestContent() {
 
         analyser.getByteFrequencyData(dataArray);
         
-        // 🔥 ORIGINAL STRICT AUDIO LOGIC RESTORED FOR DEMO 🔥
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
             sum += dataArray[i];
@@ -181,13 +180,21 @@ function DemoTestContent() {
     return () => clearInterval(timer);
   }, [started, finished]);
 
+  // 🔥 UPDATED: Score logic with Negative Marking 🔥
   const submitTest = () => {
     stopProctoring();
     let newScore = 0;
     demoQuestions.forEach((q, index) => {
-      if (answers[index] === q.correct) newScore += 1; 
+      const selectedIndex = answers[index];
+      const selectedText = selectedIndex !== -1 ? q.options[selectedIndex] : null;
+
+      if (selectedIndex === q.correct) {
+          newScore += 1; // Correct
+      } else if (selectedText && selectedText !== "I Don't Know") {
+          newScore -= 0.5; // Incorrect (Negative Marking)
+      }
     });
-    setScore(newScore);
+    setScore(Math.max(0, newScore)); // Prevent negative total score
     setFinished(true);
   };
 
@@ -200,9 +207,9 @@ function DemoTestContent() {
           </div>
           <h2 className="text-3xl font-bold mb-4">Demo Completed!</h2>
           <p className="text-slate-400 mb-6">In the real exam, your score will be saved and sent to companies.</p>
-          <div className="bg-slate-800 p-4 rounded-xl mb-8">
-             <p className="text-slate-500 text-sm">You Scored</p>
-             <p className="text-2xl font-bold text-white">{score} / {demoQuestions.length}</p>
+          <div className="bg-slate-800 p-4 rounded-xl mb-8 border border-slate-700">
+             <p className="text-slate-500 text-sm mb-1 uppercase font-bold tracking-wider">You Scored</p>
+             <p className="text-4xl font-extrabold text-green-400">{score} <span className="text-xl text-slate-500">/ {demoQuestions.length}</span></p>
           </div>
           
           {returnTo === 'profile' ? (
@@ -236,34 +243,43 @@ function DemoTestContent() {
   if (!started) {
     return (
       <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-slate-900/50 p-10 rounded-3xl border border-slate-800">
+        <div className="max-w-2xl w-full bg-slate-900/80 p-10 rounded-3xl border border-slate-800 shadow-2xl">
           <div className="text-center mb-8">
               <div className="bg-blue-600/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"><HelpCircle className="text-blue-400" size={32}/></div>
               <h1 className="text-3xl font-bold mb-4">Welcome to Practice Mode</h1>
               <p className="text-slate-400 text-lg">This is a <strong>Tutorial</strong> to help you understand the exam interface.</p>
           </div>
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-             <div className="text-left bg-slate-800 p-6 rounded-xl space-y-3">
-                <p className="flex items-center gap-3"><CheckCircle size={18} className="text-green-500"/> <strong>Timer & Fullscreen</strong></p>
-                <p className="flex items-center gap-3"><Video size={18} className="text-red-400"/> <strong>Camera Tracking</strong></p>
+          
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+             <div className="text-left bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-4">
+                <p className="flex items-center gap-3 text-sm"><CheckCircle size={18} className="text-green-500"/> <strong>Timer & Fullscreen</strong></p>
+                <p className="flex items-center gap-3 text-sm"><Video size={18} className="text-red-400"/> <strong>Camera Tracking</strong></p>
+                
+                {/* 🔥 Negative Marking UI 🔥 */}
+                <div className="bg-red-950/30 p-4 rounded-xl border border-red-900/50 mt-4">
+                    <p className="text-red-400 font-bold text-xs mb-2 flex items-center gap-2 uppercase tracking-wider"><AlertTriangle size={14}/> Negative Marking</p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed mb-1">-0.5 marks for wrong answers.</p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">Use <strong>"I Don't Know"</strong> option to avoid penalty.</p>
+                </div>
              </div>
-             <div className={`p-6 rounded-xl border flex flex-col justify-center items-center text-center transition-colors ${mediaAllowed ? 'bg-green-900/20 border-green-500/50' : 'bg-slate-800 border-slate-700'}`}>
-                <Camera className={mediaAllowed ? "text-green-500 mb-2" : "text-blue-400 mb-2"} size={28} />
-                <span className="text-sm font-bold text-white mb-2">Media Check</span>
+             <div className={`p-6 rounded-2xl border flex flex-col justify-center items-center text-center transition-colors ${mediaAllowed ? 'bg-green-900/10 border-green-500/30' : 'bg-slate-950 border-slate-800'}`}>
+                <Camera className={mediaAllowed ? "text-green-500 mb-4" : "text-blue-400 mb-4"} size={32} />
+                <span className="text-sm font-bold text-white mb-4">Media Check</span>
                 {mediaAllowed ? (
-                   <span className="text-xs font-bold text-green-500 bg-green-500/20 px-3 py-1 rounded-lg">All Set!</span>
+                   <span className="text-xs font-bold text-green-500 bg-green-500/20 px-4 py-2 rounded-lg">All Set & Connected!</span>
                 ) : (
-                   <button onClick={requestMediaPermission} className="text-xs font-bold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500">Test Camera/Mic</button>
+                   <button onClick={requestMediaPermission} className="text-xs font-bold bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-500 transition-colors shadow-lg shadow-blue-900/20">Test Camera/Mic</button>
                 )}
              </div>
           </div>
+          
           <button onClick={() => { 
               if(mediaAllowed) { 
                  navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((stream) => {
                      setStarted(true); startProctoringEngine(stream); 
                  }).catch(() => { alert("SECURITY LOCK: Please don't block permissions."); setMediaAllowed(false); });
-              } else { alert("Test camera first!"); } 
-          }} className="bg-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 flex items-center justify-center gap-2 mx-auto w-full max-w-sm disabled:opacity-50" disabled={!mediaAllowed}>
+              } else { alert("Please Test Camera & Mic first!"); } 
+          }} className="mt-4 bg-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 flex items-center justify-center gap-2 mx-auto w-full max-w-sm disabled:opacity-50 transition-all shadow-xl shadow-blue-900/20" disabled={!mediaAllowed}>
             Start Demo Test <ArrowRight size={20}/>
           </button>
         </div>
@@ -280,37 +296,45 @@ function DemoTestContent() {
        <canvas ref={canvasRef} width="64" height="48" className="hidden" />
 
        <div className="w-full max-w-3xl">
-        <div className="flex justify-between items-center mb-8 bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+        <div className="flex justify-between items-center mb-8 bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-xl">
           <div className="flex items-center gap-4">
-             <span className="text-slate-400 font-medium">Demo Question {currentQ + 1}</span>
+             <span className="text-slate-400 font-medium">Demo Question <span className="text-white font-bold">{currentQ + 1}</span></span>
              <span className="text-[10px] text-green-500 bg-green-500/10 px-2 py-1 rounded uppercase font-bold border border-green-500/20"><Mic size={12} className="inline mr-1 animate-pulse"/> Tracking</span>
           </div>
-          <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-400 bg-blue-500/10 px-4 py-2 rounded-lg">
+          <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-400 bg-blue-500/10 px-4 py-2 rounded-lg border border-blue-500/20">
             <Timer size={20} /> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
           </div>
         </div>
 
-        <motion.div key={currentQ} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-slate-900 border border-slate-700 p-8 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-bl-xl">PRACTICE MODE</div>
-          <h2 className="text-2xl font-semibold mb-8 leading-relaxed">{demoQuestions[currentQ].text}</h2>
+        <motion.div key={currentQ} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-slate-900 border border-slate-800 p-8 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 bg-yellow-500 text-black text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md">PRACTICE MODE</div>
+          <h2 className="text-xl md:text-2xl font-medium mb-8 leading-relaxed max-w-2xl">{demoQuestions[currentQ].text}</h2>
+          
           <div className="space-y-4">
-            {demoQuestions[currentQ].options.map((opt, index) => (
-              <button 
-                key={index} 
-                onClick={() => { const n = [...answers]; n[currentQ] = index; setAnswers(n); }} 
-                className={`w-full text-left p-5 rounded-xl border transition-all flex items-center justify-between group ${answers[currentQ] === index ? "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20" : "bg-slate-800 border-slate-700 hover:bg-slate-750"}`}
-              >
-                <span className="font-medium">{opt}</span>
-                {answers[currentQ] === index && <CheckCircle size={20} className="text-white" />}
-              </button>
-            ))}
+            {/* 🔥 UPDATED: Dynamic Styling for "I Don't Know" Option 🔥 */}
+            {demoQuestions[currentQ].options.map((opt, index) => {
+               const isDontKnow = opt === "I Don't Know";
+               return (
+               <button 
+                 key={index} 
+                 onClick={() => { const n = [...answers]; n[currentQ] = index; setAnswers(n); }} 
+                 className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center justify-between group 
+                    ${answers[currentQ] === index 
+                        ? (isDontKnow ? "bg-slate-700 border-slate-500 shadow-lg shadow-slate-900" : "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20") 
+                        : "bg-slate-950 border-slate-800 hover:bg-slate-800 hover:border-slate-600"}
+                    ${isDontKnow && answers[currentQ] !== index ? "opacity-70 hover:opacity-100 italic" : ""}`}
+               >
+                 <span className={`font-medium ${answers[currentQ] === index ? 'text-white' : 'text-slate-300'}`}>{opt}</span>
+                 {answers[currentQ] === index && <CheckCircle size={20} className="text-white" />}
+               </button>
+            )})}
           </div>
         </motion.div>
 
         <div className="flex justify-between mt-8">
-           <button onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-6 py-3 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Previous</button>
+           <button onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-6 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">Previous</button>
            {currentQ < demoQuestions.length - 1 ?
-             <button onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 rounded-xl font-semibold hover:bg-blue-700">Next Question</button> :
+             <button onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20">Next Question</button> :
              <button onClick={submitTest} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-900/20">Finish Demo</button>
            }
         </div>
@@ -319,7 +343,6 @@ function DemoTestContent() {
   );
 }
 
-// Next.js ke Hydration/Build Errors se bachne ke liye poore logic ko Suspense ke andar daal diya
 export default function DemoTestPage() {
   return (
     <Suspense fallback={<div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-blue-500" size={48}/></div>}>

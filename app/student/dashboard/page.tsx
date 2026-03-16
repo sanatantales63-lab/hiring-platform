@@ -7,6 +7,7 @@ import {
   LayoutDashboard, UserCircle, LogOut, 
   ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper
 } from "lucide-react";
+import DownloadReportButton from "@/app/components/DownloadReportButton";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -59,14 +60,14 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white flex font-sans relative">
       
-      {/* 🔥 THE FULL-SCREEN BLUR GATEKEEPER 🔥 */}
+      {/* 🚀 THE FULL-SCREEN BLUR GATEKEEPER 🚀 */}
       {!profileComplete && (
          <div className="fixed inset-0 z-[100] bg-[#0A0F1F]/70 backdrop-blur-xl flex items-center justify-center p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-slate-900 border border-blue-500/30 p-10 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.15)] text-center max-w-lg w-full">
                <div className="w-24 h-24 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <UserCircle size={48} className="text-blue-400" />
                </div>
-               <h2 className="text-3xl font-extrabold mb-3 text-white">Profile Incomplete 🚧</h2>
+               <h2 className="text-3xl font-extrabold mb-3 text-white">Profile Incomplete 🚨</h2>
                <p className="text-slate-400 mb-8">You need to complete your profile with your skills, education, and experience to unlock the dashboard and assessments.</p>
                <button onClick={() => router.push('/student/profile')} className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white shadow-lg shadow-blue-900/20 transition-all text-lg flex items-center justify-center gap-2">
                   Complete Profile Now &rarr;
@@ -87,7 +88,7 @@ export default function Dashboard() {
         <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 transition-colors mt-auto font-bold"><LogOut size={20} /> Logout</button>
       </aside>
 
-      {/* DASHBOARD CONTENT (Will be blurred out if profile is not complete) */}
+      {/* DASHBOARD CONTENT */}
       <main className="flex-1 p-8 md:p-12 overflow-y-auto ml-0 md:ml-64">
         
         <header className="flex justify-between items-center mb-12">
@@ -137,8 +138,15 @@ export default function Dashboard() {
               {examStatus === "pending" && (
                 <><p className="text-yellow-400 text-sm mb-4">Re-test request sent to Admin. Waiting for approval.</p><button disabled className="bg-slate-800 text-slate-500 px-4 py-2 rounded-lg text-sm font-bold cursor-not-allowed border border-slate-700">Approval Pending...</button></>
               )}
-               {examStatus === "completed" && (
-                <><p className="text-green-400 text-sm mb-4">Test Completed! Check profile for detailed analytics.</p><button onClick={requestReTestAccess} className="bg-slate-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-600 transition-all">Request Re-test</button></>
+              {examStatus === "completed" && (
+                <>
+                  <p className="text-green-400 text-sm mb-4">Test Completed! Check profile for detailed analytics.</p>
+                  <div className="flex flex-col gap-3">
+                     {/* 🔥 PREMIUM PDF DOWNLOAD BUTTON ADDED HERE 🔥 */}
+                     <DownloadReportButton candidate={profileData} />
+                     <button onClick={requestReTestAccess} className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-700 transition-all w-full text-center">Request Re-test</button>
+                  </div>
+                </>
               )}
               {examStatus === "disqualified" && (
                 <><p className="text-red-400 text-sm mb-4">Test Locked. Terminated for Anti-Cheat violations.</p><button onClick={requestReTestAccess} className="bg-red-900/40 text-red-400 hover:bg-red-900/60 hover:text-red-300 px-4 py-2 rounded-lg text-sm font-bold border border-red-900/50 transition-colors">Request Re-test</button></>

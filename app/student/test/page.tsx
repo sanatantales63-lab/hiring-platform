@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Timer, Lock, ShieldAlert, CheckCircle, Loader2, FileText, AlertTriangle, 
-  MousePointer2, Monitor, Wifi, Ban, Target, Award, Mic, Camera, Video, Sparkles, UserCheck, ScanFace
+  MousePointer2, Ban, Award, Mic, Camera, Video, Sparkles
 } from "lucide-react";
 
 export default function LiveTestPage() {
@@ -23,7 +23,6 @@ export default function LiveTestPage() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   
-  // 🔥 NEW: Interval ref for background face checking
   const faceMatchIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const profileDescriptorRef = useRef<Float32Array | null>(null);
 
@@ -43,22 +42,23 @@ export default function LiveTestPage() {
   const [tabWarnings, setTabWarnings] = useState(0);
   const [micWarnings, setMicWarnings] = useState(0);
   const [camWarnings, setCamWarnings] = useState(0);
-  const [faceWarnings, setFaceWarnings] = useState(0); // 🔥 New warning state
+  const [faceWarnings, setFaceWarnings] = useState(0);
 
   const MAX_TAB_WARNINGS = 2;
   const MAX_MIC_WARNINGS = 6;
   const MAX_CAM_WARNINGS = 6;
-  const MAX_FACE_WARNINGS = 4; // 🔥 4 Limits for Identity Mismatch
+  const MAX_FACE_WARNINGS = 4;
 
   const [isTerminated, setIsTerminated] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [skillAnalytics, setSkillAnalytics] = useState<any>({});
   const [aiReportGenerating, setAiReportGenerating] = useState(false);
-
   const [aiModelsLoaded, setAiModelsLoaded] = useState(false);
 
-  // 🔥 LOAD AI MODELS 🔥
+  // 🔥 NEW STATE: AI Question Generation Loading
+  const [generatingAIQuestions, setGeneratingAIQuestions] = useState(false);
+
   useEffect(() => {
     const loadFaceAPI = async () => {
       if (typeof window !== 'undefined' && !(window as any).faceapi) {
@@ -81,7 +81,6 @@ export default function LiveTestPage() {
     loadFaceAPI();
   }, []);
 
-  // 🔥 PRE-COMPUTE PROFILE FACE DESCRIPTOR ONCE (Saves CPU during test) 🔥
   useEffect(() => {
     const precomputeProfileFace = async () => {
         if (aiModelsLoaded && studentProfile?.photoURL) {
@@ -109,7 +108,7 @@ export default function LiveTestPage() {
     if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
     if (audioContextRef.current && audioContextRef.current.state !== 'closed') audioContextRef.current.close().catch(console.error);
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    if (faceMatchIntervalRef.current) clearInterval(faceMatchIntervalRef.current); // Stop face checking
+    if (faceMatchIntervalRef.current) clearInterval(faceMatchIntervalRef.current);
   }, []);
 
   const terminateTest = useCallback(async (reason: string) => {
@@ -130,13 +129,20 @@ export default function LiveTestPage() {
     }).eq("id", user.id);
   }, [user, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
+  // 🔥 UPDATED SCORING LOGIC WITH NEGATIVE MARKING 🔥
   const calculateCurrentScore = () => {
      let calcScore = 0;
      questions.forEach((q, i) => {
         const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
-        if (selectedOptionText === q.correct_answer) calcScore += 1;
+        
+        if (selectedOptionText === q.correct_answer) {
+            calcScore += 1; // +1 for correct
+        } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
+            calcScore -= 0.5; // -0.5 for incorrect (Negative Marking)
+        }
+        // If "I Don't Know" is selected or skipped (-1), score remains unchanged (+0)
      });
-     return calcScore;
+     return Math.max(0, calcScore); // Prevent total negative score at pre-submit stage
   };
 
   const handlePreSubmit = () => {
@@ -152,7 +158,16 @@ export default function LiveTestPage() {
 
   const acceptBonusRound = () => {
      const extraQs = extraQuestionsPool.sort(() => 0.5 - Math.random()).slice(0, 5);
-     setQuestions(prev => [...prev, ...extraQs]);
+     
+     // Ensure bonus questions also have "I Don't Know" as 5th option if missing
+     const processedBonusQs = extraQs.map(q => {
+         if (!q.options.includes("I Don't Know")) {
+             return { ...q, options: [...q.options.slice(0, 4), "I Don't Know"] };
+         }
+         return q;
+     });
+
+     setQuestions(prev => [...prev, ...processedBonusQs]);
      
      const newAnswers = [...answers];
      for(let i=0; i<5; i++) newAnswers.push(-1);
@@ -178,31 +193,38 @@ export default function LiveTestPage() {
 
     questions.forEach((q, i) => {
        if (!analyticsData[q.skill]) {
-           analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, aiLevel: "Beginner" };
+           analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, scoreCount: 0, aiLevel: "Beginner" };
        }
  
        analyticsData[q.skill].total += 1;
 
        const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
-       const isCorrect = selectedOptionText === q.correct_answer;
-
-       if (isCorrect) {
+       
+       // Negative Marking logic for skill analytics
+       if (selectedOptionText === q.correct_answer) {
            analyticsData[q.skill].correct += 1;
+           analyticsData[q.skill].scoreCount += 1;
            if(q.difficulty.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
            if(q.difficulty.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
            if(q.difficulty.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
+       } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
+           analyticsData[q.skill].scoreCount -= 0.5; // Apply negative mark
        }
     });
 
     for (const skill in analyticsData) {
         const data = analyticsData[skill];
-        if (data.correct < 2) data.aiLevel = "Beginner Level 🔴";
-        else if (data.correct >= 4 && data.advanced >= 1) data.aiLevel = "Expert Level 🟢";
-        else if (data.correct >= 2) data.aiLevel = "Intermediate Level 🟡";
+        
+        // Final score per skill cannot be negative
+        const finalSkillScore = Math.max(0, data.scoreCount);
+        
+        // 🔥 NEW AI GRADING SYSTEM (1-2 Beginner, 3-4 Inter, 5 Expert) 🔥
+        if (finalSkillScore >= 5) data.aiLevel = "Expert Level 🟢";
+        else if (finalSkillScore >= 3) data.aiLevel = "Intermediate Level 🟡";
         else data.aiLevel = "Beginner Level 🔴";
 
         await supabase.from("test_results").insert({ 
-            student_id: user.id, skill: skill, total_score: data.correct, 
+            student_id: user.id, skill: skill, total_score: finalSkillScore, 
             beginner_score: data.beginner, intermediate_score: data.intermediate, 
             advanced_score: data.advanced, ai_skill_level: data.aiLevel 
         });
@@ -217,13 +239,13 @@ export default function LiveTestPage() {
         const currentData = analyticsData[skill];
         const previousData = mergedAnalyticsData[skill];
 
-        if (!previousData || currentData.correct > previousData.correct) {
+        if (!previousData || Math.max(0, currentData.scoreCount) > Math.max(0, previousData.scoreCount)) {
             mergedAnalyticsData[skill] = currentData;
         }
     }
 
     for (const skill in mergedAnalyticsData) {
-        highestTotalScore += mergedAnalyticsData[skill].correct;
+        highestTotalScore += Math.max(0, mergedAnalyticsData[skill].scoreCount);
     }
 
     setScore(highestTotalScore);
@@ -331,7 +353,6 @@ export default function LiveTestPage() {
       const dataArray = new Uint8Array(bufferLength);
       let frameCount = 0;
 
-      // 🔥 CONTINUOUS BACKGROUND FACE MATCHING (Runs every 30 seconds) 🔥
       faceMatchIntervalRef.current = setInterval(async () => {
          if (isSubmitted || isTerminated) return;
          if (!videoRef.current || !profileDescriptorRef.current) return;
@@ -355,9 +376,8 @@ export default function LiveTestPage() {
          } catch (err) {
              console.error("Background face matching error:", err);
          }
-      }, 30000); // 30000 ms = 30 seconds
+      }, 30000); 
 
-      // Regular Audio/Video Frame loop
       const checkActivity = () => {
         if (isSubmitted || isTerminated) return;
         frameCount++;
@@ -494,9 +514,17 @@ export default function LiveTestPage() {
         for (const skill of testableSkills) {
             const { data: skillQs } = await supabase.from("question_bank").select("*").eq("skill", skill);
             if (skillQs && skillQs.length > 0) {
-                const beginnerQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
-                const interQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random());
-                const advancedQs = skillQs.filter((q: any) => q.difficulty.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random());
+                // Ensure 5th option "I Don't Know" is added to all fetched questions
+                const processedQs = skillQs.map(q => {
+                    if (q.options.length === 4 && !q.options.includes("I Don't Know")) {
+                        return { ...q, options: [...q.options, "I Don't Know"] };
+                    }
+                    return q;
+                });
+
+                const beginnerQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
+                const interQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random());
+                const advancedQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random());
                 
                 finalQuestions = [...finalQuestions, ...beginnerQs.slice(0, 2), ...interQs.slice(0, 2), ...advancedQs.slice(0, 1)];
                 backupQuestions = [...backupQuestions, ...beginnerQs.slice(2), ...interQs.slice(2), ...advancedQs.slice(1)];
@@ -520,7 +548,7 @@ export default function LiveTestPage() {
   }, [router, stopProctoring]);
 
   useEffect(() => {
-    if (loading || !testStarted || isSubmitted || isTerminated || showBonusPopup) return;
+    if (loading || !testStarted || isSubmitted || isTerminated || showBonusPopup || generatingAIQuestions) return;
     const timer = setInterval(() => { 
         setTimeLeft((prev) => { 
             if (prev <= 1) { submitTest(); return 0; } 
@@ -529,7 +557,7 @@ export default function LiveTestPage() {
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [loading, testStarted, isSubmitted, isTerminated, showBonusPopup, submitTest]);
+  }, [loading, testStarted, isSubmitted, isTerminated, showBonusPopup, generatingAIQuestions, submitTest]);
 
   const handleVisibilityChange = useCallback(() => { 
       if (document.hidden && testStarted && !isSubmitted && !isTerminated) triggerWarning('tab'); 
@@ -562,33 +590,74 @@ export default function LiveTestPage() {
     };
   }, [loading, testStarted, handleVisibilityChange, triggerWarning]);
 
-  const handleStartTest = () => {
+  // 🔥 START TEST WITH GROQ AI QUESTION GENERATION 🔥
+  const handleStartTest = async () => {
     if(!mediaAllowed) return alert("Please Allow Media access to start the secure test.");
-    // Face Match no longer blocks the start, it runs in background
     if(!agreed) return alert("Please read and agree to the Terms & Conditions.");
     
+    setGeneratingAIQuestions(true); // Show AI loading screen
+    setTestStarted(true);
+    
+    // Attempt Fullscreen
     if (streamRef.current) {
         const elem = document.documentElement;
         if (elem.requestFullscreen) { 
-            elem.requestFullscreen().then(() => { 
-                setTestStarted(true); 
-                startProctoringEngine(streamRef.current!); 
-            }).catch(() => { 
-                alert("Fullscreen is required."); 
-                setTestStarted(true); 
-                startProctoringEngine(streamRef.current!); 
-            }); 
-        } else { 
-            setTestStarted(true); 
-            startProctoringEngine(streamRef.current!); 
+            elem.requestFullscreen().catch(() => console.log("Fullscreen denied"));
         }
+        startProctoringEngine(streamRef.current); 
     }
+
+    try {
+        // Fetch 7 dynamic questions via Groq API
+        const aiResponse = await fetch('/api/generate-ai-questions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qualifications: studentProfile?.education || studentProfile?.skills || "General Aptitude" })
+        });
+        
+        if (aiResponse.ok) {
+            const aiData = await aiResponse.json();
+            if (aiData.success && aiData.questions) {
+                // Ensure all AI questions have exactly 5 options with "I Don't Know"
+                const safeAiQuestions = aiData.questions.map((q: any) => {
+                    let opts = q.options;
+                    if (!opts.includes("I Don't Know")) {
+                       opts = [...opts.slice(0, 4), "I Don't Know"];
+                    }
+                    return { ...q, options: opts, skill: "Core Qualification Check" };
+                });
+                
+                // Mix Database + AI Questions
+                const finalMixedQs = [...questions, ...safeAiQuestions].sort(() => 0.5 - Math.random());
+                setQuestions(finalMixedQs);
+                setAnswers(new Array(finalMixedQs.length).fill(-1));
+                setTimeLeft(finalMixedQs.length * 60); // 1 min per question
+            }
+        }
+    } catch (error) {
+        console.error("Failed to load AI questions, continuing with DB questions only", error);
+    }
+    
+    setGeneratingAIQuestions(false); // Hide AI loading screen and begin test
   };
 
   if (loading) return (
       <div className="h-screen bg-[#0A0F1F] flex flex-col items-center justify-center text-white">
          <Loader2 className="animate-spin text-blue-500 w-12 h-12 mb-4"/> 
          <p className="text-lg font-bold">{aiReportGenerating ? "AI is Analyzing your Performance..." : "Loading Secure Environment..."}</p>
+      </div>
+  );
+
+  // 🔥 AI GENERATION LOADING SCREEN 🔥
+  if (generatingAIQuestions) return (
+      <div className="h-screen bg-[#0A0F1F] flex flex-col items-center justify-center text-white px-4 text-center">
+         <Sparkles className="animate-pulse text-purple-500 w-16 h-16 mb-6"/>
+         <h2 className="text-3xl font-extrabold mb-2">Generating Dynamic Assessment</h2>
+         <p className="text-slate-400 max-w-md">Our AI is analyzing your qualifications and crafting 7 unique, advanced questions specifically for you.</p>
+         <div className="w-64 h-2 bg-slate-800 rounded-full mt-8 overflow-hidden">
+             <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse w-full"></div>
+         </div>
+         <p className="text-xs text-slate-500 mt-4 uppercase tracking-widest">Powered by Groq</p>
       </div>
   );
 
@@ -608,9 +677,13 @@ export default function LiveTestPage() {
                                 <FileText size={18}/> Exam Details
                             </h3>
                             <ul className="space-y-3 text-sm text-slate-300">
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Total Questions</span> <span className="text-white font-bold">{questions.length} Qs</span></li>
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Duration</span> <span className="text-white font-bold">{questions.length} Mins</span></li>
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">Adaptive MCQ</span></li>
+                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Total Questions</span> <span className="text-white font-bold">{questions.length} + 7 AI Qs</span></li>
+                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">5 Options per Question</span></li>
+                                {/* 🔥 Negative Marking Warning 🔥 */}
+                                <li className="flex justify-between items-center bg-red-900/20 p-2 rounded-lg border border-red-500/20 mt-2">
+                                    <span className="text-red-400">Correct: <b className="text-green-400">+1</b></span>
+                                    <span className="text-red-400">Incorrect: <b className="text-red-500">-0.5</b></span>
+                                </li>
                             </ul>
                         </div>
 
@@ -651,12 +724,12 @@ export default function LiveTestPage() {
 
                         <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 mb-6 flex-1">
                             <h3 className="font-bold flex items-center gap-2 mb-4 text-yellow-400">
-                                <AlertTriangle size={18}/> Terms & Conditions
+                                <AlertTriangle size={18}/> Negative Marking Rule
                             </h3>
                             <div className="text-xs text-slate-400 space-y-2 h-20 overflow-y-auto pr-2 custom-scrollbar">
-                                <p>1. You agree to be monitored by our proctoring system.</p>
-                                <p>2. Maximum 2 Tab switches will terminate the exam.</p>
-                                <p>3. Max Media warnings will auto-submit the exam.</p>
+                                <p>1. Every wrong answer carries a <strong>-0.5 mark penalty</strong>.</p>
+                                <p>2. To avoid penalty, use the <strong>"I Don't Know"</strong> option (0 marks awarded or deducted).</p>
+                                <p>3. AI will inject 7 questions based on your resume. Be prepared.</p>
                             </div>
                         </div>
 
@@ -664,7 +737,7 @@ export default function LiveTestPage() {
                             <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreed ? 'bg-blue-500 border-blue-500' : 'border-slate-500'}`}>
                                 {agreed && <CheckCircle size={12} className="text-white"/>}
                             </div>
-                            <p className="text-sm text-slate-300 select-none">I agree to the Terms & Conditions.</p>
+                            <p className="text-sm text-slate-300 select-none">I understand the Negative Marking rules and agree to the Terms.</p>
                         </div>
 
                         <div className="flex gap-4 mt-auto">
@@ -717,7 +790,7 @@ export default function LiveTestPage() {
                      <div key={skill} className="bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                            <span className="text-white font-bold text-lg">{skill}</span>
-                           <p className="text-xs text-slate-500 mt-1">Correct: {skillAnalytics[skill].correct}/{skillAnalytics[skill].total}</p>
+                           <p className="text-xs text-slate-500 mt-1">Score: {Math.max(0, skillAnalytics[skill].scoreCount)} / {skillAnalytics[skill].total}</p>
                         </div>
                         <div className={`px-4 py-2 rounded-lg border font-bold text-sm text-center ${skillAnalytics[skill].aiLevel.includes('Expert') ? 'bg-green-900/30 text-green-400 border-green-500/30' : skillAnalytics[skill].aiLevel.includes('Intermediate') ? 'bg-yellow-900/30 text-yellow-400 border-yellow-500/30' : 'bg-red-900/30 text-red-400 border-red-500/30'}`}>
                            {skillAnalytics[skill].aiLevel}
@@ -775,12 +848,11 @@ export default function LiveTestPage() {
              </div>
              {bonusRoundTaken && (
                 <div className="text-xs font-bold text-purple-400 bg-purple-900/20 border border-purple-500/30 px-3 py-1 rounded-lg">
-                   ✨ Bonus Round Active
+                    ✨ Bonus Round Active
                 </div>
              )}
           </div>
           <div className="flex gap-4 text-xs font-bold uppercase tracking-wider">
-             {/* 🔥 Added Face Warnings UI 🔥 */}
              <div className={`px-2 py-1 rounded border ${faceWarnings > 0 ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Face: {MAX_FACE_WARNINGS - faceWarnings} Left</div>
              <div className={`hidden md:block px-2 py-1 rounded border ${tabWarnings > 0 ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings} Left</div>
              <div className={`hidden md:block px-2 py-1 rounded border ${micWarnings > 0 ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Mic: {MAX_MIC_WARNINGS - micWarnings} Left</div>
@@ -801,16 +873,22 @@ export default function LiveTestPage() {
                    <h2 className="text-xl md:text-2xl font-medium leading-relaxed max-w-2xl">{questions[currentQ].question}</h2>
                 </div>
                 <div className="space-y-4">
-                   {questions[currentQ].options.map((opt: string, index: number) => (
+                   {questions[currentQ].options.map((opt: string, index: number) => {
+                      const isDontKnow = opt === "I Don't Know";
+                      return (
                       <button 
                          key={index} 
                          onClick={() => { const n = [...answers]; n[currentQ] = index; setAnswers(n); }} 
-                         className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center justify-between group ${answers[currentQ] === index ? "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20" : "bg-slate-950 border-slate-800 hover:bg-slate-800 hover:border-slate-600"}`}
+                         className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center justify-between group 
+                            ${answers[currentQ] === index 
+                                ? (isDontKnow ? "bg-slate-700 border-slate-500 shadow-lg shadow-slate-900" : "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20") 
+                                : "bg-slate-950 border-slate-800 hover:bg-slate-800 hover:border-slate-600"}
+                            ${isDontKnow && answers[currentQ] !== index ? "opacity-70 hover:opacity-100 italic" : ""}`}
                       >
                          <span className={`font-medium ${answers[currentQ] === index ? 'text-white' : 'text-slate-300'}`}>{opt}</span>
                          {answers[currentQ] === index && <CheckCircle size={20} className="text-white" />}
                       </button>
-                   ))}
+                   )})}
                 </div>
              </motion.div>
           )}
