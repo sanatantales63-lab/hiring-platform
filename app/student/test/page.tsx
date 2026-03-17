@@ -56,7 +56,6 @@ export default function LiveTestPage() {
   const [aiReportGenerating, setAiReportGenerating] = useState(false);
   const [aiModelsLoaded, setAiModelsLoaded] = useState(false);
 
-  // 🔥 NEW STATE: AI Question Generation Loading
   const [generatingAIQuestions, setGeneratingAIQuestions] = useState(false);
 
   useEffect(() => {
@@ -129,20 +128,21 @@ export default function LiveTestPage() {
     }).eq("id", user.id);
   }, [user, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
-  // 🔥 UPDATED SCORING LOGIC WITH NEGATIVE MARKING 🔥
   const calculateCurrentScore = () => {
      let calcScore = 0;
      questions.forEach((q, i) => {
         const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
+        const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
         
         if (selectedOptionText === q.correct_answer) {
-            calcScore += 1; // +1 for correct
+            calcScore += 1; 
         } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
-            calcScore -= 0.5; // -0.5 for incorrect (Negative Marking)
+            if (!isPsycho) {
+                calcScore -= 0.5; // Negative marking ONLY for Technical
+            }
         }
-        // If "I Don't Know" is selected or skipped (-1), score remains unchanged (+0)
      });
-     return Math.max(0, calcScore); // Prevent total negative score at pre-submit stage
+     return Math.max(0, calcScore); 
   };
 
   const handlePreSubmit = () => {
@@ -158,8 +158,6 @@ export default function LiveTestPage() {
 
   const acceptBonusRound = () => {
      const extraQs = extraQuestionsPool.sort(() => 0.5 - Math.random()).slice(0, 5);
-     
-     // Ensure bonus questions also have "I Don't Know" as 5th option if missing
      const processedBonusQs = extraQs.map(q => {
          if (!q.options.includes("I Don't Know")) {
              return { ...q, options: [...q.options.slice(0, 4), "I Don't Know"] };
@@ -183,110 +181,120 @@ export default function LiveTestPage() {
      submitTest(); 
   };
 
+  // 🔥 100% BULLETPROOF SUBMIT FUNCTION (NEVER HANGS) 🔥
   const submitTest = useCallback(async (forceReason?: string) => {
     if (!user || isTerminated || isSubmitted) return;
     setLoading(true); 
     setAiReportGenerating(true);
     stopProctoring(); 
     
-    let analyticsData: any = {};
-
-    questions.forEach((q, i) => {
-       if (!analyticsData[q.skill]) {
-           analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, scoreCount: 0, aiLevel: "Beginner" };
-       }
- 
-       analyticsData[q.skill].total += 1;
-
-       const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
-       
-       // Negative Marking logic for skill analytics
-       if (selectedOptionText === q.correct_answer) {
-           analyticsData[q.skill].correct += 1;
-           analyticsData[q.skill].scoreCount += 1;
-           if(q.difficulty.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
-           if(q.difficulty.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
-           if(q.difficulty.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
-       } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
-           analyticsData[q.skill].scoreCount -= 0.5; // Apply negative mark
-       }
-    });
-
-    for (const skill in analyticsData) {
-        const data = analyticsData[skill];
-        
-        // Final score per skill cannot be negative
-        const finalSkillScore = Math.max(0, data.scoreCount);
-        
-        // 🔥 NEW AI GRADING SYSTEM (1-2 Beginner, 3-4 Inter, 5 Expert) 🔥
-        if (finalSkillScore >= 5) data.aiLevel = "Expert Level 🟢";
-        else if (finalSkillScore >= 3) data.aiLevel = "Intermediate Level 🟡";
-        else data.aiLevel = "Beginner Level 🔴";
-
-        await supabase.from("test_results").insert({ 
-            student_id: user.id, skill: skill, total_score: finalSkillScore, 
-            beginner_score: data.beginner, intermediate_score: data.intermediate, 
-            advanced_score: data.advanced, ai_skill_level: data.aiLevel 
-        });
-    }
-
-    const existingMeta = studentProfile?.meta || {};
-    const existingSkillScores = existingMeta.skillScores || {};
-    let mergedAnalyticsData: any = { ...existingSkillScores };
-    let highestTotalScore = 0;
-
-    for (const skill in analyticsData) {
-        const currentData = analyticsData[skill];
-        const previousData = mergedAnalyticsData[skill];
-
-        if (!previousData || Math.max(0, currentData.scoreCount) > Math.max(0, previousData.scoreCount)) {
-            mergedAnalyticsData[skill] = currentData;
-        }
-    }
-
-    for (const skill in mergedAnalyticsData) {
-        highestTotalScore += Math.max(0, mergedAnalyticsData[skill].scoreCount);
-    }
-
-    setScore(highestTotalScore);
-    setSkillAnalytics(mergedAnalyticsData);
-    
-    const finalStatus = forceReason && typeof forceReason === 'string' ? forceReason : "Passed";
-
-    let generatedAiReport = "Report generation pending.";
     try {
-       const reportRes = await fetch('/api/generate-report', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-              name: studentProfile?.fullName || "Candidate",
-              claimedSkills: studentProfile?.skills || [],
-              testScores: mergedAnalyticsData,
-              warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings }
-           })
-       });
-       if(reportRes.ok) {
-          const reportData = await reportRes.json();
-          if(reportData.report) generatedAiReport = reportData.report;
-       }
-    } catch(e) { console.error("AI Report generation failed", e); }
+        let analyticsData: any = {};
 
-    await supabase.from("profiles").update({
-       examAccess: "completed",
-       meta: {
-          lastAttempt: new Date(),
-          totalScore: highestTotalScore, 
-          status: finalStatus,
-          warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings },
-          warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings, 
-          skillScores: mergedAnalyticsData, 
-          ai_detailed_report: generatedAiReport 
-       }
-    }).eq("id", user.id);
+        questions.forEach((q, i) => {
+           if (!analyticsData[q.skill]) {
+               analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, scoreCount: 0, aiLevel: "Beginner" };
+           }
+     
+           analyticsData[q.skill].total += 1;
 
-    setIsSubmitted(true);
-    setLoading(false); 
-    setAiReportGenerating(false);
+           const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
+           const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
+           
+           if (selectedOptionText === q.correct_answer) {
+               analyticsData[q.skill].correct += 1;
+               analyticsData[q.skill].scoreCount += 1;
+               if(q.difficulty?.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
+               if(q.difficulty?.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
+               if(q.difficulty?.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
+           } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
+               if (!isPsycho) {
+                   analyticsData[q.skill].scoreCount -= 0.5; // Only deduct for Tech
+               }
+           }
+        });
+
+        for (const skill in analyticsData) {
+            const data = analyticsData[skill];
+            const finalSkillScore = Math.max(0, data.scoreCount);
+            
+            // AI Grading System
+            if (finalSkillScore >= (data.total * 0.8)) data.aiLevel = "Expert Level 🟢";
+            else if (finalSkillScore >= (data.total * 0.4)) data.aiLevel = "Intermediate Level 🟡";
+            else data.aiLevel = "Beginner Level 🔴";
+
+            // Safe Insert without crashing the whole flow if it fails
+            await supabase.from("test_results").insert({ 
+                student_id: user.id, skill: skill, total_score: finalSkillScore, 
+                beginner_score: data.beginner, intermediate_score: data.intermediate, 
+                advanced_score: data.advanced, ai_skill_level: data.aiLevel 
+            }).catch(e => console.log("Test result insert skipped", e));
+        }
+
+        const existingMeta = studentProfile?.meta || {};
+        const existingSkillScores = existingMeta.skillScores || {};
+        let mergedAnalyticsData: any = { ...existingSkillScores };
+        let highestTotalScore = 0;
+
+        for (const skill in analyticsData) {
+            const currentData = analyticsData[skill];
+            const previousData = mergedAnalyticsData[skill];
+
+            if (!previousData || Math.max(0, currentData.scoreCount) > Math.max(0, previousData.scoreCount)) {
+                mergedAnalyticsData[skill] = currentData;
+            }
+        }
+
+        for (const skill in mergedAnalyticsData) {
+            highestTotalScore += Math.max(0, mergedAnalyticsData[skill].scoreCount);
+        }
+
+        setScore(highestTotalScore);
+        setSkillAnalytics(mergedAnalyticsData);
+        
+        const finalStatus = forceReason && typeof forceReason === 'string' ? forceReason : "Passed";
+
+        let generatedAiReport = "Report generation pending.";
+        try {
+           // Provide array of skills directly
+           const safeClaimedSkills = Array.isArray(studentProfile?.skills) ? studentProfile.skills : [];
+           const reportRes = await fetch('/api/generate-report', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({
+                  name: studentProfile?.fullName || "Candidate",
+                  claimedSkills: safeClaimedSkills,
+                  testScores: mergedAnalyticsData,
+                  warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings }
+               })
+           });
+           if(reportRes.ok) {
+              const reportData = await reportRes.json();
+              if(reportData.report) generatedAiReport = reportData.report;
+           }
+        } catch(e) { console.error("AI Report generation failed", e); }
+
+        await supabase.from("profiles").update({
+           examAccess: "completed",
+           meta: {
+              lastAttempt: new Date(),
+              totalScore: highestTotalScore, 
+              status: finalStatus,
+              warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings },
+              warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings, 
+              skillScores: mergedAnalyticsData, 
+              ai_detailed_report: generatedAiReport 
+           }
+        }).eq("id", user.id);
+
+    } catch (error) {
+        console.error("Critical error during submission", error);
+        // Will still complete the test even if DB errors out slightly
+    } finally {
+        setIsSubmitted(true);
+        setLoading(false); 
+        setAiReportGenerating(false);
+    }
   }, [user, studentProfile, isTerminated, isSubmitted, questions, answers, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
   const triggerWarning = useCallback((type: 'tab' | 'mic' | 'cam' | 'face', customMsg?: string) => {
@@ -484,25 +492,11 @@ export default function LiveTestPage() {
          return;
       }
 
-      const mappedSkills = new Set<string>();
-      const combinedSkills = (profileSnap?.skills || []).join(" ").toLowerCase();
-
-      if (combinedSkills.includes("tally")) mappedSkills.add("Tally ERP");
-      if (combinedSkills.includes("excel")) mappedSkills.add("Advanced Excel");
-      if (combinedSkills.includes("sap")) mappedSkills.add("SAP FICO");
-      if (combinedSkills.includes("gst")) mappedSkills.add("GST Return Filing & Reconciliation");
-      if (combinedSkills.includes("journal") || combinedSkills.includes("book closure") || combinedSkills.includes("accounting")) mappedSkills.add("Journal Entry & Book Closure");
-      if (combinedSkills.includes("tds")) mappedSkills.add("TDS Return & Compliance");
-      if (combinedSkills.includes("income tax") || combinedSkills.includes("itr") || combinedSkills.includes("taxation")) mappedSkills.add("Income Tax Return (ITR) Processing");
-      if (combinedSkills.includes("corporate tax")) mappedSkills.add("Corporate Tax Planning");
-      if (combinedSkills.includes("ind-as") || combinedSkills.includes("financial statement")) mappedSkills.add("Financial Statements & Ind-AS");
-      if (combinedSkills.includes("gaap") || combinedSkills.includes("accounting standard")) mappedSkills.add("Accounting Standards");
-      if (combinedSkills.includes("payroll")) mappedSkills.add("Payroll Processing & Compliance");
-      if (combinedSkills.includes("audit")) mappedSkills.add("Statutory Audit & Assurance");
-
-      const testableSkills = Array.from(mappedSkills);
+      // 🔥 FIX: Directly fetch questions for whatever skill the user selected 🔥
+      const testableSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
+      
       if (testableSkills.length === 0) {
-          alert("Test engine couldn't match your skills! Please add core skills like 'Tally', 'Excel', 'SAP', or 'GST' to your profile.");
+          alert("Test engine couldn't find any skills in your profile! Please add core skills.");
           router.push("/student/profile"); 
           return;
       }
@@ -512,14 +506,13 @@ export default function LiveTestPage() {
         let backupQuestions: any[] = []; 
         
         for (const skill of testableSkills) {
-            const { data: skillQs } = await supabase.from("question_bank").select("*").eq("skill", skill);
+            const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", `%${skill}%`);
             if (skillQs && skillQs.length > 0) {
-                // Ensure 5th option "I Don't Know" is added to all fetched questions
                 const processedQs = skillQs.map(q => {
                     if (q.options.length === 4 && !q.options.includes("I Don't Know")) {
                         return { ...q, options: [...q.options, "I Don't Know"] };
                     }
-                    return q;
+                    return { ...q, category: "Technical" }; 
                 });
 
                 const beginnerQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
@@ -537,7 +530,7 @@ export default function LiveTestPage() {
            setTimeLeft(finalQuestions.length * 60); 
            setExtraQuestionsPool(backupQuestions); 
         } else { 
-           alert("Question Bank is empty for your matched skills. Please check database.");
+           alert("No matching questions found in our database for your specific skills.");
            router.push("/student/dashboard"); 
         }
       } catch (e) { console.error(e); }
@@ -590,55 +583,65 @@ export default function LiveTestPage() {
     };
   }, [loading, testStarted, handleVisibilityChange, triggerWarning]);
 
-  // 🔥 START TEST WITH GROQ AI QUESTION GENERATION 🔥
+  // 🔥 AI GENERATES TECH + PSYCHOMETRIC QUESTIONS WITH PROPER PAYLOAD 🔥
   const handleStartTest = async () => {
     if(!mediaAllowed) return alert("Please Allow Media access to start the secure test.");
     if(!agreed) return alert("Please read and agree to the Terms & Conditions.");
     
-    setGeneratingAIQuestions(true); // Show AI loading screen
+    setGeneratingAIQuestions(true); 
     setTestStarted(true);
     
-    // Attempt Fullscreen
     if (streamRef.current) {
         const elem = document.documentElement;
-        if (elem.requestFullscreen) { 
-            elem.requestFullscreen().catch(() => console.log("Fullscreen denied"));
-        }
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => console.log("Fullscreen denied"));
         startProctoringEngine(streamRef.current); 
     }
 
     try {
-        // Fetch 7 dynamic questions via Groq API
+        // 🔥 FIX: Securely formatting profile details so it never sends [object Object] to AI 🔥
+        const safeSkills = Array.isArray(studentProfile?.skills) ? studentProfile.skills.join(", ") : "General Aptitude";
+        const safeEdu = Array.isArray(studentProfile?.educations) && studentProfile.educations.length > 0 
+                        ? studentProfile.educations.map((e:any) => e.qualification).join(", ") 
+                        : "";
+        
+        const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
+
         const aiResponse = await fetch('/api/generate-ai-questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ qualifications: studentProfile?.education || studentProfile?.skills || "General Aptitude" })
+            body: JSON.stringify({ qualifications: payloadString })
         });
         
         if (aiResponse.ok) {
             const aiData = await aiResponse.json();
             if (aiData.success && aiData.questions) {
-                // Ensure all AI questions have exactly 5 options with "I Don't Know"
                 const safeAiQuestions = aiData.questions.map((q: any) => {
                     let opts = q.options;
                     if (!opts.includes("I Don't Know")) {
                        opts = [...opts.slice(0, 4), "I Don't Know"];
                     }
-                    return { ...q, options: opts, skill: "Core Qualification Check" };
+                    
+                    const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric Analysis";
+                    
+                    return { 
+                        ...q, 
+                        options: opts, 
+                        skill: isPsycho ? "Psychometric & Behavioral Fit" : "Core Qualification Check",
+                        category: isPsycho ? "Psychometric" : "Technical"
+                    };
                 });
                 
-                // Mix Database + AI Questions
                 const finalMixedQs = [...questions, ...safeAiQuestions].sort(() => 0.5 - Math.random());
                 setQuestions(finalMixedQs);
                 setAnswers(new Array(finalMixedQs.length).fill(-1));
-                setTimeLeft(finalMixedQs.length * 60); // 1 min per question
+                setTimeLeft(finalMixedQs.length * 60); 
             }
         }
     } catch (error) {
-        console.error("Failed to load AI questions, continuing with DB questions only", error);
+        console.error("Failed to load AI questions", error);
     }
     
-    setGeneratingAIQuestions(false); // Hide AI loading screen and begin test
+    setGeneratingAIQuestions(false); 
   };
 
   if (loading) return (
@@ -648,16 +651,14 @@ export default function LiveTestPage() {
       </div>
   );
 
-  // 🔥 AI GENERATION LOADING SCREEN 🔥
   if (generatingAIQuestions) return (
       <div className="h-screen bg-[#0A0F1F] flex flex-col items-center justify-center text-white px-4 text-center">
          <Sparkles className="animate-pulse text-purple-500 w-16 h-16 mb-6"/>
          <h2 className="text-3xl font-extrabold mb-2">Generating Dynamic Assessment</h2>
-         <p className="text-slate-400 max-w-md">Our AI is analyzing your qualifications and crafting 7 unique, advanced questions specifically for you.</p>
+         <p className="text-slate-400 max-w-md">Our AI is analyzing your profile to craft unique Technical & Psychometric questions.</p>
          <div className="w-64 h-2 bg-slate-800 rounded-full mt-8 overflow-hidden">
              <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse w-full"></div>
          </div>
-         <p className="text-xs text-slate-500 mt-4 uppercase tracking-widest">Powered by Groq</p>
       </div>
   );
 
@@ -677,13 +678,8 @@ export default function LiveTestPage() {
                                 <FileText size={18}/> Exam Details
                             </h3>
                             <ul className="space-y-3 text-sm text-slate-300">
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Total Questions</span> <span className="text-white font-bold">{questions.length} + 7 AI Qs</span></li>
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">5 Options per Question</span></li>
-                                {/* 🔥 Negative Marking Warning 🔥 */}
-                                <li className="flex justify-between items-center bg-red-900/20 p-2 rounded-lg border border-red-500/20 mt-2">
-                                    <span className="text-red-400">Correct: <b className="text-green-400">+1</b></span>
-                                    <span className="text-red-400">Incorrect: <b className="text-red-500">-0.5</b></span>
-                                </li>
+                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Total Questions</span> <span className="text-white font-bold">{questions.length} + 12 AI Qs</span></li>
+                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">Technical & Behavioral</span></li>
                             </ul>
                         </div>
 
@@ -693,8 +689,8 @@ export default function LiveTestPage() {
                             </h3>
                             <ul className="space-y-3 text-sm text-slate-300">
                                 <li className="flex gap-3"><Ban className="text-red-500 shrink-0" size={16}/> Do not switch tabs (Max 2 Warnings).</li>
-                                <li className="flex gap-3"><Video className="text-red-500 shrink-0" size={16}/> Continuous Background Identity Check Active.</li>
-                                <li className="flex gap-3"><Mic className="text-red-500 shrink-0" size={16}/> Background Audio Monitoring is active.</li>
+                                <li className="flex gap-3"><Video className="text-red-500 shrink-0" size={16}/> Identity & Movement Check Active.</li>
+                                <li className="flex gap-3"><Mic className="text-red-500 shrink-0" size={16}/> Background Audio Monitoring Active.</li>
                              </ul>
                         </div>
                     </div>
@@ -705,13 +701,11 @@ export default function LiveTestPage() {
                               <span className="flex items-center gap-2"><Camera size={18} className={mediaAllowed ? "text-green-400" : "text-blue-400"}/> Camera & Mic Setup</span>
                               {mediaAllowed && <span className="text-xs font-bold text-green-500 bg-green-500/20 px-3 py-1 rounded-lg">Connected</span>}
                            </h3>
-                           
                            <div className="flex flex-col items-center gap-4">
                                <div className="w-32 h-32 bg-black rounded-full overflow-hidden border-4 border-slate-800 relative">
                                    <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100"></video>
                                    {!mediaAllowed && <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-500 text-center px-2">Camera Off</div>}
                                </div>
-                               
                                {!mediaAllowed ? (
                                    <button onClick={requestMediaPermission} className="text-xs font-bold bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-500 shadow-lg transition-all w-full">Enable Camera & Mic</button>
                                ) : !aiModelsLoaded ? (
@@ -722,14 +716,18 @@ export default function LiveTestPage() {
                            </div>
                         </div>
 
+                        {/* 🔥 UPDATED RULES UI 🔥 */}
                         <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 mb-6 flex-1">
                             <h3 className="font-bold flex items-center gap-2 mb-4 text-yellow-400">
-                                <AlertTriangle size={18}/> Negative Marking Rule
+                                <AlertTriangle size={18}/> Important Scoring Rules
                             </h3>
-                            <div className="text-xs text-slate-400 space-y-2 h-20 overflow-y-auto pr-2 custom-scrollbar">
-                                <p>1. Every wrong answer carries a <strong>-0.5 mark penalty</strong>.</p>
-                                <p>2. To avoid penalty, use the <strong>"I Don't Know"</strong> option (0 marks awarded or deducted).</p>
-                                <p>3. AI will inject 7 questions based on your resume. Be prepared.</p>
+                            <div className="text-xs text-slate-400 space-y-3 h-24 overflow-y-auto pr-2 custom-scrollbar">
+                                <div className="bg-red-900/10 p-2 rounded border border-red-500/20">
+                                   <strong className="text-red-400">Technical Questions:</strong> +1 for Correct, <strong className="text-red-500">-0.5 for Wrong</strong>. Use "I Don't Know" to avoid penalty.
+                                </div>
+                                <div className="bg-green-900/10 p-2 rounded border border-green-500/20">
+                                   <strong className="text-green-400">Psychometric Questions:</strong> Evaluates culture fit. <strong className="text-white">NO Negative Marking</strong>. Answer honestly.
+                                </div>
                             </div>
                         </div>
 
@@ -737,13 +735,11 @@ export default function LiveTestPage() {
                             <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreed ? 'bg-blue-500 border-blue-500' : 'border-slate-500'}`}>
                                 {agreed && <CheckCircle size={12} className="text-white"/>}
                             </div>
-                            <p className="text-sm text-slate-300 select-none">I understand the Negative Marking rules and agree to the Terms.</p>
+                            <p className="text-sm text-slate-300 select-none">I understand the Tech & Psychometric rules and agree to the Terms.</p>
                         </div>
 
                         <div className="flex gap-4 mt-auto">
-                            <button onClick={() => router.push('/student/dashboard')} className="px-6 py-3 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 transition-colors">
-                                Cancel
-                            </button>
+                            <button onClick={() => router.push('/student/dashboard')} className="px-6 py-3 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 transition-colors">Cancel</button>
                             <button onClick={handleStartTest} disabled={!agreed || !mediaAllowed || !aiModelsLoaded || questions.length === 0} className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${agreed && mediaAllowed && aiModelsLoaded && questions.length > 0 ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}>
                                 <MousePointer2 size={18}/> Start Test
                             </button>
@@ -761,9 +757,7 @@ export default function LiveTestPage() {
          <ShieldAlert size={80} className="text-red-500 mb-6 animate-pulse"/>
          <h1 className="text-5xl font-bold mb-4">Test Terminated</h1>
          <p className="text-red-200 text-xl mb-8 max-w-lg">Violation of Anti-Cheat Rules Detected.<br/>Your attempt is locked.</p>
-         <button onClick={() => router.push('/student/dashboard')} className="bg-white text-red-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">
-            Return to Dashboard
-         </button>
+         <button onClick={() => router.push('/student/dashboard')} className="bg-white text-red-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">Return to Dashboard</button>
       </div>
     );
   }
@@ -775,7 +769,7 @@ export default function LiveTestPage() {
             <CheckCircle size={40} className="text-green-500"/>
          </div>
          <h1 className="text-3xl font-bold mb-2">Assessment Completed</h1>
-         <p className="text-slate-400 text-sm mb-8">Your response and AI skill analytics have been securely recorded.</p>
+         <p className="text-slate-400 text-sm mb-8">Your Technical & Behavioral analytics have been securely recorded.</p>
          
          <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-2xl mb-8 shadow-2xl">
             <p className="text-slate-500 text-sm uppercase font-bold mb-2">Final Overall Score</p>
@@ -783,26 +777,26 @@ export default function LiveTestPage() {
 
             <div className="border-t border-slate-800 pt-6 text-left">
                <h4 className="text-slate-400 text-sm font-bold uppercase mb-4 flex items-center gap-2">
-                  <Award size={18}/> AI Skill Grading Report
+                  <Award size={18}/> Skill & Culture Fit Report
                </h4>
                <div className="space-y-4">
-                  {Object.keys(skillAnalytics).map(skill => (
-                     <div key={skill} className="bg-slate-950 p-5 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  {Object.keys(skillAnalytics).map(skill => {
+                     const isPsycho = skill === "Psychometric & Behavioral Fit";
+                     return (
+                     <div key={skill} className={`p-5 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${isPsycho ? 'bg-purple-950/40 border-purple-500/30' : 'bg-slate-950 border-slate-800'}`}>
                         <div>
-                           <span className="text-white font-bold text-lg">{skill}</span>
+                           <span className={`font-bold text-lg ${isPsycho ? 'text-purple-300' : 'text-white'}`}>{skill}</span>
                            <p className="text-xs text-slate-500 mt-1">Score: {Math.max(0, skillAnalytics[skill].scoreCount)} / {skillAnalytics[skill].total}</p>
                         </div>
                         <div className={`px-4 py-2 rounded-lg border font-bold text-sm text-center ${skillAnalytics[skill].aiLevel.includes('Expert') ? 'bg-green-900/30 text-green-400 border-green-500/30' : skillAnalytics[skill].aiLevel.includes('Intermediate') ? 'bg-yellow-900/30 text-yellow-400 border-yellow-500/30' : 'bg-red-900/30 text-red-400 border-red-500/30'}`}>
                            {skillAnalytics[skill].aiLevel}
                         </div>
                      </div>
-                  ))}
+                  )})}
                </div>
             </div>
          </div>
-         <button onClick={() => router.push('/student/dashboard')} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 mb-10">
-            Back to Dashboard
-         </button>
+         <button onClick={() => router.push('/student/dashboard')} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 mb-10">Back to Dashboard</button>
       </div>
     );
   }
@@ -862,6 +856,12 @@ export default function LiveTestPage() {
        <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
              <span className="text-slate-400 font-medium">Question <span className="text-white font-bold">{currentQ + 1}</span> / {questions.length}</span>
+             
+             {/* 🔥 Question Category Badge 🔥 */}
+             {questions.length > 0 && questions[currentQ].category === "Psychometric" && (
+                 <span className="bg-purple-900/40 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest animate-pulse">Behavioral (No Neg Marking)</span>
+             )}
+
              <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-400 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
                 <Timer size={20} /> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
              </div>

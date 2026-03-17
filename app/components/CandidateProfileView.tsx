@@ -75,7 +75,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]"></div>
         
         <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-slate-800 border-4 border-slate-700 flex items-center justify-center overflow-hidden shadow-2xl shrink-0">
-          {candidate.photoURL && !isCompany ? <img src={candidate.photoURL} className="w-full h-full object-cover"/> : <User size={64} className="text-slate-500"/>}
+            {candidate.photoURL && !isCompany ? <img src={candidate.photoURL} className="w-full h-full object-cover"/> : <User size={64} className="text-slate-500"/>}
         </div>
         
         <div className="relative z-10 text-center md:text-left flex-1 mt-2">
@@ -138,7 +138,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          </div>
       )}
 
-      {/* 🏢 PAST WORK EXPERIENCE SECTION 🏢 */}
+      {/* PAST WORK EXPERIENCE */}
       {workExpList.length > 0 && (
           <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><Building className="text-green-400"/> Past Work Experience</h3>
@@ -170,7 +170,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                <div className="space-y-4 text-sm font-medium">
                   <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Total Exp.</span><span className="text-white font-bold bg-slate-800 px-3 py-1 rounded-lg">{candidate.experience}</span></div>
                   <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Current Status</span><span className="text-white">{candidate.currentStatus}</span></div>
-                  <div className="flex justify-between pb-1"><span className="text-slate-400">Open to Work 1-12 Months</span><span className={candidate.openToContractRoles ? "text-green-400 font-bold" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
+                  <div className="flex justify-between pb-1"><span className="text-slate-400">Open to Work</span><span className={candidate.openToContractRoles ? "text-green-400 font-bold" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
                </div>
             </div>
 
@@ -238,7 +238,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   </div>
                ) : <span className="text-slate-500 text-sm italic">No skills selected yet.</span>}
                
-               {/* 🔥 STRENGTHS & WEAKNESSES 🔥 */}
                {(candidateStrengths.length > 0 || candidateWeaknesses.length > 0) && (
                    <div className="mt-8 pt-8 border-t border-slate-800 grid md:grid-cols-2 gap-6">
                       {candidateStrengths.length > 0 && (
@@ -263,7 +262,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          </div>
       </div>
 
-      {/* 🔥 THE NEW AI ASSESSMENT REPORT 🔥 */}
+      {/* THE NEW AI ASSESSMENT REPORT */}
       {metaObj.skillScores && Object.keys(metaObj.skillScores).length > 0 && (
          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-10 rounded-[2.5rem] shadow-2xl mt-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-[80px]"></div>
@@ -291,7 +290,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                            <span className="text-[9px] text-slate-500 uppercase">Audio</span>
                         </div>
                      </div>
-                     
                      {isAdmin && hasMediaWarnings && (
                         <button disabled={isResetting} onClick={handleResetMediaWarnings} className="w-full mt-3 bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/50 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-colors">
                            {isResetting ? <RefreshCcw className="animate-spin" size={12}/> : <RefreshCcw size={12}/>} Forgive Alerts
@@ -305,7 +303,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                </div>
             </div>
 
-            {/* 🔥 AI GENERATED TEXT (Replaces raw warnings) 🔥 */}
             {metaObj.ai_detailed_report && (
                <div className="bg-gradient-to-r from-blue-900/10 to-transparent p-6 rounded-2xl border-l-4 border-blue-500 mb-8 relative z-10 text-slate-300 text-sm md:text-base leading-relaxed space-y-4">
                   <p className="font-bold text-white mb-2 flex items-center gap-2"><Sparkles className="text-blue-400" size={18}/> AI Review</p>
@@ -319,13 +316,19 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                {Object.keys(metaObj.skillScores).map((skillName) => {
                   const data = metaObj.skillScores[skillName];
                   const percentage = (data.correct / data.total) * 100;
-                  const colorClass = percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500';
-                  const textClass = percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400';
+                  const isPsycho = skillName.includes('Psychometric');
+                  
+                  // 🔥 DYNAMIC COLORING FOR PSYCHOMETRIC 🔥
+                  const colorClass = isPsycho ? 'bg-purple-500' : (percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500');
+                  const textClass = isPsycho ? 'text-purple-400' : (percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400');
+                  const borderClass = isPsycho ? 'border-purple-500/40 bg-purple-950/20' : 'border-slate-800/80 bg-slate-950/80';
 
                   return (
-                     <div key={skillName} className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 shadow-sm">
+                     <div key={skillName} className={`p-5 rounded-2xl border shadow-sm ${borderClass}`}>
                         <div className="flex justify-between items-center mb-4">
-                           <span className="text-slate-200 font-bold text-sm">{skillName}</span>
+                           <span className={`font-bold text-sm ${isPsycho ? 'text-purple-300' : 'text-slate-200'}`}>
+                               {isPsycho ? "🧠 Behavioral & Culture Fit" : skillName}
+                           </span>
                            <span className={`font-bold ${textClass}`}>{data.correct} / {data.total}</span>
                         </div>
                         <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
