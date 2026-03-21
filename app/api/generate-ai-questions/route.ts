@@ -1,18 +1,40 @@
 import { NextResponse } from 'next/server';
+import Groq from "groq-sdk";
 
 export async function POST(req: Request) {
   try {
+    const API_KEYS = [
+        process.env.GROQ_API_KEY_1 || "",
+        process.env.GROQ_API_KEY_2 || "",
+        process.env.GROQ_API_KEY_3 || ""
+    ].filter(key => key.trim() !== "");
+
+    if (API_KEYS.length === 0) throw new Error("No API keys found in .env");
+
     const body = await req.json();
     const qualifications = body.qualifications || "General Aptitude & Accounting";
+    const missingSkillsMap = body.missingSkillsMap || []; 
 
     const qualString = Array.isArray(qualifications) ? qualifications.join(", ") : qualifications;
 
-    // Groq AI Prompt Updated for Psychometric Questions
+    let skillInstructions = "";
+    let totalAiTechQs = 0;
+    
+    if (missingSkillsMap.length > 0) {
+        skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} advanced-level questions for the skill: "${s.skill}".`).join("\n");
+        totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
+    } else {
+        skillInstructions = `- Exactly 7 advanced-level Technical questions strictly based on their core qualifications.`;
+        totalAiTechQs = 7;
+    }
+
+    const totalQuestions = totalAiTechQs + 5; 
+
     const prompt = `You are an expert technical examiner and HR behavioral analyst. 
     The candidate has the following educational qualifications and background: ${qualString}.
     
-    Generate exactly 12 multiple-choice questions in total:
-    - Exactly 7 advanced-level Technical questions strictly based on their core qualifications.
+    Generate exactly ${totalQuestions} multiple-choice questions in total based on these precise requirements:
+    ${skillInstructions}
     - Exactly 5 Psychometric/Situational questions to test workplace ethics, culture fit, and decision-making.
     
     CRITICAL RULES:
@@ -21,6 +43,7 @@ export async function POST(req: Request) {
     3. The 5th option MUST exactly be the string "I Don't Know".
     4. Provide the correct_answer exactly as it appears in the options.
     5. You MUST include a "category" field which is strictly either "Technical" or "Psychometric".
+    6. For Technical questions, set the "skill" field exactly to the skill name requested. For Psychometric, set "skill" to "Psychometric & Behavioral Fit".
     
     Return ONLY a valid JSON object with a "questions" array. Do not include markdown formatting or intro text.
     Structure:
@@ -30,39 +53,42 @@ export async function POST(req: Request) {
           "question": "Question text here",
           "options": ["Option A", "Option B", "Option C", "Option D", "I Don't Know"],
           "correct_answer": "Exact text of the correct option",
-          "skill": "Core Domain Knowledge",
-          "category": "Technical", // or "Psychometric"
+          "skill": "Tally ERP", 
+          "category": "Technical", 
           "difficulty": "Advanced",
           "explanation": "Short explanation"
         }
       ]
     }`;
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama3-8b-8192",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-        response_format: { type: "json_object" }
-      })
-    });
+    let lastError: any = null;
+    for (let i = 0; i < API_KEYS.length; i++) {
+        try {
+            const groq = new Groq({ apiKey: API_KEYS[i] });
+            const chatCompletion = await groq.chat.completions.create({
+              messages: [{ role: "user", content: prompt }],
+              model: "llama-3.3-70b-versatile",
+              temperature: 0.3,
+              response_format: { type: "json_object" }
+            });
 
-    if (!response.ok) {
-      throw new Error(`Groq API Error: ${response.statusText}`);
+            const aiContent = chatCompletion.choices[0]?.message?.content || "{}";
+            const parsedData = JSON.parse(aiContent);
+            
+            if (!parsedData.questions) throw new Error("AI did not return a valid questions array.");
+
+            return NextResponse.json({ success: true, questions: parsedData.questions });
+            
+        } catch (error: any) {
+            console.warn(`API Key ${i + 1} Failed in Questions Route. Trying next...`);
+            lastError = error;
+        }
     }
 
-    const data = await response.json();
-    const aiContent = data.choices[0].message.content;
-    const parsedData = JSON.parse(aiContent);
-    return NextResponse.json({ success: true, questions: parsedData.questions });
+    throw new Error(`All API Keys exhausted. Last error: ${lastError.message}`);
 
   } catch (error: any) {
-    console.error("AI Question Generation Error:", error);
+    console.error("AI Question Generation Final Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

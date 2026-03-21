@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; 
+// ... baaki ka poora code waise hi rahega
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, UserCircle, LogOut, 
@@ -25,6 +26,7 @@ export default function Dashboard() {
         if (!session) { router.replace("/student/login"); return; }
         setUser(session.user);
 
+        // Fetch fresh profile data
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
 
         if (data) {
@@ -142,7 +144,6 @@ export default function Dashboard() {
                 <>
                   <p className="text-green-400 text-sm mb-4">Test Completed! Check profile for detailed analytics.</p>
                   <div className="flex flex-col gap-3">
-                     {/* 🔥 PREMIUM PDF DOWNLOAD BUTTON ADDED HERE 🔥 */}
                      <DownloadReportButton candidate={profileData} />
                      <button onClick={requestReTestAccess} className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-700 transition-all w-full text-center">Request Re-test</button>
                   </div>

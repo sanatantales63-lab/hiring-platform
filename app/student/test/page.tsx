@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Timer, Lock, ShieldAlert, CheckCircle, Loader2, FileText, AlertTriangle, 
-  MousePointer2, Ban, Award, Mic, Camera, Video, Sparkles
+  MousePointer2, Ban, Award, Mic, Camera, Video, Sparkles, Layers, Move
 } from "lucide-react";
 
 export default function LiveTestPage() {
@@ -39,6 +39,9 @@ export default function LiveTestPage() {
   const [bonusRoundTaken, setBonusRoundTaken] = useState(false);
   const [extraQuestionsPool, setExtraQuestionsPool] = useState<any[]>([]); 
   
+  const [examScope, setExamScope] = useState<any[]>([]);
+  const [shortfallData, setShortfallData] = useState<any[]>([]);
+
   const [tabWarnings, setTabWarnings] = useState(0);
   const [micWarnings, setMicWarnings] = useState(0);
   const [camWarnings, setCamWarnings] = useState(0);
@@ -128,18 +131,31 @@ export default function LiveTestPage() {
     }).eq("id", user.id);
   }, [user, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
+  // 🔥 NEW SMART SCANNER FOR CORRECT ANSWERS 🔥
+  const checkIsCorrect = (q: any, ansIndex: number) => {
+      if (ansIndex === -1 || ansIndex === undefined) return false;
+      const selectedText = String(q.options[ansIndex]).trim().toLowerCase();
+      const correctAns = String(q.correct_answer).trim().toLowerCase();
+
+      if (selectedText === correctAns) return true; // Exact match ignoring space/case
+      if (correctAns === String(ansIndex)) return true; // Matches '0', '1', '2'
+      if (correctAns === ['a', 'b', 'c', 'd', 'e'][ansIndex]) return true; // Matches 'a', 'b', 'c'
+      if (selectedText.includes(correctAns) || correctAns.includes(selectedText)) return true; // Partial match safe catch
+
+      return false;
+  };
+
   const calculateCurrentScore = () => {
      let calcScore = 0;
      questions.forEach((q, i) => {
-        const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
+        const ansIndex = answers[i];
+        const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
         const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
         
-        if (selectedOptionText === q.correct_answer) {
+        if (checkIsCorrect(q, ansIndex)) {
             calcScore += 1; 
         } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
-            if (!isPsycho) {
-                calcScore -= 0.5; // Negative marking ONLY for Technical
-            }
+            if (!isPsycho) calcScore -= 0.5; 
         }
      });
      return Math.max(0, calcScore); 
@@ -148,8 +164,10 @@ export default function LiveTestPage() {
   const handlePreSubmit = () => {
      if (isTerminated || isSubmitted) return;
      const currentScore = calculateCurrentScore();
-     const percentage = (currentScore / questions.length) * 100;
-     if (percentage < 30 && !bonusRoundTaken && extraQuestionsPool.length >= 5) {
+     const percentage = questions.length > 0 ? (currentScore / questions.length) * 100 : 0;
+     
+     // 🔥 FIXED: Will show popup even if less than 5 extra questions exist 🔥
+     if (percentage < 30 && !bonusRoundTaken && extraQuestionsPool.length > 0) {
          setShowBonusPopup(true);
      } else {
          submitTest();
@@ -168,9 +186,9 @@ export default function LiveTestPage() {
      setQuestions(prev => [...prev, ...processedBonusQs]);
      
      const newAnswers = [...answers];
-     for(let i=0; i<5; i++) newAnswers.push(-1);
+     for(let i=0; i<processedBonusQs.length; i++) newAnswers.push(-1);
      setAnswers(newAnswers);
-     setTimeLeft(prev => prev + (5 * 60));
+     setTimeLeft(prev => prev + (processedBonusQs.length * 60));
      setBonusRoundTaken(true); 
      setShowBonusPopup(false);
      setCurrentQ(questions.length);
@@ -181,7 +199,6 @@ export default function LiveTestPage() {
      submitTest(); 
   };
 
-  // 🔥 100% BULLETPROOF SUBMIT FUNCTION (NEVER HANGS) 🔥
   const submitTest = useCallback(async (forceReason?: string) => {
     if (!user || isTerminated || isSubmitted) return;
     setLoading(true); 
@@ -198,10 +215,11 @@ export default function LiveTestPage() {
      
            analyticsData[q.skill].total += 1;
 
-           const selectedOptionText = answers[i] !== -1 && answers[i] !== undefined ? q.options[answers[i]] : null;
+           const ansIndex = answers[i];
+           const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
            const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
            
-           if (selectedOptionText === q.correct_answer) {
+           if (checkIsCorrect(q, ansIndex)) {
                analyticsData[q.skill].correct += 1;
                analyticsData[q.skill].scoreCount += 1;
                if(q.difficulty?.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
@@ -209,7 +227,7 @@ export default function LiveTestPage() {
                if(q.difficulty?.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
            } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
                if (!isPsycho) {
-                   analyticsData[q.skill].scoreCount -= 0.5; // Only deduct for Tech
+                   analyticsData[q.skill].scoreCount -= 0.5;
                }
            }
         });
@@ -218,17 +236,17 @@ export default function LiveTestPage() {
             const data = analyticsData[skill];
             const finalSkillScore = Math.max(0, data.scoreCount);
             
-            // AI Grading System
             if (finalSkillScore >= (data.total * 0.8)) data.aiLevel = "Expert Level 🟢";
             else if (finalSkillScore >= (data.total * 0.4)) data.aiLevel = "Intermediate Level 🟡";
             else data.aiLevel = "Beginner Level 🔴";
 
-            // Safe Insert without crashing the whole flow if it fails
-            await supabase.from("test_results").insert({ 
+            const { error: insertErr } = await supabase.from("test_results").insert({ 
                 student_id: user.id, skill: skill, total_score: finalSkillScore, 
                 beginner_score: data.beginner, intermediate_score: data.intermediate, 
                 advanced_score: data.advanced, ai_skill_level: data.aiLevel 
-            }).catch(e => console.log("Test result insert skipped", e));
+            });
+
+            if (insertErr) console.log("Test result insert skipped", insertErr);
         }
 
         const existingMeta = studentProfile?.meta || {};
@@ -256,7 +274,6 @@ export default function LiveTestPage() {
 
         let generatedAiReport = "Report generation pending.";
         try {
-           // Provide array of skills directly
            const safeClaimedSkills = Array.isArray(studentProfile?.skills) ? studentProfile.skills : [];
            const reportRes = await fetch('/api/generate-report', {
                method: 'POST',
@@ -289,7 +306,6 @@ export default function LiveTestPage() {
 
     } catch (error) {
         console.error("Critical error during submission", error);
-        // Will still complete the test even if DB errors out slightly
     } finally {
         setIsSubmitted(true);
         setLoading(false); 
@@ -426,9 +442,10 @@ export default function LiveTestPage() {
                     
                     let totalBrightness = 0;
                     for(let i=0; i<currentFrame.length; i+=4) totalBrightness += currentFrame[i] + currentFrame[i+1] + currentFrame[i+2];
+                    
                     if (totalBrightness < 1000) {
                         movementFramesRef.current += 1;
-                        if (movementFramesRef.current > 2) { 
+                        if (movementFramesRef.current > 4) { 
                             movementFramesRef.current = 0;
                             triggerWarning('cam'); 
                         }
@@ -443,7 +460,7 @@ export default function LiveTestPage() {
                         }
                         if ((diffCount / totalPixels) * 100 > 15) {
                             movementFramesRef.current += 1;
-                            if (movementFramesRef.current > 1) { 
+                            if (movementFramesRef.current > 4) { 
                                 movementFramesRef.current = 0;
                                 triggerWarning('cam'); 
                             }
@@ -485,14 +502,13 @@ export default function LiveTestPage() {
       setStudentProfile(profileSnap);
 
       const currentStatus = profileSnap?.examAccess || 'none';
-      if (currentStatus === 'completed' || currentStatus === 'disqualified' || 
-          currentStatus === 'pending') {
+      
+      if (currentStatus === 'completed' || currentStatus === 'disqualified' || currentStatus === 'pending') {
          alert("Your test is locked. Please request a re-test from your dashboard if needed."); 
-         router.push("/student/dashboard"); 
+         window.location.href = "/student/dashboard"; 
          return;
       }
 
-      // 🔥 FIX: Directly fetch questions for whatever skill the user selected 🔥
       const testableSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
       
       if (testableSkills.length === 0) {
@@ -504,9 +520,13 @@ export default function LiveTestPage() {
       try {
         let finalQuestions: any[] = [];
         let backupQuestions: any[] = []; 
+        let scopeInfo: any[] = [];
+        let shortfallToFetch: any[] = [];
         
         for (const skill of testableSkills) {
             const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", `%${skill}%`);
+            let dbFetchedCount = 0;
+
             if (skillQs && skillQs.length > 0) {
                 const processedQs = skillQs.map(q => {
                     if (q.options.length === 4 && !q.options.includes("I Don't Know")) {
@@ -515,14 +535,40 @@ export default function LiveTestPage() {
                     return { ...q, category: "Technical" }; 
                 });
 
-                const beginnerQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
-                const interQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random());
-                const advancedQs = processedQs.filter((q: any) => q.difficulty.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random());
+                const beginnerQs = processedQs.filter((q: any) => q.difficulty?.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
+                const interQs = processedQs.filter((q: any) => q.difficulty?.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random());
+                const advancedQs = processedQs.filter((q: any) => q.difficulty?.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random());
                 
-                finalQuestions = [...finalQuestions, ...beginnerQs.slice(0, 2), ...interQs.slice(0, 2), ...advancedQs.slice(0, 1)];
+                const toAdd = [...beginnerQs.slice(0, 2), ...interQs.slice(0, 2), ...advancedQs.slice(0, 1)];
+                dbFetchedCount = toAdd.length;
+
+                finalQuestions = [...finalQuestions, ...toAdd];
                 backupQuestions = [...backupQuestions, ...beginnerQs.slice(2), ...interQs.slice(2), ...advancedQs.slice(1)];
             }
+
+            const missing = 5 - dbFetchedCount;
+            scopeInfo.push({
+                skillName: skill,
+                dbCount: dbFetchedCount,
+                aiCount: missing,
+                total: 5
+            });
+
+            if (missing > 0) {
+                shortfallToFetch.push({ skill: skill, count: missing });
+            }
         }
+
+        scopeInfo.push({
+            skillName: "Behavioral & Culture Fit",
+            dbCount: 0,
+            aiCount: 5,
+            total: 5
+        });
+
+        setExamScope(scopeInfo);
+        setShortfallData(shortfallToFetch); 
+
         if (finalQuestions.length > 0) {
            finalQuestions = finalQuestions.sort(() => 0.5 - Math.random());
            setQuestions(finalQuestions); 
@@ -530,8 +576,7 @@ export default function LiveTestPage() {
            setTimeLeft(finalQuestions.length * 60); 
            setExtraQuestionsPool(backupQuestions); 
         } else { 
-           alert("No matching questions found in our database for your specific skills.");
-           router.push("/student/dashboard"); 
+           setQuestions([]); 
         }
       } catch (e) { console.error(e); }
       setLoading(false);
@@ -583,7 +628,6 @@ export default function LiveTestPage() {
     };
   }, [loading, testStarted, handleVisibilityChange, triggerWarning]);
 
-  // 🔥 AI GENERATES TECH + PSYCHOMETRIC QUESTIONS WITH PROPER PAYLOAD 🔥
   const handleStartTest = async () => {
     if(!mediaAllowed) return alert("Please Allow Media access to start the secure test.");
     if(!agreed) return alert("Please read and agree to the Terms & Conditions.");
@@ -598,7 +642,6 @@ export default function LiveTestPage() {
     }
 
     try {
-        // 🔥 FIX: Securely formatting profile details so it never sends [object Object] to AI 🔥
         const safeSkills = Array.isArray(studentProfile?.skills) ? studentProfile.skills.join(", ") : "General Aptitude";
         const safeEdu = Array.isArray(studentProfile?.educations) && studentProfile.educations.length > 0 
                         ? studentProfile.educations.map((e:any) => e.qualification).join(", ") 
@@ -609,7 +652,10 @@ export default function LiveTestPage() {
         const aiResponse = await fetch('/api/generate-ai-questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ qualifications: payloadString })
+            body: JSON.stringify({ 
+                qualifications: payloadString,
+                missingSkillsMap: shortfallData
+            })
         });
         
         if (aiResponse.ok) {
@@ -621,12 +667,12 @@ export default function LiveTestPage() {
                        opts = [...opts.slice(0, 4), "I Don't Know"];
                     }
                     
-                    const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric Analysis";
+                    const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
                     
                     return { 
                         ...q, 
                         options: opts, 
-                        skill: isPsycho ? "Psychometric & Behavioral Fit" : "Core Qualification Check",
+                        skill: isPsycho ? "Psychometric & Behavioral Fit" : (q.skill || "Core Qualification Check"),
                         category: isPsycho ? "Psychometric" : "Technical"
                     };
                 });
@@ -635,10 +681,18 @@ export default function LiveTestPage() {
                 setQuestions(finalMixedQs);
                 setAnswers(new Array(finalMixedQs.length).fill(-1));
                 setTimeLeft(finalMixedQs.length * 60); 
+            } else {
+                throw new Error("AI returned empty");
             }
         }
     } catch (error) {
         console.error("Failed to load AI questions", error);
+        alert("Network Note: AI couldn't generate dynamic questions. Continuing with available database questions.");
+        if (questions.length === 0) {
+            alert("No questions available to start the test. Redirecting to dashboard.");
+            window.location.href = "/student/dashboard";
+            return;
+        }
     }
     
     setGeneratingAIQuestions(false); 
@@ -673,14 +727,26 @@ export default function LiveTestPage() {
                 
                 <div className="p-8 grid md:grid-cols-2 gap-8">
                     <div className="space-y-6">
+                        
                         <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800">
                             <h3 className="font-bold flex items-center gap-2 mb-4 text-blue-400">
-                                <FileText size={18}/> Exam Details
+                                <Layers size={18}/> Dynamic Exam Scope
                             </h3>
-                            <ul className="space-y-3 text-sm text-slate-300">
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Total Questions</span> <span className="text-white font-bold">{questions.length} + 12 AI Qs</span></li>
-                                <li className="flex justify-between border-b border-slate-800 pb-2"><span>Format</span> <span className="text-white font-bold">Technical & Behavioral</span></li>
-                            </ul>
+                            <div className="space-y-3">
+                                {examScope.map((scope: any, idx: number) => (
+                                    <div key={idx} className="flex justify-between items-center border-b border-slate-800 pb-2">
+                                        <span className="text-sm text-slate-300 truncate max-w-[150px]" title={scope.skillName}>
+                                            {scope.skillName}
+                                        </span>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-white font-bold text-sm">{scope.total} Qs</span>
+                                            <span className="text-[10px] text-slate-500">
+                                                ({scope.dbCount} DB + {scope.aiCount} AI)
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="bg-red-950/20 p-5 rounded-2xl border border-red-900/50">
@@ -716,7 +782,6 @@ export default function LiveTestPage() {
                            </div>
                         </div>
 
-                        {/* 🔥 UPDATED RULES UI 🔥 */}
                         <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 mb-6 flex-1">
                             <h3 className="font-bold flex items-center gap-2 mb-4 text-yellow-400">
                                 <AlertTriangle size={18}/> Important Scoring Rules
@@ -739,8 +804,8 @@ export default function LiveTestPage() {
                         </div>
 
                         <div className="flex gap-4 mt-auto">
-                            <button onClick={() => router.push('/student/dashboard')} className="px-6 py-3 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 transition-colors">Cancel</button>
-                            <button onClick={handleStartTest} disabled={!agreed || !mediaAllowed || !aiModelsLoaded || questions.length === 0} className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${agreed && mediaAllowed && aiModelsLoaded && questions.length > 0 ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}>
+                            <button onClick={() => window.location.href = '/student/dashboard'} className="px-6 py-3 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 transition-colors">Cancel</button>
+                            <button onClick={handleStartTest} disabled={!agreed || !mediaAllowed || !aiModelsLoaded || (examScope.length === 0 && !generatingAIQuestions)} className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${agreed && mediaAllowed && aiModelsLoaded ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}>
                                 <MousePointer2 size={18}/> Start Test
                             </button>
                         </div>
@@ -757,7 +822,7 @@ export default function LiveTestPage() {
          <ShieldAlert size={80} className="text-red-500 mb-6 animate-pulse"/>
          <h1 className="text-5xl font-bold mb-4">Test Terminated</h1>
          <p className="text-red-200 text-xl mb-8 max-w-lg">Violation of Anti-Cheat Rules Detected.<br/>Your attempt is locked.</p>
-         <button onClick={() => router.push('/student/dashboard')} className="bg-white text-red-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">Return to Dashboard</button>
+         <button onClick={() => window.location.href = '/student/dashboard'} className="bg-white text-red-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">Return to Dashboard</button>
       </div>
     );
   }
@@ -796,21 +861,33 @@ export default function LiveTestPage() {
                </div>
             </div>
          </div>
-         <button onClick={() => router.push('/student/dashboard')} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 mb-10">Back to Dashboard</button>
+         <button onClick={() => window.location.href = '/student/dashboard'} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 mb-10">Back to Dashboard</button>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[#0A0F1F] text-white p-4 select-none" onContextMenu={(e)=>e.preventDefault()}>
-       {testStarted && (
-           <div className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-black border-2 border-red-500/50 rounded-2xl overflow-hidden shadow-2xl z-50 pointer-events-none">
-              <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-80" />
-              <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1">
+       
+       <AnimatePresence>
+         {testStarted && (
+           <motion.div 
+              drag 
+              dragConstraints={{ left: -1000, right: 20, top: -800, bottom: 20 }} 
+              dragElastic={0.1}
+              className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-black border-2 border-red-500/50 rounded-2xl overflow-hidden shadow-2xl z-50 cursor-move"
+           >
+              <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-80 pointer-events-none" />
+              <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1 pointer-events-none">
                  <Video size={10}/> Proctoring Active
               </div>
-           </div>
-       )}
+              <div className="absolute bottom-1 right-1 bg-black/50 p-1 rounded backdrop-blur-sm pointer-events-none">
+                 <Move size={14} className="text-white/70" />
+              </div>
+           </motion.div>
+         )}
+       </AnimatePresence>
+       
        <canvas ref={canvasRef} width="64" height="48" className="hidden" />
 
        <AnimatePresence>
@@ -857,7 +934,6 @@ export default function LiveTestPage() {
           <div className="flex justify-between items-center mb-8 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
              <span className="text-slate-400 font-medium">Question <span className="text-white font-bold">{currentQ + 1}</span> / {questions.length}</span>
              
-             {/* 🔥 Question Category Badge 🔥 */}
              {questions.length > 0 && questions[currentQ].category === "Psychometric" && (
                  <span className="bg-purple-900/40 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest animate-pulse">Behavioral (No Neg Marking)</span>
              )}

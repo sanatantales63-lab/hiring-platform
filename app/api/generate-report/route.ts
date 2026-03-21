@@ -3,10 +3,15 @@ import Groq from "groq-sdk";
 
 export async function POST(req: Request) {
   try {
+    const API_KEYS = [
+        process.env.GROQ_API_KEY_1 || "",
+        process.env.GROQ_API_KEY_2 || "",
+        process.env.GROQ_API_KEY_3 || ""
+    ].filter(key => key.trim() !== "");
+
+    if (API_KEYS.length === 0) throw new Error("No API keys found in .env");
+
     const { name, claimedSkills, testScores, warnings } = await req.json();
-    const keyPart1 = "gsk_Q2NOrlr2qxMCv3";
-    const keyPart2 = "GZoE2BWGdyb3FYSADlb9chN9TKJjTFwRqUmGyh";
-    const groq = new Groq({ apiKey: keyPart1 + keyPart2 });
 
     const prompt = `
       You are an Elite Technical HR & Behavioral Assessor.
@@ -25,14 +30,28 @@ export async function POST(req: Request) {
       Tone: Objective, Corporate, Unbiased. Do NOT use markdown bolding (**). Just plain paragraphs separated by new lines.
     `;
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile", 
-      temperature: 0.3
-    });
+    let lastError: any = null;
+    for (let i = 0; i < API_KEYS.length; i++) {
+        try {
+            const groq = new Groq({ apiKey: API_KEYS[i] });
+            const chatCompletion = await groq.chat.completions.create({
+              messages: [{ role: "user", content: prompt }],
+              model: "llama-3.3-70b-versatile", 
+              temperature: 0.3
+            });
 
-    return NextResponse.json({ report: chatCompletion.choices[0]?.message?.content || "Analysis could not be generated." });
+            return NextResponse.json({ report: chatCompletion.choices[0]?.message?.content || "Analysis could not be generated." });
+
+        } catch (error: any) {
+             console.warn(`API Key ${i + 1} Failed in Report Route. Trying next...`);
+             lastError = error;
+        }
+    }
+
+    throw new Error(`All API keys failed. Last error: ${lastError.message}`);
+
   } catch (error: any) {
+    console.error("AI Report Final Error:", error);
     return NextResponse.json({ error: "AI failed", details: error.message }, { status: 500 });
   }
 }
