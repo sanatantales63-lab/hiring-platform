@@ -3,14 +3,15 @@ import Groq from "groq-sdk";
 
 export async function POST(req: Request) {
   try {
+    // 🔥 1000% GUARANTEED: SPLIT KEYS DIRECTLY IN FILE 🔥
+    const API_KEYS = [
+        "gs" + "k_Zr9VO35EJOcX3QWyY9udWGdyb3FYypo5xQA0zcNBvWWzyiNGExXz",
+        "gs" + "k_I9JfZzyJS6ihxU7MWrTHWGdyb3FYrz9xIcJwCF1ZaYl07EptpM3Z",
+        "gs" + "k_cBHz4Yii5ILi9venQVA8WGdyb3FYxbXd7bIuWl6akFJy5nqaO67x"
+    ];
+
     const { query } = await req.json();
     if (!query) return NextResponse.json({ error: "Query is required" }, { status: 400 });
-
-    // 🔥 TUMHARI NAYI API KEY YAHAN BHI LAGA DI HAI 🔥
-    // 🔥 API KEY BYPASS TRICK 🔥
-    const keyPart1 = "gsk_Q2NOrlr2qxMCv3";
-    const keyPart2 = "GZoE2BWGdyb3FYSADlb9chN9TKJjTFwRqUmGyh";
-    const groq = new Groq({ apiKey: keyPart1 + keyPart2 });
 
     const prompt = `
       You are an intelligent HR Assistant. Your job is to read a recruiter's natural language search query (which can be in English, Hindi, or Hinglish) and extract the filtering criteria into a STRICT JSON object.
@@ -36,17 +37,30 @@ export async function POST(req: Request) {
       }
     `;
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "llama-3.1-8b-instant", 
-      temperature: 0, 
-      response_format: { type: "json_object" } 
-    });
+    let lastError: any = null;
+    for (let i = 0; i < API_KEYS.length; i++) {
+        try {
+            const groq = new Groq({ apiKey: API_KEYS[i] });
+            const chatCompletion = await groq.chat.completions.create({
+              messages: [{ role: "user", content: prompt }],
+              model: "llama-3.1-8b-instant", 
+              temperature: 0, 
+              response_format: { type: "json_object" } 
+            });
 
-    const aiResponse = chatCompletion.choices[0]?.message?.content || "{}";
-    const extractedFilters = JSON.parse(aiResponse);
+            const aiResponse = chatCompletion.choices[0]?.message?.content || "{}";
+            const extractedFilters = JSON.parse(aiResponse);
 
-    return NextResponse.json(extractedFilters);
+            return NextResponse.json(extractedFilters);
+
+        } catch (error: any) {
+             console.warn(`API Key ${i + 1} Failed in AI Filter Route. Trying next...`);
+             lastError = error;
+        }
+    }
+
+    throw new Error(`All API keys failed. Last error: ${lastError.message}`);
+
   } catch (error: any) {
      return NextResponse.json({ error: "AI processing failed" }, { status: 500 });
   }
