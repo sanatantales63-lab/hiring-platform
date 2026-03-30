@@ -58,7 +58,6 @@ export default function CandidateProfile() {
   const [currentStep, setCurrentStep] = useState(1);
   const [userEmail, setUserEmail] = useState("");
   
-  // 🔥 LIVE CAMERA STATES 🔥
   const [showCamera, setShowCamera] = useState(false);
   const [aiModelsLoaded, setAiModelsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -103,7 +102,6 @@ export default function CandidateProfile() {
   
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
 
-  // 🔥 LOAD FACE API DYNAMICALLY 🔥
   useEffect(() => {
     const loadFaceAPI = async () => {
       if (typeof window !== 'undefined' && !(window as any).faceapi) {
@@ -255,7 +253,6 @@ export default function CandidateProfile() {
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
 
-  // 🔥 FAST CAMERA START 🔥
   const startCamera = async () => {
     try {
         setShowCamera(true);
@@ -277,10 +274,8 @@ export default function CandidateProfile() {
     setShowCamera(false);
   };
 
-  // 🔥 FAST & STRAIGHT FACE CAPTURE (NO LEFT/RIGHT CHALLENGE HERE) 🔥
   const capturePhoto = async () => {
     if (!videoRef.current) return;
-    
     const faceapi = (window as any).faceapi;
     if (!faceapi || !faceapi.nets.tinyFaceDetector.isLoaded) {
         alert("AI Models are still loading. Please wait 2 seconds and click again.");
@@ -289,15 +284,12 @@ export default function CandidateProfile() {
 
     setUploading(true);
     try {
-        // Directly process video feed (super fast)
         const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions());
-        
         if (detections.length === 0) {
             alert("🛑 No face detected! Please look straight into the camera.");
         } else if (detections.length > 1) {
             alert("🛑 Multiple faces detected! Please ensure only you are in the frame.");
         } else {
-            // Success - Single Face Detected. Let's Capture it!
             if (canvasRef.current) {
                 const canvas = canvasRef.current;
                 canvas.width = videoRef.current.videoWidth;
@@ -362,7 +354,7 @@ export default function CandidateProfile() {
          }));
          setShowGatekeeper(false);
          setCurrentStep(1); 
-         alert("✨ AI Auto-Fill Successful!");
+         alert("✨ AI Auto-Fill Successful! Please review the details.");
       } else {
          setFormData(prev => ({ ...prev, resumeURL: publicUrlData.publicUrl }));
          setShowGatekeeper(false); 
@@ -380,11 +372,9 @@ export default function CandidateProfile() {
         if (!formData.photoURL || formData.photoURL.trim() === "") {
             return alert("🛑 Profile Photo is mandatory! Please click a clear profile photo to proceed.");
         }
-
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
             return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
         }
-        
         if (formData.dob) {
             const birthDate = new Date(formData.dob);
             const today = new Date();
@@ -397,7 +387,6 @@ export default function CandidateProfile() {
                 return alert("🛑 You must be at least 18 years old to register on this platform.");
             }
         }
-
         if (formData.panCard && formData.panCard.trim() !== "") {
            if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panCard.toUpperCase())) {
                return alert("🛑 Invalid PAN Card format!");
@@ -420,6 +409,10 @@ export default function CandidateProfile() {
               }
            }
         }
+        // 🔥 MIN 3 SKILLS VALIDATION ADDED HERE 🔥
+        if (formData.skills.length < 3) {
+            return alert("🛑 Please select at least 3 Technical Sub-Skills. This helps us customize your Assessment.");
+        }
      }
      setCurrentStep(p => Math.min(4, p + 1));
   };
@@ -428,9 +421,13 @@ export default function CandidateProfile() {
     if (!formData.experience || !formData.expectedSalary) {
         return alert("🛑 Please fill your Experience and Expected Salary.");
     }
-
     if (formData.jobType === "Permanent Role" && (formData.openToContractRoles === "" || formData.openToContractRoles === null)) {
         return alert("🛑 Smart Career Tip: Please explicitly select 'Yes' or 'No' for short-term contract roles to proceed.");
+    }
+    // 🔥 DOUBLE CHECK SKILLS LENGTH 🔥
+    if (formData.skills.length < 3) {
+        setCurrentStep(2);
+        return alert("🛑 Please select at least 3 Technical Sub-Skills before saving.");
     }
 
     setSavingData(true);
@@ -465,15 +462,27 @@ export default function CandidateProfile() {
     }
   };
 
+  // 🔥 MAX 5 SKILLS VALIDATION ADDED HERE 🔥
   const toggleSkill = (skill: string) => {
-      setFormData(prev => ({ 
-          ...prev, 
-          skills: prev.skills.includes(skill) ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] 
-      }));
+      setFormData(prev => {
+          const isCurrentlySelected = prev.skills.includes(skill);
+          
+          if (!isCurrentlySelected && prev.skills.length >= 5) {
+              alert("🛑 You can select a maximum of 5 Sub-Skills. Please deselect a skill before adding another.");
+              return prev; // Do not update state if already 5
+          }
+
+          return { 
+              ...prev, 
+              skills: isCurrentlySelected 
+                  ? prev.skills.filter(item => item !== skill) 
+                  : [...prev.skills, skill] 
+          };
+      });
   };
 
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
-
+  
   if (loading) {
       return (
           <div className="h-screen bg-[#020617] text-white flex gap-3 items-center justify-center">
@@ -505,7 +514,7 @@ export default function CandidateProfile() {
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25"
                >
                   <Edit size={16}/> Edit Profile
-                </button>
+               </button>
             )}
          </div>
 
@@ -532,7 +541,7 @@ export default function CandidateProfile() {
 
                  <div className="flex flex-col sm:flex-row gap-5 max-w-xl mx-auto">
                     <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above.");}}>
-                       <input type="file" accept=".pdf" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
+                       <input type="file" accept=".pdf,.docx,.txt" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
                        <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-500 hover:-translate-y-1' : 'bg-slate-800 text-slate-500'}`}>
                            {uploading ? <Loader2 size={22} className="animate-spin"/> : <Sparkles size={22}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
                        </div>
@@ -665,9 +674,9 @@ export default function CandidateProfile() {
                             </label>
                             <div className="flex flex-wrap gap-2 mb-4">
                                {formData.strengths.map((str, i) => (
-                                  <span key={i} className="flex items-center gap-1 bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1.5 rounded-lg text-xs font-bold">
+                                   <span key={i} className="flex items-center gap-1 bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1.5 rounded-lg text-xs font-bold">
                                      {str} <X size={14} className="cursor-pointer hover:text-white" onClick={() => removeStr(str)}/>
-                                  </span>
+                                   </span>
                                ))}
                             </div>
                             <input type="text" value={strInput} onChange={(e) => setStrInput(e.target.value)} onKeyDown={handleAddStr} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-green-500" placeholder="e.g. Analytical Thinking..."/>
@@ -691,7 +700,7 @@ export default function CandidateProfile() {
                )}
 
                {currentStep === 2 && (
-                   <div className="space-y-12">
+                  <div className="space-y-12">
                      <div>
                         <div className="flex justify-between items-center mb-6">
                            <h2 className="text-3xl font-extrabold text-white">Education <span className="text-red-500 text-lg">*</span></h2>
@@ -722,7 +731,7 @@ export default function CandidateProfile() {
                                                 <option>Group 2</option>
                                                 <option>Both Groups</option>
                                                 <option>Cleared</option>
-                                             </select>
+                                              </select>
                                           </div>
                                           <div>
                                              <label className="form-label text-red-400">Attempts <span className="text-red-500">*</span></label>
@@ -752,7 +761,14 @@ export default function CandidateProfile() {
                      </div>
 
                      <div className="pt-8 border-t border-slate-800/80">
-                        <h2 className="text-2xl font-extrabold text-white mb-6">Technical Skills & Expertise</h2>
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-2xl font-extrabold text-white">Technical Skills & Expertise <span className="text-red-500 text-lg">*</span></h2>
+                           <span className="bg-slate-800 text-blue-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
+                              {formData.skills.length} / 5 Selected
+                           </span>
+                        </div>
+                        <p className="text-slate-400 text-sm mb-6">Select <strong className="text-white">Minimum 3 and Maximum 5</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
+                        
                         {formData.skills.length > 0 && (
                            <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
                               {formData.skills.map(skill => (
@@ -762,6 +778,7 @@ export default function CandidateProfile() {
                               ))}
                            </div>
                         )}
+                        
                         <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50 flex flex-col md:flex-row">
                            <div className="md:w-1/3 bg-slate-900/40 border-r border-slate-800 p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
                               {(Object.keys(MASTER_SKILLS_DATA) as Array<keyof typeof MASTER_SKILLS_DATA>).map((mainSkill) => (
@@ -875,8 +892,8 @@ export default function CandidateProfile() {
                               <select 
                                  value={formData.jobType} 
                                  onChange={(e)=>{
-                                     const val = e.target.value;
-                                     setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
+                                    const val = e.target.value;
+                                    setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
                                  }} 
                                  className="input-field border-yellow-500/30 [color-scheme:dark] mb-4"
                               >
@@ -886,7 +903,7 @@ export default function CandidateProfile() {
                                  <option value="6+ Month Contract">6+ Month Contract</option>
                                  <option value="Freelance/Project Basis">Freelance/Project Basis</option>
                                  <option value="Internship">Internship</option>
-                               </select>
+                              </select>
                               
                               {formData.jobType === "Permanent Role" && (
                                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/50 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-lg shadow-blue-900/20">
@@ -896,7 +913,8 @@ export default function CandidateProfile() {
                                     <div className="w-full">
                                        <h4 className="text-blue-300 font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
                                        <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-400 text-xs ml-1">*Required</span>
+                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role?
+                                          <span className="text-red-400 text-xs ml-1">*Required</span>
                                        </p>
                                        
                                        <div className="flex flex-col sm:flex-row gap-4 mt-2">
@@ -945,7 +963,7 @@ export default function CandidateProfile() {
                                        {loc} <X size={16} className="cursor-pointer text-blue-400/70 hover:text-white" onClick={() => removeLocation(loc)}/>
                                     </span>
                                  ))}
-                               </div>
+                              </div>
                               <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-700 pb-3 outline-none text-white text-base font-medium placeholder:text-slate-600 focus:border-blue-500" placeholder="e.g. Mumbai, Bangalore..."/>
                            </div>
                         </div>

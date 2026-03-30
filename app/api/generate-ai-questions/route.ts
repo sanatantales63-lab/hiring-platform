@@ -9,46 +9,56 @@ export async function POST(req: Request) {
         "gs" + "k_I9JfZzyJS6ihxU7MWrTHWGdyb3FYrz9xIcJwCF1ZaYl07EptpM3Z",
         "gs" + "k_cBHz4Yii5ILi9venQVA8WGdyb3FYxbXd7bIuWl6akFJy5nqaO67x"
     ];
+
     const body = await req.json();
     const qualifications = body.qualifications || "General Aptitude & Accounting";
-    const missingSkillsMap = body.missingSkillsMap || []; 
+    const missingSkillsMap = body.missingSkillsMap || [];
+    const existingQuestions = body.existingQuestions || ""; // Added to avoid repetition
 
     const qualString = Array.isArray(qualifications) ? qualifications.join(", ") : qualifications;
 
     let skillInstructions = "";
     let totalAiTechQs = 0;
-    
+
     if (missingSkillsMap.length > 0) {
-        skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} advanced-level questions for the skill: "${s.skill}".`).join("\n");
+        skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} advanced-level questions for the specific skill: "${s.skill}".`).join("\n");
         totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
     } else {
         skillInstructions = `- Exactly 7 advanced-level Technical questions strictly based on their core qualifications.`;
         totalAiTechQs = 7;
     }
 
-    const totalQuestions = totalAiTechQs + 5; 
+    const totalQuestions = totalAiTechQs + 5;
 
-    const prompt = `You are an expert technical examiner and HR behavioral analyst. 
+    // 🔥 STRICT NEW PROMPT FOR PRACTICAL & NON-REPEATED QUESTIONS 🔥
+    const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
     The candidate has the following educational qualifications and background: ${qualString}.
     
-    Generate exactly ${totalQuestions} multiple-choice questions in total based on these precise requirements:
+    Generate EXACTLY ${totalQuestions} multiple-choice questions based on these precise requirements:
     ${skillInstructions}
-    - Exactly 5 Psychometric/Situational questions to test workplace ethics, culture fit, and decision-making.
+    - Exactly 5 Psychometric/Situational questions to test workplace ethics, culture fit, and decision-making under pressure.
     
-    CRITICAL RULES:
+    CRITICAL QUESTION QUALITY RULES (MUST FOLLOW):
+    1. DO NOT ask simple theoretical or definitional questions (e.g., "What is Tally?", "Define Ind AS").
+    2. ALL Technical questions MUST be PRACTICAL, SCENARIO-BASED, or CASE-STUDY type.
+    3. Put the candidate in a real-world office situation (e.g., "You are auditing a client's balance sheet and find X discrepancy...", "While entering a journal in ERP, the tax code fails...").
+    4. Do NOT repeat any concept or question similar to these already asked questions: [${existingQuestions}].
+    
+    FORMATTING RULES:
     1. Each question MUST have exactly 5 options.
     2. The first 4 options should be plausible answers. For psychometric, option 1 should be the most ideal/ethical response.
     3. The 5th option MUST exactly be the string "I Don't Know".
     4. Provide the correct_answer exactly as it appears in the options.
     5. You MUST include a "category" field which is strictly either "Technical" or "Psychometric".
-    6. For Technical questions, set the "skill" field exactly to the skill name requested. For Psychometric, set "skill" to "Psychometric & Behavioral Fit".
+    6. For Technical questions, set the "skill" field exactly to the skill name requested in the instructions above.
+    7. For Psychometric, set "skill" to "Psychometric & Behavioral Fit".
     
     Return ONLY a valid JSON object with a "questions" array. Do not include markdown formatting or intro text.
     Structure:
     {
       "questions": [
         {
-          "question": "Question text here",
+          "question": "Scenario text here...",
           "options": ["Option A", "Option B", "Option C", "Option D", "I Don't Know"],
           "correct_answer": "Exact text of the correct option",
           "skill": "Tally ERP", 

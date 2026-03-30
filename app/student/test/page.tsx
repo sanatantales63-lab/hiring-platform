@@ -131,16 +131,15 @@ export default function LiveTestPage() {
     }).eq("id", user.id);
   }, [user, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
-  // 🔥 NEW SMART SCANNER FOR CORRECT ANSWERS 🔥
   const checkIsCorrect = (q: any, ansIndex: number) => {
       if (ansIndex === -1 || ansIndex === undefined) return false;
       const selectedText = String(q.options[ansIndex]).trim().toLowerCase();
       const correctAns = String(q.correct_answer).trim().toLowerCase();
 
-      if (selectedText === correctAns) return true; // Exact match ignoring space/case
-      if (correctAns === String(ansIndex)) return true; // Matches '0', '1', '2'
-      if (correctAns === ['a', 'b', 'c', 'd', 'e'][ansIndex]) return true; // Matches 'a', 'b', 'c'
-      if (selectedText.includes(correctAns) || correctAns.includes(selectedText)) return true; // Partial match safe catch
+      if (selectedText === correctAns) return true; 
+      if (correctAns === String(ansIndex)) return true; 
+      if (correctAns === ['a', 'b', 'c', 'd', 'e'][ansIndex]) return true; 
+      if (selectedText.includes(correctAns) || correctAns.includes(selectedText)) return true; 
 
       return false;
   };
@@ -166,7 +165,6 @@ export default function LiveTestPage() {
      const currentScore = calculateCurrentScore();
      const percentage = questions.length > 0 ? (currentScore / questions.length) * 100 : 0;
      
-     // 🔥 FIXED: Will show popup even if less than 5 extra questions exist 🔥
      if (percentage < 30 && !bonusRoundTaken && extraQuestionsPool.length > 0) {
          setShowBonusPopup(true);
      } else {
@@ -492,6 +490,7 @@ export default function LiveTestPage() {
     }
   };
 
+  // 🔥 CASE SENSITIVITY & EXACT 5 QUESTIONS DISTRIBUTION FIX 🔥
   useEffect(() => {
     const initTest = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -502,7 +501,6 @@ export default function LiveTestPage() {
       setStudentProfile(profileSnap);
 
       const currentStatus = profileSnap?.examAccess || 'none';
-      
       if (currentStatus === 'completed' || currentStatus === 'disqualified' || currentStatus === 'pending') {
          alert("Your test is locked. Please request a re-test from your dashboard if needed."); 
          window.location.href = "/student/dashboard"; 
@@ -510,7 +508,6 @@ export default function LiveTestPage() {
       }
 
       const testableSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
-      
       if (testableSkills.length === 0) {
           alert("Test engine couldn't find any skills in your profile! Please add core skills.");
           router.push("/student/profile"); 
@@ -524,26 +521,27 @@ export default function LiveTestPage() {
         let shortfallToFetch: any[] = [];
         
         for (const skill of testableSkills) {
+            // Fetch using ilike to catch DB questions regardless of exact case
             const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", `%${skill}%`);
             let dbFetchedCount = 0;
 
             if (skillQs && skillQs.length > 0) {
                 const processedQs = skillQs.map(q => {
-                    if (q.options.length === 4 && !q.options.includes("I Don't Know")) {
-                        return { ...q, options: [...q.options, "I Don't Know"] };
+                    let opts = q.options;
+                    if (opts.length === 4 && !opts.includes("I Don't Know")) {
+                        opts = [...opts, "I Don't Know"];
                     }
-                    return { ...q, category: "Technical" }; 
+                    // 🔥 FORCE THE EXACT SKILL NAME FROM PROFILE TO AVOID DUPLICATE CARDS LATER 🔥
+                    return { ...q, options: opts, category: "Technical", skill: skill }; 
                 });
 
-                const beginnerQs = processedQs.filter((q: any) => q.difficulty?.toLowerCase().includes('beginner')).sort(() => 0.5 - Math.random());
-                const interQs = processedQs.filter((q: any) => q.difficulty?.toLowerCase().includes('intermediate')).sort(() => 0.5 - Math.random());
-                const advancedQs = processedQs.filter((q: any) => q.difficulty?.toLowerCase().includes('advanced')).sort(() => 0.5 - Math.random());
-                
-                const toAdd = [...beginnerQs.slice(0, 2), ...interQs.slice(0, 2), ...advancedQs.slice(0, 1)];
+                // Randomize and limit to max 5 from DB
+                const randomizedQs = processedQs.sort(() => 0.5 - Math.random());
+                const toAdd = randomizedQs.slice(0, 5); 
                 dbFetchedCount = toAdd.length;
 
                 finalQuestions = [...finalQuestions, ...toAdd];
-                backupQuestions = [...backupQuestions, ...beginnerQs.slice(2), ...interQs.slice(2), ...advancedQs.slice(1)];
+                backupQuestions = [...backupQuestions, ...randomizedQs.slice(5)];
             }
 
             const missing = 5 - dbFetchedCount;
@@ -649,12 +647,16 @@ export default function LiveTestPage() {
         
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
 
+        // Also pass already asked DB questions to AI so it doesn't repeat them
+        const existingQsText = questions.map(q => q.question).join(" | ");
+
         const aiResponse = await fetch('/api/generate-ai-questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 qualifications: payloadString,
-                missingSkillsMap: shortfallData
+                missingSkillsMap: shortfallData,
+                existingQuestions: existingQsText
             })
         });
         
@@ -669,10 +671,17 @@ export default function LiveTestPage() {
                     
                     const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
                     
+                    // 🔥 FORCE EXACT SKILL MATCHING FROM AI TO AVOID CASE MISMATCH 🔥
+                    let exactSkillAssigned = q.skill;
+                    if (!isPsycho) {
+                       const matchedShortfall = shortfallData.find(s => s.skill.toLowerCase() === q.skill?.toLowerCase());
+                       if (matchedShortfall) exactSkillAssigned = matchedShortfall.skill;
+                    }
+
                     return { 
                         ...q, 
                         options: opts, 
-                        skill: isPsycho ? "Psychometric & Behavioral Fit" : (q.skill || "Core Qualification Check"),
+                        skill: isPsycho ? "Psychometric & Behavioral Fit" : (exactSkillAssigned || "Core Qualification Check"),
                         category: isPsycho ? "Psychometric" : "Technical"
                     };
                 });
