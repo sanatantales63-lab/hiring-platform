@@ -490,7 +490,6 @@ export default function LiveTestPage() {
     }
   };
 
-  // 🔥 CASE SENSITIVITY & EXACT 5 QUESTIONS DISTRIBUTION FIX 🔥
   useEffect(() => {
     const initTest = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -521,8 +520,9 @@ export default function LiveTestPage() {
         let shortfallToFetch: any[] = [];
         
         for (const skill of testableSkills) {
-            // Fetch using ilike to catch DB questions regardless of exact case
-            const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", `%${skill}%`);
+            const exactSkill = skill.trim();
+            // 🔥 STRICT EXACT MATCH FIX: Only fetches questions if Sub-skill exactly matches. 🔥
+            const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", exactSkill);
             let dbFetchedCount = 0;
 
             if (skillQs && skillQs.length > 0) {
@@ -531,11 +531,9 @@ export default function LiveTestPage() {
                     if (opts.length === 4 && !opts.includes("I Don't Know")) {
                         opts = [...opts, "I Don't Know"];
                     }
-                    // 🔥 FORCE THE EXACT SKILL NAME FROM PROFILE TO AVOID DUPLICATE CARDS LATER 🔥
-                    return { ...q, options: opts, category: "Technical", skill: skill }; 
+                    return { ...q, options: opts, category: "Technical", skill: exactSkill }; 
                 });
 
-                // Randomize and limit to max 5 from DB
                 const randomizedQs = processedQs.sort(() => 0.5 - Math.random());
                 const toAdd = randomizedQs.slice(0, 5); 
                 dbFetchedCount = toAdd.length;
@@ -546,14 +544,14 @@ export default function LiveTestPage() {
 
             const missing = 5 - dbFetchedCount;
             scopeInfo.push({
-                skillName: skill,
+                skillName: exactSkill,
                 dbCount: dbFetchedCount,
                 aiCount: missing,
                 total: 5
             });
 
             if (missing > 0) {
-                shortfallToFetch.push({ skill: skill, count: missing });
+                shortfallToFetch.push({ skill: exactSkill, count: missing });
             }
         }
 
@@ -647,7 +645,6 @@ export default function LiveTestPage() {
         
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
 
-        // Also pass already asked DB questions to AI so it doesn't repeat them
         const existingQsText = questions.map(q => q.question).join(" | ");
 
         const aiResponse = await fetch('/api/generate-ai-questions', {
@@ -671,7 +668,6 @@ export default function LiveTestPage() {
                     
                     const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
                     
-                    // 🔥 FORCE EXACT SKILL MATCHING FROM AI TO AVOID CASE MISMATCH 🔥
                     let exactSkillAssigned = q.skill;
                     if (!isPsycho) {
                        const matchedShortfall = shortfallData.find(s => s.skill.toLowerCase() === q.skill?.toLowerCase());
