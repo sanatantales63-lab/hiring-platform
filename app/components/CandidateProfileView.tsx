@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { 
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
-  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown
+  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award
 } from "lucide-react";
 
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
@@ -203,15 +203,25 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          </div>
 
          <div className="md:col-span-2 space-y-8">
+            {/* EDUCATION SECTION */}
             <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><GraduationCap className="text-purple-400"/> Education & Certifications</h3>
                <div className="space-y-4">
-                   {displayedEducations.map((edu:any, i:number) => (
+                   {displayedEducations.map((edu:any, i:number) => {
+                      const isSchoolLevel = ['10th', '12th', 'high school', 'secondary', 'intermediate', 'puc'].some(keyword => (edu.qualification || '').toLowerCase().includes(keyword));
+                      return (
                       <div key={i} className="bg-slate-950/50 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-700 transition-colors">
                          <div>
-                            <p className="font-bold text-lg text-white">
+                            <p className="font-bold text-lg text-white flex items-center gap-2">
                                {edu.qualification} 
-                               {edu.stageCleared && <span className="text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded ml-2 uppercase font-bold">{edu.stageCleared}</span>}
+                               {edu.stageCleared && <span className="text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
+                               
+                               {/* 🔥 NEW MATHS UI LOGIC HERE 🔥 */}
+                               {isSchoolLevel && edu.mathsIncluded && edu.mathsIncluded !== "" && (
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${edu.mathsIncluded === 'Yes' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+                                      Maths: {edu.mathsIncluded}
+                                  </span>
+                               )}
                             </p>
                             <p className="text-sm text-slate-400 mt-1">{edu.collegeName || "Institution not specified"}</p>
                          </div>
@@ -219,7 +229,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                             <p className="text-white font-bold bg-slate-800 px-3 py-1 rounded-lg inline-block">{edu.passingYear || "N/A"}</p>
                          </div>
                       </div>
-                   ))}
+                   )})}
                    {extraEduCount > 0 && (
                       <button onClick={() => setShowAllEdu(!showAllEdu)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
                          {showAllEdu ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraEduCount} More Qualifications</>}
@@ -227,6 +237,32 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                    )}
                </div>
             </div>
+
+            {/* 🔥 NEW ACHIEVEMENTS SECTION 🔥 */}
+            {candidate.achievements && candidate.achievements.length > 0 && (
+                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><Award className="text-yellow-400"/> Achievements & Certifications</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {candidate.achievements.map((ach: any, i: number) => (
+                            <div key={i} className="bg-slate-950/50 border border-slate-800 rounded-2xl p-4 flex gap-4 hover:border-slate-700 transition-colors items-start">
+                                {ach.imageURL ? (
+                                    <a href={ach.imageURL} target="_blank" rel="noreferrer" className="shrink-0">
+                                        <img src={ach.imageURL} alt="Achievement" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-xl border border-slate-700 hover:opacity-80 transition-opacity cursor-pointer"/>
+                                    </a>
+                                ) : (
+                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-yellow-500/10 rounded-xl flex items-center justify-center shrink-0 border border-yellow-500/20">
+                                        <Award size={24} className="text-yellow-500"/>
+                                    </div>
+                                )}
+                                <div>
+                                    <h4 className="text-white font-bold text-sm md:text-base leading-tight mb-1">{ach.title || "Untitled Achievement"}</h4>
+                                    <p className="text-slate-400 text-xs leading-relaxed line-clamp-2" title={ach.description}>{ach.description || "No description provided."}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-blue-400"/> Technical Skills & Expertise</h3>

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
@@ -77,8 +77,9 @@ export default function CandidateProfile() {
     willingToRelocate: "No",
     panCard: "", 
     bio: "", 
-    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }], 
+    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "" }], 
     workExperience: [] as { company: string, role: string, duration: string }[],
+    achievements: [] as { title: string, description: string, imageURL: string }[], // 🔥 NEW ACHIEVEMENTS ARRAY 🔥
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
     strengths: [] as string[],
@@ -146,6 +147,7 @@ export default function CandidateProfile() {
             openToContractRoles: data.openToContractRoles === true ? "Yes" : (data.openToContractRoles === false ? "No" : ""),
             educations: data.educations?.length ? data.educations : formData.educations,
             workExperience: data.workExperience || [],
+            achievements: data.achievements || [], // 🔥 RESTORE ACHIEVEMENTS 🔥
             languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
             preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
             skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : [],
@@ -221,7 +223,7 @@ export default function CandidateProfile() {
   const removeWeak = (val: string) => setFormData(p => ({ ...p, weaknesses: p.weaknesses.filter(l => l !== val) }));
 
   const addEducation = () => {
-      setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "" }] }));
+      setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "" }] }));
   };
 
   const updateEducation = (index: number, field: string, value: string) => {
@@ -251,6 +253,44 @@ export default function CandidateProfile() {
       const newWork = [...formData.workExperience]; 
       newWork.splice(index, 1);
       setFormData(p => ({ ...p, workExperience: newWork })); 
+  };
+
+  // 🔥 ACHIEVEMENT HANDLERS 🔥
+  const addAchievement = () => {
+    setFormData(p => ({ ...p, achievements: [...p.achievements, { title: "", description: "", imageURL: "" }] }));
+  };
+
+  const updateAchievement = (index: number, field: string, value: string) => { 
+      const newAch = [...formData.achievements];
+      newAch[index] = { ...newAch[index], [field]: value }; 
+      setFormData(p => ({ ...p, achievements: newAch })); 
+  };
+
+  const removeAchievement = (index: number) => { 
+      const newAch = [...formData.achievements]; 
+      newAch.splice(index, 1);
+      setFormData(p => ({ ...p, achievements: newAch })); 
+  };
+
+  const handleAchievementImageUpload = async (index: number, e: any) => {
+    const file = e.target.files[0];
+    if (!file || file.size > 2 * 1024 * 1024) return alert("Image must be under 2MB!");
+    
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session) return;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${session.user.id}_achivement_${Date.now()}.${fileExt}`;
+      await supabase.storage.from('resumes').upload(fileName, file, { upsert: true });
+      const { data: publicUrlData } = supabase.storage.from('resumes').getPublicUrl(fileName);
+
+      updateAchievement(index, 'imageURL', publicUrlData.publicUrl);
+    } catch (error: any) {
+        alert("Upload Failed: " + error.message);
+    } finally {
+        setUploading(false);
+    }
   };
 
   const startCamera = async () => {
@@ -346,6 +386,7 @@ export default function CandidateProfile() {
             expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
             workExperience: aiData.workExperience?.length > 0 ? aiData.workExperience : prev.workExperience, 
+            achievements: aiData.achievements?.length > 0 ? aiData.achievements : prev.achievements, // 🔥 AI AUTOFILL FOR ACHIEVEMENTS 🔥
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
             skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
             strengths: aiData.strengths?.length > 0 ? aiData.strengths : prev.strengths,
@@ -409,7 +450,6 @@ export default function CandidateProfile() {
               }
            }
         }
-        // 🔥 MIN 3 SKILLS VALIDATION ADDED HERE 🔥
         if (formData.skills.length < 3) {
             return alert("🛑 Please select at least 3 Technical Sub-Skills. This helps us customize your Assessment.");
         }
@@ -424,7 +464,6 @@ export default function CandidateProfile() {
     if (formData.jobType === "Permanent Role" && (formData.openToContractRoles === "" || formData.openToContractRoles === null)) {
         return alert("🛑 Smart Career Tip: Please explicitly select 'Yes' or 'No' for short-term contract roles to proceed.");
     }
-    // 🔥 DOUBLE CHECK SKILLS LENGTH 🔥
     if (formData.skills.length < 3) {
         setCurrentStep(2);
         return alert("🛑 Please select at least 3 Technical Sub-Skills before saving.");
@@ -462,21 +501,16 @@ export default function CandidateProfile() {
     }
   };
 
-  // 🔥 MAX 5 SKILLS VALIDATION ADDED HERE 🔥
   const toggleSkill = (skill: string) => {
       setFormData(prev => {
           const isCurrentlySelected = prev.skills.includes(skill);
-          
           if (!isCurrentlySelected && prev.skills.length >= 5) {
               alert("🛑 You can select a maximum of 5 Sub-Skills. Please deselect a skill before adding another.");
-              return prev; // Do not update state if already 5
+              return prev; 
           }
-
           return { 
               ...prev, 
-              skills: isCurrentlySelected 
-                  ? prev.skills.filter(item => item !== skill) 
-                  : [...prev.skills, skill] 
+              skills: isCurrentlySelected ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] 
           };
       });
   };
@@ -592,7 +626,6 @@ export default function CandidateProfile() {
                        />
                      </div>
 
-                     {/* 🔥 LIVE DP CAMERA CAPTURE SECTION 🔥 */}
                      <div className="flex items-center gap-8 mb-8">
                         <div onClick={startCamera} className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden shadow-xl group cursor-pointer hover:border-blue-500 transition-colors">
                            {uploading ? <Loader2 className="animate-spin text-blue-500"/> : 
@@ -610,7 +643,6 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 CAMERA MODAL 🔥 */}
                      <AnimatePresence>
                         {showCamera && (
                            <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
@@ -709,7 +741,9 @@ export default function CandidateProfile() {
                            </button>
                         </div>
                         <div className="space-y-6">
-                           {formData.educations.map((edu, index) => (
+                           {formData.educations.map((edu, index) => {
+                              const isSchoolLevel = ['10th', '12th', 'high school', 'secondary', 'intermediate', 'puc'].some(keyword => (edu.qualification || '').toLowerCase().includes(keyword));
+                              return (
                               <div key={index} className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800 relative">
                                  {formData.educations.length > 1 && (
                                     <button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 p-2">
@@ -717,12 +751,25 @@ export default function CandidateProfile() {
                                     </button>
                                  )}
                                  <div className="grid md:grid-cols-2 gap-6 mt-2">
-                                    <div>
+                                    <div className={isSchoolLevel ? "md:col-span-1" : "md:col-span-2"}>
                                        <label className="form-label">Qualification <span className="text-red-500">*</span></label>
                                        <input type="text" list="qualifications-list" value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="input-field"/>
                                     </div>
+                                    
+                                    {/* 🔥 NEW: MATHS INCLUDED (Only for 10th/12th) 🔥 */}
+                                    {isSchoolLevel && (
+                                       <div>
+                                          <label className="form-label text-blue-400">Maths Included? <span className="text-slate-500 text-xs">(Optional)</span></label>
+                                          <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="input-field border-blue-500/30 [color-scheme:dark]">
+                                             <option value="">Select</option>
+                                             <option value="Yes">Yes</option>
+                                             <option value="No">No</option>
+                                           </select>
+                                       </div>
+                                    )}
+
                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
-                                       <div className="grid grid-cols-2 gap-4">
+                                       <div className="grid grid-cols-2 gap-4 md:col-span-2">
                                           <div>
                                              <label className="form-label text-yellow-400">Stage Cleared <span className="text-red-500">*</span></label>
                                              <select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 [color-scheme:dark]">
@@ -753,7 +800,7 @@ export default function CandidateProfile() {
                                     </div>
                                  </div>
                               </div>
-                           ))}
+                           )})}
                            <datalist id="qualifications-list">
                               {QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}
                            </datalist>
@@ -850,6 +897,50 @@ export default function CandidateProfile() {
                               </div>
                            ))}
                            {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm">No past experience added. AI will auto-fill if found on resume.</p>}
+                        </div>
+                     </div>
+
+                     {/* 🔥 NEW: ACHIEVEMENTS SECTION 🔥 */}
+                     <div className="pt-8 border-t border-slate-800/80">
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-3xl font-extrabold text-white flex items-center gap-2"><Award className="text-yellow-400"/> Achievements & Certifications</h2>
+                           <button onClick={addAchievement} className="text-sm font-bold text-yellow-400 bg-yellow-500/10 px-4 py-2 rounded-xl">
+                              <Plus size={18} className="inline"/> Add Achievement
+                           </button>
+                        </div>
+                        <div className="space-y-4">
+                           {formData.achievements.map((ach, index) => (
+                              <div key={index} className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 relative">
+                                 <button onClick={() => removeAchievement(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500">
+                                    <X size={18}/>
+                                 </button>
+                                 <div className="grid md:grid-cols-2 gap-4 mt-2">
+                                    <div className="md:col-span-2">
+                                       <label className="form-label">Achievement / Certificate Title</label>
+                                       <input type="text" value={ach.title} onChange={(e)=>updateAchievement(index, 'title', e.target.value)} className="input-field" placeholder="e.g. Employee of the Month, NCFM Certified..."/>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                       <label className="form-label">Short Description</label>
+                                       <textarea value={ach.description} onChange={(e)=>updateAchievement(index, 'description', e.target.value)} className="input-field min-h-[60px]" placeholder="e.g. Awarded for generating maximum revenue..."/>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                       <label className="form-label text-slate-400">Upload Certificate/Photo <span className="text-xs ml-1">(Optional)</span></label>
+                                       <div className="flex items-center gap-4">
+                                          {ach.imageURL && (
+                                              <img src={ach.imageURL} alt="Achievement" className="w-16 h-16 object-cover rounded-xl border border-slate-700"/>
+                                          )}
+                                          <div className="relative">
+                                             <input type="file" accept="image/*" onChange={(e) => handleAchievementImageUpload(index, e)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+                                             <div className="bg-slate-800 hover:bg-slate-700 text-blue-400 text-sm font-bold px-4 py-2.5 rounded-xl border border-slate-700 flex items-center gap-2 transition-colors">
+                                                 <ImagePlus size={16}/> {ach.imageURL ? "Change Image" : "Upload Image"}
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           ))}
+                           {formData.achievements.length === 0 && <p className="text-slate-500 text-sm">Stand out by adding your awards or extra certifications.</p>}
                         </div>
                      </div>
 
