@@ -46,6 +46,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   
   const candidateSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((s:any) => typeof s === 'string') : [];
   const candidateBehavioralSkills = Array.isArray(candidate.behavioralSkills) ? candidate.behavioralSkills.filter((s:any) => typeof s === 'string') : [];
+  const candidateTechnologicalSkills = Array.isArray(candidate.technologicalSkills) ? candidate.technologicalSkills : [];
   const candidateStrengths = Array.isArray(candidate.strengths) ? candidate.strengths : [];
   const candidateWeaknesses = Array.isArray(candidate.weaknesses) ? candidate.weaknesses : [];
 
@@ -209,17 +210,18 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><GraduationCap className="text-purple-400"/> Education & Certifications</h3>
                <div className="space-y-4">
                    {displayedEducations.map((edu:any, i:number) => {
-                      const isSchoolLevel = ['10th', '12th', 'high school', 'secondary', 'intermediate', 'puc'].some(keyword => (edu.qualification || '').toLowerCase().includes(keyword));
+                      const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test((edu.qualification || '').toLowerCase());
                       return (
                       <div key={i} className="bg-slate-950/50 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-700 transition-colors">
                          <div>
-                            <p className="font-bold text-lg text-white flex items-center gap-2">
+                            <p className="font-bold text-lg text-white flex items-center gap-2 flex-wrap">
                                {edu.qualification} 
                                {edu.stageCleared && <span className="text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
                                
+                               {/* 🔥 MATHS UI WITH SCORE 🔥 */}
                                {isSchoolLevel && edu.mathsIncluded && edu.mathsIncluded !== "" && (
                                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${edu.mathsIncluded === 'Yes' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
-                                      Maths: {edu.mathsIncluded}
+                                      Maths: {edu.mathsIncluded} {edu.mathsIncluded === 'Yes' && edu.mathsScore ? `(${edu.mathsScore}%)` : ''}
                                   </span>
                                )}
                             </p>
@@ -274,7 +276,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   </div>
                ) : <span className="text-slate-500 text-sm italic">No skills selected yet.</span>}
                
-               {/* 🔥 BEHAVIORAL SKILLS (NEW) 🔥 */}
+               {/* BEHAVIORAL SKILLS */}
                <div className="mt-8 pt-8 border-t border-slate-800">
                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3"><Users className="text-purple-400"/> Behavioral & Soft Skills</h3>
                    {candidateBehavioralSkills.length > 0 ? (
@@ -284,6 +286,24 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                          ))}
                       </div>
                    ) : <span className="text-slate-500 text-sm italic">No behavioral skills selected.</span>}
+               </div>
+
+               {/* 🔥 TECHNOLOGICAL SKILLS (WITH LEVEL) 🔥 */}
+               <div className="mt-8 pt-8 border-t border-slate-800">
+                   <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3"><Monitor className="text-pink-400"/> Technological Tools & Software</h3>
+                   {candidateTechnologicalSkills.length > 0 ? (
+                      <div className="flex flex-wrap gap-2.5">
+                         {candidateTechnologicalSkills.map((skill:any, i:number) => {
+                            const skillName = typeof skill === 'string' ? skill : skill.name;
+                            const skillLevel = typeof skill === 'object' && skill.level ? skill.level : 'Beginner';
+                            return (
+                               <span key={i} className="bg-pink-600/10 text-pink-300 px-4 py-2 rounded-xl text-sm font-bold border border-pink-500/30 hover:bg-pink-600/20 transition-all shadow-sm">
+                                   {skillName} <span className="text-[10px] text-pink-500 ml-1 uppercase tracking-wider">({skillLevel})</span>
+                               </span>
+                            );
+                         })}
+                      </div>
+                   ) : <span className="text-slate-500 text-sm italic">No tools selected.</span>}
                </div>
 
                {(candidateStrengths.length > 0 || candidateWeaknesses.length > 0) && (
@@ -364,17 +384,20 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                {Object.keys(metaObj.skillScores).map((skillName) => {
                   const data = metaObj.skillScores[skillName];
                   const percentage = (data.correct / data.total) * 100;
-                  const isPsycho = skillName.includes('Psychometric');
                   
-                  const colorClass = isPsycho ? 'bg-purple-500' : (percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500');
-                  const textClass = isPsycho ? 'text-purple-400' : (percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400');
-                  const borderClass = isPsycho ? 'border-purple-500/40 bg-purple-950/20' : 'border-slate-800/80 bg-slate-950/80';
+                  const isPsycho = skillName.includes('Psychometric');
+                  const techSkillNames = candidateTechnologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name);
+                  const isTechSkill = techSkillNames.includes(skillName);
+                  
+                  const colorClass = isPsycho ? 'bg-purple-500' : isTechSkill ? 'bg-pink-500' : (percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500');
+                  const textClass = isPsycho ? 'text-purple-400' : isTechSkill ? 'text-pink-400' : (percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400');
+                  const borderClass = isPsycho ? 'border-purple-500/40 bg-purple-950/20' : isTechSkill ? 'border-pink-500/40 bg-pink-950/20' : 'border-slate-800/80 bg-slate-950/80';
 
                   return (
                      <div key={skillName} className={`p-5 rounded-2xl border shadow-sm ${borderClass}`}>
                         <div className="flex justify-between items-center mb-4">
-                           <span className={`font-bold text-sm ${isPsycho ? 'text-purple-300' : 'text-slate-200'}`}>
-                               {isPsycho ? "🧠 Behavioral & Culture Fit" : skillName}
+                           <span className={`font-bold text-sm ${isPsycho ? 'text-purple-300' : isTechSkill ? 'text-pink-300' : 'text-slate-200'}`}>
+                               {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skillName}` : skillName}
                            </span>
                            <span className={`font-bold ${textClass}`}>{data.correct} / {data.total}</span>
                         </div>

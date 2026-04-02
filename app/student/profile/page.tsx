@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users, Monitor
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
@@ -35,6 +35,13 @@ const BEHAVIORAL_SKILLS_LIST = [
     "Critical Thinking", "Adaptability & Flexibility", "Time Management", 
     "Work Ethic", "Conflict Resolution", "Emotional Intelligence", "Decision Making",
     "Client Relationship Management", "Strategic Planning"
+];
+
+// 🔥 PRESET TECHNOLOGICAL SKILLS LIST 🔥
+const TECH_SKILLS_LIST = [
+    "Advanced Excel", "Tally Prime", "SAP FICO", "MS Word", "MS PowerPoint", 
+    "Power BI", "Tableau", "Oracle ERP", "QuickBooks", "Zoho Books", 
+    "SQL", "Python for Finance", "Macros & VBA"
 ];
 
 const fetchLegalProof = async () => {
@@ -85,12 +92,14 @@ export default function CandidateProfile() {
     willingToRelocate: "No",
     panCard: "", 
     bio: "", 
-    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "" }], 
+    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "", mathsScore: "" }], 
     workExperience: [] as { company: string, role: string, duration: string }[],
     achievements: [] as { title: string, description: string, imageURL: string }[], 
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
     behavioralSkills: [] as string[], 
+    // 🔥 NEW: TECH SKILLS NOW STORE BOTH NAME AND LEVEL 🔥
+    technologicalSkills: [] as { name: string, level: string }[], 
     strengths: [] as string[],
     weaknesses: [] as string[],
     preferredLocations: [] as string[],
@@ -110,6 +119,7 @@ export default function CandidateProfile() {
   const [strInput, setStrInput] = useState("");
   const [weakInput, setWeakInput] = useState("");
   const [behavInput, setBehavInput] = useState(""); 
+  const [techInput, setTechInput] = useState(""); 
   
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
 
@@ -162,6 +172,8 @@ export default function CandidateProfile() {
             preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
             skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : [],
             behavioralSkills: Array.isArray(data.behavioralSkills) ? data.behavioralSkills.filter((s:any) => typeof s === 'string') : [],
+            // 🔥 BACKWARD COMPATIBILITY: Convert old string tech skills to new object format with default 'Beginner' 🔥
+            technologicalSkills: Array.isArray(data.technologicalSkills) ? data.technologicalSkills.map((s:any) => typeof s === 'string' ? { name: s, level: 'Beginner' } : s) : [],
             strengths: Array.isArray(data.strengths) ? data.strengths : [],
             weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : []
           });
@@ -248,12 +260,41 @@ export default function CandidateProfile() {
       setFormData(p => ({ ...p, behavioralSkills: p.behavioralSkills.filter(s => s !== skill) }));
   };
 
+  // 🔥 NEW: TECH SKILL HANDLER (NOW WITH LEVELS) 🔥
+  const handleAddTechSkill = (e: any) => {
+      if (e.key === 'Enter' && techInput.trim() !== '') {
+          e.preventDefault();
+          const newSkillName = techInput.trim();
+          const exists = formData.technologicalSkills.find(s => s.name.toLowerCase() === newSkillName.toLowerCase());
+          if (!exists) {
+              if (formData.technologicalSkills.length >= 8) {
+                  alert("🛑 You can select a maximum of 8 Technological Skills.");
+                  return;
+              }
+              setFormData(p => ({ ...p, technologicalSkills: [...p.technologicalSkills, { name: newSkillName, level: "Beginner" }] }));
+          }
+          setTechInput("");
+      }
+  };
+  const removeTechSkill = (skillName: string) => {
+      setFormData(p => ({ ...p, technologicalSkills: p.technologicalSkills.filter(s => s.name !== skillName) }));
+  };
+  const updateTechSkillLevel = (skillName: string, level: string) => {
+      setFormData(p => ({
+          ...p,
+          technologicalSkills: p.technologicalSkills.map(s => s.name === skillName ? { ...s, level } : s)
+      }));
+  };
+
   const addEducation = () => {
-      setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "" }] }));
+      setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "", mathsScore: "" }] }));
   };
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value }; 
+    if (field === 'mathsIncluded' && value !== 'Yes') {
+        newEdu[index].mathsScore = "";
+    }
     setFormData(p => ({ ...p, educations: newEdu }));
   };
   const removeEducation = (index: number) => {
@@ -466,6 +507,12 @@ export default function CandidateProfile() {
                      return alert(`🛑 For Professional Qualifications like ${edu.qualification}, 'Attempts' are mandatory!`);
                  }
               }
+              const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test(edu.qualification);
+              if (isSchoolLevel && edu.mathsIncluded === 'Yes') {
+                  if (!edu.mathsScore || edu.mathsScore.trim() === "") {
+                      return alert(`🛑 You selected 'Yes' for Maths in ${edu.qualification}. Please provide your Maths Score (%) to proceed.`);
+                  }
+              }
            }
         }
         if (formData.skills.length < 1) {
@@ -536,6 +583,36 @@ export default function CandidateProfile() {
           return { 
               ...prev, 
               skills: isCurrentlySelected ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] 
+          };
+      });
+  };
+
+  const toggleBehavioralSkill = (skill: string) => {
+      setFormData(prev => {
+          const isCurrentlySelected = prev.behavioralSkills.includes(skill);
+          if (!isCurrentlySelected && prev.behavioralSkills.length >= 5) {
+              alert("🛑 You can select a maximum of 5 Behavioral Skills.");
+              return prev; 
+          }
+          return { 
+              ...prev, 
+              behavioralSkills: isCurrentlySelected ? prev.behavioralSkills.filter(item => item !== skill) : [...prev.behavioralSkills, skill] 
+          };
+      });
+  };
+
+  const toggleTechSkill = (skillName: string) => {
+      setFormData(prev => {
+          const exists = prev.technologicalSkills.find(s => s.name === skillName);
+          if (!exists && prev.technologicalSkills.length >= 8) {
+              alert("🛑 You can select a maximum of 8 Technological Skills.");
+              return prev; 
+          }
+          return { 
+              ...prev, 
+              technologicalSkills: exists 
+                 ? prev.technologicalSkills.filter(item => item.name !== skillName) 
+                 : [...prev.technologicalSkills, { name: skillName, level: "Beginner" }] 
           };
       });
   };
@@ -767,7 +844,6 @@ export default function CandidateProfile() {
                         </div>
                         <div className="space-y-6">
                            {formData.educations.map((edu, index) => {
-                              // 🔥 FIX: EXTRA POWERFUL REGEX FOR 10TH/12TH DETECTION 🔥
                               const qualText = (edu.qualification || '').toLowerCase();
                               const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test(qualText);
                               
@@ -785,13 +861,21 @@ export default function CandidateProfile() {
                                     </div>
                                     
                                     {isSchoolLevel && (
-                                       <div>
-                                          <label className="form-label text-blue-400">Maths Included? <span className="text-slate-500 text-xs">(Optional)</span></label>
-                                          <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="input-field border-blue-500/30 [color-scheme:dark]">
-                                             <option value="">Select</option>
-                                             <option value="Yes">Yes</option>
-                                             <option value="No">No</option>
-                                           </select>
+                                       <div className="flex gap-4">
+                                          <div className="flex-1">
+                                             <label className="form-label text-blue-400">Maths Included? <span className="text-slate-500 text-xs">(Optional)</span></label>
+                                             <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="input-field border-blue-500/30 [color-scheme:dark]">
+                                                <option value="">Select</option>
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                              </select>
+                                          </div>
+                                          {edu.mathsIncluded === 'Yes' && (
+                                              <div className="flex-1">
+                                                 <label className="form-label text-blue-400">Maths Score (%) <span className="text-red-500">*</span></label>
+                                                 <input type="text" value={edu.mathsScore || ""} onChange={(e)=>updateEducation(index, 'mathsScore', e.target.value)} className="input-field border-blue-500/30" placeholder="e.g. 85"/>
+                                              </div>
+                                          )}
                                        </div>
                                     )}
 
@@ -822,7 +906,7 @@ export default function CandidateProfile() {
                                        <input type="text" value={edu.passingYear} onChange={(e)=>updateEducation(index, 'passingYear', e.target.value)} className="input-field"/>
                                     </div>
                                     <div>
-                                       <label className="form-label">Score (%)</label>
+                                       <label className="form-label">Total Score (%)</label>
                                        <input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="input-field"/>
                                     </div>
                                  </div>
@@ -834,7 +918,6 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 TECHNICAL SKILLS SECTION 🔥 */}
                      <div className="pt-8 border-t border-slate-800/80">
                         
                         <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 p-4 rounded-xl mb-6 flex items-start gap-3 shadow-lg">
@@ -900,7 +983,6 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 NEW: MANUAL BEHAVIORAL SKILLS SECTION 🔥 */}
                      <div className="pt-8 border-t border-slate-800/80">
                         <div className="flex justify-between items-center mb-6">
                            <h2 className="text-2xl font-extrabold text-white flex items-center gap-2"><Users className="text-purple-400"/> Behavioral & Soft Skills <span className="text-red-500 text-lg">*</span></h2>
@@ -946,6 +1028,67 @@ export default function CandidateProfile() {
                                         >
                                            {isSelected && <Check size={12} className="text-purple-400" />}
                                            {bSkill}
+                                        </button>
+                                     );
+                                  })}
+                               </div>
+                            </div>
+                        </div>
+                     </div>
+
+                     {/* 🔥 NEW: TECHNOLOGICAL SKILLS SECTION WITH LEVEL DROPDOWN 🔥 */}
+                     <div className="pt-8 border-t border-slate-800/80">
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-2xl font-extrabold text-white flex items-center gap-2"><Monitor className="text-pink-400"/> Technological Tools & Software <span className="text-slate-500 text-sm font-medium ml-2">(Optional)</span></h2>
+                           <span className="bg-slate-800 text-pink-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
+                              {formData.technologicalSkills.length} / 8 Selected
+                           </span>
+                        </div>
+                        <p className="text-slate-400 text-sm mb-6">Select tools you are proficient in (Max 8) and set your level. <strong className="text-white">Note: Our AI will ask 5 questions per selected software tool with NO negative marking.</strong></p>
+                        
+                        {formData.technologicalSkills.length > 0 && (
+                           <div className="flex flex-col gap-3 mb-6 p-5 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                              {formData.technologicalSkills.map(skill => (
+                                 <div key={skill.name} className="flex items-center gap-3 bg-pink-900/20 border border-pink-500/30 px-4 py-2.5 rounded-xl w-fit">
+                                    <span className="text-white text-sm font-bold">{skill.name}</span>
+                                    <div className="flex items-center gap-2 ml-2 border-l border-pink-500/30 pl-3">
+                                        <select 
+                                            value={skill.level} 
+                                            onChange={(e) => updateTechSkillLevel(skill.name, e.target.value)}
+                                            className="bg-slate-950 text-pink-300 text-xs font-bold px-2 py-1.5 rounded-lg border border-pink-500/50 outline-none cursor-pointer hover:bg-slate-900 transition-colors"
+                                        >
+                                            <option value="Beginner">Beginner Level</option>
+                                            <option value="Intermediate">Intermediate Level</option>
+                                            <option value="Advanced">Advanced Level</option>
+                                        </select>
+                                        <X size={18} className="cursor-pointer text-pink-500/70 hover:text-white ml-1 transition-colors" onClick={() => removeTechSkill(skill.name)}/>
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        )}
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                               <label className="text-white font-bold mb-4 flex items-center gap-2">
+                                  <Plus className="text-pink-400" size={20}/> Add Custom Tool <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                               </label>
+                               <input type="text" value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={handleAddTechSkill} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-pink-500" placeholder="e.g. Jira, Xero, Tally ERP 9..."/>
+                            </div>
+
+                            <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
+                               <label className="text-white font-bold mb-4 block">Most Demanded Tools</label>
+                               <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                                  {TECH_SKILLS_LIST.map((tSkill: string) => {
+                                     const isSelected = formData.technologicalSkills.some(s => s.name === tSkill);
+                                     return (
+                                        <button 
+                                           key={tSkill} 
+                                           onClick={() => toggleTechSkill(tSkill)} 
+                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-pink-600/20 border-pink-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                                        >
+                                           {isSelected && <Check size={12} className="text-pink-400" />}
+                                           {tSkill}
                                         </button>
                                      );
                                   })}

@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const qualifications = body.qualifications || "General Aptitude & Accounting";
     const missingSkillsMap = body.missingSkillsMap || [];
-    const existingQuestions = body.existingQuestions || ""; // Added to avoid repetition
+    const existingQuestions = body.existingQuestions || ""; 
 
     const qualString = Array.isArray(qualifications) ? qualifications.join(", ") : qualifications;
 
@@ -21,16 +21,17 @@ export async function POST(req: Request) {
     let totalAiTechQs = 0;
 
     if (missingSkillsMap.length > 0) {
-        skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} advanced-level questions for the specific skill: "${s.skill}".`).join("\n");
+        // 🔥 NEW: Pass exactly what the test engine asked for, which now includes Tech Tool levels (e.g. "Excel (Advanced)")
+        skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} questions for the specific skill: "${s.skill}".`).join("\n");
         totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
     } else {
         skillInstructions = `- Exactly 7 advanced-level Technical questions strictly based on their core qualifications.`;
         totalAiTechQs = 7;
     }
 
-    const totalQuestions = totalAiTechQs + 5;
+    const totalQuestions = totalAiTechQs + 5; // Adding 5 Psychometric questions automatically
 
-    // 🔥 STRICT NEW PROMPT FOR PRACTICAL & NON-REPEATED QUESTIONS 🔥
+    // 🔥 STRICT PROMPT: SCENARIO-BASED + LEVEL LOGIC + 5 OPTIONS 🔥
     const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
     The candidate has the following educational qualifications and background: ${qualString}.
     
@@ -41,8 +42,14 @@ export async function POST(req: Request) {
     CRITICAL QUESTION QUALITY RULES (MUST FOLLOW):
     1. DO NOT ask simple theoretical or definitional questions (e.g., "What is Tally?", "Define Ind AS").
     2. ALL Technical questions MUST be PRACTICAL, SCENARIO-BASED, or CASE-STUDY type.
-    3. Put the candidate in a real-world office situation (e.g., "You are auditing a client's balance sheet and find X discrepancy...", "While entering a journal in ERP, the tax code fails...").
+    3. Put the candidate in a real-world office situation.
     4. Do NOT repeat any concept or question similar to these already asked questions: [${existingQuestions}].
+    5. 🔥 DIFFICULTY LEVEL LOGIC (CRITICAL) 🔥:
+       - If the requested skill includes a level like "(Beginner)", "(Intermediate)", or "(Advanced)", you MUST generate questions that strictly match that specific complexity.
+       - Beginner: Basic navigation, definitions, fundamental tool features.
+       - Intermediate: Scenario-based application, standard formulas, multi-step processes.
+       - Advanced: Highly complex scenarios, deep technical troubleshooting, master-level features (e.g., complex Macros/VBA, intricate nested formulas).
+       - Ensure the "difficulty" field matches this exact level.
     
     FORMATTING RULES:
     1. Each question MUST have exactly 5 options.
@@ -61,7 +68,7 @@ export async function POST(req: Request) {
           "question": "Scenario text here...",
           "options": ["Option A", "Option B", "Option C", "Option D", "I Don't Know"],
           "correct_answer": "Exact text of the correct option",
-          "skill": "Tally ERP", 
+          "skill": "Tally ERP (Advanced)", 
           "category": "Technical", 
           "difficulty": "Advanced",
           "explanation": "Short explanation"

@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Timer, Lock, ShieldAlert, CheckCircle, Loader2, FileText, AlertTriangle, 
-  MousePointer2, Ban, Award, Mic, Camera, Video, Sparkles, Layers, Move
+  MousePointer2, Ban, Award, Mic, Camera, Video, Sparkles, Layers, Move, Monitor
 } from "lucide-react";
 
 export default function LiveTestPage() {
@@ -146,15 +146,26 @@ export default function LiveTestPage() {
 
   const calculateCurrentScore = () => {
      let calcScore = 0;
+     
+     // Extract tech skill names to check against
+     const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
+        ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
+        : [];
+
      questions.forEach((q, i) => {
         const ansIndex = answers[i];
         const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
+        
         const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
+        // 🔥 NEW: CHECK FOR TECHNOLOGICAL TOOL (NO NEGATIVE MARKING) 🔥
+        const isTechTool = techSkillNames.includes(q.skill);
         
         if (checkIsCorrect(q, ansIndex)) {
             calcScore += 1; 
         } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
-            if (!isPsycho) calcScore -= 0.5; 
+            if (!isPsycho && !isTechTool) {
+                calcScore -= 0.5; // Only deduct if it's a Core Technical Skill
+            }
         }
      });
      return Math.max(0, calcScore); 
@@ -205,6 +216,10 @@ export default function LiveTestPage() {
     
     try {
         let analyticsData: any = {};
+        
+        const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
+            ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
+            : [];
 
         questions.forEach((q, i) => {
            if (!analyticsData[q.skill]) {
@@ -215,7 +230,9 @@ export default function LiveTestPage() {
 
            const ansIndex = answers[i];
            const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
+           
            const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
+           const isTechTool = techSkillNames.includes(q.skill);
            
            if (checkIsCorrect(q, ansIndex)) {
                analyticsData[q.skill].correct += 1;
@@ -224,7 +241,8 @@ export default function LiveTestPage() {
                if(q.difficulty?.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
                if(q.difficulty?.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
            } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
-               if (!isPsycho) {
+               // 🔥 NO NEGATIVE MARKING FOR TECH TOOLS OR PSYCHOMETRIC 🔥
+               if (!isPsycho && !isTechTool) {
                    analyticsData[q.skill].scoreCount -= 0.5;
                }
            }
@@ -247,6 +265,7 @@ export default function LiveTestPage() {
             if (insertErr) console.log("Test result insert skipped", insertErr);
         }
 
+        // 🔥 OVER-SCORING BUG FIXED: ONLY THIS EXAM'S SCORE IS CALCULATED 🔥
         let currentTestTotalScore = 0;
         for (const skill in analyticsData) {
             currentTestTotalScore += Math.max(0, analyticsData[skill].scoreCount);
@@ -493,9 +512,15 @@ export default function LiveTestPage() {
          return;
       }
 
-      const testableSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
+      // 🔥 NEW: FETCH QUESTIONS FOR CORE SKILLS + TECH SKILLS 🔥
+      const coreSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
+      const techSkillsObjects = Array.isArray(profileSnap?.technologicalSkills) ? profileSnap.technologicalSkills : [];
+      const techSkills = techSkillsObjects.map((s:any) => typeof s === 'string' ? s : s.name).filter(Boolean);
+      
+      const testableSkills = [...coreSkills, ...techSkills];
+      
       if (testableSkills.length === 0) {
-          alert("Test engine couldn't find any skills in your profile! Please add core skills.");
+          alert("Test engine couldn't find any skills in your profile! Please add core skills or tech skills.");
           router.push("/student/profile"); 
           return;
       }
@@ -537,7 +562,10 @@ export default function LiveTestPage() {
             });
 
             if (missing > 0) {
-                shortfallToFetch.push({ skill: exactSkill, count: missing });
+                // If it's a tech skill, append its level so AI knows how hard to make it
+                const techObj = techSkillsObjects.find((t:any) => (t.name || t) === exactSkill);
+                const skillWithLevel = techObj && typeof techObj === 'object' && techObj.level ? `${exactSkill} (${techObj.level})` : exactSkill;
+                shortfallToFetch.push({ skill: skillWithLevel, count: missing });
             }
         }
 
@@ -624,7 +652,11 @@ export default function LiveTestPage() {
     }
 
     try {
-        const safeSkills = Array.isArray(studentProfile?.skills) ? studentProfile.skills.join(", ") : "General Aptitude";
+        const safeCoreSkills = Array.isArray(studentProfile?.skills) ? studentProfile.skills.join(", ") : "General Aptitude";
+        const techSkillsObjects = Array.isArray(studentProfile?.technologicalSkills) ? studentProfile.technologicalSkills : [];
+        const safeTechSkills = techSkillsObjects.map((s:any) => typeof s === 'string' ? s : `${s.name} (${s.level})`).join(", ");
+        const safeSkills = safeTechSkills ? `${safeCoreSkills}, ${safeTechSkills}` : safeCoreSkills;
+
         const safeEdu = Array.isArray(studentProfile?.educations) && studentProfile.educations.length > 0 
                         ? studentProfile.educations.map((e:any) => e.qualification).join(", ") 
                         : "";
@@ -655,9 +687,18 @@ export default function LiveTestPage() {
                     const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
                     
                     let exactSkillAssigned = q.skill;
+                    // Strip the level tags like (Advanced) from the returned skill name so it matches analytics perfectly
+                    if (exactSkillAssigned && exactSkillAssigned.includes('(')) {
+                        exactSkillAssigned = exactSkillAssigned.replace(/\s*\(.*?\)\s*/g, '').trim();
+                    }
+
                     if (!isPsycho) {
-                       const matchedShortfall = shortfallData.find(s => s.skill.toLowerCase() === q.skill?.toLowerCase());
-                       if (matchedShortfall) exactSkillAssigned = matchedShortfall.skill;
+                       // Try to find if this skill was in the shortfall
+                       const matchedShortfall = shortfallData.find(s => {
+                           const sfName = s.skill.replace(/\s*\(.*?\)\s*/g, '').trim().toLowerCase();
+                           return sfName === exactSkillAssigned.toLowerCase();
+                       });
+                       if (matchedShortfall) exactSkillAssigned = matchedShortfall.skill.replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
 
                     return { 
@@ -777,9 +818,12 @@ export default function LiveTestPage() {
                             <h3 className="font-bold flex items-center gap-2 mb-4 text-yellow-400">
                                 <AlertTriangle size={18}/> Important Scoring Rules
                             </h3>
-                            <div className="text-xs text-slate-400 space-y-3 h-24 overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="text-xs text-slate-400 space-y-3 h-32 overflow-y-auto pr-2 custom-scrollbar">
                                 <div className="bg-red-900/10 p-2 rounded border border-red-500/20">
-                                   <strong className="text-red-400">Technical Questions:</strong> +1 for Correct, <strong className="text-red-500">-0.5 for Wrong</strong>. Use "I Don't Know" to avoid penalty.
+                                   <strong className="text-red-400">Core Technical Questions:</strong> +1 for Correct, <strong className="text-red-500">-0.5 for Wrong</strong>. Use "I Don't Know" to avoid penalty.
+                                </div>
+                                <div className="bg-blue-900/10 p-2 rounded border border-blue-500/20">
+                                   <strong className="text-blue-400">Software & Tools (Tech Skills):</strong> +1 for Correct, <strong className="text-white">NO Negative Marking</strong>.
                                 </div>
                                 <div className="bg-green-900/10 p-2 rounded border border-green-500/20">
                                    <strong className="text-green-400">Psychometric Questions:</strong> Evaluates culture fit. <strong className="text-white">NO Negative Marking</strong>. Answer honestly.
@@ -838,10 +882,16 @@ export default function LiveTestPage() {
                <div className="space-y-4">
                   {Object.keys(skillAnalytics).map(skill => {
                      const isPsycho = skill === "Psychometric & Behavioral Fit";
+                     
+                     const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
+                        ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
+                        : [];
+                     const isTechSkill = techSkillNames.includes(skill);
+                     
                      return (
-                     <div key={skill} className={`p-5 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${isPsycho ? 'bg-purple-950/40 border-purple-500/30' : 'bg-slate-950 border-slate-800'}`}>
+                     <div key={skill} className={`p-5 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${isPsycho ? 'bg-purple-950/40 border-purple-500/30' : isTechSkill ? 'bg-blue-950/40 border-blue-500/30' : 'bg-slate-950 border-slate-800'}`}>
                         <div>
-                           <span className={`font-bold text-lg ${isPsycho ? 'text-purple-300' : 'text-white'}`}>{skill}</span>
+                           <span className={`font-bold text-lg ${isPsycho ? 'text-purple-300' : isTechSkill ? 'text-blue-300' : 'text-white'}`}>{isTechSkill ? `💻 ${skill}` : skill}</span>
                            <p className="text-xs text-slate-500 mt-1">Score: {Math.max(0, skillAnalytics[skill].scoreCount)} / {skillAnalytics[skill].total}</p>
                         </div>
                         <div className={`px-4 py-2 rounded-lg border font-bold text-sm text-center ${skillAnalytics[skill].aiLevel.includes('Expert') ? 'bg-green-900/30 text-green-400 border-green-500/30' : skillAnalytics[skill].aiLevel.includes('Intermediate') ? 'bg-yellow-900/30 text-yellow-400 border-yellow-500/30' : 'bg-red-900/30 text-red-400 border-red-500/30'}`}>
@@ -927,6 +977,11 @@ export default function LiveTestPage() {
              
              {questions.length > 0 && questions[currentQ].category === "Psychometric" && (
                  <span className="bg-purple-900/40 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest animate-pulse">Behavioral (No Neg Marking)</span>
+             )}
+             
+             {/* 🔥 NEW: TECH TOOL NO NEGATIVE BADGE 🔥 */}
+             {questions.length > 0 && questions[currentQ].category !== "Psychometric" && Array.isArray(studentProfile?.technologicalSkills) && studentProfile.technologicalSkills.some((s:any) => (typeof s === 'string' ? s : s.name) === questions[currentQ].skill) && (
+                 <span className="bg-blue-900/40 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Tech Tool (No Neg Marking)</span>
              )}
 
              <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-400 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">

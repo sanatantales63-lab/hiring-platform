@@ -5,24 +5,25 @@ import jsPDF from "jspdf";
 import { Download, Loader2 } from "lucide-react";
 
 export default function DownloadReportButton({ candidate, buttonStyle = "default" }: { candidate: any, buttonStyle?: "default" | "admin" }) {
-    const reportRef = useRef<HTMLDivElement>(null); // Only one ref needed for dynamic flow
+    const reportRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
 
     const handleDownload = async () => {
         if (!reportRef.current) return;
         setIsDownloading(true);
+
         try {
             const container = document.getElementById("pdf-hidden-container");
             if (container) {
                 container.style.opacity = "1";
                 container.style.visibility = "visible";
-                container.style.position = "absolute"; // To allow full height rendering
+                container.style.position = "absolute"; 
                 container.style.top = "0";
                 container.style.left = "0";
                 container.style.zIndex = "-1000";
             }
 
-            // High quality canvas generation
+            // High quality canvas generation with dynamic height
             const canvas = await html2canvas(reportRef.current, { 
                 scale: 2, 
                 useCORS: true, 
@@ -30,7 +31,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                 logging: false,
                 windowWidth: 794 // A4 width at 96 DPI
             });
-            
+
             const imgData = canvas.toDataURL("image/png");
 
             // Dynamic Auto-Pagination Logic
@@ -52,7 +53,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
 
             // Subsequent Pages
             while (heightLeft > 0) {
-                position = position - pdfHeight; // Move image up
+                position = position - pdfHeight;
                 pdf.addPage();
                 pdf.addImage(imgData, "PNG", 0, position, pdfWidth, totalPdfHeight);
                 heightLeft -= pdfHeight;
@@ -95,7 +96,12 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
     const profileImage = candidate?.photoURL || candidate?.avatar || null;
     const educations = Array.isArray(candidate?.educations) ? candidate.educations : [];
     const experience = Array.isArray(candidate?.workExperience) ? candidate.workExperience : [];
+    
+    // Naye Arrays
     const skills = Array.isArray(candidate?.skills) ? candidate.skills : [];
+    const behavioralSkills = Array.isArray(candidate?.behavioralSkills) ? candidate.behavioralSkills : [];
+    const technologicalSkills = Array.isArray(candidate?.technologicalSkills) ? candidate.technologicalSkills : [];
+    const achievements = Array.isArray(candidate?.achievements) ? candidate.achievements : [];
 
     return (
         <>
@@ -115,7 +121,8 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
             {/* 🔥 ONE CONTINUOUS DYNAMIC CONTAINER 🔥 */}
             <div id="pdf-hidden-container" style={{ position: "fixed", top: 0, left: "-9999px", opacity: 0, visibility: "hidden", zIndex: -100, pointerEvents: "none", width: "794px" }}>
                 
-                <div ref={reportRef} style={{ width: "794px", padding: "40px", boxSizing: "border-box", backgroundColor: "#ffffff", display: "flex", flexDirection: "column", fontFamily: "Arial, sans-serif", color: "#1e293b", minHeight: "1123px" }}>
+                {/* HEIGHT AUTO: Makes it flexible for large data */}
+                <div ref={reportRef} style={{ width: "794px", padding: "40px", boxSizing: "border-box", backgroundColor: "#ffffff", display: "flex", flexDirection: "column", fontFamily: "Arial, sans-serif", color: "#1e293b", height: "auto", minHeight: "1123px" }}>
                     
                     {/* Header: PERFECT LOGO ALIGNMENT */}
                     <table style={{ width: "100%", borderBottom: "2px solid #e2e8f0", paddingBottom: "15px", marginBottom: "25px", borderCollapse: "collapse" }}>
@@ -123,8 +130,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                             <tr>
                                 <td style={{ verticalAlign: "middle", textAlign: "left", width: "50%" }}>
                                     <div style={{ display: "inline-flex", alignItems: "center", gap: "10px" }}>
-                                        {/* Logo Fix: Flexbox centers text perfectly */}
-                                        <div style={{ width: "36px", height: "36px", backgroundColor: "#2563eb", borderRadius: "8px", color: "#ffffff", fontSize: "24px", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                        <div style={{ width: "40px", height: "40px", backgroundColor: "#0f172a", borderRadius: "8px", color: "#ffffff", fontSize: "24px", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                             T
                                         </div>
                                         <div>
@@ -161,7 +167,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                 <span>📍 {candidate?.city || "Location N/A"}</span>
                             </div>
                             {candidate?.bio && (
-                                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6", margin: 0, fontStyle: "italic", borderLeft: "3px solid #cbd5e1", paddingLeft: "10px" }}>
+                                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6", margin: 0, fontStyle: "italic", borderLeft: "3px solid #cbd5e1", paddingLeft: "10px", whiteSpace: "pre-wrap" }}>
                                     "{candidate.bio}"
                                 </p>
                             )}
@@ -171,8 +177,9 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                     {/* SECTION 2: PROFESSIONAL BACKGROUND */}
                     <div style={{ display: "flex", gap: "20px", marginBottom: "35px" }}>
                         
-                        {/* Left Column: Experience & Education */}
+                        {/* Left Column: Experience, Education, Achievements */}
                         <div style={{ flex: "2" }}>
+                            
                             {/* Experience */}
                             <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Work Experience ({candidate?.experience || "Fresher"})</h3>
                             {experience.length > 0 ? (
@@ -188,27 +195,52 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                 <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>No prior work experience listed.</p>
                             )}
 
-                            {/* Education */}
+                            {/* Education (Now with Maths Score) */}
                             <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Education & Credentials</h3>
                             {educations.length > 0 ? (
+                                <div style={{ marginBottom: "20px" }}>
+                                    {educations.map((edu: any, i: number) => {
+                                        const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test((edu.qualification || '').toLowerCase());
+                                        return (
+                                            <div key={i} style={{ marginBottom: "10px" }}>
+                                                <div style={{ fontSize: "14px", fontWeight: 800, color: "#1e293b" }}>
+                                                    {edu.qualification} {edu.stageCleared ? `(${edu.stageCleared})` : ""}
+                                                    {/* 🔥 MATHS SCORE RENDER 🔥 */}
+                                                    {isSchoolLevel && edu.mathsIncluded === 'Yes' && edu.mathsScore && (
+                                                        <span style={{ fontSize: "10px", backgroundColor: "#e0f2fe", color: "#2563eb", padding: "2px 6px", borderRadius: "4px", marginLeft: "8px", verticalAlign: "middle" }}>Maths: {edu.mathsScore}%</span>
+                                                    )}
+                                                </div>
+                                                <div style={{ fontSize: "12px", color: "#64748b", fontWeight: 600 }}>{edu.collegeName} • {edu.passingYear} {edu.percentage ? `• ${edu.percentage}%` : ""}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>No education listed.</p>
+                            )}
+
+                            {/* 🔥 NEW: ACHIEVEMENTS 🔥 */}
+                            {achievements.length > 0 && (
                                 <div>
-                                    {educations.map((edu: any, i: number) => (
+                                    <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Key Achievements</h3>
+                                    {achievements.map((ach: any, i: number) => (
                                         <div key={i} style={{ marginBottom: "10px" }}>
-                                            <div style={{ fontSize: "14px", fontWeight: 800, color: "#1e293b" }}>{edu.qualification} {edu.stageCleared ? `(${edu.stageCleared})` : ""}</div>
-                                            <div style={{ fontSize: "12px", color: "#64748b", fontWeight: 600 }}>{edu.collegeName} • {edu.passingYear}</div>
+                                            <div style={{ fontSize: "14px", fontWeight: 800, color: "#1e293b" }}>🏆 {ach.title}</div>
+                                            <div style={{ fontSize: "12px", color: "#64748b", fontWeight: 500, fontStyle: "italic", marginTop: "2px" }}>{ach.description}</div>
                                         </div>
                                     ))}
                                 </div>
-                            ) : (
-                                <p style={{ fontSize: "13px", color: "#64748b" }}>No education listed.</p>
                             )}
+
                         </div>
 
-                        {/* Right Column: Skills */}
+                        {/* Right Column: Skills (Core, Behavioral, Tech) */}
                         <div style={{ flex: "1" }}>
-                            <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Core Skills</h3>
+                            
+                            {/* Core Skills */}
+                            <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Core Domain Skills</h3>
                             {skills.length > 0 ? (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "20px" }}>
                                     {skills.map((skill: string, i: number) => (
                                         <span key={i} style={{ backgroundColor: "#f1f5f9", border: "1px solid #e2e8f0", padding: "4px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: 700, color: "#334155" }}>
                                             {skill}
@@ -216,8 +248,41 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                     ))}
                                 </div>
                             ) : (
-                                <p style={{ fontSize: "13px", color: "#64748b" }}>No skills mapped.</p>
+                                <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>No skills mapped.</p>
                             )}
+
+                            {/* 🔥 NEW: Behavioral Skills 🔥 */}
+                            <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Behavioral Skills</h3>
+                            {behavioralSkills.length > 0 ? (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "20px" }}>
+                                    {behavioralSkills.map((skill: string, i: number) => (
+                                        <span key={i} style={{ backgroundColor: "#faf5ff", border: "1px solid #e9d5ff", padding: "4px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: 700, color: "#7e22ce" }}>
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>No behavioral skills mapped.</p>
+                            )}
+
+                            {/* 🔥 NEW: Technological Skills 🔥 */}
+                            <h3 style={{ fontSize: "15px", fontWeight: 800, textTransform: "uppercase", color: "#0f172a", borderBottom: "2px solid #e2e8f0", paddingBottom: "6px", marginBottom: "12px", margin: 0 }}>Software & Tools</h3>
+                            {technologicalSkills.length > 0 ? (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "20px" }}>
+                                    {technologicalSkills.map((skill: any, i: number) => {
+                                        const skillName = typeof skill === 'string' ? skill : skill.name;
+                                        const skillLevel = typeof skill === 'object' && skill.level ? skill.level : 'Beginner';
+                                        return (
+                                            <span key={i} style={{ backgroundColor: "#fdf2f8", border: "1px solid #fbcfe8", padding: "4px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: 700, color: "#be185d" }}>
+                                                {skillName} ({skillLevel})
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>No tools mapped.</p>
+                            )}
+                            
                         </div>
                     </div>
 
@@ -259,18 +324,26 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                 const percentage = (score / total) * 100;
                                 
                                 const isPsycho = skill.includes('Psychometric');
+                                
+                                // Check if it's a Tech Skill
+                                const techSkillNames = technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name);
+                                const isTechSkill = techSkillNames.includes(skill);
+
                                 const isExpert = data.aiLevel?.includes('Expert');
                                 const isInter = data.aiLevel?.includes('Intermediate');
                                 
-                                const color = isPsycho ? "#a855f7" : (isExpert ? "#16a34a" : isInter ? "#d97706" : "#dc2626");
+                                // Color logic based on skill type
+                                const color = isPsycho ? "#a855f7" : isTechSkill ? "#ec4899" : (isExpert ? "#16a34a" : isInter ? "#d97706" : "#dc2626");
 
                                 return (
-                                    <div key={i} style={{ padding: "16px", borderRadius: "12px", border: `1px solid ${isPsycho ? '#d8b4fe' : '#e2e8f0'}`, backgroundColor: isPsycho ? '#faf5ff' : '#f8fafc', marginBottom: "16px" }}>
+                                    <div key={i} style={{ padding: "16px", borderRadius: "12px", border: `1px solid ${isPsycho ? '#d8b4fe' : isTechSkill ? '#fbcfe8' : '#e2e8f0'}`, backgroundColor: isPsycho ? '#faf5ff' : isTechSkill ? '#fdf2f8' : '#f8fafc', marginBottom: "16px" }}>
                                         <table style={{ width: "100%", marginBottom: "10px", borderCollapse: "collapse" }}>
                                             <tbody>
                                                 <tr>
                                                     <td style={{ textAlign: "left" }}>
-                                                        <div style={{ fontSize: "15px", fontWeight: 800, color: isPsycho ? "#7e22ce" : "#1e293b" }}>{isPsycho ? "🧠 Behavioral & Culture Fit" : skill}</div>
+                                                        <div style={{ fontSize: "15px", fontWeight: 800, color: isPsycho ? "#7e22ce" : isTechSkill ? "#be185d" : "#1e293b" }}>
+                                                            {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skill}` : skill}
+                                                        </div>
                                                         <div style={{ fontSize: "12px", fontWeight: 700, color: color, marginTop: "4px" }}>{data.aiLevel}</div>
                                                     </td>
                                                     <td style={{ textAlign: "right", verticalAlign: "bottom" }}>

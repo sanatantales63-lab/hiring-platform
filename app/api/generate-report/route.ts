@@ -17,19 +17,21 @@ export async function POST(req: Request) {
       Write a highly professional, 3-paragraph "AI Executive Analysis Report" for a candidate named ${name}.
 
       DATA PROVIDED:
-      - Claimed Skills on Resume: ${claimedSkills.join(", ")}
-      - Actual Test Performance (Includes Tech & Psychometric fit): ${JSON.stringify(testScores)}
+      - Claimed Core Skills & Technological Tools: ${claimedSkills.join(", ")}
+      - Actual Test Performance (Includes Tech Tools, Core Skills & Psychometric fit): ${JSON.stringify(testScores)}
       - Proctoring Context: Tab Switches (${warnings.tab}), Audio Warnings (${warnings.mic}), Camera Warnings (${warnings.cam}).
 
       INSTRUCTIONS:
-      1. Paragraph 1 (Technical Verification): Professionally compare their claimed skills vs actual tech scores. Highlight verified strengths.
-      2. Paragraph 2 (Behavioral & Culture Fit): Analyze their score in "Psychometric & Behavioral Fit". Discuss their workplace ethics, decision-making, and culture fit potential based on this score.
-      3. Paragraph 3 (Reliability & Context): Address the proctoring context. Do NOT use the word "Cheat" or "Warning". Use professional terms (e.g., "High integrity and focus" or "Environmental distractions noted").
+      1. Paragraph 1 (Technical & Software Proficiency): Professionally evaluate their actual test scores against their claimed core domains and technological tools/software. Explicitly highlight verified software proficiencies and areas needing improvement based on the exact scores.
+      2. Paragraph 2 (Behavioral & Culture Fit): Analyze their score in "Psychometric & Behavioral Fit". Discuss their workplace ethics, decision-making capabilities, and overall corporate culture fit potential based on this specific score.
+      3. Paragraph 3 (Reliability & Assessment Integrity): Address the proctoring context. Do NOT use the word "Cheat", "Suspicious", or "Warning". Use professional corporate terms (e.g., "Demonstrated high integrity and focus", "Maintained consistent test environment", or "Minor environmental/navigational distractions noted").
 
-      Tone: Objective, Corporate, Unbiased. Do NOT use markdown bolding (**). Just plain paragraphs separated by new lines.
+      Tone: Objective, Corporate, Unbiased.
+      Do NOT use markdown bolding (**). Just plain paragraphs separated by new lines.
     `;
 
     let lastError: any = null;
+
     for (let i = 0; i < API_KEYS.length; i++) {
         try {
             const groq = new Groq({ apiKey: API_KEYS[i] });
