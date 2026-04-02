@@ -247,26 +247,13 @@ export default function LiveTestPage() {
             if (insertErr) console.log("Test result insert skipped", insertErr);
         }
 
-        const existingMeta = studentProfile?.meta || {};
-        const existingSkillScores = existingMeta.skillScores || {};
-        let mergedAnalyticsData: any = { ...existingSkillScores };
-        let highestTotalScore = 0;
-
+        let currentTestTotalScore = 0;
         for (const skill in analyticsData) {
-            const currentData = analyticsData[skill];
-            const previousData = mergedAnalyticsData[skill];
-
-            if (!previousData || Math.max(0, currentData.scoreCount) > Math.max(0, previousData.scoreCount)) {
-                mergedAnalyticsData[skill] = currentData;
-            }
+            currentTestTotalScore += Math.max(0, analyticsData[skill].scoreCount);
         }
 
-        for (const skill in mergedAnalyticsData) {
-            highestTotalScore += Math.max(0, mergedAnalyticsData[skill].scoreCount);
-        }
-
-        setScore(highestTotalScore);
-        setSkillAnalytics(mergedAnalyticsData);
+        setScore(currentTestTotalScore);
+        setSkillAnalytics(analyticsData);
         
         const finalStatus = forceReason && typeof forceReason === 'string' ? forceReason : "Passed";
 
@@ -279,7 +266,7 @@ export default function LiveTestPage() {
                body: JSON.stringify({
                   name: studentProfile?.fullName || "Candidate",
                   claimedSkills: safeClaimedSkills,
-                  testScores: mergedAnalyticsData,
+                  testScores: analyticsData,
                   warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings }
                })
            });
@@ -293,11 +280,11 @@ export default function LiveTestPage() {
            examAccess: "completed",
            meta: {
               lastAttempt: new Date(),
-              totalScore: highestTotalScore, 
+              totalScore: currentTestTotalScore, 
               status: finalStatus,
               warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings },
               warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings, 
-              skillScores: mergedAnalyticsData, 
+              skillScores: analyticsData, 
               ai_detailed_report: generatedAiReport 
            }
         }).eq("id", user.id);
@@ -521,7 +508,6 @@ export default function LiveTestPage() {
         
         for (const skill of testableSkills) {
             const exactSkill = skill.trim();
-            // 🔥 STRICT EXACT MATCH FIX: Only fetches questions if Sub-skill exactly matches. 🔥
             const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", exactSkill);
             let dbFetchedCount = 0;
 

@@ -53,6 +53,7 @@ export async function POST(req: Request) {
 
     const truncatedText = extractedText.substring(0, 15000); 
 
+    // 🔥 UPDATED PROMPT: NO SKILLS EXTRACTION 🔥
     const prompt = `
       You are an elite HR AI Data Extractor.
       CRITICAL: The resume text below was extracted from a document. Read it carefully.
@@ -63,12 +64,11 @@ export async function POST(req: Request) {
          - DO NOT extract 'Stage Cleared' or 'Attempts' for general graduation degrees like B.Com, B.Sc, BBA, B.Tech. Only extract them if the degree is CA, CMA, CS, or ACCA.
          - NEW RULE: If the qualification is '10th', '12th', 'High School', 'Secondary' or 'Intermediate', check if "Mathematics" or "Maths" is mentioned. Set "mathsIncluded" to "Yes" or "No". Otherwise leave it "".
       2. WORK EXPERIENCE: Look for "Work Experience", "Work done", or "Professional Experience". Extract Company/Client Name, Job Role, and Duration.
-      3. ACHIEVEMENTS & CERTIFICATIONS (NEW): Extract notable awards, external certifications, or specific major achievements explicitly written in the resume. Put them in the 'achievements' array.
+      3. ACHIEVEMENTS & CERTIFICATIONS: Extract notable awards, external certifications, or specific major achievements explicitly written in the resume. Put them in the 'achievements' array.
       4. BIO: Write a comprehensive, elite, and highly professional executive summary (around 50 to 60 words).
       5. SALARY: Do NOT guess Expected Salary. Leave it completely blank ("").
-      6. SKILLS (STRICT): ONLY extract specific tools, software, IT proficiencies, and concrete technical skills explicitly written in the resume.
-      7. STRENGTHS & WEAKNESSES: Infer 2-3 professional strengths (e.g., Analytical Thinking, Compliance Accuracy) and 1 professional, acceptable weakness (e.g., Over-detail oriented, Learning new tech stacks) based on the resume.
-      8. FORMAT: Return ONLY valid JSON.
+      6. STRENGTHS & WEAKNESSES: Infer 2-3 professional strengths (e.g., Analytical Thinking, Compliance Accuracy) and 1 professional, acceptable weakness (e.g., Over-detail oriented, Learning new tech stacks) based on the resume.
+      7. FORMAT: Return ONLY valid JSON. Do not extract technical skills (they will be provided manually).
 
       Strict JSON Format:
       {
@@ -80,7 +80,6 @@ export async function POST(req: Request) {
         "bio": "Comprehensive Elite Professional Bio (50-60 words)",
         "strengths": ["Strength 1", "Strength 2"],
         "weaknesses": ["Weakness 1"],
-        "skills": ["Exact Tool/Software 1", "Exact Tool/Software 2"],
         "languages": [{"language": "Language", "proficiency": "Fluent"}],
         "educations": [{"qualification": "Exact Degree Name", "collegeName": "Institution (or N/A)", "passingYear": "YYYY", "percentage": "XX%", "stageCleared": "", "attempts": "", "mathsIncluded": "Yes/No/''"}],
         "workExperience": [{"company": "Company Name", "role": "Job Role", "duration": "Duration"}],

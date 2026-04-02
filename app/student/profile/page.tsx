@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
@@ -28,6 +28,14 @@ const MASTER_SKILLS_DATA: Record<string, string[]> = {
   "Wealth Management & Financial Planning": ["Retirement Corpus Planning", "Estate Planning Structuring", "Tax-Efficient Investment Strategy", "Insurance Planning", "Succession Planning", "Client Risk Profiling", "Portfolio Rebalancing Strategy"],
   "Financial Operations & Process Optimization": ["Procure-To-Pay Cycle Control", "Order-To-Cash Optimization", "Record-To-Report Efficiency", "Financial Close Acceleration", "Shared Services Setup", "ERP Migration Planning", "Internal SOP Drafting", "Process Automation Evaluation"]
 };
+
+// 🔥 PRESET BEHAVIORAL SKILLS LIST 🔥
+const BEHAVIORAL_SKILLS_LIST = [
+    "Leadership", "Team Management", "Communication Skills", "Problem Solving", 
+    "Critical Thinking", "Adaptability & Flexibility", "Time Management", 
+    "Work Ethic", "Conflict Resolution", "Emotional Intelligence", "Decision Making",
+    "Client Relationship Management", "Strategic Planning"
+];
 
 const fetchLegalProof = async () => {
   let ip = "Unknown IP";
@@ -79,9 +87,10 @@ export default function CandidateProfile() {
     bio: "", 
     educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "" }], 
     workExperience: [] as { company: string, role: string, duration: string }[],
-    achievements: [] as { title: string, description: string, imageURL: string }[], // 🔥 NEW ACHIEVEMENTS ARRAY 🔥
+    achievements: [] as { title: string, description: string, imageURL: string }[], 
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
+    behavioralSkills: [] as string[], 
     strengths: [] as string[],
     weaknesses: [] as string[],
     preferredLocations: [] as string[],
@@ -100,6 +109,7 @@ export default function CandidateProfile() {
   const [locInput, setLocInput] = useState("");
   const [strInput, setStrInput] = useState("");
   const [weakInput, setWeakInput] = useState("");
+  const [behavInput, setBehavInput] = useState(""); 
   
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
 
@@ -147,10 +157,11 @@ export default function CandidateProfile() {
             openToContractRoles: data.openToContractRoles === true ? "Yes" : (data.openToContractRoles === false ? "No" : ""),
             educations: data.educations?.length ? data.educations : formData.educations,
             workExperience: data.workExperience || [],
-            achievements: data.achievements || [], // 🔥 RESTORE ACHIEVEMENTS 🔥
+            achievements: data.achievements || [],
             languages: Array.isArray(data.languages) ? data.languages.filter((l:any) => typeof l === 'object' && l !== null && l.language) : [],
             preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
             skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : [],
+            behavioralSkills: Array.isArray(data.behavioralSkills) ? data.behavioralSkills.filter((s:any) => typeof s === 'string') : [],
             strengths: Array.isArray(data.strengths) ? data.strengths : [],
             weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : []
           });
@@ -193,7 +204,6 @@ export default function CandidateProfile() {
       setLocInput("");
     }
   };
-
   const removeLocation = (loc: string) => {
       setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
   };
@@ -207,7 +217,6 @@ export default function CandidateProfile() {
       setStrInput("");
     }
   };
-
   const removeStr = (val: string) => setFormData(p => ({ ...p, strengths: p.strengths.filter(l => l !== val) }));
 
   const handleAddWeak = (e: any) => {
@@ -219,19 +228,34 @@ export default function CandidateProfile() {
       setWeakInput("");
     }
   };
-
   const removeWeak = (val: string) => setFormData(p => ({ ...p, weaknesses: p.weaknesses.filter(l => l !== val) }));
+
+  const handleAddBehavioralSkill = (e: any) => {
+      if (e.key === 'Enter' && behavInput.trim() !== '') {
+          e.preventDefault();
+          const newSkill = behavInput.trim();
+          if (!formData.behavioralSkills.includes(newSkill)) {
+              if (formData.behavioralSkills.length >= 5) {
+                  alert("🛑 You can select a maximum of 5 Behavioral Skills.");
+                  return;
+              }
+              setFormData(p => ({ ...p, behavioralSkills: [...p.behavioralSkills, newSkill] }));
+          }
+          setBehavInput("");
+      }
+  };
+  const removeBehavioralSkill = (skill: string) => {
+      setFormData(p => ({ ...p, behavioralSkills: p.behavioralSkills.filter(s => s !== skill) }));
+  };
 
   const addEducation = () => {
       setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "" }] }));
   };
-
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value }; 
     setFormData(p => ({ ...p, educations: newEdu }));
   };
-
   const removeEducation = (index: number) => {
     if (formData.educations.length === 1) return;
     const newEdu = [...formData.educations];
@@ -242,30 +266,25 @@ export default function CandidateProfile() {
   const addWorkExp = () => {
       setFormData(p => ({ ...p, workExperience: [...p.workExperience, { company: "", role: "", duration: "" }] }));
   };
-
   const updateWorkExp = (index: number, field: string, value: string) => { 
       const newWork = [...formData.workExperience];
       newWork[index] = { ...newWork[index], [field]: value }; 
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
-
   const removeWorkExp = (index: number) => { 
       const newWork = [...formData.workExperience]; 
       newWork.splice(index, 1);
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
 
-  // 🔥 ACHIEVEMENT HANDLERS 🔥
   const addAchievement = () => {
     setFormData(p => ({ ...p, achievements: [...p.achievements, { title: "", description: "", imageURL: "" }] }));
   };
-
   const updateAchievement = (index: number, field: string, value: string) => { 
       const newAch = [...formData.achievements];
       newAch[index] = { ...newAch[index], [field]: value }; 
       setFormData(p => ({ ...p, achievements: newAch })); 
   };
-
   const removeAchievement = (index: number) => { 
       const newAch = [...formData.achievements]; 
       newAch.splice(index, 1);
@@ -386,9 +405,8 @@ export default function CandidateProfile() {
             expectedSalary: aiData.expectedSalary || prev.expectedSalary || "",
             educations: aiData.educations?.length > 0 ? aiData.educations : prev.educations,
             workExperience: aiData.workExperience?.length > 0 ? aiData.workExperience : prev.workExperience, 
-            achievements: aiData.achievements?.length > 0 ? aiData.achievements : prev.achievements, // 🔥 AI AUTOFILL FOR ACHIEVEMENTS 🔥
+            achievements: aiData.achievements?.length > 0 ? aiData.achievements : prev.achievements, 
             preferredLocations: cleanedLocs.length > 0 ? cleanedLocs : prev.preferredLocations,
-            skills: aiData.skills ? Array.from(new Set([...prev.skills, ...aiData.skills.filter((s:any) => typeof s === 'string')])) : prev.skills,
             strengths: aiData.strengths?.length > 0 ? aiData.strengths : prev.strengths,
             weaknesses: aiData.weaknesses?.length > 0 ? aiData.weaknesses : prev.weaknesses,
             languages: aiData.languages?.length > 0 ? aiData.languages.filter((l:any) => typeof l === 'object' && l.language) : prev.languages
@@ -450,8 +468,11 @@ export default function CandidateProfile() {
               }
            }
         }
-        if (formData.skills.length < 3) {
-            return alert("🛑 Please select at least 3 Technical Sub-Skills. This helps us customize your Assessment.");
+        if (formData.skills.length < 1) {
+            return alert("🛑 Please select at least 1 Technical Sub-Skill. This is mandatory for your assessment.");
+        }
+        if (formData.behavioralSkills.length < 1) {
+            return alert("🛑 Please select at least 1 Behavioral & Soft Skill. Companies look for these traits!");
         }
      }
      setCurrentStep(p => Math.min(4, p + 1));
@@ -464,9 +485,13 @@ export default function CandidateProfile() {
     if (formData.jobType === "Permanent Role" && (formData.openToContractRoles === "" || formData.openToContractRoles === null)) {
         return alert("🛑 Smart Career Tip: Please explicitly select 'Yes' or 'No' for short-term contract roles to proceed.");
     }
-    if (formData.skills.length < 3) {
+    if (formData.skills.length < 1) {
         setCurrentStep(2);
-        return alert("🛑 Please select at least 3 Technical Sub-Skills before saving.");
+        return alert("🛑 Please select at least 1 Technical Sub-Skill before saving.");
+    }
+    if (formData.behavioralSkills.length < 1) {
+        setCurrentStep(2);
+        return alert("🛑 Please select at least 1 Behavioral Skill before saving.");
     }
 
     setSavingData(true);
@@ -504,8 +529,8 @@ export default function CandidateProfile() {
   const toggleSkill = (skill: string) => {
       setFormData(prev => {
           const isCurrentlySelected = prev.skills.includes(skill);
-          if (!isCurrentlySelected && prev.skills.length >= 5) {
-              alert("🛑 You can select a maximum of 5 Sub-Skills. Please deselect a skill before adding another.");
+          if (!isCurrentlySelected && prev.skills.length >= 10) {
+              alert("🛑 You can select a maximum of 10 Technical Sub-Skills.");
               return prev; 
           }
           return { 
@@ -742,7 +767,10 @@ export default function CandidateProfile() {
                         </div>
                         <div className="space-y-6">
                            {formData.educations.map((edu, index) => {
-                              const isSchoolLevel = ['10th', '12th', 'high school', 'secondary', 'intermediate', 'puc'].some(keyword => (edu.qualification || '').toLowerCase().includes(keyword));
+                              // 🔥 FIX: EXTRA POWERFUL REGEX FOR 10TH/12TH DETECTION 🔥
+                              const qualText = (edu.qualification || '').toLowerCase();
+                              const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test(qualText);
+                              
                               return (
                               <div key={index} className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800 relative">
                                  {formData.educations.length > 1 && (
@@ -756,7 +784,6 @@ export default function CandidateProfile() {
                                        <input type="text" list="qualifications-list" value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="input-field"/>
                                     </div>
                                     
-                                    {/* 🔥 NEW: MATHS INCLUDED (Only for 10th/12th) 🔥 */}
                                     {isSchoolLevel && (
                                        <div>
                                           <label className="form-label text-blue-400">Maths Included? <span className="text-slate-500 text-xs">(Optional)</span></label>
@@ -807,14 +834,24 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
+                     {/* 🔥 TECHNICAL SKILLS SECTION 🔥 */}
                      <div className="pt-8 border-t border-slate-800/80">
+                        
+                        <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 p-4 rounded-xl mb-6 flex items-start gap-3 shadow-lg">
+                           <Sparkles className="text-yellow-400 shrink-0 mt-0.5" size={20}/>
+                           <div>
+                              <p className="text-white font-bold text-sm">Pro Tip for Hiring 💡</p>
+                              <p className="text-slate-300 text-xs mt-1">Candidates who select <strong className="text-green-400">more than 5 sub-skills</strong> see a <strong className="text-green-400">60% increase</strong> in their hiring and interview shortlisting rate. Select all the skills you actually know!</p>
+                           </div>
+                        </div>
+
                         <div className="flex justify-between items-center mb-6">
                            <h2 className="text-2xl font-extrabold text-white">Technical Skills & Expertise <span className="text-red-500 text-lg">*</span></h2>
                            <span className="bg-slate-800 text-blue-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
-                              {formData.skills.length} / 5 Selected
+                              {formData.skills.length} / 10 Selected
                            </span>
                         </div>
-                        <p className="text-slate-400 text-sm mb-6">Select <strong className="text-white">Minimum 3 and Maximum 5</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
+                        <p className="text-slate-400 text-sm mb-6">Select <strong className="text-white">Minimum 1 and Maximum 10</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
                         
                         {formData.skills.length > 0 && (
                            <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
@@ -862,6 +899,61 @@ export default function CandidateProfile() {
                            </div>
                         </div>
                      </div>
+
+                     {/* 🔥 NEW: MANUAL BEHAVIORAL SKILLS SECTION 🔥 */}
+                     <div className="pt-8 border-t border-slate-800/80">
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-2xl font-extrabold text-white flex items-center gap-2"><Users className="text-purple-400"/> Behavioral & Soft Skills <span className="text-red-500 text-lg">*</span></h2>
+                           <span className="bg-slate-800 text-purple-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
+                              {formData.behavioralSkills.length} / 5 Selected
+                           </span>
+                        </div>
+                        <p className="text-slate-400 text-sm mb-6">Select <strong className="text-white">Minimum 1 and Maximum 5</strong> behavioral traits. You can choose from the list or type your own.</p>
+                        
+                        {formData.behavioralSkills.length > 0 && (
+                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                              {formData.behavioralSkills.map(skill => (
+                                 <span key={skill} className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
+                                    {skill} <X size={16} className="cursor-pointer hover:text-purple-300" onClick={() => removeBehavioralSkill(skill)}/>
+                                 </span>
+                              ))}
+                           </div>
+                        )}
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                               <label className="text-white font-bold mb-4 flex items-center gap-2">
+                                  <Plus className="text-purple-400" size={20}/> Add Custom Skill <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                               </label>
+                               <input type="text" value={behavInput} onChange={(e) => setBehavInput(e.target.value)} onKeyDown={handleAddBehavioralSkill} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-purple-500" placeholder="e.g. Public Speaking, Negotiation..."/>
+                            </div>
+
+                            <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
+                               <label className="text-white font-bold mb-4 block">Quick Suggestions</label>
+                               <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                                  {BEHAVIORAL_SKILLS_LIST.map((bSkill: string) => {
+                                     const isSelected = formData.behavioralSkills.includes(bSkill);
+                                     return (
+                                        <button 
+                                           key={bSkill} 
+                                           onClick={() => {
+                                               if(!isSelected && formData.behavioralSkills.length >= 5) {
+                                                   alert("🛑 You can select a maximum of 5 Behavioral Skills."); return;
+                                               }
+                                               setFormData(prev => ({...prev, behavioralSkills: isSelected ? prev.behavioralSkills.filter(item => item !== bSkill) : [...prev.behavioralSkills, bSkill]}));
+                                           }} 
+                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-purple-600/20 border-purple-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                                        >
+                                           {isSelected && <Check size={12} className="text-purple-400" />}
+                                           {bSkill}
+                                        </button>
+                                     );
+                                  })}
+                               </div>
+                            </div>
+                        </div>
+                     </div>
+
                   </div>
                )}
 
@@ -900,7 +992,6 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 NEW: ACHIEVEMENTS SECTION 🔥 */}
                      <div className="pt-8 border-t border-slate-800/80">
                         <div className="flex justify-between items-center mb-6">
                            <h2 className="text-3xl font-extrabold text-white flex items-center gap-2"><Award className="text-yellow-400"/> Achievements & Certifications</h2>
