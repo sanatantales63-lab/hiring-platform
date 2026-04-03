@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     let totalAiTechQs = 0;
 
     if (missingSkillsMap.length > 0) {
-        // 🔥 NEW: Pass exactly what the test engine asked for, which now includes Tech Tool levels (e.g. "Excel (Advanced)")
+        // 🔥 AI will only generate questions for what is missing in DB
         skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} questions for the specific skill: "${s.skill}".`).join("\n");
         totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
     } else {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     const totalQuestions = totalAiTechQs + 5; // Adding 5 Psychometric questions automatically
 
-    // 🔥 STRICT PROMPT: SCENARIO-BASED + LEVEL LOGIC + 5 OPTIONS 🔥
+    // 🔥 STRICT PROMPT: ANTI-REPEAT (existingQuestions) + LEVEL LOGIC + 5 OPTIONS 🔥
     const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
     The candidate has the following educational qualifications and background: ${qualString}.
     
@@ -40,10 +40,10 @@ export async function POST(req: Request) {
     - Exactly 5 Psychometric/Situational questions to test workplace ethics, culture fit, and decision-making under pressure.
     
     CRITICAL QUESTION QUALITY RULES (MUST FOLLOW):
-    1. DO NOT ask simple theoretical or definitional questions (e.g., "What is Tally?", "Define Ind AS").
+    1. DO NOT ask simple theoretical or definitional questions.
     2. ALL Technical questions MUST be PRACTICAL, SCENARIO-BASED, or CASE-STUDY type.
     3. Put the candidate in a real-world office situation.
-    4. Do NOT repeat any concept or question similar to these already asked questions: [${existingQuestions}].
+    4. 🔥 DO NOT repeat any concept or question similar to these already asked questions from the database: [${existingQuestions}].
     5. 🔥 DIFFICULTY LEVEL LOGIC (CRITICAL) 🔥:
        - If the requested skill includes a level like "(Beginner)", "(Intermediate)", or "(Advanced)", you MUST generate questions that strictly match that specific complexity.
        - Beginner: Basic navigation, definitions, fundamental tool features.

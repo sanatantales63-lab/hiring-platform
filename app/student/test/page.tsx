@@ -147,7 +147,6 @@ export default function LiveTestPage() {
   const calculateCurrentScore = () => {
      let calcScore = 0;
      
-     // Extract tech skill names to check against
      const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
         ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
         : [];
@@ -157,14 +156,13 @@ export default function LiveTestPage() {
         const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
         
         const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
-        // 🔥 NEW: CHECK FOR TECHNOLOGICAL TOOL (NO NEGATIVE MARKING) 🔥
         const isTechTool = techSkillNames.includes(q.skill);
         
         if (checkIsCorrect(q, ansIndex)) {
             calcScore += 1; 
         } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
             if (!isPsycho && !isTechTool) {
-                calcScore -= 0.5; // Only deduct if it's a Core Technical Skill
+                calcScore -= 0.5; 
             }
         }
      });
@@ -241,7 +239,6 @@ export default function LiveTestPage() {
                if(q.difficulty?.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
                if(q.difficulty?.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
            } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
-               // 🔥 NO NEGATIVE MARKING FOR TECH TOOLS OR PSYCHOMETRIC 🔥
                if (!isPsycho && !isTechTool) {
                    analyticsData[q.skill].scoreCount -= 0.5;
                }
@@ -265,7 +262,6 @@ export default function LiveTestPage() {
             if (insertErr) console.log("Test result insert skipped", insertErr);
         }
 
-        // 🔥 OVER-SCORING BUG FIXED: ONLY THIS EXAM'S SCORE IS CALCULATED 🔥
         let currentTestTotalScore = 0;
         for (const skill in analyticsData) {
             currentTestTotalScore += Math.max(0, analyticsData[skill].scoreCount);
@@ -512,7 +508,6 @@ export default function LiveTestPage() {
          return;
       }
 
-      // 🔥 NEW: FETCH QUESTIONS FOR CORE SKILLS + TECH SKILLS 🔥
       const coreSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
       const techSkillsObjects = Array.isArray(profileSnap?.technologicalSkills) ? profileSnap.technologicalSkills : [];
       const techSkills = techSkillsObjects.map((s:any) => typeof s === 'string' ? s : s.name).filter(Boolean);
@@ -533,7 +528,17 @@ export default function LiveTestPage() {
         
         for (const skill of testableSkills) {
             const exactSkill = skill.trim();
-            const { data: skillQs } = await supabase.from("question_bank").select("*").ilike("skill", exactSkill);
+            
+            // 🔥 SMART SEARCH LOGIC ADDED HERE 🔥
+            // Pura naam dhundhne ki jagah, sirf pehla main word dhundhega taaki mismatch na ho
+            const safeSearchTerm = exactSkill.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
+
+            // DB Priority: Fetch from DB first using Smart Search
+            const { data: skillQs } = await supabase
+                .from("question_bank")
+                .select("*")
+                .ilike("skill", `%${safeSearchTerm}%`); 
+            
             let dbFetchedCount = 0;
 
             if (skillQs && skillQs.length > 0) {
@@ -561,8 +566,8 @@ export default function LiveTestPage() {
                 total: 5
             });
 
+            // Shortfall tracking for AI
             if (missing > 0) {
-                // If it's a tech skill, append its level so AI knows how hard to make it
                 const techObj = techSkillsObjects.find((t:any) => (t.name || t) === exactSkill);
                 const skillWithLevel = techObj && typeof techObj === 'object' && techObj.level ? `${exactSkill} (${techObj.level})` : exactSkill;
                 shortfallToFetch.push({ skill: skillWithLevel, count: missing });
@@ -663,6 +668,7 @@ export default function LiveTestPage() {
         
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
 
+        // EXISTING DB QUESTIONS TO AVOID AI REPEATING THEM
         const existingQsText = questions.map(q => q.question).join(" | ");
 
         const aiResponse = await fetch('/api/generate-ai-questions', {
@@ -687,13 +693,11 @@ export default function LiveTestPage() {
                     const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
                     
                     let exactSkillAssigned = q.skill;
-                    // Strip the level tags like (Advanced) from the returned skill name so it matches analytics perfectly
                     if (exactSkillAssigned && exactSkillAssigned.includes('(')) {
                         exactSkillAssigned = exactSkillAssigned.replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
 
                     if (!isPsycho) {
-                       // Try to find if this skill was in the shortfall
                        const matchedShortfall = shortfallData.find(s => {
                            const sfName = s.skill.replace(/\s*\(.*?\)\s*/g, '').trim().toLowerCase();
                            return sfName === exactSkillAssigned.toLowerCase();
@@ -979,7 +983,6 @@ export default function LiveTestPage() {
                  <span className="bg-purple-900/40 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest animate-pulse">Behavioral (No Neg Marking)</span>
              )}
              
-             {/* 🔥 NEW: TECH TOOL NO NEGATIVE BADGE 🔥 */}
              {questions.length > 0 && questions[currentQ].category !== "Psychometric" && Array.isArray(studentProfile?.technologicalSkills) && studentProfile.technologicalSkills.some((s:any) => (typeof s === 'string' ? s : s.name) === questions[currentQ].skill) && (
                  <span className="bg-blue-900/40 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Tech Tool (No Neg Marking)</span>
              )}
