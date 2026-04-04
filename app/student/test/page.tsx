@@ -131,15 +131,18 @@ export default function LiveTestPage() {
     }).eq("id", user.id);
   }, [user, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
+  // 🔥 FIX 3: Robust Scoring Logic to fix "0" score issue 🔥
   const checkIsCorrect = (q: any, ansIndex: number) => {
       if (ansIndex === -1 || ansIndex === undefined) return false;
-      const selectedText = String(q.options[ansIndex]).trim().toLowerCase();
-      const correctAns = String(q.correct_answer).trim().toLowerCase();
+      
+      // Clean string by removing options format like "A) " or "B. " and special characters
+      const cleanText = (text: string) => String(text).replace(/^[a-eA-E][)\.]\s*/, "").replace(/[^a-zA-Z0-9 ]/g, "").trim().toLowerCase();
 
-      if (selectedText === correctAns) return true; 
-      if (correctAns === String(ansIndex)) return true; 
-      if (correctAns === ['a', 'b', 'c', 'd', 'e'][ansIndex]) return true; 
-      if (selectedText.includes(correctAns) || correctAns.includes(selectedText)) return true; 
+      const selectedOption = cleanText(q.options[ansIndex]);
+      const correctAnswer = cleanText(q.correct_answer);
+
+      if (selectedOption === correctAnswer) return true;
+      if (selectedOption.includes(correctAnswer) || correctAnswer.includes(selectedOption)) return true;
 
       return false;
   };
@@ -529,15 +532,11 @@ export default function LiveTestPage() {
         for (const skill of testableSkills) {
             const exactSkill = skill.trim();
             
-            // 🔥 SMART SEARCH LOGIC ADDED HERE 🔥
-            // Pura naam dhundhne ki jagah, sirf pehla main word dhundhega taaki mismatch na ho
-            const safeSearchTerm = exactSkill.split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
-
-            // DB Priority: Fetch from DB first using Smart Search
+            // 🔥 FIX 1: Exact Match searching database to prevent false MS Word hits 🔥
             const { data: skillQs } = await supabase
                 .from("question_bank")
                 .select("*")
-                .ilike("skill", `%${safeSearchTerm}%`); 
+                .ilike("skill", exactSkill); 
             
             let dbFetchedCount = 0;
 

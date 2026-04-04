@@ -11,7 +11,8 @@ import {
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
 
-// 🔥 UPDATED EXCEL MASTER SKILLS DATA (3 Categories EXACTLY from your list, Rest Untouched) 🔥
+// 🔥 UPDATED EXCEL MASTER SKILLS DATA 🔥
+// Added new sub-skills for Direct Tax, Indirect Tax, and Costing. Kept previous 3 and untouched ones exactly the same.
 const MASTER_SKILLS_DATA: Record<string, string[]> = {
   "Financiacial Reporting and Accounting": [
       "Accounting & Bookkeeping", "Accounting Standards (AS)", "Accounts Payable Assistance", 
@@ -29,9 +30,21 @@ const MASTER_SKILLS_DATA: Record<string, string[]> = {
       "Audit Reports Drafting", "Bank Audit", "Compliance & Legal Verifications", "Concurrent Audit", 
       "Control Testing", "Financial Due Diligence Audit", "Group Audit", "NBFCs Audit", "Physical Verification"
   ],
-  "Direct & International Taxation": ["Income Tax Return Preparation", "ITR 1/2/3/4/5/6/7 Filling", "TDS/TCS Filing", "Tax Structuring Advisory", "MAT/AMT Computation", "Tax Audit Assistance", "Transfer Pricing Benchmarking", "Permanent Establishment Analysis", "GAAR Interpretation", "Cross-Border Structuring", "Tax Treaty Interpretation"],
-  "Indirect Taxation & Transaction Taxes": ["GSTR 1/3B/9/9C Filling", "GST Audit", "GST Reconcilation", "E-Way Bill Compliance", "GST Advisory", "Input Tax Credit Optimisation", "E-Invoicing Compliance", "Refund Claim Processing", "Customs Valuation", "M&A Tax Due Diligence"],
-  "Costing & Strategic Cost Management": ["MIS for Cost analysis", "MIS for Variance Analysis", "Process Costing", "Job Costing", "Contract Costing", "Standard Costing Systems", "Throughput Accounting", "Lean Accounting Integration", "Life-Cycle Costing", "Kaizen Costing", "Target Costing", "Break-Even Optimization"],
+  "Direct & International Taxation": [
+      "Cross-Border Structuring", "GAAR", "Income Tax Return Preparation and Filing", 
+      "MAT-AMT Calculation", "Permanent Establishment", "Tax Audit", "Tax Structuring Advisory", 
+      "Tax Treaty", "TDS-TCS Filling", "Transfer Pricing"
+  ],
+  "Indirect Taxation & Transaction Taxes": [
+      "Customs Valuation", "E-Invoicing Compliance", "E-Way Bill", "GST Audit", 
+      "GST Reconciliation", "GST Return Filing", "Input Tax Credit Optimisation", 
+      "M&A Tax Due Diligence", "Refund Claim Processing"
+  ],
+  "Costing & Strategic Cost Management": [
+      "Break-Even Analysis & Optimization", "Job Costing", "Kaizen Costing", "Lean Accounting", 
+      "Life-Cycle Costing", "MIS For Cost Analysis", "MIS For Variance Analysis", 
+      "Process Costing", "Target Costing"
+  ],
   "Financial Modeling & Valuation Engineering": ["Three-Statement Integrated Modeling", "Dynamic Scenario Simulation", "Sensitivity Matrix Design", "DCF Valuation Construction", "Comparable Company Analysis", "Precedent Transaction Analysis", "Leveraged Buyout Modeling", "Project Finance Modeling", "Startup Valuation", "Model Audit"],
   "Investment & Portfolio Analytics": ["Equity Valuation Frameworks", "Fixed Income Duration Analysis", "Credit Spread Modeling", "Alternative Asset Evaluation", "Hedge Fund Performance", "Portfolio Optimisation (Markowitz)", "CAPM & Multifactor Modeling", "Derivatives Pricing Models"],
   "Treasury & Corporate Liquidity Management": ["Bank Reconcilations", "Treasury operation management", "Working Capital Structuring", "Cash Forecasting Architecture", "Bank Relationship Management", "Foreign Exchange Exposure Hedging", "Interest Rate Swap Structuring", "Debt Issuance Strategy"],

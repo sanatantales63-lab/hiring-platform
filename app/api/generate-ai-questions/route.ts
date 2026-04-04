@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     const totalQuestions = totalAiTechQs + 5; // Adding 5 Psychometric questions automatically
 
-    // 🔥 STRICT PROMPT: ANTI-REPEAT (existingQuestions) + LEVEL LOGIC + 5 OPTIONS 🔥
+    // 🔥 STRICT PROMPT: ANTI-REPEAT (existingQuestions) + LEVEL LOGIC + 5 OPTIONS + ONE CORRECT ANSWER LOGIC 🔥
     const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
     The candidate has the following educational qualifications and background: ${qualString}.
     
@@ -50,6 +50,7 @@ export async function POST(req: Request) {
        - Intermediate: Scenario-based application, standard formulas, multi-step processes.
        - Advanced: Highly complex scenarios, deep technical troubleshooting, master-level features (e.g., complex Macros/VBA, intricate nested formulas).
        - Ensure the "difficulty" field matches this exact level.
+    6. 🔥 STRICTLY ONE CORRECT ANSWER 🔥: Ensure that out of the provided options, EXACTLY ONE option is unequivocally correct. DO NOT provide options that overlap or could both be considered correct.
     
     FORMATTING RULES:
     1. Each question MUST have exactly 5 options.
@@ -83,7 +84,7 @@ export async function POST(req: Request) {
             const chatCompletion = await groq.chat.completions.create({
               messages: [{ role: "user", content: prompt }],
               model: "llama-3.3-70b-versatile",
-              temperature: 0.3,
+              temperature: 0.2, // Slightly lowered to make AI more strict about single correct answers
               response_format: { type: "json_object" }
             });
 
