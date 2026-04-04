@@ -11,11 +11,24 @@ import {
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
 
-// 🔥 EXCEL MASTER SKILLS DATA 🔥
+// 🔥 UPDATED EXCEL MASTER SKILLS DATA (3 Categories EXACTLY from your list, Rest Untouched) 🔥
 const MASTER_SKILLS_DATA: Record<string, string[]> = {
-  "Financiacial Reporting and Accounting": ["Data Entry", "Accounting", "BookKeeping", "Journal Entries", "Chart Of Accounts Design", "Accounting Standards", "Month-End Books Closure", "Vendor/Customer Reconcilations", "IND AS Accounting", "IND AS Implementation & Transition", "US GAAP", "Restatement of Accounts", "IPO Assistance", "Accounts Payable", "Accounts Receivables", "Lease Accounting", "Consolidation of Accounts", "Share-Based Payment", "Financial Derivatives", "MIS Prepration"],
-  "Internal Audit & Risk assessment & testing": ["Internal Audit", "Audit Report Drafting", "SOP Prepration & Implementation", "Audit Program Devlopment", "SOXs Audit", "Internal Control Testing", "RCM Preparation", "Process Narratives", "Fraud Risk Assessment", "Digital Forensic", "Regulatory compliance testing", "Corporate governance", "AML Investigation"],
-  "Statutory Audit & Compliances": ["Engagement formalities", "Audit Reports drafting", "Financial Due Diligence", "Control Testing", "Substantive Testing", "Compliance & Legal Verifications", "Group Audit", "Bank Audit", "NBFCs Audit", "Physical verification of Fixed Assets", "Physical verification of Inventory", "Audit Documentations"],
+  "Financiacial Reporting and Accounting": [
+      "Accounting & Bookkeeping", "Accounting Standards (AS)", "Accounts Payable Assistance", 
+      "Accounts Receivables Assistaance", "Business Combinations Accounting", "Consolidation of Accounts", 
+      "Ind AS Accounting", "US GAAP"
+  ],
+  "Internal Audit & Risk assessment & testing": [
+      "AML Investigation Techniques", "Contractual Compliance Testing", "Corporate governance framework assessment", 
+      "Digital Forensic Investigation", "Fraud Risk Assessment Models", "Internal Audit", "Internal Control Testing", 
+      "IT and Data Analytics", "Litigation Support Reporting", "RCM Prepration", "SOP Preparation & Implementation", 
+      "SOX Audit"
+  ],
+  "Statutory Audit & Compliances": [
+      "Audit Assistance for Companies", "Audit Documentation", "Audit Observations Correction", 
+      "Audit Reports Drafting", "Bank Audit", "Compliance & Legal Verifications", "Concurrent Audit", 
+      "Control Testing", "Financial Due Diligence Audit", "Group Audit", "NBFCs Audit", "Physical Verification"
+  ],
   "Direct & International Taxation": ["Income Tax Return Preparation", "ITR 1/2/3/4/5/6/7 Filling", "TDS/TCS Filing", "Tax Structuring Advisory", "MAT/AMT Computation", "Tax Audit Assistance", "Transfer Pricing Benchmarking", "Permanent Establishment Analysis", "GAAR Interpretation", "Cross-Border Structuring", "Tax Treaty Interpretation"],
   "Indirect Taxation & Transaction Taxes": ["GSTR 1/3B/9/9C Filling", "GST Audit", "GST Reconcilation", "E-Way Bill Compliance", "GST Advisory", "Input Tax Credit Optimisation", "E-Invoicing Compliance", "Refund Claim Processing", "Customs Valuation", "M&A Tax Due Diligence"],
   "Costing & Strategic Cost Management": ["MIS for Cost analysis", "MIS for Variance Analysis", "Process Costing", "Job Costing", "Contract Costing", "Standard Costing Systems", "Throughput Accounting", "Lean Accounting Integration", "Life-Cycle Costing", "Kaizen Costing", "Target Costing", "Break-Even Optimization"],
@@ -78,7 +91,7 @@ export default function CandidateProfile() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-
+  
   const [formData, setFormData] = useState({
     fullName: "", 
     dob: "", 
@@ -98,7 +111,6 @@ export default function CandidateProfile() {
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
     behavioralSkills: [] as string[], 
-    // 🔥 NEW: TECH SKILLS NOW STORE BOTH NAME AND LEVEL 🔥
     technologicalSkills: [] as { name: string, level: string }[], 
     strengths: [] as string[],
     weaknesses: [] as string[],
@@ -118,7 +130,7 @@ export default function CandidateProfile() {
   const [locInput, setLocInput] = useState("");
   const [strInput, setStrInput] = useState("");
   const [weakInput, setWeakInput] = useState("");
-  const [behavInput, setBehavInput] = useState(""); 
+  const [behavInput, setBehavInput] = useState("");
   const [techInput, setTechInput] = useState(""); 
   
   const [activeSkillTab, setActiveSkillTab] = useState(Object.keys(MASTER_SKILLS_DATA)[0]);
@@ -172,7 +184,6 @@ export default function CandidateProfile() {
             preferredLocations: data.preferredLocations?.length ? data.preferredLocations : [],
             skills: Array.isArray(data.skills) ? data.skills.filter((s:any) => typeof s === 'string') : [],
             behavioralSkills: Array.isArray(data.behavioralSkills) ? data.behavioralSkills.filter((s:any) => typeof s === 'string') : [],
-            // 🔥 BACKWARD COMPATIBILITY: Convert old string tech skills to new object format with default 'Beginner' 🔥
             technologicalSkills: Array.isArray(data.technologicalSkills) ? data.technologicalSkills.map((s:any) => typeof s === 'string' ? { name: s, level: 'Beginner' } : s) : [],
             strengths: Array.isArray(data.strengths) ? data.strengths : [],
             weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : []
@@ -216,6 +227,7 @@ export default function CandidateProfile() {
       setLocInput("");
     }
   };
+
   const removeLocation = (loc: string) => {
       setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
   };
@@ -229,6 +241,7 @@ export default function CandidateProfile() {
       setStrInput("");
     }
   };
+
   const removeStr = (val: string) => setFormData(p => ({ ...p, strengths: p.strengths.filter(l => l !== val) }));
 
   const handleAddWeak = (e: any) => {
@@ -240,6 +253,7 @@ export default function CandidateProfile() {
       setWeakInput("");
     }
   };
+
   const removeWeak = (val: string) => setFormData(p => ({ ...p, weaknesses: p.weaknesses.filter(l => l !== val) }));
 
   const handleAddBehavioralSkill = (e: any) => {
@@ -256,11 +270,11 @@ export default function CandidateProfile() {
           setBehavInput("");
       }
   };
+
   const removeBehavioralSkill = (skill: string) => {
       setFormData(p => ({ ...p, behavioralSkills: p.behavioralSkills.filter(s => s !== skill) }));
   };
 
-  // 🔥 NEW: TECH SKILL HANDLER (NOW WITH LEVELS) 🔥
   const handleAddTechSkill = (e: any) => {
       if (e.key === 'Enter' && techInput.trim() !== '') {
           e.preventDefault();
@@ -276,9 +290,11 @@ export default function CandidateProfile() {
           setTechInput("");
       }
   };
+
   const removeTechSkill = (skillName: string) => {
       setFormData(p => ({ ...p, technologicalSkills: p.technologicalSkills.filter(s => s.name !== skillName) }));
   };
+
   const updateTechSkillLevel = (skillName: string, level: string) => {
       setFormData(p => ({
           ...p,
@@ -289,6 +305,7 @@ export default function CandidateProfile() {
   const addEducation = () => {
       setFormData(p => ({ ...p, educations: [...p.educations, { qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "", mathsScore: "" }] }));
   };
+
   const updateEducation = (index: number, field: string, value: string) => {
     const newEdu = [...formData.educations];
     newEdu[index] = { ...newEdu[index], [field]: value }; 
@@ -297,6 +314,7 @@ export default function CandidateProfile() {
     }
     setFormData(p => ({ ...p, educations: newEdu }));
   };
+
   const removeEducation = (index: number) => {
     if (formData.educations.length === 1) return;
     const newEdu = [...formData.educations];
@@ -307,11 +325,13 @@ export default function CandidateProfile() {
   const addWorkExp = () => {
       setFormData(p => ({ ...p, workExperience: [...p.workExperience, { company: "", role: "", duration: "" }] }));
   };
+
   const updateWorkExp = (index: number, field: string, value: string) => { 
       const newWork = [...formData.workExperience];
       newWork[index] = { ...newWork[index], [field]: value }; 
       setFormData(p => ({ ...p, workExperience: newWork })); 
   };
+
   const removeWorkExp = (index: number) => { 
       const newWork = [...formData.workExperience]; 
       newWork.splice(index, 1);
@@ -321,11 +341,13 @@ export default function CandidateProfile() {
   const addAchievement = () => {
     setFormData(p => ({ ...p, achievements: [...p.achievements, { title: "", description: "", imageURL: "" }] }));
   };
+
   const updateAchievement = (index: number, field: string, value: string) => { 
       const newAch = [...formData.achievements];
       newAch[index] = { ...newAch[index], [field]: value }; 
       setFormData(p => ({ ...p, achievements: newAch })); 
   };
+
   const removeAchievement = (index: number) => { 
       const newAch = [...formData.achievements]; 
       newAch.splice(index, 1);
@@ -496,8 +518,17 @@ export default function CandidateProfile() {
         if (!formData.educations[0].qualification || !formData.educations[0].collegeName || !formData.educations[0].passingYear) {
             return alert("🛑 Please complete at least one Education block completely.");
         }
+        
         for (const edu of formData.educations) {
            if (edu.qualification) {
+              
+              if (edu.percentage && edu.percentage.trim() !== "") {
+                  const p = parseFloat(edu.percentage);
+                  if (isNaN(p) || p < 0 || p > 100) {
+                      return alert(`🛑 Invalid Total Score (%) for ${edu.qualification}. Score must be a valid number between 0 and 100.`);
+                  }
+              }
+
               const isProfessional = ['CA', 'CMA', 'CS', 'ACCA'].some(keyword => edu.qualification.includes(keyword));
               if (isProfessional) {
                  if (!edu.stageCleared || edu.stageCleared.trim() === "") {
@@ -512,9 +543,14 @@ export default function CandidateProfile() {
                   if (!edu.mathsScore || edu.mathsScore.trim() === "") {
                       return alert(`🛑 You selected 'Yes' for Maths in ${edu.qualification}. Please provide your Maths Score (%) to proceed.`);
                   }
+                  const m = parseFloat(edu.mathsScore);
+                  if (isNaN(m) || m < 0 || m > 100) {
+                      return alert(`🛑 Invalid Maths Score (%) for ${edu.qualification}. Score must be a valid number between 0 and 100.`);
+                  }
               }
            }
         }
+        
         if (formData.skills.length < 1) {
             return alert("🛑 Please select at least 1 Technical Sub-Skill. This is mandatory for your assessment.");
         }
@@ -580,6 +616,7 @@ export default function CandidateProfile() {
               alert("🛑 You can select a maximum of 10 Technical Sub-Skills.");
               return prev; 
           }
+        
           return { 
               ...prev, 
               skills: isCurrentlySelected ? prev.skills.filter(item => item !== skill) : [...prev.skills, skill] 
@@ -594,7 +631,8 @@ export default function CandidateProfile() {
               alert("🛑 You can select a maximum of 5 Behavioral Skills.");
               return prev; 
           }
-          return { 
+       
+           return { 
               ...prev, 
               behavioralSkills: isCurrentlySelected ? prev.behavioralSkills.filter(item => item !== skill) : [...prev.behavioralSkills, skill] 
           };
@@ -608,7 +646,8 @@ export default function CandidateProfile() {
               alert("🛑 You can select a maximum of 8 Technological Skills.");
               return prev; 
           }
-          return { 
+   
+           return { 
               ...prev, 
               technologicalSkills: exists 
                  ? prev.technologicalSkills.filter(item => item.name !== skillName) 
@@ -618,7 +657,6 @@ export default function CandidateProfile() {
   };
 
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
-  
   if (loading) {
       return (
           <div className="h-screen bg-[#020617] text-white flex gap-3 items-center justify-center">
@@ -654,9 +692,11 @@ export default function CandidateProfile() {
             )}
          </div>
 
-        {!isEditing ? (
+        {!isEditing ?
+        (
            <CandidateProfileView candidate={formData} role="student" />
-        ) : showGatekeeper ? (
+        ) : showGatekeeper ?
+        (
            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl mx-auto mt-6">
               <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden text-center">
                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg rotate-3">
@@ -664,7 +704,7 @@ export default function CandidateProfile() {
                  </div>
                  <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Supercharge Your Profile</h1>
                  <p className="text-slate-400 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
-                 
+              
                  <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-xl mx-auto bg-slate-950/50 border-2 rounded-2xl p-6 mb-8 transition-all flex items-start gap-5 ${consentGiven ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.15)] bg-blue-500/5' : 'border-slate-800 hover:border-slate-700'}`}>
                     <div className={`w-7 h-7 border-2 rounded-lg flex items-center justify-center shrink-0 ${consentGiven ? 'bg-blue-500 border-blue-500' : 'border-slate-600 bg-slate-900'}`}>
                         <Check size={18} className={`text-white transition-opacity ${consentGiven ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3}/>
@@ -805,12 +845,12 @@ export default function CandidateProfile() {
                          <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800/80">
                             <label className="text-white font-bold mb-4 flex items-center gap-2">
                                <TrendingUp className="text-green-400" size={20}/> Core Strengths <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
-                            </label>
+                             </label>
                             <div className="flex flex-wrap gap-2 mb-4">
                                {formData.strengths.map((str, i) => (
-                                   <span key={i} className="flex items-center gap-1 bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1.5 rounded-lg text-xs font-bold">
+                                  <span key={i} className="flex items-center gap-1 bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1.5 rounded-lg text-xs font-bold">
                                      {str} <X size={14} className="cursor-pointer hover:text-white" onClick={() => removeStr(str)}/>
-                                   </span>
+                                  </span>
                                ))}
                             </div>
                             <input type="text" value={strInput} onChange={(e) => setStrInput(e.target.value)} onKeyDown={handleAddStr} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-green-500" placeholder="e.g. Analytical Thinking..."/>
@@ -907,7 +947,7 @@ export default function CandidateProfile() {
                                     </div>
                                     <div>
                                        <label className="form-label">Total Score (%)</label>
-                                       <input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="input-field"/>
+                                       <input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="input-field" placeholder="e.g. 75"/>
                                     </div>
                                  </div>
                               </div>
@@ -1020,7 +1060,8 @@ export default function CandidateProfile() {
                                            key={bSkill} 
                                            onClick={() => {
                                                if(!isSelected && formData.behavioralSkills.length >= 5) {
-                                                   alert("🛑 You can select a maximum of 5 Behavioral Skills."); return;
+                                                   alert("🛑 You can select a maximum of 5 Behavioral Skills.");
+                                                   return;
                                                }
                                                setFormData(prev => ({...prev, behavioralSkills: isSelected ? prev.behavioralSkills.filter(item => item !== bSkill) : [...prev.behavioralSkills, bSkill]}));
                                            }} 
@@ -1064,12 +1105,12 @@ export default function CandidateProfile() {
                                         <X size={18} className="cursor-pointer text-pink-500/70 hover:text-white ml-1 transition-colors" onClick={() => removeTechSkill(skill.name)}/>
                                     </div>
                                  </div>
-                              ))}
+                               ))}
                            </div>
                         )}
 
                         <div className="grid md:grid-cols-2 gap-6">
-                            <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                             <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
                                <label className="text-white font-bold mb-4 flex items-center gap-2">
                                   <Plus className="text-pink-400" size={20}/> Add Custom Tool <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
                                </label>
@@ -1106,7 +1147,7 @@ export default function CandidateProfile() {
                         <div className="flex justify-between items-center mb-6">
                            <h2 className="text-3xl font-extrabold text-white">Past Work Experience</h2>
                            <button onClick={addWorkExp} className="text-sm font-bold text-green-400 bg-green-500/10 px-4 py-2 rounded-xl">
-                              <Plus size={18} className="inline"/> Add Company
+                               <Plus size={18} className="inline"/> Add Company
                            </button>
                         </div>
                         <div className="space-y-4">
@@ -1129,7 +1170,7 @@ export default function CandidateProfile() {
                                        <input type="text" value={work.duration} onChange={(e)=>updateWorkExp(index, 'duration', e.target.value)} className="input-field" placeholder="e.g. 2021 - 2023"/>
                                     </div>
                                  </div>
-                              </div>
+                               </div>
                            ))}
                            {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm">No past experience added. AI will auto-fill if found on resume.</p>}
                         </div>
@@ -1147,7 +1188,7 @@ export default function CandidateProfile() {
                               <div key={index} className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 relative">
                                  <button onClick={() => removeAchievement(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500">
                                     <X size={18}/>
-                                 </button>
+                                  </button>
                                  <div className="grid md:grid-cols-2 gap-4 mt-2">
                                     <div className="md:col-span-2">
                                        <label className="form-label">Achievement / Certificate Title</label>
@@ -1166,13 +1207,13 @@ export default function CandidateProfile() {
                                           <div className="relative">
                                              <input type="file" accept="image/*" onChange={(e) => handleAchievementImageUpload(index, e)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
                                              <div className="bg-slate-800 hover:bg-slate-700 text-blue-400 text-sm font-bold px-4 py-2.5 rounded-xl border border-slate-700 flex items-center gap-2 transition-colors">
-                                                 <ImagePlus size={16}/> {ach.imageURL ? "Change Image" : "Upload Image"}
+                                                  <ImagePlus size={16}/> {ach.imageURL ? "Change Image" : "Upload Image"}
                                              </div>
                                           </div>
                                        </div>
                                     </div>
                                  </div>
-                              </div>
+                               </div>
                            ))}
                            {formData.achievements.length === 0 && <p className="text-slate-500 text-sm">Stand out by adding your awards or extra certifications.</p>}
                         </div>
@@ -1217,8 +1258,8 @@ export default function CandidateProfile() {
                               <select 
                                  value={formData.jobType} 
                                  onChange={(e)=>{
-                                    const val = e.target.value;
-                                    setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
+                                     const val = e.target.value;
+                                     setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
                                  }} 
                                  className="input-field border-yellow-500/30 [color-scheme:dark] mb-4"
                               >
@@ -1228,7 +1269,7 @@ export default function CandidateProfile() {
                                  <option value="6+ Month Contract">6+ Month Contract</option>
                                  <option value="Freelance/Project Basis">Freelance/Project Basis</option>
                                  <option value="Internship">Internship</option>
-                              </select>
+                               </select>
                               
                               {formData.jobType === "Permanent Role" && (
                                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/50 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-lg shadow-blue-900/20">
@@ -1238,8 +1279,7 @@ export default function CandidateProfile() {
                                     <div className="w-full">
                                        <h4 className="text-blue-300 font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
                                        <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role?
-                                          <span className="text-red-400 text-xs ml-1">*Required</span>
+                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-400 text-xs ml-1">*Required</span>
                                        </p>
                                        
                                        <div className="flex flex-col sm:flex-row gap-4 mt-2">
@@ -1288,7 +1328,7 @@ export default function CandidateProfile() {
                                        {loc} <X size={16} className="cursor-pointer text-blue-400/70 hover:text-white" onClick={() => removeLocation(loc)}/>
                                     </span>
                                  ))}
-                              </div>
+                               </div>
                               <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-700 pb-3 outline-none text-white text-base font-medium placeholder:text-slate-600 focus:border-blue-500" placeholder="e.g. Mumbai, Bangalore..."/>
                            </div>
                         </div>
@@ -1303,7 +1343,7 @@ export default function CandidateProfile() {
                      </div>
                      <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
                         Profile Saved, but <span className="text-red-500">HIDDEN</span> 🔒
-                     </h2>
+                      </h2>
                      <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
                         To maintain trust, companies can only see profiles that have passed the AI Skill Assessment. Unlock your profile now to get hired.
                      </p>
@@ -1328,7 +1368,7 @@ export default function CandidateProfile() {
                               Start AI Test Now <ChevronRight size={20}/>
                            </button>
                         </div>
-                     </div>
+                      </div>
                      <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-slate-500 hover:text-white font-medium underline underline-offset-4 transition-colors">
                         Save as draft & take test later
                      </button>
@@ -1350,7 +1390,8 @@ export default function CandidateProfile() {
                         Next <ChevronRight size={20}/>
                      </button>
                   ) : (
-                     isOnboarding ? (
+                     isOnboarding ?
+                     (
                         <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 font-bold flex items-center gap-3 text-white shadow-xl shadow-purple-500/20 text-lg transition-all">
                            {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={20}/></>}
                         </button>
