@@ -113,43 +113,36 @@ export default function LiveTestPage() {
     if (faceMatchIntervalRef.current) clearInterval(faceMatchIntervalRef.current);
   }, []);
 
-  const terminateTest = useCallback(async (reason: string) => {
-    setIsTerminated(true);
-    stopProctoring(); 
-    if (!user) return;
-    
-    await supabase.from("profiles").update({
-      examAccess: "disqualified",
-      meta: {
-        lastAttempt: new Date(),
-        totalScore: 0,
-        status: `Terminated: ${reason}`,
-        warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings },
-        warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings, 
-        skillScores: {} 
-      }
-    }).eq("id", user.id);
-  }, [user, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
-
-  // 🔥 FIX 3: Robust Scoring Logic to fix "0" score issue 🔥
+  // 🔥 FIX 3: FUZZY SMART SCORING LOGIC 🔥
   const checkIsCorrect = (q: any, ansIndex: number) => {
       if (ansIndex === -1 || ansIndex === undefined) return false;
-      
-      // Clean string by removing options format like "A) " or "B. " and special characters
-      const cleanText = (text: string) => String(text).replace(/^[a-eA-E][)\.]\s*/, "").replace(/[^a-zA-Z0-9 ]/g, "").trim().toLowerCase();
 
-      const selectedOption = cleanText(q.options[ansIndex]);
-      const correctAnswer = cleanText(q.correct_answer);
+      const rawSelected = String(q.options[ansIndex]).trim();
+      const rawCorrect = String(q.correct_answer).trim();
 
-      if (selectedOption === correctAnswer) return true;
-      if (selectedOption.includes(correctAnswer) || correctAnswer.includes(selectedOption)) return true;
+      if (rawSelected === rawCorrect) return true;
+
+      // Clean string by removing options format like "A) " or "B. "
+      const cleanString = (str: string) => str.replace(/^[A-Ea-e][\)\.]\s*/, "").trim().toLowerCase();
+
+      const cleanSelected = cleanString(rawSelected);
+      const cleanCorrect = cleanString(rawCorrect);
+
+      if (cleanSelected === cleanCorrect) return true;
+
+      const optionLetter = ['a', 'b', 'c', 'd', 'e'][ansIndex];
+      if (cleanCorrect === optionLetter) return true;
+      if (rawCorrect.toLowerCase() === `option ${optionLetter}`) return true;
+
+      // Smart inclusive matching (only if length > 2 to prevent short word mismatches)
+      if (cleanCorrect.length > 2 && cleanSelected.includes(cleanCorrect)) return true;
+      if (cleanSelected.length > 2 && cleanCorrect.includes(cleanSelected)) return true;
 
       return false;
   };
 
   const calculateCurrentScore = () => {
      let calcScore = 0;
-     
      const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
         ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
         : [];
@@ -209,7 +202,8 @@ export default function LiveTestPage() {
      submitTest(); 
   };
 
-  const submitTest = useCallback(async (forceReason?: string) => {
+  // 🔥 FIX 1: submitTest now calculates and saves score even if disqualified! 🔥
+  const submitTest = useCallback(async (forceReason?: string, isDisqualified: boolean = false) => {
     if (!user || isTerminated || isSubmitted) return;
     setLoading(true); 
     setAiReportGenerating(true);
@@ -217,7 +211,6 @@ export default function LiveTestPage() {
     
     try {
         let analyticsData: any = {};
-        
         const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
             ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
             : [];
@@ -226,12 +219,10 @@ export default function LiveTestPage() {
            if (!analyticsData[q.skill]) {
                analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, scoreCount: 0, aiLevel: "Beginner" };
            }
-     
            analyticsData[q.skill].total += 1;
 
            const ansIndex = answers[i];
            const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
-           
            const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
            const isTechTool = techSkillNames.includes(q.skill);
            
@@ -248,9 +239,11 @@ export default function LiveTestPage() {
            }
         });
 
+        let currentTestTotalScore = 0;
         for (const skill in analyticsData) {
             const data = analyticsData[skill];
             const finalSkillScore = Math.max(0, data.scoreCount);
+            currentTestTotalScore += finalSkillScore;
             
             if (finalSkillScore >= (data.total * 0.8)) data.aiLevel = "Expert Level 🟢";
             else if (finalSkillScore >= (data.total * 0.4)) data.aiLevel = "Intermediate Level 🟡";
@@ -261,13 +254,7 @@ export default function LiveTestPage() {
                 beginner_score: data.beginner, intermediate_score: data.intermediate, 
                 advanced_score: data.advanced, ai_skill_level: data.aiLevel 
             });
-
             if (insertErr) console.log("Test result insert skipped", insertErr);
-        }
-
-        let currentTestTotalScore = 0;
-        for (const skill in analyticsData) {
-            currentTestTotalScore += Math.max(0, analyticsData[skill].scoreCount);
         }
 
         setScore(currentTestTotalScore);
@@ -295,7 +282,7 @@ export default function LiveTestPage() {
         } catch(e) { console.error("AI Report generation failed", e); }
 
         await supabase.from("profiles").update({
-           examAccess: "completed",
+           examAccess: isDisqualified ? "disqualified" : "completed",
            meta: {
               lastAttempt: new Date(),
               totalScore: currentTestTotalScore, 
@@ -310,9 +297,13 @@ export default function LiveTestPage() {
     } catch (error) {
         console.error("Critical error during submission", error);
     } finally {
-        setIsSubmitted(true);
         setLoading(false); 
         setAiReportGenerating(false);
+        if (isDisqualified) {
+            setIsTerminated(true);
+        } else {
+            setIsSubmitted(true);
+        }
     }
   }, [user, studentProfile, isTerminated, isSubmitted, questions, answers, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
@@ -322,7 +313,10 @@ export default function LiveTestPage() {
     if (type === 'tab') {
         setTabWarnings(prev => {
             const next = prev + 1;
-            if (next >= MAX_TAB_WARNINGS) terminateTest("Tab Switching");
+            if (next >= MAX_TAB_WARNINGS) {
+                alert("🚨 Test Auto-Submitted due to Tab Switching!");
+                submitTest("Auto-Submitted: Tab Switching Exceeded", true);
+            }
             else alert(`⚠️ WARNING ${next}/${MAX_TAB_WARNINGS}: Tab Switch Detected! Disqualification at ${MAX_TAB_WARNINGS}.`);
             return next;
         });
@@ -331,7 +325,7 @@ export default function LiveTestPage() {
             const next = prev + 1;
             if (next >= MAX_MIC_WARNINGS) { 
                 alert("🚨 Test Auto-Submitted due to Maximum Audio Warnings!"); 
-                submitTest("Auto-Submitted: Maximum Audio Warnings Exceeded"); 
+                submitTest("Auto-Submitted: Maximum Audio Warnings Exceeded", true); 
             } else alert(`⚠️ AUDIO WARNING ${next}/${MAX_MIC_WARNINGS}: Background Noise Detected!`);
             return next;
         });
@@ -340,7 +334,7 @@ export default function LiveTestPage() {
             const next = prev + 1;
             if (next >= MAX_CAM_WARNINGS) { 
                 alert("🚨 Test Auto-Submitted due to Maximum Camera Warnings!");
-                submitTest("Auto-Submitted: Maximum Camera Warnings Exceeded"); 
+                submitTest("Auto-Submitted: Maximum Camera Warnings Exceeded", true); 
             } else alert(`⚠️ CAMERA WARNING ${next}/${MAX_CAM_WARNINGS}: Please face the camera and do not move out of frame!`);
             return next;
         });
@@ -349,12 +343,12 @@ export default function LiveTestPage() {
             const next = prev + 1;
             if (next >= MAX_FACE_WARNINGS) { 
                 alert("🚨 Test Auto-Submitted due to Continuous Identity Mismatch!");
-                submitTest("Auto-Submitted: Identity Mismatch Exceeded"); 
+                submitTest("Auto-Submitted: Identity Mismatch Exceeded", true); 
             } else alert(`⚠️ IDENTITY WARNING ${next}/${MAX_FACE_WARNINGS}: ${customMsg || "Face mismatch detected!"}`);
             return next;
         });
     }
-  }, [isTerminated, isSubmitted, terminateTest, submitTest]);
+  }, [isTerminated, isSubmitted, submitTest]);
 
   useEffect(() => { 
       if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
@@ -532,7 +526,6 @@ export default function LiveTestPage() {
         for (const skill of testableSkills) {
             const exactSkill = skill.trim();
             
-            // 🔥 FIX 1: Exact Match searching database to prevent false MS Word hits 🔥
             const { data: skillQs } = await supabase
                 .from("question_bank")
                 .select("*")
@@ -565,7 +558,6 @@ export default function LiveTestPage() {
                 total: 5
             });
 
-            // Shortfall tracking for AI
             if (missing > 0) {
                 const techObj = techSkillsObjects.find((t:any) => (t.name || t) === exactSkill);
                 const skillWithLevel = techObj && typeof techObj === 'object' && techObj.level ? `${exactSkill} (${techObj.level})` : exactSkill;
@@ -667,7 +659,8 @@ export default function LiveTestPage() {
         
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
 
-        // EXISTING DB QUESTIONS TO AVOID AI REPEATING THEM
+        // Existing Qs formatted for anti-repeat logic
+        const existingQsTextLower = questions.map(q => q.question.toLowerCase().trim());
         const existingQsText = questions.map(q => q.question).join(" | ");
 
         const aiResponse = await fetch('/api/generate-ai-questions', {
@@ -683,7 +676,14 @@ export default function LiveTestPage() {
         if (aiResponse.ok) {
             const aiData = await aiResponse.json();
             if (aiData.success && aiData.questions) {
-                const safeAiQuestions = aiData.questions.map((q: any) => {
+                
+                // 🔥 FIX 2: Local Frontend Filter to violently block duplicates 🔥
+                const filteredAiQuestions = aiData.questions.filter((q: any) => {
+                    const qText = q.question.toLowerCase().trim();
+                    return !existingQsTextLower.some(eq => eq.includes(qText) || qText.includes(eq));
+                });
+
+                const safeAiQuestions = filteredAiQuestions.map((q: any) => {
                     let opts = q.options;
                     if (!opts.includes("I Don't Know")) {
                        opts = [...opts.slice(0, 4), "I Don't Know"];
@@ -859,7 +859,7 @@ export default function LiveTestPage() {
       <div className="min-h-screen bg-red-950 text-white flex flex-col items-center justify-center p-6 text-center">
          <ShieldAlert size={80} className="text-red-500 mb-6 animate-pulse"/>
          <h1 className="text-5xl font-bold mb-4">Test Terminated</h1>
-         <p className="text-red-200 text-xl mb-8 max-w-lg">Violation of Anti-Cheat Rules Detected.<br/>Your attempt is locked.</p>
+         <p className="text-red-200 text-xl mb-8 max-w-lg">Violation of Anti-Cheat Rules Detected.<br/>Your partial score has been saved.</p>
          <button onClick={() => window.location.href = '/student/dashboard'} className="bg-white text-red-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">Return to Dashboard</button>
       </div>
     );

@@ -21,7 +21,6 @@ export async function POST(req: Request) {
     let totalAiTechQs = 0;
 
     if (missingSkillsMap.length > 0) {
-        // 🔥 AI will only generate questions for what is missing in DB
         skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} questions for the specific skill: "${s.skill}".`).join("\n");
         totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
     } else {
@@ -29,9 +28,9 @@ export async function POST(req: Request) {
         totalAiTechQs = 7;
     }
 
-    const totalQuestions = totalAiTechQs + 5; // Adding 5 Psychometric questions automatically
+    const totalQuestions = totalAiTechQs + 5; 
 
-    // 🔥 STRICT PROMPT: ANTI-REPEAT (existingQuestions) + LEVEL LOGIC + 5 OPTIONS + ONE CORRECT ANSWER LOGIC 🔥
+    // 🔥 STRICT PROMPT: MUTUALLY EXCLUSIVE OPTIONS & ANTI-REPEAT 🔥
     const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
     The candidate has the following educational qualifications and background: ${qualString}.
     
@@ -46,11 +45,10 @@ export async function POST(req: Request) {
     4. 🔥 DO NOT repeat any concept or question similar to these already asked questions from the database: [${existingQuestions}].
     5. 🔥 DIFFICULTY LEVEL LOGIC (CRITICAL) 🔥:
        - If the requested skill includes a level like "(Beginner)", "(Intermediate)", or "(Advanced)", you MUST generate questions that strictly match that specific complexity.
-       - Beginner: Basic navigation, definitions, fundamental tool features.
-       - Intermediate: Scenario-based application, standard formulas, multi-step processes.
-       - Advanced: Highly complex scenarios, deep technical troubleshooting, master-level features (e.g., complex Macros/VBA, intricate nested formulas).
-       - Ensure the "difficulty" field matches this exact level.
-    6. 🔥 STRICTLY ONE CORRECT ANSWER 🔥: Ensure that out of the provided options, EXACTLY ONE option is unequivocally correct. DO NOT provide options that overlap or could both be considered correct.
+    6. 🔥 STRICTLY ONE CORRECT ANSWER (MUTUALLY EXCLUSIVE) 🔥: 
+       - Out of the 4 options, EXACTLY ONE option must be 100% correct.
+       - The other 3 options MUST BE 100% FALSE and completely incorrect.
+       - DO NOT use "Both A and B", "All of the above", or overlapping ambiguous options. Ensure no two options can be interpreted as correct.
     
     FORMATTING RULES:
     1. Each question MUST have exactly 5 options.
@@ -84,7 +82,7 @@ export async function POST(req: Request) {
             const chatCompletion = await groq.chat.completions.create({
               messages: [{ role: "user", content: prompt }],
               model: "llama-3.3-70b-versatile",
-              temperature: 0.2, // Slightly lowered to make AI more strict about single correct answers
+              temperature: 0.1, // Reduced temperature for extreme strictness on logic and options
               response_format: { type: "json_object" }
             });
 
