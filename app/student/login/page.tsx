@@ -6,6 +6,10 @@ import { motion } from "framer-motion";
 import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
+// 🔥 Naye Master Components 🔥
+import Card from "@/app/components/ui/Card";
+import Button from "@/app/components/ui/Button";
+
 export default function CandidateLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -93,91 +97,98 @@ export default function CandidateLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-transparent text-slate-900 flex items-center justify-center p-4 relative z-10 font-sans">
       
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 p-8 md:p-12 rounded-3xl w-full max-w-md relative z-10 shadow-2xl">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md">
         
-        <div className="flex justify-center mb-6">
-          <div className="bg-blue-500/20 p-4 rounded-2xl">
-             <Briefcase className="w-10 h-10 text-blue-400" />
-          </div>
-        </div>
-        
-        <h2 className="text-3xl font-bold text-center mb-2">Candidate Portal</h2>
-        <p className="text-slate-400 text-center mb-8">
-            {isSignUp ? "Create your candidate account." : "Prove your skills. Get hired."}
-        </p>
-
-        <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
-          <div className="relative">
-            <Mail className="absolute left-3 top-3.5 text-slate-500" size={20} />
-            <input 
-              type="email" required placeholder="Candidate Email" 
-              value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-blue-500 outline-none transition-all"
-            />
+        <Card className="p-8 md:p-12 relative overflow-hidden border-t-4 border-t-[#0f947e] shadow-2xl">
+          
+          <div className="flex justify-center mb-6 relative z-10">
+            <div className="bg-teal-50 border border-teal-100 p-4 rounded-2xl shadow-sm">
+               <Briefcase className="w-10 h-10 text-[#0f947e]" />
+            </div>
           </div>
           
-          <div>
+          <h2 className="text-3xl font-extrabold text-center mb-2 text-slate-900 relative z-10">Candidate Portal</h2>
+          <p className="text-slate-500 font-medium text-center mb-8 relative z-10">
+              {isSignUp ? "Create your candidate account." : "Prove your skills. Get hired."}
+          </p>
+
+          <form onSubmit={handleEmailAuth} className="space-y-4 mb-6 relative z-10">
             <div className="relative">
-              <Lock className="absolute left-3 top-3.5 text-slate-500" size={20} />
+              <Mail className="absolute left-4 top-3.5 text-slate-400" size={20} />
               <input 
-                type={showPassword ? "text" : "password"} 
-                required placeholder="Password (Min 6 chars)" minLength={6}
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-12 text-white placeholder:text-slate-500 focus:border-blue-500 outline-none transition-all"
+                type="email" required placeholder="Candidate Email" 
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-sm"
               />
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-3.5 text-slate-500 hover:text-slate-300 transition-colors"
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
             </div>
-            {!isSignUp && (
-              <div className="flex justify-end w-full mt-2 mb-1">
-                 <a href="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 hover:underline">
-                  Forgot Password?
-                 </a>
+            
+            <div>
+              <div className="relative">
+                <Lock className="absolute left-4 top-3.5 text-slate-400" size={20} />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  required placeholder="Password (Min 6 chars)" minLength={6}
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-12 text-slate-900 placeholder:text-slate-400 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-sm"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {!isSignUp && (
+                <div className="flex justify-end w-full mt-2 mb-1">
+                   <Link href="/forgot-password" className="text-xs font-bold text-[#0f947e] hover:text-[#0c7a68] hover:underline">
+                    Forgot Password?
+                   </Link>
+                </div>
+              )}
+            </div>
+
+            {/* 🔥 SMART CONDITIONAL CONSENT 🔥 */}
+            {isSignUp ? (
+              <div className="flex items-start gap-3 mt-4 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm">
+                 <input 
+                    type="checkbox" 
+                    id="terms" 
+                    checked={agreedToTerms} 
+                    onChange={(e) => setAgreedToTerms(e.target.checked)} 
+                    className="mt-1 w-4 h-4 rounded border-slate-300 text-[#0f947e] focus:ring-[#0f947e] cursor-pointer"
+                 />
+                 <label htmlFor="terms" className="text-xs text-slate-600 font-medium leading-relaxed cursor-pointer select-none">
+                    By creating an account, I confirm that I agree to be legally bound by Talexo's <Link href="/terms-of-service" className="text-[#0f947e] hover:underline font-bold" target="_blank">Terms & Conditions</Link>, and I authorise Talexo to securely store my profile data.
+                 </label>
+              </div>
+            ) : (
+              <div className="mt-4 text-center">
+                 <p className="text-xs text-slate-500 font-medium">
+                    By logging in, you agree to our <Link href="/terms-of-service" className="text-[#0f947e] font-bold hover:underline" target="_blank">Terms & Conditions</Link>.
+                 </p>
               </div>
             )}
+
+            <Button 
+               type="submit" 
+               disabled={loading} 
+               className="w-full mt-2 py-4 text-lg"
+            >
+              {loading ? <><Loader2 className="animate-spin" size={20}/> Processing...</> : (isSignUp ? "Sign Up" : "Login")}
+            </Button>
+          </form>
+
+          <div className="text-center text-sm font-medium text-slate-500 mb-2 relative z-10">
+            {isSignUp ? "Already have an account?" : "Don't have an account?"} 
+            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[#0f947e] font-extrabold ml-2 hover:underline transition-colors">
+              {isSignUp ? "Login here" : "Sign Up"}
+            </button>
           </div>
-
-          {/* 🔥 SMART CONDITIONAL CONSENT 🔥 */}
-          {isSignUp ? (
-            <div className="flex items-start gap-3 mt-4 bg-slate-950/50 p-4 rounded-xl border border-slate-800/80">
-               <input 
-                  type="checkbox" 
-                  id="terms" 
-                  checked={agreedToTerms} 
-                  onChange={(e) => setAgreedToTerms(e.target.checked)} 
-                  className="mt-1 w-4 h-4 rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-blue-500 cursor-pointer"
-               />
-               <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed cursor-pointer select-none">
-                  By creating an account, I confirm that I agree to be legally bound by Talexo's <Link href="/terms-of-service" className="text-blue-400 hover:underline font-bold" target="_blank">Terms & Conditions</Link>, and I authorise Talexo to securely store my profile data.
-               </label>
-            </div>
-          ) : (
-            <div className="mt-4 text-center">
-               <p className="text-xs text-slate-500">
-                  By logging in, you agree to our <Link href="/terms-of-service" className="text-blue-400 hover:underline" target="_blank">Terms & Conditions</Link>.
-               </p>
-            </div>
-          )}
-
-          <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-2">
-            {loading ? <><Loader2 className="animate-spin" size={20}/> Processing...</> : (isSignUp ? "Sign Up" : "Login")}
-          </button>
-        </form>
-
-        <div className="text-center text-sm text-slate-400 mb-6">
-          {isSignUp ? "Already have an account?" : "Don't have an account?"} 
-          <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-blue-400 font-bold ml-2 hover:underline transition-colors">
-            {isSignUp ? "Login here" : "Sign Up"}
-          </button>
-        </div>
+        </Card>
+        
       </motion.div>
     </div>
   );

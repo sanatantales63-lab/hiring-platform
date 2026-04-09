@@ -49,7 +49,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const candidateTechnologicalSkills = Array.isArray(candidate.technologicalSkills) ? candidate.technologicalSkills : [];
   const candidateStrengths = Array.isArray(candidate.strengths) ? candidate.strengths : [];
   const candidateWeaknesses = Array.isArray(candidate.weaknesses) ? candidate.weaknesses : [];
-
   const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
   const metaObj = candidate.meta || {};
   const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0 };
@@ -73,42 +72,42 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
     <div className="space-y-8 animate-in fade-in duration-500">
       
       {/* HEADER CARD */}
-      <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]"></div>
+      <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[2.5rem] shadow-xl flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-[80px]"></div>
         
-        <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-slate-800 border-4 border-slate-700 flex items-center justify-center overflow-hidden shadow-2xl shrink-0">
-            {candidate.photoURL && !isCompany ? <img src={candidate.photoURL} className="w-full h-full object-cover"/> : <User size={64} className="text-slate-500"/>}
+        <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-slate-100 border-4 border-white flex items-center justify-center overflow-hidden shadow-lg shrink-0">
+            {candidate.photoURL && !isCompany ? <img src={candidate.photoURL} className="w-full h-full object-cover"/> : <User size={64} className="text-slate-400"/>}
         </div>
         
         <div className="relative z-10 text-center md:text-left flex-1 mt-2">
           <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
              <div>
-                <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300 mb-2 tracking-tight">{candidate.fullName || "Name Not Set"}</h2>
-                <p className="text-blue-400 font-bold tracking-wider uppercase text-sm mb-6 bg-blue-500/10 inline-block px-4 py-1.5 rounded-xl border border-blue-500/20">
+                <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-2 tracking-tight">{candidate.fullName || "Name Not Set"}</h2>
+                <p className="text-[#0f947e] font-bold tracking-wider uppercase text-sm mb-6 bg-teal-50 inline-block px-4 py-1.5 rounded-xl border border-teal-200">
                    {smartTitle}
                 </p>
              </div>
 
              {(isAdmin || isCompany) && (
-                <div className="text-right bg-slate-950/80 p-5 rounded-2xl border border-slate-800 shadow-inner min-w-[180px]">
+                <div className="text-right bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm min-w-[180px]">
                    {isDisqualified ? (
-                       <div className="text-2xl font-extrabold text-red-500 flex items-center gap-2 justify-end mb-1"><ShieldAlert size={24}/> Banned</div>
+                       <div className="text-2xl font-extrabold text-red-600 flex items-center gap-2 justify-end mb-1"><ShieldAlert size={24}/> Banned</div>
                    ) : (
-                       <div className="text-4xl font-extrabold text-green-400 mb-1">{metaObj.totalScore !== undefined ? `${metaObj.totalScore}` : "N/A"}</div>
+                       <div className="text-4xl font-extrabold text-teal-600 mb-1">{metaObj.totalScore !== undefined ? `${metaObj.totalScore}` : "N/A"}</div>
                    )}
-                   <p className="text-slate-400 text-xs">AI Verified Score</p>
+                   <p className="text-slate-500 text-xs font-bold uppercase tracking-wide">AI Verified Score</p>
                 </div>
              )}
           </div>
           
-          <div className={`flex flex-wrap justify-center md:justify-start gap-3 text-sm font-medium ${isCompany ? 'blur-[4px] select-none opacity-50' : ''}`}>
-            <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}</span>
-            <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><Phone size={16} className="text-green-500"/> {phoneToDisplay}</span>
-            <span className="flex items-center gap-2 text-slate-300 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800 shadow-inner"><Mail size={16} className="text-yellow-500"/> {emailToDisplay}</span>
+          <div className={`flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold ${isCompany ? 'blur-[4px] select-none opacity-50' : ''}`}>
+            <span className="flex items-center gap-2 text-slate-700 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}</span>
+            <span className="flex items-center gap-2 text-slate-700 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm"><Phone size={16} className="text-green-500"/> {phoneToDisplay}</span>
+            <span className="flex items-center gap-2 text-slate-700 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm"><Mail size={16} className="text-amber-500"/> {emailToDisplay}</span>
           </div>
 
           {isCompany && (
-             <div className="mt-4 inline-flex bg-slate-900/90 backdrop-blur-xl px-5 py-2 rounded-xl border border-yellow-500/50 text-yellow-500 text-xs font-bold items-center gap-2 shadow-lg">
+             <div className="mt-4 inline-flex bg-white px-5 py-2 rounded-xl border border-amber-300 text-amber-600 text-xs font-bold items-center gap-2 shadow-md">
                 <Lock size={16}/> CONTACT INFO LOCKED BY ADMIN
              </div>
           )}
@@ -116,48 +115,48 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
       </div>
 
       {showReview && (
-         <div className="bg-gradient-to-r from-yellow-900/20 to-amber-900/20 border border-yellow-500/30 p-8 rounded-[2rem] shadow-lg relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none"><Star size={100}/></div>
+         <div className="bg-amber-50 border border-amber-200 p-8 rounded-[2rem] shadow-md relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Star size={100}/></div>
             <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start">
-               <div className="w-16 h-16 bg-yellow-500/20 rounded-2xl flex items-center justify-center shrink-0"><Briefcase className="text-yellow-500" size={32}/></div>
+               <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0"><Briefcase className="text-amber-600" size={32}/></div>
                <div>
-                  <h3 className="text-xl font-extrabold text-white mb-1 flex items-center gap-2">Verified Corporate Experience <CheckCircle className="text-green-400" size={18}/></h3>
-                  <p className="text-slate-300 mb-3 font-medium">Hired by <strong className="text-white">{candidate.hired_company_name}</strong> through Talexo</p>
+                  <h3 className="text-xl font-extrabold text-slate-900 mb-1 flex items-center gap-2">Verified Corporate Experience <CheckCircle className="text-teal-500" size={18}/></h3>
+                  <p className="text-slate-600 mb-3 font-medium">Hired by <strong className="text-slate-900">{candidate.hired_company_name}</strong> through Talexo</p>
                   <div className="flex gap-1 mb-3">
-                     {[1,2,3,4,5].map(star => <Star key={star} size={18} fill={star <= candidate.company_rating ? "#EAB308" : "none"} className={star <= candidate.company_rating ? "text-yellow-500" : "text-slate-600"}/>)}
+                     {[1,2,3,4,5].map(star => <Star key={star} size={18} fill={star <= candidate.company_rating ? "#D97706" : "none"} className={star <= candidate.company_rating ? "text-amber-600" : "text-slate-300"}/>)}
                   </div>
-                  {candidate.company_review && <p className="text-slate-400 italic text-lg leading-relaxed">"{candidate.company_review}"</p>}
+                  {candidate.company_review && <p className="text-slate-700 italic text-lg leading-relaxed">"{candidate.company_review}"</p>}
                </div>
             </div>
          </div>
       )}
 
       {candidate.bio && (
-         <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="text-blue-400" size={20}/> Professional Summary</h3>
-            <p className="text-slate-300 leading-relaxed text-base md:text-lg italic">"{candidate.bio}"</p>
+         <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-2 h-full bg-[#0f947e]"></div>
+            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2"><Sparkles className="text-teal-500" size={20}/> Professional Summary</h3>
+            <p className="text-slate-700 leading-relaxed text-base md:text-lg italic">"{candidate.bio}"</p>
          </div>
       )}
 
       {/* PAST WORK EXPERIENCE */}
       {workExpList.length > 0 && (
-          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><Building className="text-green-400"/> Past Work Experience</h3>
+          <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+             <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Building className="text-teal-600"/> Past Work Experience</h3>
              <div className="space-y-4">
                  {displayedWorkExp.map((work:any, i:number) => (
-                    <div key={i} className="bg-slate-950/50 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-700 transition-colors">
+                    <div key={i} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-300 transition-colors shadow-sm">
                        <div>
-                          <p className="font-bold text-lg text-white">{work.company}</p>
-                          <p className="text-sm text-blue-400 font-bold mt-1">{work.role}</p>
+                          <p className="font-bold text-lg text-slate-900">{work.company}</p>
+                          <p className="text-sm text-teal-600 font-bold mt-1">{work.role}</p>
                        </div>
                        <div className="text-left sm:text-right">
-                          <p className="text-slate-400 text-sm font-medium bg-slate-800 px-3 py-1 rounded-lg inline-block">{work.duration}</p>
+                          <p className="text-slate-600 text-sm font-bold bg-white border border-slate-200 shadow-sm px-3 py-1 rounded-lg inline-block">{work.duration}</p>
                        </div>
                     </div>
                  ))}
                  {extraWorkCount > 0 && (
-                    <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                    <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-2 py-3 border border-dashed border-slate-300 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors text-sm font-bold flex items-center justify-center gap-2">
                        {showAllWork ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraWorkCount} More Experiences</>}
                     </button>
                  )}
@@ -167,36 +166,36 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
       <div className="grid md:grid-cols-3 gap-8">
          <div className="md:col-span-1 space-y-8">
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Briefcase className="text-purple-400"/> Career Status</h3>
-               <div className="space-y-4 text-sm font-medium">
-                  <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Total Exp.</span><span className="text-white font-bold bg-slate-800 px-3 py-1 rounded-lg">{candidate.experience}</span></div>
-                  <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">Current Status</span><span className="text-white">{candidate.currentStatus}</span></div>
-                  <div className="flex justify-between pb-1"><span className="text-slate-400">Open to Work</span><span className={candidate.openToContractRoles ? "text-green-400 font-bold" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
+            <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+               <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Briefcase className="text-indigo-500"/> Career Status</h3>
+               <div className="space-y-4 text-sm font-bold text-slate-600">
+                  <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Total Exp.</span><span className="text-slate-900 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 shadow-sm">{candidate.experience}</span></div>
+                  <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Current Status</span><span className="text-slate-900">{candidate.currentStatus}</span></div>
+                  <div className="flex justify-between pb-1"><span className="text-slate-500">Open to Work</span><span className={candidate.openToContractRoles ? "text-teal-600" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
                </div>
             </div>
 
-            <div className={`bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg relative ${isCompany ? 'overflow-hidden group' : ''}`}>
-               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><User className="text-purple-400"/> Personal Details</h3>
-               <div className={`space-y-4 text-sm font-medium ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
-                  <div className="flex justify-between border-b border-slate-800/80 pb-3"><span className="text-slate-400">DOB</span><span className="text-white">{dobToDisplay}</span></div>
-                  <div className="flex justify-between pb-1"><span className="text-slate-400 flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-yellow-400 font-bold tracking-widest uppercase">{panToDisplay}</span></div>
+            <div className={`bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg relative ${isCompany ? 'overflow-hidden group' : ''}`}>
+               <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><User className="text-indigo-500"/> Personal Details</h3>
+               <div className={`space-y-4 text-sm font-bold text-slate-600 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                  <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">DOB</span><span className="text-slate-900">{dobToDisplay}</span></div>
+                  <div className="flex justify-between pb-1"><span className="text-slate-500 flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-slate-900 tracking-widest uppercase">{panToDisplay}</span></div>
                </div>
                {isCompany && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40">
-                     <Lock size={32} className="text-yellow-500/50"/>
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                     <Lock size={32} className="text-amber-500/80"/>
                   </div>
                )}
             </div>
 
             {candidate.languages && candidate.languages.length > 0 && (
-               <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Globe className="text-purple-400"/> Languages Known</h3>
+               <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+                  <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Globe className="text-indigo-500"/> Languages Known</h3>
                   <div className="flex flex-wrap gap-3">
                      {candidate.languages.map((lang: any, idx: number) => (
-                        <div key={idx} className="bg-slate-950/80 px-4 py-2.5 rounded-xl border border-slate-800 flex items-center gap-2 w-full justify-between">
-                           <span className="font-bold text-white text-sm">{lang.language}</span>
-                           <span className="text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-1 rounded-lg">{lang.proficiency}</span>
+                        <div key={idx} className="bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 flex items-center gap-2 w-full justify-between shadow-sm">
+                           <span className="font-bold text-slate-900 text-sm">{lang.language}</span>
+                           <span className="text-xs font-bold bg-teal-50 text-teal-600 border border-teal-200 px-2 py-1 rounded-lg">{lang.proficiency}</span>
                         </div>
                      ))}
                   </div>
@@ -206,34 +205,32 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
          <div className="md:col-span-2 space-y-8">
             {/* EDUCATION SECTION */}
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><GraduationCap className="text-purple-400"/> Education & Certifications</h3>
+            <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+               <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3"><GraduationCap className="text-indigo-500"/> Education & Certifications</h3>
                <div className="space-y-4">
                    {displayedEducations.map((edu:any, i:number) => {
                       const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test((edu.qualification || '').toLowerCase());
                       return (
-                      <div key={i} className="bg-slate-950/50 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-700 transition-colors">
+                      <div key={i} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-300 transition-colors shadow-sm">
                          <div>
-                            <p className="font-bold text-lg text-white flex items-center gap-2 flex-wrap">
+                            <p className="font-bold text-lg text-slate-900 flex items-center gap-2 flex-wrap">
                                {edu.qualification} 
-                               {edu.stageCleared && <span className="text-[10px] bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
-                               
-                               {/* 🔥 MATHS UI WITH SCORE 🔥 */}
+                               {edu.stageCleared && <span className="text-[10px] bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
                                {isSchoolLevel && edu.mathsIncluded && edu.mathsIncluded !== "" && (
-                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${edu.mathsIncluded === 'Yes' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${edu.mathsIncluded === 'Yes' ? 'bg-teal-50 text-teal-600 border-teal-200' : 'bg-red-50 text-red-500 border-red-200'}`}>
                                       Maths: {edu.mathsIncluded} {edu.mathsIncluded === 'Yes' && edu.mathsScore ? `(${edu.mathsScore}%)` : ''}
                                   </span>
                                )}
                             </p>
-                            <p className="text-sm text-slate-400 mt-1">{edu.collegeName || "Institution not specified"}</p>
+                            <p className="text-sm font-medium text-slate-500 mt-1">{edu.collegeName || "Institution not specified"}</p>
                          </div>
                          <div className="text-left sm:text-right">
-                            <p className="text-white font-bold bg-slate-800 px-3 py-1 rounded-lg inline-block">{edu.passingYear || "N/A"}</p>
+                            <p className="text-slate-700 font-bold bg-white border border-slate-200 shadow-sm px-3 py-1 rounded-lg inline-block">{edu.passingYear || "N/A"}</p>
                          </div>
                       </div>
                    )})}
                    {extraEduCount > 0 && (
-                      <button onClick={() => setShowAllEdu(!showAllEdu)} className="w-full mt-2 py-3 border border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-bold flex items-center justify-center gap-2">
+                      <button onClick={() => setShowAllEdu(!showAllEdu)} className="w-full mt-2 py-3 border border-dashed border-slate-300 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors text-sm font-bold flex items-center justify-center gap-2">
                          {showAllEdu ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraEduCount} More Qualifications</>}
                       </button>
                    )}
@@ -242,23 +239,23 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
             {/* ACHIEVEMENTS SECTION */}
             {candidate.achievements && candidate.achievements.length > 0 && (
-                <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3"><Award className="text-yellow-400"/> Achievements & Certifications</h3>
+                <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Award className="text-amber-500"/> Achievements & Certifications</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                         {candidate.achievements.map((ach: any, i: number) => (
-                            <div key={i} className="bg-slate-950/50 border border-slate-800 rounded-2xl p-4 flex gap-4 hover:border-slate-700 transition-colors items-start">
+                            <div key={i} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-4 hover:border-slate-300 transition-colors items-start shadow-sm">
                                 {ach.imageURL ? (
                                     <a href={ach.imageURL} target="_blank" rel="noreferrer" className="shrink-0">
-                                        <img src={ach.imageURL} alt="Achievement" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-xl border border-slate-700 hover:opacity-80 transition-opacity cursor-pointer"/>
+                                        <img src={ach.imageURL} alt="Achievement" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-xl border border-slate-200 shadow-sm hover:opacity-80 transition-opacity cursor-pointer"/>
                                     </a>
                                 ) : (
-                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-yellow-500/10 rounded-xl flex items-center justify-center shrink-0 border border-yellow-500/20">
-                                        <Award size={24} className="text-yellow-500"/>
+                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-50 rounded-xl flex items-center justify-center shrink-0 border border-amber-200 shadow-sm">
+                                        <Award size={24} className="text-amber-500"/>
                                     </div>
                                 )}
                                 <div>
-                                    <h4 className="text-white font-bold text-sm md:text-base leading-tight mb-1">{ach.title || "Untitled Achievement"}</h4>
-                                    <p className="text-slate-400 text-xs leading-relaxed line-clamp-2" title={ach.description}>{ach.description || "No description provided."}</p>
+                                    <h4 className="text-slate-900 font-bold text-sm md:text-base leading-tight mb-1">{ach.title || "Untitled Achievement"}</h4>
+                                    <p className="text-slate-600 font-medium text-xs leading-relaxed line-clamp-2" title={ach.description}>{ach.description || "No description provided."}</p>
                                 </div>
                             </div>
                         ))}
@@ -266,61 +263,61 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 </div>
             )}
 
-            <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 rounded-[2rem] shadow-lg">
-               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3"><Sparkles className="text-blue-400"/> Technical Skills & Expertise</h3>
+            <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+               <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Sparkles className="text-teal-500"/> Technical Skills & Expertise</h3>
                {candidateSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
                      {candidateSkills.map((skill:string, i:number) => (
-                        <span key={i} className="bg-blue-600/10 text-blue-300 px-4 py-2 rounded-xl text-sm font-bold border border-blue-500/30 hover:bg-blue-600/20 transition-all shadow-sm">{skill}</span>
+                        <span key={i} className="bg-teal-50 text-teal-700 px-4 py-2 rounded-xl text-sm font-bold border border-teal-200 hover:bg-teal-100 transition-all shadow-sm">{skill}</span>
                      ))}
                   </div>
-               ) : <span className="text-slate-500 text-sm italic">No skills selected yet.</span>}
+               ) : <span className="text-slate-500 font-medium text-sm italic">No skills selected yet.</span>}
                
                {/* BEHAVIORAL SKILLS */}
-               <div className="mt-8 pt-8 border-t border-slate-800">
-                   <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3"><Users className="text-purple-400"/> Behavioral & Soft Skills</h3>
+               <div className="mt-8 pt-8 border-t border-slate-100">
+                   <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3"><Users className="text-indigo-500"/> Behavioral & Soft Skills</h3>
                    {candidateBehavioralSkills.length > 0 ? (
                       <div className="flex flex-wrap gap-2.5">
                          {candidateBehavioralSkills.map((skill:string, i:number) => (
-                            <span key={i} className="bg-purple-600/10 text-purple-300 px-4 py-2 rounded-xl text-sm font-bold border border-purple-500/30 hover:bg-purple-600/20 transition-all shadow-sm">{skill}</span>
+                            <span key={i} className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold border border-indigo-200 hover:bg-indigo-100 transition-all shadow-sm">{skill}</span>
                          ))}
                       </div>
-                   ) : <span className="text-slate-500 text-sm italic">No behavioral skills selected.</span>}
+                   ) : <span className="text-slate-500 font-medium text-sm italic">No behavioral skills selected.</span>}
                </div>
 
-               {/* 🔥 TECHNOLOGICAL SKILLS (WITH LEVEL) 🔥 */}
-               <div className="mt-8 pt-8 border-t border-slate-800">
-                   <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3"><Monitor className="text-pink-400"/> Technological Tools & Software</h3>
+               {/* TECHNOLOGICAL SKILLS */}
+               <div className="mt-8 pt-8 border-t border-slate-100">
+                   <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-3"><Monitor className="text-blue-500"/> Technological Tools & Software</h3>
                    {candidateTechnologicalSkills.length > 0 ? (
                       <div className="flex flex-wrap gap-2.5">
                          {candidateTechnologicalSkills.map((skill:any, i:number) => {
                             const skillName = typeof skill === 'string' ? skill : skill.name;
                             const skillLevel = typeof skill === 'object' && skill.level ? skill.level : 'Beginner';
                             return (
-                               <span key={i} className="bg-pink-600/10 text-pink-300 px-4 py-2 rounded-xl text-sm font-bold border border-pink-500/30 hover:bg-pink-600/20 transition-all shadow-sm">
-                                   {skillName} <span className="text-[10px] text-pink-500 ml-1 uppercase tracking-wider">({skillLevel})</span>
+                               <span key={i} className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-bold border border-blue-200 hover:bg-blue-100 transition-all shadow-sm">
+                                   {skillName} <span className="text-[10px] text-blue-500 ml-1 uppercase tracking-wider">({skillLevel})</span>
                                </span>
                             );
                          })}
                       </div>
-                   ) : <span className="text-slate-500 text-sm italic">No tools selected.</span>}
+                   ) : <span className="text-slate-500 font-medium text-sm italic">No tools selected.</span>}
                </div>
 
                {(candidateStrengths.length > 0 || candidateWeaknesses.length > 0) && (
-                   <div className="mt-8 pt-8 border-t border-slate-800 grid md:grid-cols-2 gap-6">
+                   <div className="mt-8 pt-8 border-t border-slate-100 grid md:grid-cols-2 gap-6">
                       {candidateStrengths.length > 0 && (
                          <div>
-                            <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2"><TrendingUp size={18}/> Strengths</h4>
+                            <h4 className="text-teal-600 font-bold mb-3 flex items-center gap-2"><TrendingUp size={18}/> Strengths</h4>
                             <div className="flex flex-wrap gap-2">
-                               {candidateStrengths.map((str:string, i:number) => <span key={i} className="bg-green-500/10 text-green-300 px-3 py-1 rounded-lg text-xs font-bold border border-green-500/20">{str}</span>)}
+                               {candidateStrengths.map((str:string, i:number) => <span key={i} className="bg-teal-50 text-teal-700 px-3 py-1 rounded-lg text-xs font-bold border border-teal-200 shadow-sm">{str}</span>)}
                             </div>
                          </div>
                       )}
                       {candidateWeaknesses.length > 0 && (
                          <div>
-                            <h4 className="text-red-400 font-bold mb-3 flex items-center gap-2"><TrendingDown size={18}/> Areas of Growth</h4>
+                            <h4 className="text-red-500 font-bold mb-3 flex items-center gap-2"><TrendingDown size={18}/> Areas of Growth</h4>
                             <div className="flex flex-wrap gap-2">
-                               {candidateWeaknesses.map((wk:string, i:number) => <span key={i} className="bg-red-500/10 text-red-300 px-3 py-1 rounded-lg text-xs font-bold border border-red-500/20">{wk}</span>)}
+                               {candidateWeaknesses.map((wk:string, i:number) => <span key={i} className="bg-red-50 text-red-600 px-3 py-1 rounded-lg text-xs font-bold border border-red-200 shadow-sm">{wk}</span>)}
                             </div>
                          </div>
                       )}
@@ -332,48 +329,48 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
       {/* THE AI ASSESSMENT REPORT */}
       {metaObj.skillScores && Object.keys(metaObj.skillScores).length > 0 && (
-         <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-10 rounded-[2.5rem] shadow-2xl mt-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-[80px]"></div>
+         <div className="bg-white border border-slate-200 p-8 md:p-10 rounded-[2.5rem] shadow-xl mt-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-[80px]"></div>
             
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 border-b border-slate-800/80 pb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 border-b border-slate-100 pb-6">
                <div>
-                  <h3 className="text-3xl font-extrabold text-white flex items-center gap-3"><Target className="text-green-400" size={32}/> AI Executive Analysis</h3>
-                  <p className="text-slate-400 mt-2">Comprehensive Performance & Integrity Report</p>
+                  <h3 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3"><Target className="text-[#0f947e]" size={32}/> AI Executive Analysis</h3>
+                  <p className="text-slate-500 font-medium mt-2">Comprehensive Performance & Integrity Report</p>
                </div>
                
                <div className="mt-4 md:mt-0 flex gap-4">
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm">
                      <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-2 flex items-center gap-1"><AlertTriangle size={12}/> Trust Alerts</p>
                      <div className="flex gap-4">
                         <div className="text-center">
-                           <span className={`text-lg font-bold flex items-center gap-1 ${warns.tab > 0 ? 'text-red-400' : 'text-slate-300'}`}><Monitor size={14}/> {warns.tab}</span>
-                           <span className="text-[9px] text-slate-500 uppercase">Tab Switch</span>
+                           <span className={`text-lg font-bold flex items-center gap-1 ${warns.tab > 0 ? 'text-red-500' : 'text-slate-700'}`}><Monitor size={14}/> {warns.tab}</span>
+                           <span className="text-[9px] text-slate-500 uppercase font-bold">Tab Switch</span>
                         </div>
                         <div className="text-center">
-                           <span className={`text-lg font-bold flex items-center gap-1 ${warns.cam > 0 ? 'text-orange-400' : 'text-slate-300'}`}><Video size={14}/> {warns.cam}</span>
-                           <span className="text-[9px] text-slate-500 uppercase">Camera</span>
+                           <span className={`text-lg font-bold flex items-center gap-1 ${warns.cam > 0 ? 'text-amber-500' : 'text-slate-700'}`}><Video size={14}/> {warns.cam}</span>
+                           <span className="text-[9px] text-slate-500 uppercase font-bold">Camera</span>
                         </div>
                         <div className="text-center">
-                           <span className={`text-lg font-bold flex items-center gap-1 ${warns.mic > 0 ? 'text-orange-400' : 'text-slate-300'}`}><Mic size={14}/> {warns.mic}</span>
-                           <span className="text-[9px] text-slate-500 uppercase">Audio</span>
+                           <span className={`text-lg font-bold flex items-center gap-1 ${warns.mic > 0 ? 'text-amber-500' : 'text-slate-700'}`}><Mic size={14}/> {warns.mic}</span>
+                           <span className="text-[9px] text-slate-500 uppercase font-bold">Audio</span>
                         </div>
                      </div>
                      {isAdmin && hasMediaWarnings && (
-                        <button disabled={isResetting} onClick={handleResetMediaWarnings} className="w-full mt-3 bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/50 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-colors">
+                        <button disabled={isResetting} onClick={handleResetMediaWarnings} className="w-full mt-3 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-colors shadow-sm">
                            {isResetting ? <RefreshCcw className="animate-spin" size={12}/> : <RefreshCcw size={12}/>} Forgive Alerts
                         </button>
                      )}
                   </div>
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-center text-center px-8 shadow-inner">
-                     <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Total Score</p>
-                     <p className="text-4xl font-extrabold text-green-400 leading-none">{metaObj.totalScore}</p>
+                  <div className="bg-[#0f947e] p-4 rounded-xl border border-teal-600 flex flex-col justify-center text-center px-8 shadow-lg text-white">
+                     <p className="text-[10px] text-teal-100 uppercase font-black tracking-widest mb-1">Total Score</p>
+                     <p className="text-4xl font-extrabold leading-none">{metaObj.totalScore}</p>
                   </div>
                </div>
             </div>
 
             {metaObj.ai_detailed_report && (
-               <div className="bg-gradient-to-r from-blue-900/10 to-transparent p-6 rounded-2xl border-l-4 border-blue-500 mb-8 relative z-10 text-slate-300 text-sm md:text-base leading-relaxed space-y-4">
-                  <p className="font-bold text-white mb-2 flex items-center gap-2"><Sparkles className="text-blue-400" size={18}/> AI Review</p>
+               <div className="bg-teal-50/50 p-6 rounded-2xl border-l-4 border-[#0f947e] mb-8 relative z-10 text-slate-700 text-sm md:text-base font-medium leading-relaxed space-y-4 shadow-sm">
+                  <p className="font-bold text-slate-900 mb-2 flex items-center gap-2"><Sparkles className="text-[#0f947e]" size={18}/> AI Review</p>
                   {metaObj.ai_detailed_report.split('\n').map((para:string, index:number) => (
                      <p key={index} className="text-justify">{para.replace(/\*\*/g, '')}</p>
                   ))}
@@ -388,20 +385,21 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   const isPsycho = skillName.includes('Psychometric');
                   const techSkillNames = candidateTechnologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name);
                   const isTechSkill = techSkillNames.includes(skillName);
-                  
-                  const colorClass = isPsycho ? 'bg-purple-500' : isTechSkill ? 'bg-pink-500' : (percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500');
-                  const textClass = isPsycho ? 'text-purple-400' : isTechSkill ? 'text-pink-400' : (percentage >= 80 ? 'text-green-400' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400');
-                  const borderClass = isPsycho ? 'border-purple-500/40 bg-purple-950/20' : isTechSkill ? 'border-pink-500/40 bg-pink-950/20' : 'border-slate-800/80 bg-slate-950/80';
+
+                  // Colors mapped for Light Theme
+                  const colorClass = isPsycho ? 'bg-indigo-500' : isTechSkill ? 'bg-blue-500' : (percentage >= 80 ? 'bg-teal-500' : percentage >= 50 ? 'bg-amber-500' : 'bg-red-500');
+                  const textClass = isPsycho ? 'text-indigo-600' : isTechSkill ? 'text-blue-600' : (percentage >= 80 ? 'text-teal-600' : percentage >= 50 ? 'text-amber-600' : 'text-red-600');
+                  const borderClass = isPsycho ? 'border-indigo-200 bg-indigo-50' : isTechSkill ? 'border-blue-200 bg-blue-50' : 'border-slate-200 bg-slate-50';
 
                   return (
                      <div key={skillName} className={`p-5 rounded-2xl border shadow-sm ${borderClass}`}>
                         <div className="flex justify-between items-center mb-4">
-                           <span className={`font-bold text-sm ${isPsycho ? 'text-purple-300' : isTechSkill ? 'text-pink-300' : 'text-slate-200'}`}>
+                           <span className={`font-bold text-sm ${isPsycho ? 'text-indigo-800' : isTechSkill ? 'text-blue-800' : 'text-slate-800'}`}>
                                {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skillName}` : skillName}
                            </span>
                            <span className={`font-bold ${textClass}`}>{data.correct} / {data.total}</span>
                         </div>
-                        <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
+                        <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner">
                            <div className={`h-full ${colorClass} transition-all duration-1000`} style={{ width: `${percentage}%` }}></div>
                         </div>
                      </div>

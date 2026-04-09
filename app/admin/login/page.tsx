@@ -5,6 +5,10 @@ import { ShieldCheck, Loader2, Lock, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase"; 
 import { useRouter } from "next/navigation";
 
+// 🔥 Apne naye Master Components import kar liye 🔥
+import Card from "@/app/components/ui/Card";
+import Button from "@/app/components/ui/Button";
+
 export default function AdminLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -32,54 +36,60 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0F1F] text-white flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-slate-900/60 backdrop-blur-2xl border border-slate-800 p-8 md:p-12 rounded-3xl w-full max-w-md relative z-10 shadow-2xl"
+        className="w-full max-w-md"
       >
-        <div className="flex justify-center mb-8">
-          <div className="bg-red-500/20 p-4 rounded-2xl">
-            <ShieldCheck className="w-10 h-10 text-red-400" />
-          </div>
-        </div>
-        <h2 className="text-3xl font-bold text-center mb-2">Owner Portal</h2>
-        <p className="text-slate-400 text-center mb-8">Secure access to admin controls.</p>
-
-        <form onSubmit={handleEmailLogin} className="space-y-4 mb-6">
-          <div className="relative">
-            <Mail className="absolute left-3 top-3.5 text-slate-500" size={20} />
-            <input 
-              type="email" required placeholder="Admin Email" 
-              value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-red-500 outline-none transition-colors"
-            />
-          </div>
+        {/* Naya Master Card Component */}
+        <Card className="p-8 md:p-12 relative overflow-hidden border-t-4 border-t-red-500">
           
-          <div className="relative">
-            <Lock className="absolute left-3 top-3.5 text-slate-500" size={20} />
-            <input 
-              type="password" required placeholder="Admin Password"
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-11 pr-4 text-white placeholder:text-slate-500 focus:border-red-500 outline-none transition-colors"
-            />
-          </div>
+          {/* Subtle Red Admin Glow inside the card */}
+          <div className="absolute top-[-20%] left-[-20%] w-64 h-64 bg-red-500/10 rounded-full blur-[60px] pointer-events-none" />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-white text-slate-900 font-bold py-4 mt-4 rounded-xl shadow-lg hover:bg-slate-200 transition-all flex items-center justify-center gap-3"
-          >
-            {loading ? (
-              <><Loader2 className="animate-spin" size={20}/> Authenticating...</>
-            ) : (
-              <><Lock size={20}/> Admin Login</>
-            )}
-          </button>
-        </form>
+          <div className="flex justify-center mb-8 relative z-10">
+            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl shadow-sm">
+              <ShieldCheck className="w-10 h-10 text-red-500" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-extrabold text-center mb-2 text-slate-900 relative z-10">Owner Portal</h2>
+          <p className="text-slate-500 font-medium text-center mb-8 relative z-10">Secure access to admin controls.</p>
+
+          <form onSubmit={handleEmailLogin} className="space-y-4 mb-6 relative z-10">
+            <div className="relative">
+              <Mail className="absolute left-4 top-3.5 text-slate-400" size={20} />
+              <input 
+                type="email" required placeholder="Admin Email" 
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white outline-none transition-all shadow-sm"
+              />
+            </div>
+            
+            <div className="relative">
+              <Lock className="absolute left-4 top-3.5 text-slate-400" size={20} />
+              <input 
+                type="password" required placeholder="Admin Password"
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white outline-none transition-all shadow-sm"
+              />
+            </div>
+
+            {/* Naya Master Button Component */}
+            <Button
+              type="submit"
+              variant="danger"
+              disabled={loading}
+              className="w-full mt-6 py-4 text-lg"
+            >
+              {loading ? (
+                <><Loader2 className="animate-spin" size={20}/> Authenticating...</>
+              ) : (
+                <><Lock size={20}/> Secure Login</>
+              )}
+            </Button>
+          </form>
+        </Card>
       </motion.div>
     </div>
   );

@@ -2,8 +2,10 @@
 import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Lock } from "lucide-react";
-// Yahan humne Master Component bulaya hai
+import { ArrowLeft, Lock, Loader2 } from "lucide-react";
+
+// 🔥 Naye Master Components 🔥
+import Button from "@/app/components/ui/Button";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 
 export default function CompanyCandidateView({ params }: { params: Promise<{ id: string }> }) {
@@ -20,24 +22,42 @@ export default function CompanyCandidateView({ params }: { params: Promise<{ id:
     fetchCandidate();
   }, [id]);
 
-  if (!candidate) return <div className="h-screen bg-[#020617] flex items-center justify-center text-slate-400">Loading Candidate Info...</div>;
+  if (!candidate) return (
+      <div className="h-screen bg-transparent flex items-center justify-center text-slate-900 relative z-10">
+          <Loader2 className="animate-spin text-[#0f947e] w-10 h-10 mr-3" />
+          <span className="font-extrabold text-lg">Loading Candidate Info...</span>
+      </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-12 font-sans relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="fixed top-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none"></div>
-
+    <div className="min-h-screen bg-transparent text-slate-900 p-6 md:p-12 font-sans relative z-10">
+      
       <div className="max-w-5xl mx-auto relative z-10">
-        <div className="flex justify-between items-center mb-8">
-            <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-                <ArrowLeft size={18} /> <span className="font-semibold">Back to Candidates</span>
-            </button>
-            <button onClick={() => alert("Please contact Admin to unlock.")} className="bg-purple-600 hover:bg-purple-500 px-6 py-2.5 rounded-xl font-bold text-white shadow-lg flex items-center gap-2 transition-all">
+        
+        {/* NAYA GLASSY HEADER BAR */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8 bg-white/80 backdrop-blur-xl border border-slate-200 p-4 rounded-2xl shadow-sm">
+            
+            <Button 
+                variant="ghost" 
+                onClick={() => router.back()} 
+                className="pl-0 hover:bg-transparent"
+            >
+                <div className="bg-slate-50 border border-slate-200 p-2 rounded-xl shadow-sm text-slate-600 hover:text-[#0f947e] transition-colors">
+                    <ArrowLeft size={18} />
+                </div>
+                <span className="font-bold text-slate-700">Back to Candidates</span>
+            </Button>
+
+            <Button 
+                variant="primary" 
+                onClick={() => alert("Please contact Admin to unlock.")} 
+                className="w-full sm:w-auto shadow-teal-500/20"
+            >
                 <Lock size={16}/> Request Unlock
-            </button>
+            </Button>
         </div>
 
-        {/* JADOO YAHAN HAI: Sirf ek line mein poora design fetch ho raha hai */}
+        {/* JADOO YAHAN HAI: Sirf ek line mein poora premium design fetch ho raha hai */}
         <CandidateProfileView candidate={candidate} role="company" />
         
       </div>

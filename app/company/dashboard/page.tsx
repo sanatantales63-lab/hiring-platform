@@ -8,6 +8,10 @@ import {
   Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus, Filter
 } from "lucide-react";
 
+// 🔥 Naye Master Components 🔥
+import Card from "@/app/components/ui/Card";
+import Button from "@/app/components/ui/Button";
+
 export default function CompanyDashboard() {
   const router = useRouter();
   const [companyId, setCompanyId] = useState("");
@@ -163,191 +167,206 @@ export default function CompanyDashboard() {
      return daysSinceHire >= requiredDays; 
   });
 
-  if (loading) return <div className="h-screen bg-[#0A0F1F] flex items-center justify-center"><Loader2 className="animate-spin text-purple-500 w-10 h-10" /></div>;
+  if (loading) return <div className="h-screen bg-transparent flex items-center justify-center relative z-10"><Loader2 className="animate-spin text-[#0f947e] w-12 h-12" /></div>;
 
   if (approvalStatus !== "approved") {
     return (
-      <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center justify-center text-center p-6">
-        <Lock className="w-16 h-16 text-yellow-500 mb-6" />
-        <h1 className="text-4xl font-bold mb-4">Account Pending Approval</h1>
-        <p className="text-slate-400">Please wait for the owner to verify your company account.</p>
-        <button onClick={handleLogout} className="mt-8 px-6 py-3 bg-slate-800 rounded-xl">Logout</button>
+      <div className="min-h-screen bg-transparent text-slate-900 flex flex-col items-center justify-center text-center p-6 relative z-10">
+        <Card className="max-w-lg w-full flex flex-col items-center p-12 shadow-2xl">
+          <div className="w-24 h-24 bg-amber-50 border border-amber-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
+             <Lock className="w-12 h-12 text-amber-500" />
+          </div>
+          <h1 className="text-3xl font-extrabold mb-4 text-slate-900">Account Pending Approval</h1>
+          <p className="text-slate-500 font-medium mb-8">Please wait for the Talexo admin team to verify and approve your company account.</p>
+          <Button variant="secondary" onClick={handleLogout} className="w-full">Logout</Button>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0F1F] text-white flex">
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 hidden md:flex flex-col p-6 fixed h-full z-10">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-10">Recruiter Panel</h2>
-        <nav className="space-y-4 flex-1">
-          <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'assigned' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-             <LayoutDashboard size={20}/> <span className="font-medium">Talent Pool</span>
+    <div className="min-h-screen bg-transparent text-slate-900 flex relative z-10">
+      
+      {/* PREMIUM GLASS SIDEBAR */}
+      <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 hidden md:flex flex-col p-6 fixed h-full z-10 shadow-sm">
+        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Recruiter Panel</h2>
+        <nav className="space-y-3 flex-1">
+          <div onClick={() => setActiveTab('assigned')} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all font-bold ${activeTab === 'assigned' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
+             <LayoutDashboard size={20}/> <span>Talent Pool</span>
           </div>
-          <div onClick={() => setActiveTab('hired')} className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${activeTab === 'hired' ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-             <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span className="font-medium">My Pipeline</span></div>
-             {pendingReviews.length > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">{pendingReviews.length}</span>}
+          <div onClick={() => setActiveTab('hired')} className={`flex items-center justify-between px-4 py-3.5 rounded-xl cursor-pointer transition-all font-bold ${activeTab === 'hired' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
+             <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span>My Pipeline</span></div>
+             {pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs font-black px-2 py-0.5 rounded-lg animate-pulse">{pendingReviews.length}</span>}
           </div>
-          <div onClick={() => router.push('/company/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-400 hover:bg-slate-800 hover:text-white transition-all border border-slate-800 mt-4">
-             <BriefcaseIcon size={20}/> <span className="font-medium">My Requirements</span>
+          <div className="pt-6 mt-6 border-t border-slate-200/50">
+             <div onClick={() => router.push('/company/profile')} className="flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer bg-slate-50 text-slate-600 hover:bg-white hover:text-slate-900 transition-all border border-slate-200 shadow-sm font-bold">
+                <BriefcaseIcon size={20}/> <span>My Requirements</span>
+             </div>
           </div>
         </nav>
-        <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-red-400 mt-auto font-bold"><LogOut size={20} /> Logout</button>
+        <button onClick={handleLogout} className="flex items-center gap-3 text-slate-500 hover:text-red-500 mt-auto font-bold px-4 py-3 transition-colors"><LogOut size={20} /> Logout</button>
       </aside>
 
-      <main className="flex-1 p-8 md:p-12 ml-64 overflow-y-auto">
+      <main className="flex-1 p-8 md:p-10 ml-0 md:ml-64 overflow-y-auto">
         
+        {/* REVIEW ALERTS */}
         {pendingReviews.length > 0 && (
-           <div className="mb-8 bg-red-950/40 border border-red-500/50 p-6 rounded-2xl flex items-center justify-between animate-in fade-in">
+           <Card className="mb-8 bg-amber-50/80 border-amber-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in shadow-sm">
               <div className="flex items-center gap-4">
-                 <div className="bg-red-500/20 p-3 rounded-full"><AlertCircle className="text-red-500" size={28}/></div>
+                 <div className="bg-amber-100 p-3 rounded-xl border border-amber-200"><AlertCircle className="text-amber-600" size={28}/></div>
                  <div>
-                    <h3 className="text-xl font-bold text-red-400">Action Required: Leave a Review!</h3>
-                    <p className="text-red-200/70 text-sm">You have candidates who completed their timeline. Please rate their performance.</p>
+                    <h3 className="text-xl font-extrabold text-amber-800">Action Required: Leave a Review!</h3>
+                    <p className="text-amber-700/80 text-sm font-medium">You have candidates who completed their timeline. Please rate their performance.</p>
                  </div>
               </div>
-              <button onClick={() => setActiveTab('hired')} className="bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg transition-colors">Review Now</button>
-           </div>
+              <Button variant="primary" onClick={() => setActiveTab('hired')} className="bg-amber-500 hover:bg-amber-600 text-white w-full sm:w-auto">Review Now</Button>
+           </Card>
         )}
 
         <header className="flex justify-between items-center mb-8">
           <div>
-             <h1 className="text-4xl font-extrabold">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
-             <p className="text-slate-400 mt-2">{activeTab === 'assigned' ? 'Candidates verified by Talexo AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
+             <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
+             <p className="text-slate-500 mt-2 font-medium">{activeTab === 'assigned' ? 'Candidates verified by Talexo AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
           </div>
         </header>
 
         {/* 🔥 SMART FILTERS SECTION 🔥 */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-10 shadow-lg">
+        <Card className="mb-10 shadow-sm p-6 md:p-8">
            <div className="relative mb-5">
-             <Search className="absolute left-4 top-4 text-slate-500" />
-             <input type="text" placeholder="Search by Name, Skill (e.g. GST, Excel)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white focus:border-purple-500 outline-none transition-all"/>
+             <Search className="absolute left-4 top-4 text-slate-400" />
+             <input type="text" placeholder="Search by Name, Skill (e.g. GST, Excel)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-sm placeholder:text-slate-400 font-medium"/>
            </div>
            
-           <div className="flex items-center gap-2 mb-3 text-sm font-bold text-slate-400">
+           <div className="flex items-center gap-2 mb-4 text-sm font-extrabold text-slate-700 uppercase tracking-wider">
               <Filter size={16}/> Advanced Filters
            </div>
            
            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <select value={filterType} onChange={(e)=>setFilterType(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+              <select value={filterType} onChange={(e)=>setFilterType(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
                  <option value="">Any Role Type</option>
                  <option value="Permanent">Permanent Roles</option>
                  <option value="Contract">Contract / Temp Roles</option>
               </select>
 
-              <select value={filterExp} onChange={(e)=>setFilterExp(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+              <select value={filterExp} onChange={(e)=>setFilterExp(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
                  <option value="">Any Experience</option>
                  {uniqueExp.map((exp:any, i) => <option key={i} value={exp}>{exp}</option>)}
               </select>
 
-              <select value={filterLoc} onChange={(e)=>setFilterLoc(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+              <select value={filterLoc} onChange={(e)=>setFilterLoc(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
                  <option value="">Any Location</option>
                  {uniqueLocations.map((loc:any, i) => <option key={i} value={loc}>{loc}</option>)}
               </select>
 
-              <select value={filterNotice} onChange={(e)=>setFilterNotice(e.target.value)} className="bg-slate-950 border border-slate-800 text-slate-300 rounded-xl px-4 py-3 outline-none focus:border-purple-500 text-sm font-medium [color-scheme:dark]">
+              <select value={filterNotice} onChange={(e)=>setFilterNotice(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
                  <option value="">Notice Period</option>
                  {uniqueNotice.map((np:any, i) => <option key={i} value={np}>{np}</option>)}
               </select>
            </div>
-        </div>
+        </Card>
 
+        {/* CANDIDATES GRID */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {(activeTab === 'assigned' ? assignedList : hiredList).map((candidate) => (
-             <motion.div key={candidate.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-purple-500/50 transition-all flex flex-col group">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">{candidate.fullName}</h3>
-                    <p className="text-slate-400 text-sm flex items-center gap-1 mt-1"><MapPin size={14} /> {candidate.city || "Remote"}</p>
+             <motion.div key={candidate.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-full">
+               <Card className="h-full flex flex-col group hover:border-teal-300 p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="pr-2">
+                      <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-[#0f947e] transition-colors truncate">{candidate.fullName}</h3>
+                      <p className="text-slate-500 text-sm font-medium flex items-center gap-1.5 mt-1"><MapPin size={14} className="text-blue-500" /> {candidate.city || "Remote"}</p>
+                    </div>
+                    <div className="bg-teal-50 text-teal-700 px-3 py-1 rounded-lg text-xs font-black border border-teal-200 shadow-sm shrink-0 whitespace-nowrap">{candidate.experience}</div>
                   </div>
-                  <div className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/20">{candidate.experience}</div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-6 h-[55px] overflow-hidden">
-                  {candidate.skills?.map((skill: string, index: number) => <span key={index} className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">{skill}</span>)}
-                </div>
-
-                {activeTab === 'assigned' && (
-                  <div className="mt-auto flex gap-3">
-                     <button onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition-all border border-slate-700">View Profile</button>
-                     <button onClick={() => shortlistCandidate(candidate)} className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2">Shortlist</button>
+                  
+                  <div className="flex flex-wrap gap-2 mb-6 h-[55px] overflow-hidden">
+                    {candidate.skills?.map((skill: string, index: number) => (
+                        <span key={index} className="px-2.5 py-1 bg-slate-50 rounded-md text-xs font-bold text-slate-600 border border-slate-200 shadow-sm truncate max-w-[120px]">{skill}</span>
+                    ))}
                   </div>
-                )}
 
-                {activeTab === 'hired' && (
-                   <div className="mt-auto border-t border-slate-800 pt-4 space-y-3">
-                      {candidate.hired_status === 'shortlisted' && (
-                         <>
-                            <p className="text-blue-400 text-sm font-bold flex items-center gap-2"><UserPlus size={16}/> Shortlisted for Interview</p>
-                            <div className="flex gap-2">
-                               <button onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-2.5 bg-slate-800 text-white rounded-xl text-sm font-bold border border-slate-700">Profile</button>
-                               <button onClick={() => requestHire(candidate)} className="flex-1 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-green-900/20">Request Hire</button>
-                            </div>
-                         </>
-                      )}
+                  {activeTab === 'assigned' && (
+                    <div className="mt-auto flex gap-3">
+                       <Button variant="secondary" onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-2.5 text-sm">Profile</Button>
+                       <Button variant="primary" onClick={() => shortlistCandidate(candidate)} className="flex-1 py-2.5 text-sm shadow-teal-500/20">Shortlist</Button>
+                    </div>
+                  )}
 
-                      {candidate.hired_status === 'hire_requested' && (
-                         <div className="bg-yellow-900/20 border border-yellow-500/30 p-3 rounded-xl">
-                            <p className="text-yellow-500 text-sm font-bold flex items-center gap-2"><Clock size={16}/> Hire Request Sent</p>
-                            <p className="text-xs text-yellow-500/70 mt-1">Admin is verifying offline.</p>
-                         </div>
-                      )}
-                      
-                      {candidate.hired_status === 'hired' && !candidate.company_rating && (
-                         <div className="space-y-3">
-                            <p className="text-green-500 text-sm font-bold flex items-center gap-2"><CheckCircle size={16}/> Officially Hired</p>
-                            {pendingReviews.find(c => c.id === candidate.id) ? (
-                               <button onClick={() => {setReviewStudent(candidate); setShowReviewModal(true);}} className="w-full py-2.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg"><Star size={18}/> Leave Review Now</button>
-                            ) : (
-                               <button disabled className="w-full py-2.5 bg-slate-800 text-slate-500 rounded-xl text-sm font-bold border border-slate-700 flex items-center justify-center gap-2"><Lock size={14}/> Review locked (Time pending)</button>
-                            )}
-                         </div>
-                      )}
+                  {activeTab === 'hired' && (
+                     <div className="mt-auto border-t border-slate-100 pt-4 space-y-3">
+                        {candidate.hired_status === 'shortlisted' && (
+                           <>
+                              <p className="text-blue-600 text-sm font-extrabold flex items-center gap-2"><UserPlus size={16}/> Shortlisted for Interview</p>
+                              <div className="flex gap-2">
+                                 <Button variant="secondary" onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 py-2 text-sm">Profile</Button>
+                                 <Button variant="primary" onClick={() => requestHire(candidate)} className="flex-1 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20">Request Hire</Button>
+                              </div>
+                           </>
+                        )}
 
-                      {candidate.hired_status === 'hired' && candidate.company_rating && (
-                         <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                            <div className="flex text-yellow-500 mb-1">
-                               {[1,2,3,4,5].map(star => <Star key={star} size={14} fill={star <= candidate.company_rating ? "currentColor" : "none"} className={star <= candidate.company_rating ? "text-yellow-500" : "text-slate-600"}/>)}
-                            </div>
-                            <p className="text-xs text-slate-400 italic line-clamp-2">"{candidate.company_review}"</p>
-                         </div>
-                      )}
-                   </div>
-                )}
+                        {candidate.hired_status === 'hire_requested' && (
+                           <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl shadow-sm">
+                              <p className="text-amber-700 text-sm font-extrabold flex items-center gap-2"><Clock size={16}/> Hire Request Sent</p>
+                              <p className="text-xs font-medium text-amber-600/80 mt-1">Admin is verifying offline.</p>
+                           </div>
+                        )}
+                        
+                        {candidate.hired_status === 'hired' && !candidate.company_rating && (
+                           <div className="space-y-3">
+                              <p className="text-emerald-600 text-sm font-extrabold flex items-center gap-2"><CheckCircle size={16}/> Officially Hired</p>
+                              {pendingReviews.find(c => c.id === candidate.id) ? (
+                                 <Button variant="primary" onClick={() => {setReviewStudent(candidate); setShowReviewModal(true);}} className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"><Star size={16}/> Leave Review</Button>
+                              ) : (
+                                 <Button variant="secondary" disabled className="w-full py-2.5 text-xs"><Lock size={14}/> Review locked (Time pending)</Button>
+                              )}
+                           </div>
+                        )}
+
+                        {candidate.hired_status === 'hired' && candidate.company_rating && (
+                           <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-inner">
+                              <div className="flex text-amber-500 mb-1">
+                                 {[1,2,3,4,5].map(star => <Star key={star} size={14} fill={star <= candidate.company_rating ? "currentColor" : "none"} className={star <= candidate.company_rating ? "text-amber-500" : "text-slate-300"}/>)}
+                              </div>
+                              <p className="text-xs text-slate-600 italic font-medium line-clamp-2">"{candidate.company_review}"</p>
+                           </div>
+                        )}
+                     </div>
+                  )}
+               </Card>
              </motion.div>
           ))}
         </div>
 
+        {/* EMPTY STATE */}
         {filteredCandidates.length === 0 && (
-           <div className="text-center p-12 bg-slate-900/50 border border-slate-800 rounded-2xl mt-10">
-              <div className="bg-slate-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><Search className="text-slate-500" size={32}/></div>
-              <h3 className="text-xl font-bold text-white mb-2">No candidates found</h3>
-              <p className="text-slate-400">Try clearing or changing your filters.</p>
-              <button onClick={()=>{setSearchTerm(""); setFilterType(""); setFilterExp(""); setFilterLoc(""); setFilterNotice("");}} className="mt-4 px-6 py-2 bg-slate-800 rounded-lg text-sm font-bold hover:bg-slate-700 transition-colors">Clear All Filters</button>
+           <div className="text-center p-12 bg-white/60 backdrop-blur-md border border-slate-200 rounded-[2rem] mt-10 shadow-sm">
+              <div className="bg-slate-50 border border-slate-200 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm"><Search className="text-slate-400" size={32}/></div>
+              <h3 className="text-xl font-extrabold text-slate-900 mb-2">No candidates found</h3>
+              <p className="text-slate-500 font-medium">Try clearing or changing your filters.</p>
+              <Button variant="secondary" onClick={()=>{setSearchTerm(""); setFilterType(""); setFilterExp(""); setFilterLoc(""); setFilterNotice("");}} className="mt-6 mx-auto px-6">Clear All Filters</Button>
            </div>
         )}
       </main>
 
       {/* REVIEW MODAL */}
       {showReviewModal && reviewStudent && (
-         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 max-w-md w-full rounded-3xl p-8 shadow-2xl">
-               <h3 className="text-2xl font-extrabold text-white mb-2">Rate {reviewStudent.fullName}</h3>
-               <p className="text-slate-400 text-sm mb-6">Your honest review helps Talexo maintain quality. Positive reviews (3+ stars) will be shown on their profile.</p>
+         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <Card className="max-w-md w-full p-8 md:p-10 shadow-2xl">
+               <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Rate {reviewStudent.fullName}</h3>
+               <p className="text-slate-500 font-medium text-sm mb-6 leading-relaxed">Your honest review helps Talexo maintain quality. Positive reviews (3+ stars) will be shown on their profile.</p>
                
                <div className="flex justify-center gap-2 mb-6">
                   {[1,2,3,4,5].map(star => (
-                     <Star key={star} size={40} onClick={() => setRating(star)} className={`cursor-pointer transition-all hover:scale-110 ${rating >= star ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-slate-600'}`} />
+                     <Star key={star} size={40} onClick={() => setRating(star)} className={`cursor-pointer transition-all hover:scale-110 ${rating >= star ? 'text-amber-400 fill-amber-400 drop-shadow-md' : 'text-slate-200'}`} />
                   ))}
                </div>
 
-               <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write a brief professional feedback (Optional but recommended)..." className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white placeholder:text-slate-500 focus:border-purple-500 outline-none min-h-[120px] mb-6"/>
+               <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write a brief professional feedback (Optional but recommended)..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 placeholder:text-slate-400 focus:border-[#0f947e] focus:bg-white outline-none min-h-[120px] mb-6 shadow-sm font-medium"/>
 
                <div className="flex gap-4">
-                  <button onClick={() => {setShowReviewModal(false); setRating(0);}} className="flex-1 py-3 rounded-xl font-bold text-slate-400 hover:bg-slate-800">Cancel</button>
-                  <button onClick={submitReview} className="flex-1 py-3 rounded-xl font-bold text-black bg-yellow-500 hover:bg-yellow-400 shadow-lg">Submit Review</button>
+                  <Button variant="secondary" onClick={() => {setShowReviewModal(false); setRating(0);}} className="flex-1 py-3">Cancel</Button>
+                  <Button variant="primary" onClick={submitReview} className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 shadow-amber-500/20 text-white">Submit Review</Button>
                </div>
-            </div>
+            </Card>
          </div>
       )}
     </div>

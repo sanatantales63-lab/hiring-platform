@@ -8,6 +8,10 @@ import {
   MousePointer2, Ban, Award, Mic, Camera, Video, Sparkles, Layers, Move, Monitor
 } from "lucide-react";
 
+// 🔥 Naye Master Components 🔥
+import Card from "@/app/components/ui/Card";
+import Button from "@/app/components/ui/Button";
+
 export default function LiveTestPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -61,6 +65,10 @@ export default function LiveTestPage() {
 
   const [generatingAIQuestions, setGeneratingAIQuestions] = useState(false);
 
+  // ---------------------------------------------------------
+  // 🔥 NO LOGIC CHANGED BELOW - STRICTLY PRESERVED 🔥
+  // ---------------------------------------------------------
+
   useEffect(() => {
     const loadFaceAPI = async () => {
       if (typeof window !== 'undefined' && !(window as any).faceapi) {
@@ -113,31 +121,20 @@ export default function LiveTestPage() {
     if (faceMatchIntervalRef.current) clearInterval(faceMatchIntervalRef.current);
   }, []);
 
-  // 🔥 FIX 3: FUZZY SMART SCORING LOGIC 🔥
   const checkIsCorrect = (q: any, ansIndex: number) => {
       if (ansIndex === -1 || ansIndex === undefined) return false;
-
       const rawSelected = String(q.options[ansIndex]).trim();
       const rawCorrect = String(q.correct_answer).trim();
-
       if (rawSelected === rawCorrect) return true;
-
-      // Clean string by removing options format like "A) " or "B. "
       const cleanString = (str: string) => str.replace(/^[A-Ea-e][\)\.]\s*/, "").trim().toLowerCase();
-
       const cleanSelected = cleanString(rawSelected);
       const cleanCorrect = cleanString(rawCorrect);
-
       if (cleanSelected === cleanCorrect) return true;
-
       const optionLetter = ['a', 'b', 'c', 'd', 'e'][ansIndex];
       if (cleanCorrect === optionLetter) return true;
       if (rawCorrect.toLowerCase() === `option ${optionLetter}`) return true;
-
-      // Smart inclusive matching (only if length > 2 to prevent short word mismatches)
       if (cleanCorrect.length > 2 && cleanSelected.includes(cleanCorrect)) return true;
       if (cleanSelected.length > 2 && cleanCorrect.includes(cleanSelected)) return true;
-
       return false;
   };
 
@@ -150,7 +147,6 @@ export default function LiveTestPage() {
      questions.forEach((q, i) => {
         const ansIndex = answers[i];
         const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
-        
         const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
         const isTechTool = techSkillNames.includes(q.skill);
         
@@ -202,7 +198,6 @@ export default function LiveTestPage() {
      submitTest(); 
   };
 
-  // 🔥 FIX 1: submitTest now calculates and saves score even if disqualified! 🔥
   const submitTest = useCallback(async (forceReason?: string, isDisqualified: boolean = false) => {
     if (!user || isTerminated || isSubmitted) return;
     setLoading(true); 
@@ -659,7 +654,6 @@ export default function LiveTestPage() {
         
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
 
-        // Existing Qs formatted for anti-repeat logic
         const existingQsTextLower = questions.map(q => q.question.toLowerCase().trim());
         const existingQsText = questions.map(q => q.question).join(" | ");
 
@@ -677,7 +671,6 @@ export default function LiveTestPage() {
             const aiData = await aiResponse.json();
             if (aiData.success && aiData.questions) {
                 
-                // 🔥 FIX 2: Local Frontend Filter to violently block duplicates 🔥
                 const filteredAiQuestions = aiData.questions.filter((q: any) => {
                     const qText = q.question.toLowerCase().trim();
                     return !existingQsTextLower.some(eq => eq.includes(qText) || qText.includes(eq));
@@ -733,49 +726,55 @@ export default function LiveTestPage() {
     setGeneratingAIQuestions(false); 
   };
 
+
+  // ---------------------------------------------------------
+  // 🔥 UI CHANGES START HERE (Only classes/colors updated) 🔥
+  // ---------------------------------------------------------
+
+
   if (loading) return (
-      <div className="h-screen bg-[#0A0F1F] flex flex-col items-center justify-center text-white">
-         <Loader2 className="animate-spin text-blue-500 w-12 h-12 mb-4"/> 
-         <p className="text-lg font-bold">{aiReportGenerating ? "AI is Analyzing your Performance..." : "Loading Secure Environment..."}</p>
+      <div className="h-screen bg-transparent flex flex-col items-center justify-center text-slate-900 relative z-10">
+         <Loader2 className="animate-spin text-[#0f947e] w-12 h-12 mb-4"/> 
+         <p className="text-lg font-extrabold">{aiReportGenerating ? "AI is Analyzing your Performance..." : "Loading Secure Environment..."}</p>
       </div>
   );
 
   if (generatingAIQuestions) return (
-      <div className="h-screen bg-[#0A0F1F] flex flex-col items-center justify-center text-white px-4 text-center">
-         <Sparkles className="animate-pulse text-purple-500 w-16 h-16 mb-6"/>
+      <div className="h-screen bg-transparent flex flex-col items-center justify-center text-slate-900 px-4 text-center relative z-10">
+         <Sparkles className="animate-pulse text-[#0f947e] w-16 h-16 mb-6"/>
          <h2 className="text-3xl font-extrabold mb-2">Generating Dynamic Assessment</h2>
-         <p className="text-slate-400 max-w-md">Our AI is analyzing your profile to craft unique Technical & Psychometric questions.</p>
-         <div className="w-64 h-2 bg-slate-800 rounded-full mt-8 overflow-hidden">
-             <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse w-full"></div>
+         <p className="text-slate-500 font-medium max-w-md">Our AI is analyzing your profile to craft unique Technical & Psychometric questions.</p>
+         <div className="w-64 h-2 bg-slate-200 rounded-full mt-8 overflow-hidden shadow-inner">
+             <div className="h-full bg-gradient-to-r from-[#0f947e] to-emerald-400 animate-pulse w-full"></div>
          </div>
       </div>
   );
 
   if (!testStarted && !isSubmitted && !isTerminated) {
     return (
-        <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center p-4 font-sans">
-            <div className="max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-                <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 p-8 border-b border-slate-800">
-                    <h1 className="text-3xl font-bold mb-2">Talexo Skill Assessment</h1>
-                    <p className="text-slate-400">Please read the instructions carefully before starting.</p>
+        <div className="min-h-screen bg-transparent text-slate-900 flex items-center justify-center p-4 font-sans relative z-10">
+            <div className="max-w-4xl w-full bg-white/90 backdrop-blur-xl border border-slate-200 rounded-[2rem] overflow-hidden shadow-2xl">
+                <div className="bg-slate-50 border-b border-slate-200 p-8">
+                    <h1 className="text-3xl font-extrabold mb-2 text-slate-900">Talexo Skill Assessment</h1>
+                    <p className="text-slate-500 font-medium">Please read the instructions carefully before starting.</p>
                 </div>
                 
                 <div className="p-8 grid md:grid-cols-2 gap-8">
                     <div className="space-y-6">
                         
-                        <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800">
-                            <h3 className="font-bold flex items-center gap-2 mb-4 text-blue-400">
+                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <h3 className="font-extrabold flex items-center gap-2 mb-4 text-blue-600">
                                 <Layers size={18}/> Dynamic Exam Scope
                             </h3>
                             <div className="space-y-3">
                                 {examScope.map((scope: any, idx: number) => (
-                                    <div key={idx} className="flex justify-between items-center border-b border-slate-800 pb-2">
-                                        <span className="text-sm text-slate-300 truncate max-w-[150px]" title={scope.skillName}>
+                                    <div key={idx} className="flex justify-between items-center border-b border-slate-200 pb-2">
+                                        <span className="text-sm text-slate-700 font-bold truncate max-w-[150px]" title={scope.skillName}>
                                             {scope.skillName}
                                         </span>
                                         <div className="flex flex-col items-end">
-                                            <span className="text-white font-bold text-sm">{scope.total} Qs</span>
-                                            <span className="text-[10px] text-slate-500">
+                                            <span className="text-slate-900 font-extrabold text-sm">{scope.total} Qs</span>
+                                            <span className="text-[10px] text-slate-500 font-bold">
                                                 ({scope.dbCount} DB + {scope.aiCount} AI)
                                             </span>
                                         </div>
@@ -784,11 +783,11 @@ export default function LiveTestPage() {
                             </div>
                         </div>
 
-                        <div className="bg-red-950/20 p-5 rounded-2xl border border-red-900/50">
-                            <h3 className="font-bold flex items-center gap-2 mb-4 text-red-500">
+                        <div className="bg-red-50 p-5 rounded-2xl border border-red-200 shadow-sm">
+                            <h3 className="font-extrabold flex items-center gap-2 mb-4 text-red-600">
                                 <ShieldAlert size={18}/> Anti-Cheat Policy
                             </h3>
-                            <ul className="space-y-3 text-sm text-slate-300">
+                            <ul className="space-y-3 text-sm text-red-800 font-medium">
                                 <li className="flex gap-3"><Ban className="text-red-500 shrink-0" size={16}/> Do not switch tabs (Max 2 Warnings).</li>
                                 <li className="flex gap-3"><Video className="text-red-500 shrink-0" size={16}/> Identity & Movement Check Active.</li>
                                 <li className="flex gap-3"><Mic className="text-red-500 shrink-0" size={16}/> Background Audio Monitoring Active.</li>
@@ -797,55 +796,60 @@ export default function LiveTestPage() {
                     </div>
 
                     <div className="flex flex-col h-full">
-                        <div className={`p-5 rounded-2xl border flex flex-col gap-4 mb-4 transition-colors ${mediaAllowed ? 'bg-green-900/20 border-green-500/50' : 'bg-slate-950 border-slate-800'}`}>
-                           <h3 className="font-bold flex items-center justify-between text-white">
-                              <span className="flex items-center gap-2"><Camera size={18} className={mediaAllowed ? "text-green-400" : "text-blue-400"}/> Camera & Mic Setup</span>
-                              {mediaAllowed && <span className="text-xs font-bold text-green-500 bg-green-500/20 px-3 py-1 rounded-lg">Connected</span>}
+                        <div className={`p-5 rounded-2xl border shadow-sm flex flex-col gap-4 mb-4 transition-colors ${mediaAllowed ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}>
+                           <h3 className="font-extrabold flex items-center justify-between text-slate-900">
+                              <span className="flex items-center gap-2"><Camera size={18} className={mediaAllowed ? "text-emerald-600" : "text-blue-600"}/> Camera & Mic Setup</span>
+                              {mediaAllowed && <span className="text-xs font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-lg">Connected</span>}
                            </h3>
                            <div className="flex flex-col items-center gap-4">
-                               <div className="w-32 h-32 bg-black rounded-full overflow-hidden border-4 border-slate-800 relative">
+                               <div className="w-32 h-32 bg-slate-900 rounded-full overflow-hidden border-4 border-white shadow-md relative">
                                    <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100"></video>
-                                   {!mediaAllowed && <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-500 text-center px-2">Camera Off</div>}
+                                   {!mediaAllowed && <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-slate-400 text-center px-2">Camera Off</div>}
                                </div>
                                {!mediaAllowed ? (
-                                   <button onClick={requestMediaPermission} className="text-xs font-bold bg-blue-600 text-white px-6 py-2.5 rounded-xl hover:bg-blue-500 shadow-lg transition-all w-full">Enable Camera & Mic</button>
+                                   <Button variant="primary" onClick={requestMediaPermission} className="text-xs w-full py-2.5">Enable Camera & Mic</Button>
                                ) : !aiModelsLoaded ? (
-                                   <div className="text-blue-400 font-bold text-xs flex items-center gap-2 py-2"><Loader2 size={16} className="animate-spin"/> Loading AI Models...</div>
+                                   <div className="text-blue-600 font-bold text-xs flex items-center gap-2 py-2"><Loader2 size={16} className="animate-spin"/> Loading AI Models...</div>
                                ) : (
-                                   <div className="text-green-500 font-bold text-sm">System Ready</div>
+                                   <div className="text-emerald-600 font-extrabold text-sm">System Ready</div>
                                )}
                            </div>
                         </div>
 
-                        <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 mb-6 flex-1">
-                            <h3 className="font-bold flex items-center gap-2 mb-4 text-yellow-400">
+                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6 flex-1 shadow-sm">
+                            <h3 className="font-extrabold flex items-center gap-2 mb-4 text-amber-600">
                                 <AlertTriangle size={18}/> Important Scoring Rules
                             </h3>
-                            <div className="text-xs text-slate-400 space-y-3 h-32 overflow-y-auto pr-2 custom-scrollbar">
-                                <div className="bg-red-900/10 p-2 rounded border border-red-500/20">
-                                   <strong className="text-red-400">Core Technical Questions:</strong> +1 for Correct, <strong className="text-red-500">-0.5 for Wrong</strong>. Use "I Don't Know" to avoid penalty.
+                            <div className="text-xs text-slate-600 space-y-3 h-32 overflow-y-auto pr-2 custom-scrollbar">
+                                <div className="bg-red-50 p-2 rounded-xl border border-red-200 font-medium">
+                                   <strong className="text-red-700">Core Technical Questions:</strong> +1 for Correct, <strong className="text-red-600">-0.5 for Wrong</strong>. Use "I Don't Know" to avoid penalty.
                                 </div>
-                                <div className="bg-blue-900/10 p-2 rounded border border-blue-500/20">
-                                   <strong className="text-blue-400">Software & Tools (Tech Skills):</strong> +1 for Correct, <strong className="text-white">NO Negative Marking</strong>.
+                                <div className="bg-blue-50 p-2 rounded-xl border border-blue-200 font-medium">
+                                   <strong className="text-blue-700">Software & Tools (Tech Skills):</strong> +1 for Correct, <strong className="text-blue-900">NO Negative Marking</strong>.
                                 </div>
-                                <div className="bg-green-900/10 p-2 rounded border border-green-500/20">
-                                   <strong className="text-green-400">Psychometric Questions:</strong> Evaluates culture fit. <strong className="text-white">NO Negative Marking</strong>. Answer honestly.
+                                <div className="bg-emerald-50 p-2 rounded-xl border border-emerald-200 font-medium">
+                                   <strong className="text-emerald-700">Psychometric Questions:</strong> Evaluates culture fit. <strong className="text-emerald-900">NO Negative Marking</strong>. Answer honestly.
                                 </div>
                             </div>
                         </div>
 
-                        <div onClick={() => setAgreed(!agreed)} className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 mb-6 ${agreed ? 'bg-blue-900/20 border-blue-500/50' : 'bg-slate-800 border-slate-700 hover:bg-slate-750'}`}>
-                            <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreed ? 'bg-blue-500 border-blue-500' : 'border-slate-500'}`}>
-                                {agreed && <CheckCircle size={12} className="text-white"/>}
+                        <div onClick={() => setAgreed(!agreed)} className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 mb-6 shadow-sm ${agreed ? 'bg-blue-50 border-blue-300' : 'bg-white border-slate-200 hover:border-blue-200'}`}>
+                            <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${agreed ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-slate-50'}`}>
+                                {agreed && <CheckCircle size={14} className="text-white"/>}
                             </div>
-                            <p className="text-sm text-slate-300 select-none">I understand the Tech & Psychometric rules and agree to the Terms.</p>
+                            <p className="text-sm font-bold text-slate-700 select-none">I understand the Tech & Psychometric rules and agree to the Terms.</p>
                         </div>
 
                         <div className="flex gap-4 mt-auto">
-                            <button onClick={() => window.location.href = '/student/dashboard'} className="px-6 py-3 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 transition-colors">Cancel</button>
-                            <button onClick={handleStartTest} disabled={!agreed || !mediaAllowed || !aiModelsLoaded || (examScope.length === 0 && !generatingAIQuestions)} className={`flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${agreed && mediaAllowed && aiModelsLoaded ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}>
+                            <Button variant="secondary" onClick={() => window.location.href = '/student/dashboard'} className="py-3 px-6">Cancel</Button>
+                            <Button 
+                                variant="primary" 
+                                onClick={handleStartTest} 
+                                disabled={!agreed || !mediaAllowed || !aiModelsLoaded || (examScope.length === 0 && !generatingAIQuestions)} 
+                                className="flex-1 py-3"
+                            >
                                 <MousePointer2 size={18}/> Start Test
-                            </button>
+                            </Button>
                         </div>
                      </div>
                 </div>
@@ -856,77 +860,77 @@ export default function LiveTestPage() {
 
   if (isTerminated) {
     return (
-      <div className="min-h-screen bg-red-950 text-white flex flex-col items-center justify-center p-6 text-center">
-         <ShieldAlert size={80} className="text-red-500 mb-6 animate-pulse"/>
-         <h1 className="text-5xl font-bold mb-4">Test Terminated</h1>
-         <p className="text-red-200 text-xl mb-8 max-w-lg">Violation of Anti-Cheat Rules Detected.<br/>Your partial score has been saved.</p>
-         <button onClick={() => window.location.href = '/student/dashboard'} className="bg-white text-red-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-colors">Return to Dashboard</button>
+      <div className="min-h-screen bg-red-50/90 backdrop-blur-md text-red-900 flex flex-col items-center justify-center p-6 text-center relative z-10">
+         <ShieldAlert size={80} className="text-red-600 mb-6 animate-pulse"/>
+         <h1 className="text-5xl font-extrabold mb-4">Test Terminated</h1>
+         <p className="text-red-700 text-xl mb-8 max-w-lg font-bold">Violation of Anti-Cheat Rules Detected.<br/>Your partial score has been saved.</p>
+         <Button variant="danger" onClick={() => window.location.href = '/student/dashboard'} className="px-8 py-3">Return to Dashboard</Button>
       </div>
     );
   }
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center justify-center p-6 text-center py-12">
-         <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6 mt-10">
-            <CheckCircle size={40} className="text-green-500"/>
+      <div className="min-h-screen bg-transparent text-slate-900 flex flex-col items-center justify-center p-6 text-center py-12 relative z-10">
+         <div className="w-20 h-20 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center mb-6 mt-10 shadow-sm">
+            <CheckCircle size={40} className="text-emerald-500"/>
          </div>
-         <h1 className="text-3xl font-bold mb-2">Assessment Completed</h1>
-         <p className="text-slate-400 text-sm mb-8">Your Technical & Behavioral analytics have been securely recorded.</p>
+         <h1 className="text-3xl font-extrabold mb-2">Assessment Completed</h1>
+         <p className="text-slate-500 font-bold text-sm mb-8">Your Technical & Behavioral analytics have been securely recorded.</p>
          
-         <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl w-full max-w-2xl mb-8 shadow-2xl">
-            <p className="text-slate-500 text-sm uppercase font-bold mb-2">Final Overall Score</p>
-            <p className="text-6xl font-bold text-green-400 mb-6">{score} <span className="text-2xl text-slate-500">/ {questions.length}</span></p>
+         <Card className="w-full max-w-2xl mb-8 shadow-xl p-8 md:p-10">
+            <p className="text-slate-500 text-sm uppercase font-black mb-2 tracking-widest">Final Overall Score</p>
+            <p className="text-6xl font-black text-emerald-600 mb-6">{score} <span className="text-2xl text-slate-400">/ {questions.length}</span></p>
 
-            <div className="border-t border-slate-800 pt-6 text-left">
-               <h4 className="text-slate-400 text-sm font-bold uppercase mb-4 flex items-center gap-2">
-                  <Award size={18}/> Skill & Culture Fit Report
+            <div className="border-t border-slate-200 pt-6 text-left">
+               <h4 className="text-slate-700 text-sm font-extrabold uppercase mb-4 flex items-center gap-2">
+                  <Award size={18} className="text-[#0f947e]"/> Skill & Culture Fit Report
                </h4>
                <div className="space-y-4">
                   {Object.keys(skillAnalytics).map(skill => {
                      const isPsycho = skill === "Psychometric & Behavioral Fit";
-                     
                      const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
                         ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
                         : [];
                      const isTechSkill = techSkillNames.includes(skill);
                      
                      return (
-                     <div key={skill} className={`p-5 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${isPsycho ? 'bg-purple-950/40 border-purple-500/30' : isTechSkill ? 'bg-blue-950/40 border-blue-500/30' : 'bg-slate-950 border-slate-800'}`}>
+                     <div key={skill} className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${isPsycho ? 'bg-indigo-50 border-indigo-200' : isTechSkill ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'}`}>
                         <div>
-                           <span className={`font-bold text-lg ${isPsycho ? 'text-purple-300' : isTechSkill ? 'text-blue-300' : 'text-white'}`}>{isTechSkill ? `💻 ${skill}` : skill}</span>
-                           <p className="text-xs text-slate-500 mt-1">Score: {Math.max(0, skillAnalytics[skill].scoreCount)} / {skillAnalytics[skill].total}</p>
+                           <span className={`font-extrabold text-lg ${isPsycho ? 'text-indigo-800' : isTechSkill ? 'text-blue-800' : 'text-slate-800'}`}>{isTechSkill ? `💻 ${skill}` : skill}</span>
+                           <p className="text-xs text-slate-500 font-bold mt-1">Score: {Math.max(0, skillAnalytics[skill].scoreCount)} / {skillAnalytics[skill].total}</p>
                         </div>
-                        <div className={`px-4 py-2 rounded-lg border font-bold text-sm text-center ${skillAnalytics[skill].aiLevel.includes('Expert') ? 'bg-green-900/30 text-green-400 border-green-500/30' : skillAnalytics[skill].aiLevel.includes('Intermediate') ? 'bg-yellow-900/30 text-yellow-400 border-yellow-500/30' : 'bg-red-900/30 text-red-400 border-red-500/30'}`}>
+                        <div className={`px-4 py-2 rounded-xl border font-bold text-sm text-center ${skillAnalytics[skill].aiLevel.includes('Expert') ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : skillAnalytics[skill].aiLevel.includes('Intermediate') ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
                            {skillAnalytics[skill].aiLevel}
                         </div>
                      </div>
                   )})}
                </div>
             </div>
-         </div>
-         <button onClick={() => window.location.href = '/student/dashboard'} className="bg-blue-600 px-8 py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20 mb-10">Back to Dashboard</button>
+         </Card>
+         <Button variant="primary" onClick={() => window.location.href = '/student/dashboard'} className="px-8 py-3 mb-10 shadow-teal-500/20">Back to Dashboard</Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0F1F] text-white p-4 select-none" onContextMenu={(e)=>e.preventDefault()}>
+    <div className="min-h-screen bg-transparent text-slate-900 p-4 select-none relative z-10" onContextMenu={(e)=>e.preventDefault()}>
        
+       {/* Draggable PiP Video - Kept slightly dark/glassy for visibility over light bg */}
        <AnimatePresence>
          {testStarted && (
            <motion.div 
               drag 
               dragConstraints={{ left: -1000, right: 20, top: -800, bottom: 20 }} 
               dragElastic={0.1}
-              className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-black border-2 border-red-500/50 rounded-2xl overflow-hidden shadow-2xl z-50 cursor-move"
+              className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-slate-900 border-[3px] border-red-500/80 rounded-2xl overflow-hidden shadow-2xl z-50 cursor-move"
            >
-              <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-80 pointer-events-none" />
-              <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1 pointer-events-none">
+              <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-90 pointer-events-none" />
+              <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1 pointer-events-none shadow-md">
                  <Video size={10}/> Proctoring Active
               </div>
-              <div className="absolute bottom-1 right-1 bg-black/50 p-1 rounded backdrop-blur-sm pointer-events-none">
-                 <Move size={14} className="text-white/70" />
+              <div className="absolute bottom-1 right-1 bg-black/50 p-1.5 rounded-lg backdrop-blur-sm pointer-events-none">
+                 <Move size={14} className="text-white/90" />
               </div>
            </motion.div>
          )}
@@ -934,105 +938,109 @@ export default function LiveTestPage() {
        
        <canvas ref={canvasRef} width="64" height="48" className="hidden" />
 
+       {/* Bonus Round Popup Modal */}
        <AnimatePresence>
          {showBonusPopup && (
-           <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-slate-900 border border-purple-500/50 p-8 rounded-3xl max-w-lg text-center shadow-[0_0_50px_rgba(168,85,247,0.2)]">
-                 <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Sparkles size={40} className="text-purple-400"/>
+           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white border border-indigo-200 p-8 rounded-[2rem] max-w-lg text-center shadow-2xl w-full">
+                 <div className="w-20 h-20 bg-indigo-50 border border-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    <Sparkles size={40} className="text-indigo-500"/>
                  </div>
-                 <h2 className="text-3xl font-bold mb-4">You Can Do Better!</h2>
-                 <p className="text-slate-400 text-lg mb-8">Your current score seems a bit low. We want to give you a <strong className="text-white">Second Chance</strong> to improve your profile rating before submitting.</p>
-                 <div className="bg-slate-950 p-4 rounded-xl mb-8 border border-slate-800">
-                    <p className="text-purple-400 font-bold mb-1">🎁 Take 5 Bonus Questions</p>
-                    <p className="text-xs text-slate-500">5 minutes will be added to your timer.</p>
+                 <h2 className="text-3xl font-extrabold mb-4 text-slate-900">You Can Do Better!</h2>
+                 <p className="text-slate-500 font-medium text-lg mb-8">Your current score seems a bit low. We want to give you a <strong className="text-indigo-600">Second Chance</strong> to improve your profile rating before submitting.</p>
+                 <div className="bg-indigo-50 p-4 rounded-xl mb-8 border border-indigo-200 shadow-sm">
+                    <p className="text-indigo-700 font-black mb-1">🎁 Take 5 Bonus Questions</p>
+                    <p className="text-xs text-indigo-600/80 font-bold">5 minutes will be added to your timer.</p>
                  </div>
                  <div className="flex gap-4">
-                    <button onClick={rejectBonusRound} className="flex-1 px-4 py-3 rounded-xl border border-slate-700 text-slate-400 hover:bg-slate-800 font-bold transition-all">Submit Anyway</button>
-                    <button onClick={acceptBonusRound} className="flex-[2] bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-bold text-white shadow-lg shadow-purple-900/30 transition-all">Accept Bonus Round</button>
+                    <Button variant="secondary" onClick={rejectBonusRound} className="flex-1 py-3 text-sm">Submit Anyway</Button>
+                    <Button variant="primary" onClick={acceptBonusRound} className="flex-[2] py-3 text-sm bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20 text-white">Accept Bonus Round</Button>
                  </div>
               </motion.div>
            </div>
          )}
        </AnimatePresence>
 
-       <div className="max-w-5xl mx-auto flex justify-between items-center bg-slate-900 border border-red-500/30 p-4 rounded-xl mb-6 shadow-lg">
+       <div className="max-w-5xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-xl border border-red-200 p-4 rounded-2xl mb-6 shadow-sm">
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 text-red-400 bg-red-900/20 px-3 py-1 rounded-lg border border-red-500/20">
-                <Lock size={16}/> <span className="text-xs font-bold uppercase tracking-wider">Secure Exam</span>
+             <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 shadow-sm">
+                <Lock size={16}/> <span className="text-xs font-black uppercase tracking-wider">Secure Exam</span>
              </div>
              {bonusRoundTaken && (
-                <div className="text-xs font-bold text-purple-400 bg-purple-900/20 border border-purple-500/30 px-3 py-1 rounded-lg">
+                <div className="text-xs font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg shadow-sm">
                     ✨ Bonus Round Active
                 </div>
              )}
           </div>
-          <div className="flex gap-4 text-xs font-bold uppercase tracking-wider">
-             <div className={`px-2 py-1 rounded border ${faceWarnings > 0 ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Face: {MAX_FACE_WARNINGS - faceWarnings} Left</div>
-             <div className={`hidden md:block px-2 py-1 rounded border ${tabWarnings > 0 ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings} Left</div>
-             <div className={`hidden md:block px-2 py-1 rounded border ${micWarnings > 0 ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>Mic: {MAX_MIC_WARNINGS - micWarnings} Left</div>
+          <div className="flex gap-4 text-xs font-black uppercase tracking-wider">
+             <div className={`px-2.5 py-1.5 rounded-lg border shadow-sm ${faceWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Face: {MAX_FACE_WARNINGS - faceWarnings} Left</div>
+             <div className={`hidden md:block px-2.5 py-1.5 rounded-lg border shadow-sm ${tabWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings} Left</div>
+             <div className={`hidden md:block px-2.5 py-1.5 rounded-lg border shadow-sm ${micWarnings > 0 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200'}`}>Mic: {MAX_MIC_WARNINGS - micWarnings} Left</div>
           </div>
        </div>
 
        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-8 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
-             <span className="text-slate-400 font-medium">Question <span className="text-white font-bold">{currentQ + 1}</span> / {questions.length}</span>
+          <div className="flex justify-between items-center mb-8 bg-white/80 backdrop-blur-xl p-6 rounded-2xl border border-slate-200 shadow-sm">
+             <span className="text-slate-500 font-bold">Question <span className="text-slate-900 font-black text-lg">{currentQ + 1}</span> <span className="text-sm">/ {questions.length}</span></span>
              
              {questions.length > 0 && questions[currentQ].category === "Psychometric" && (
-                 <span className="bg-purple-900/40 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest animate-pulse">Behavioral (No Neg Marking)</span>
+                 <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest animate-pulse shadow-sm">Behavioral (No Neg Marking)</span>
              )}
              
              {questions.length > 0 && questions[currentQ].category !== "Psychometric" && Array.isArray(studentProfile?.technologicalSkills) && studentProfile.technologicalSkills.some((s:any) => (typeof s === 'string' ? s : s.name) === questions[currentQ].skill) && (
-                 <span className="bg-blue-900/40 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Tech Tool (No Neg Marking)</span>
+                 <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-sm">Tech Tool (No Neg Marking)</span>
              )}
 
-             <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-400 bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-500/20">
-                <Timer size={20} /> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+             <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-700 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200 shadow-sm">
+                <Timer size={20} className="text-blue-500"/> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
              </div>
           </div>
 
           {questions.length > 0 && (
-             <motion.div key={currentQ} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="bg-slate-900 border border-slate-800 p-6 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden">
-                <div className="flex justify-between items-start mb-8">
-                   <h2 className="text-xl md:text-2xl font-medium leading-relaxed max-w-2xl">{questions[currentQ].question}</h2>
-                </div>
-                <div className="space-y-4">
-                   {questions[currentQ].options.map((opt: string, index: number) => {
-                      const isDontKnow = opt === "I Don't Know";
-                      return (
-                      <button 
-                         key={index} 
-                         onClick={() => { const n = [...answers]; n[currentQ] = index; setAnswers(n); }} 
-                         className={`w-full text-left p-5 rounded-2xl border transition-all flex items-center justify-between group 
-                            ${answers[currentQ] === index 
-                                ? (isDontKnow ? "bg-slate-700 border-slate-500 shadow-lg shadow-slate-900" : "bg-blue-600 border-blue-500 shadow-lg shadow-blue-500/20") 
-                                : "bg-slate-950 border-slate-800 hover:bg-slate-800 hover:border-slate-600"}
-                            ${isDontKnow && answers[currentQ] !== index ? "opacity-70 hover:opacity-100 italic" : ""}`}
-                      >
-                         <span className={`font-medium ${answers[currentQ] === index ? 'text-white' : 'text-slate-300'}`}>{opt}</span>
-                         {answers[currentQ] === index && <CheckCircle size={20} className="text-white" />}
-                      </button>
-                   )})}
-                </div>
+             <motion.div key={currentQ} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+               <Card className="p-8 md:p-12 relative overflow-hidden shadow-xl">
+                  <div className="flex justify-between items-start mb-8">
+                     <h2 className="text-xl md:text-2xl font-extrabold leading-relaxed max-w-2xl text-slate-900">{questions[currentQ].question}</h2>
+                  </div>
+                  <div className="space-y-4">
+                     {questions[currentQ].options.map((opt: string, index: number) => {
+                        const isDontKnow = opt === "I Don't Know";
+                        return (
+                        <button 
+                           key={index} 
+                           onClick={() => { const n = [...answers]; n[currentQ] = index; setAnswers(n); }} 
+                           className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between group shadow-sm
+                              ${answers[currentQ] === index 
+                                  ? (isDontKnow ? "bg-slate-100 border-slate-400" : "bg-blue-50 border-blue-500 shadow-blue-500/20") 
+                                  : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50"}
+                              ${isDontKnow && answers[currentQ] !== index ? "opacity-70 hover:opacity-100 italic" : ""}`}
+                        >
+                           <span className={`font-bold ${answers[currentQ] === index ? (isDontKnow ? 'text-slate-700' : 'text-blue-700') : 'text-slate-600'}`}>{opt}</span>
+                           {answers[currentQ] === index && <CheckCircle size={20} className={isDontKnow ? "text-slate-500" : "text-blue-600"} />}
+                        </button>
+                     )})}
+                  </div>
+               </Card>
              </motion.div>
           )}
 
           <div className="flex justify-between mt-8 pb-10">
-             <button 
+             <Button 
+                variant="secondary"
                 onClick={() => setCurrentQ(p => Math.max(0, p - 1))} 
                 disabled={currentQ === 0} 
-                className="px-6 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-3"
              >
                 Previous
-             </button>
+             </Button>
              {currentQ < questions.length - 1 ? (
-                <button onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-900/20">
+                <Button variant="primary" onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 hover:bg-blue-700 shadow-blue-500/20 text-white">
                    Next Question
-                </button>
+                </Button>
              ) : (
-                <button onClick={handlePreSubmit} className="px-8 py-3 bg-green-600 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-900/20">
+                <Button variant="primary" onClick={handlePreSubmit} className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20 text-white">
                    Submit Assessment
-                </button>
+                </Button>
              )}
           </div>
        </div>

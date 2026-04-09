@@ -12,7 +12,6 @@ import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
 
 // 🔥 UPDATED EXCEL MASTER SKILLS DATA 🔥
-// Added new sub-skills for Direct Tax, Indirect Tax, and Costing. Kept previous 3 and untouched ones exactly the same.
 const MASTER_SKILLS_DATA: Record<string, string[]> = {
   "Financiacial Reporting and Accounting": [
       "Accounting & Bookkeeping", "Accounting Standards (AS)", "Accounts Payable Assistance", 
@@ -670,23 +669,24 @@ export default function CandidateProfile() {
   };
 
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
+  
   if (loading) {
       return (
-          <div className="h-screen bg-[#020617] text-white flex gap-3 items-center justify-center">
-              <Loader2 className="animate-spin text-blue-500" /> Loading...
+          <div className="h-screen bg-slate-50 text-slate-900 flex gap-3 items-center justify-center">
+              <Loader2 className="animate-spin text-teal-600" /> Loading...
           </div>
       );
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-12 font-sans relative overflow-hidden">
-      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none"></div>
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-6 md:p-12 font-sans relative overflow-hidden">
+      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-teal-500/10 blur-[150px] rounded-full pointer-events-none"></div>
       
       <div className="max-w-4xl mx-auto relative z-10">
          <div className="flex justify-between items-center mb-10">
             <button 
                 onClick={() => router.push('/student/dashboard')} 
-                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold"
+                className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-bold"
             >
                 <ArrowLeft size={18} /> Dashboard
             </button>
@@ -698,7 +698,7 @@ export default function CandidateProfile() {
                       setCurrentStep(1); 
                       setIsOnboarding(false); 
                   }} 
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-500/25"
+                  className="bg-[#0f947e] hover:bg-[#0c7a68] px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-teal-500/25"
                >
                   <Edit size={16}/> Edit Profile
                </button>
@@ -711,19 +711,19 @@ export default function CandidateProfile() {
         ) : showGatekeeper ?
         (
            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl mx-auto mt-6">
-              <div className="bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden text-center">
-                 <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg rotate-3">
+              <div className="bg-white border border-slate-200 rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden text-center">
+                 <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg rotate-3">
                    <FileText size={40} className="text-white -rotate-3"/>
                  </div>
-                 <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Supercharge Your Profile</h1>
-                 <p className="text-slate-400 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
+                 <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Supercharge Your Profile</h1>
+                 <p className="text-slate-600 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
               
-                 <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-xl mx-auto bg-slate-950/50 border-2 rounded-2xl p-6 mb-8 transition-all flex items-start gap-5 ${consentGiven ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.15)] bg-blue-500/5' : 'border-slate-800 hover:border-slate-700'}`}>
-                    <div className={`w-7 h-7 border-2 rounded-lg flex items-center justify-center shrink-0 ${consentGiven ? 'bg-blue-500 border-blue-500' : 'border-slate-600 bg-slate-900'}`}>
+                 <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-xl mx-auto bg-slate-50 border-2 rounded-2xl p-6 mb-8 transition-all flex items-start gap-5 ${consentGiven ? 'border-teal-500 shadow-md bg-teal-50' : 'border-slate-200 hover:border-teal-300'}`}>
+                    <div className={`w-7 h-7 border-2 rounded-lg flex items-center justify-center shrink-0 ${consentGiven ? 'bg-teal-500 border-teal-500' : 'border-slate-300 bg-white'}`}>
                         <Check size={18} className={`text-white transition-opacity ${consentGiven ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3}/>
                     </div>
                     <div className="text-left">
-                       <p className={`font-bold text-lg mb-1 ${consentGiven ? 'text-blue-400' : 'text-white'}`}>I agree to the Data Privacy Terms</p>
+                       <p className={`font-bold text-lg mb-1 ${consentGiven ? 'text-teal-700' : 'text-slate-900'}`}>I agree to the Data Privacy Terms</p>
                        <p className="text-sm text-slate-500 leading-relaxed">I consent to the secure processing of my resume data by AI.</p>
                     </div>
                  </div>
@@ -731,7 +731,7 @@ export default function CandidateProfile() {
                  <div className="flex flex-col sm:flex-row gap-5 max-w-xl mx-auto">
                     <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above.");}}>
                        <input type="file" accept=".pdf,.docx,.txt" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
-                       <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-blue-600 text-white shadow-lg hover:bg-blue-500 hover:-translate-y-1' : 'bg-slate-800 text-slate-500'}`}>
+                       <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-[#0f947e] text-white shadow-lg hover:bg-[#0c7a68] hover:-translate-y-1' : 'bg-slate-100 text-slate-400'}`}>
                            {uploading ? <Loader2 size={22} className="animate-spin"/> : <Sparkles size={22}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
                        </div>
                     </div>
@@ -742,7 +742,7 @@ export default function CandidateProfile() {
                                 setCurrentStep(1); 
                             } else alert("Please accept terms."); 
                         }} 
-                        className={`flex-1 py-4 rounded-xl font-bold border-2 transition-all ${consentGiven ? 'border-slate-700 text-white hover:bg-slate-800 hover:-translate-y-1' : 'border-slate-800/50 text-slate-600 cursor-not-allowed'}`}
+                        className={`flex-1 py-4 rounded-xl font-bold border-2 transition-all ${consentGiven ? 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:-translate-y-1' : 'border-slate-100 text-slate-300 cursor-not-allowed'}`}
                     >
                         Skip & Fill Manually
                     </button>
@@ -750,16 +750,16 @@ export default function CandidateProfile() {
               </div>
            </motion.div>
         ) : (
-          <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
+          <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[2.5rem] shadow-xl">
             <div className="mb-12">
                <div className="flex justify-between text-sm md:text-base font-bold mb-4">
-                  <span className={currentStep >= 1 ? "text-blue-400" : "text-slate-600"}>1. Personal</span>
-                  <span className={currentStep >= 2 ? "text-blue-400" : "text-slate-600"}>2. Education</span>
-                  <span className={currentStep >= 3 ? "text-blue-400" : "text-slate-600"}>3. Preferences</span>
-                  {isOnboarding && <span className={currentStep >= 4 ? "text-purple-400" : "text-slate-600 hidden md:inline"}>4. Unlock Profile</span>}
+                  <span className={currentStep >= 1 ? "text-teal-600" : "text-slate-400"}>1. Personal</span>
+                  <span className={currentStep >= 2 ? "text-teal-600" : "text-slate-400"}>2. Education</span>
+                  <span className={currentStep >= 3 ? "text-teal-600" : "text-slate-400"}>3. Preferences</span>
+                  {isOnboarding && <span className={currentStep >= 4 ? "text-teal-600" : "text-slate-400 hidden md:inline"}>4. Unlock Profile</span>}
                </div>
-               <div className="h-2 bg-slate-800/80 rounded-full overflow-hidden flex">
-                  <div className={`h-full transition-all duration-500 ${currentStep === 4 ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gradient-to-r from-blue-500 to-indigo-500'}`} style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
+               <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-teal-500 transition-all duration-500" style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
                </div>
             </div>
 
@@ -768,11 +768,11 @@ export default function CandidateProfile() {
                
                {currentStep === 1 && (
                   <div className="space-y-8">
-                     <h2 className="text-3xl font-extrabold text-white mb-6">Personal Details</h2>
+                     <h2 className="text-3xl font-extrabold text-slate-900 mb-6">Personal Details</h2>
                      
-                     <div className="md:col-span-2 bg-slate-950/50 border border-slate-800 p-6 rounded-2xl">
+                     <div className="md:col-span-2 bg-slate-50 border border-slate-200 p-6 rounded-2xl">
                        <label className="form-label flex items-center gap-2">
-                           <Sparkles size={16} className="text-blue-400"/> AI Generated Professional Bio
+                           <Sparkles size={16} className="text-teal-500"/> AI Generated Professional Bio
                        </label>
                        <textarea 
                            value={formData.bio || ""} 
@@ -782,39 +782,39 @@ export default function CandidateProfile() {
                      </div>
 
                      <div className="flex items-center gap-8 mb-8">
-                        <div onClick={startCamera} className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden shadow-xl group cursor-pointer hover:border-blue-500 transition-colors">
-                           {uploading ? <Loader2 className="animate-spin text-blue-500"/> : 
+                        <div onClick={startCamera} className="relative w-24 h-24 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center overflow-hidden shadow-sm group cursor-pointer hover:border-teal-500 transition-colors">
+                           {uploading ? <Loader2 className="animate-spin text-teal-600"/> : 
                               formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
-                                 <Camera size={32} className="text-slate-500 group-hover:text-blue-400"/>
+                                 <Camera size={32} className="text-slate-400 group-hover:text-teal-600"/>
                            }
-                           <div className="absolute inset-0 bg-black/50 hidden group-hover:flex flex-col items-center justify-center text-center p-2">
-                              <Camera size={20} className="text-white mb-1"/>
-                              <span className="text-[10px] text-white font-bold leading-tight">Live Capture</span>
+                           <div className="absolute inset-0 bg-white/80 hidden group-hover:flex flex-col items-center justify-center text-center p-2 backdrop-blur-sm">
+                              <Camera size={20} className="text-slate-900 mb-1"/>
+                              <span className="text-[10px] text-slate-900 font-bold leading-tight">Live Capture</span>
                            </div>
                         </div>
                         <div>
-                           <p className="font-bold text-xl text-white">Profile Photo <span className="text-red-500">*</span></p>
-                           <p className="text-sm text-slate-400">Click to capture a professional photo</p>
+                           <p className="font-bold text-xl text-slate-900">Profile Photo <span className="text-red-500">*</span></p>
+                           <p className="text-sm text-slate-500">Click to capture a professional photo</p>
                         </div>
                      </div>
 
                      <AnimatePresence>
                         {showCamera && (
-                           <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-                              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-slate-900 border border-slate-700 p-6 rounded-3xl max-w-md w-full shadow-2xl">
+                           <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
+                              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white border border-slate-200 p-6 rounded-3xl max-w-md w-full shadow-2xl">
                                  <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-xl font-bold text-white flex items-center gap-2"><ScanFace className="text-blue-400"/> Capture Profile Picture</h3>
+                                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2"><ScanFace className="text-teal-500"/> Capture Profile Picture</h3>
                                     <button onClick={stopCamera} className="text-slate-400 hover:text-red-500"><X size={24}/></button>
                                  </div>
                                  
-                                 <p className="text-sm text-slate-400 text-center mb-4">Please look straight into the camera to capture a clear photo.</p>
+                                 <p className="text-sm text-slate-500 text-center mb-4">Please look straight into the camera to capture a clear photo.</p>
 
-                                 <div className="relative w-full aspect-square bg-black rounded-2xl overflow-hidden mb-6 border-2 border-slate-800">
+                                 <div className="relative w-full aspect-square bg-slate-900 rounded-2xl overflow-hidden mb-6 border-2 border-slate-200">
                                     <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100"></video>
                                     <canvas ref={canvasRef} className="hidden"></canvas>
-                                    <div className="absolute inset-0 border-[3px] border-dashed border-blue-500/30 rounded-full m-8 pointer-events-none"></div>
+                                    <div className="absolute inset-0 border-[3px] border-dashed border-teal-500/50 rounded-full m-8 pointer-events-none"></div>
                                  </div>
-                                 <button onClick={capturePhoto} disabled={uploading || !aiModelsLoaded} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+                                 <button onClick={capturePhoto} disabled={uploading || !aiModelsLoaded} className="w-full bg-[#0f947e] hover:bg-[#0c7a68] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
                                     {!aiModelsLoaded ? <><Loader2 className="animate-spin"/> Loading AI Models...</> : uploading ? <><Loader2 className="animate-spin"/> Capturing...</> : <><Camera/> Capture Photo</>}
                                  </button>
                               </motion.div>
@@ -832,12 +832,12 @@ export default function CandidateProfile() {
                            <input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field w-full"/>
                         </div>
                         <div>
-                           <label className="form-label">Date of Birth <span className="text-red-500">*</span> <span className="text-slate-500 text-xs">(Min. 18 Years)</span></label>
-                           <input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:dark]"/>
+                           <label className="form-label">Date of Birth <span className="text-red-500">*</span> <span className="text-slate-400 text-xs">(Min. 18 Years)</span></label>
+                           <input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:light]"/>
                         </div>
                         <div>
                            <label className="form-label">Gender <span className="text-red-500">*</span></label>
-                           <select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:dark]">
+                           <select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:light]">
                               <option value="">Select</option>
                               <option>Male</option>
                               <option>Female</option>
@@ -849,37 +849,37 @@ export default function CandidateProfile() {
                            <input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field"/>
                         </div>
                         <div>
-                           <label className="form-label">PAN Card <span className="text-slate-500 text-xs ml-1">(Optional)</span></label>
+                           <label className="form-label">PAN Card <span className="text-slate-400 text-xs ml-1">(Optional)</span></label>
                            <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/>
                         </div>
                      </div>
 
-                     <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-slate-800/80">
-                         <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800/80">
-                            <label className="text-white font-bold mb-4 flex items-center gap-2">
-                               <TrendingUp className="text-green-400" size={20}/> Core Strengths <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                     <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-slate-200">
+                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                            <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
+                               <TrendingUp className="text-teal-600" size={20}/> Core Strengths <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
                              </label>
                             <div className="flex flex-wrap gap-2 mb-4">
                                {formData.strengths.map((str, i) => (
-                                  <span key={i} className="flex items-center gap-1 bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1.5 rounded-lg text-xs font-bold">
-                                     {str} <X size={14} className="cursor-pointer hover:text-white" onClick={() => removeStr(str)}/>
+                                  <span key={i} className="flex items-center gap-1 bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1.5 rounded-lg text-xs font-bold">
+                                     {str} <X size={14} className="cursor-pointer hover:text-teal-900" onClick={() => removeStr(str)}/>
                                   </span>
                                ))}
                             </div>
-                            <input type="text" value={strInput} onChange={(e) => setStrInput(e.target.value)} onKeyDown={handleAddStr} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-green-500" placeholder="e.g. Analytical Thinking..."/>
+                            <input type="text" value={strInput} onChange={(e) => setStrInput(e.target.value)} onKeyDown={handleAddStr} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-teal-500" placeholder="e.g. Analytical Thinking..."/>
                          </div>
-                         <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800/80">
-                            <label className="text-white font-bold mb-4 flex items-center gap-2">
-                               <TrendingDown className="text-red-400" size={20}/> Professional Weaknesses <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                            <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
+                               <TrendingDown className="text-red-500" size={20}/> Professional Weaknesses <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
                             </label>
                             <div className="flex flex-wrap gap-2 mb-4">
                                {formData.weaknesses.map((wk, i) => (
-                                  <span key={i} className="flex items-center gap-1 bg-red-500/10 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-bold">
-                                     {wk} <X size={14} className="cursor-pointer hover:text-white" onClick={() => removeWeak(wk)}/>
+                                  <span key={i} className="flex items-center gap-1 bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold">
+                                     {wk} <X size={14} className="cursor-pointer hover:text-red-800" onClick={() => removeWeak(wk)}/>
                                   </span>
                                ))}
                             </div>
-                            <input type="text" value={weakInput} onChange={(e) => setWeakInput(e.target.value)} onKeyDown={handleAddWeak} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-red-500" placeholder="e.g. Over-detail oriented..."/>
+                            <input type="text" value={weakInput} onChange={(e) => setWeakInput(e.target.value)} onKeyDown={handleAddWeak} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-red-500" placeholder="e.g. Over-detail oriented..."/>
                          </div>
                      </div>
 
@@ -890,8 +890,8 @@ export default function CandidateProfile() {
                   <div className="space-y-12">
                      <div>
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-white">Education <span className="text-red-500 text-lg">*</span></h2>
-                           <button onClick={addEducation} className="text-sm font-bold text-blue-400 hover:text-blue-300 flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-xl transition-colors">
+                           <h2 className="text-3xl font-extrabold text-slate-900">Education <span className="text-red-500 text-lg">*</span></h2>
+                           <button onClick={addEducation} className="text-sm font-bold text-teal-600 hover:text-teal-700 flex items-center gap-2 bg-teal-50 px-4 py-2 rounded-xl transition-colors">
                               <Plus size={18}/> Add More
                            </button>
                         </div>
@@ -901,9 +901,9 @@ export default function CandidateProfile() {
                               const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test(qualText);
                               
                               return (
-                              <div key={index} className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800 relative">
+                              <div key={index} className="bg-slate-50 p-6 rounded-3xl border border-slate-200 relative shadow-sm">
                                  {formData.educations.length > 1 && (
-                                    <button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 p-2">
+                                    <button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-2">
                                        <X size={18}/>
                                     </button>
                                  )}
@@ -916,8 +916,8 @@ export default function CandidateProfile() {
                                     {isSchoolLevel && (
                                        <div className="flex gap-4">
                                           <div className="flex-1">
-                                             <label className="form-label text-blue-400">Maths Included? <span className="text-slate-500 text-xs">(Optional)</span></label>
-                                             <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="input-field border-blue-500/30 [color-scheme:dark]">
+                                             <label className="form-label text-teal-600">Maths Included? <span className="text-slate-400 text-xs">(Optional)</span></label>
+                                             <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="input-field border-teal-200 bg-teal-50">
                                                 <option value="">Select</option>
                                                 <option value="Yes">Yes</option>
                                                 <option value="No">No</option>
@@ -925,8 +925,8 @@ export default function CandidateProfile() {
                                           </div>
                                           {edu.mathsIncluded === 'Yes' && (
                                               <div className="flex-1">
-                                                 <label className="form-label text-blue-400">Maths Score (%) <span className="text-red-500">*</span></label>
-                                                 <input type="text" value={edu.mathsScore || ""} onChange={(e)=>updateEducation(index, 'mathsScore', e.target.value)} className="input-field border-blue-500/30" placeholder="e.g. 85"/>
+                                                 <label className="form-label text-teal-600">Maths Score (%) <span className="text-red-500">*</span></label>
+                                                 <input type="text" value={edu.mathsScore || ""} onChange={(e)=>updateEducation(index, 'mathsScore', e.target.value)} className="input-field border-teal-200 bg-teal-50" placeholder="e.g. 85"/>
                                               </div>
                                           )}
                                        </div>
@@ -935,8 +935,8 @@ export default function CandidateProfile() {
                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
                                        <div className="grid grid-cols-2 gap-4 md:col-span-2">
                                           <div>
-                                             <label className="form-label text-yellow-400">Stage Cleared <span className="text-red-500">*</span></label>
-                                             <select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-yellow-500/30 [color-scheme:dark]">
+                                             <label className="form-label text-amber-600">Stage Cleared <span className="text-red-500">*</span></label>
+                                             <select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-amber-200 bg-amber-50">
                                                 <option value="">Select</option>
                                                 <option>Group 1</option>
                                                 <option>Group 2</option>
@@ -945,8 +945,8 @@ export default function CandidateProfile() {
                                               </select>
                                           </div>
                                           <div>
-                                             <label className="form-label text-red-400">Attempts <span className="text-red-500">*</span></label>
-                                             <input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-red-500/30"/>
+                                             <label className="form-label text-rose-500">Attempts <span className="text-red-500">*</span></label>
+                                             <input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-rose-200 bg-rose-50"/>
                                           </div>
                                        </div>
                                     )}
@@ -971,49 +971,49 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     <div className="pt-8 border-t border-slate-800/80">
+                     <div className="pt-8 border-t border-slate-200">
                         
-                        <div className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 p-4 rounded-xl mb-6 flex items-start gap-3 shadow-lg">
-                           <Sparkles className="text-yellow-400 shrink-0 mt-0.5" size={20}/>
+                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-6 flex items-start gap-3 shadow-sm">
+                           <Sparkles className="text-amber-500 shrink-0 mt-0.5" size={20}/>
                            <div>
-                              <p className="text-white font-bold text-sm">Pro Tip for Hiring 💡</p>
-                              <p className="text-slate-300 text-xs mt-1">Candidates who select <strong className="text-green-400">more than 5 sub-skills</strong> see a <strong className="text-green-400">60% increase</strong> in their hiring and interview shortlisting rate. Select all the skills you actually know!</p>
+                              <p className="text-slate-900 font-bold text-sm">Pro Tip for Hiring 💡</p>
+                              <p className="text-slate-700 text-xs mt-1">Candidates who select <strong className="text-teal-600">more than 5 sub-skills</strong> see a <strong className="text-teal-600">60% increase</strong> in their hiring and interview shortlisting rate. Select all the skills you actually know!</p>
                            </div>
                         </div>
 
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-2xl font-extrabold text-white">Technical Skills & Expertise <span className="text-red-500 text-lg">*</span></h2>
-                           <span className="bg-slate-800 text-blue-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
+                           <h2 className="text-2xl font-extrabold text-slate-900">Technical Skills & Expertise <span className="text-red-500 text-lg">*</span></h2>
+                           <span className="bg-slate-100 text-teal-600 px-3 py-1 rounded-lg text-xs font-bold border border-slate-200">
                               {formData.skills.length} / 10 Selected
                            </span>
                         </div>
-                        <p className="text-slate-400 text-sm mb-6">Select <strong className="text-white">Minimum 1 and Maximum 10</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
+                        <p className="text-slate-600 text-sm mb-6">Select <strong className="text-slate-900">Minimum 1 and Maximum 10</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
                         
                         {formData.skills.length > 0 && (
-                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                               {formData.skills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
-                                    {skill} <X size={16} className="cursor-pointer hover:text-red-300" onClick={() => toggleSkill(skill)}/>
+                                 <span key={skill} className="flex items-center gap-2 bg-[#0f947e] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
+                                    {skill} <X size={16} className="cursor-pointer hover:text-red-200" onClick={() => toggleSkill(skill)}/>
                                  </span>
                               ))}
                            </div>
                         )}
                         
-                        <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/50 flex flex-col md:flex-row">
-                           <div className="md:w-1/3 bg-slate-900/40 border-r border-slate-800 p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
+                        <div className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 flex flex-col md:flex-row shadow-sm">
+                           <div className="md:w-1/3 bg-slate-100 border-r border-slate-200 p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
                               {(Object.keys(MASTER_SKILLS_DATA) as Array<keyof typeof MASTER_SKILLS_DATA>).map((mainSkill) => (
                                  <button 
                                     key={mainSkill} 
                                     onClick={() => setActiveSkillTab(mainSkill)} 
-                                    className={`w-full text-left px-4 py-3 mb-2 text-sm font-bold rounded-xl transition-all ${activeSkillTab === mainSkill ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-slate-800/80 text-slate-400'}`}
+                                    className={`w-full text-left px-4 py-3 mb-2 text-sm font-bold rounded-xl transition-all ${activeSkillTab === mainSkill ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-slate-200 text-slate-600'}`}
                                  >
                                     {mainSkill}
                                  </button>
                               ))}
                            </div>
-                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto custom-scrollbar">
-                              <h4 className="text-white font-bold mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
-                                 Select Sub-Skills for <span className="text-blue-400">{activeSkillTab}</span>
+                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto custom-scrollbar bg-white">
+                              <h4 className="text-slate-900 font-bold mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                 Select Sub-Skills for <span className="text-teal-600">{activeSkillTab}</span>
                               </h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                  {(MASTER_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
@@ -1022,10 +1022,10 @@ export default function CandidateProfile() {
                                        <button 
                                           key={subSkill} 
                                           onClick={() => toggleSkill(subSkill)} 
-                                          className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${isSelected ? 'bg-blue-600/20 border-blue-500 text-white shadow-md' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'} flex items-center justify-between group`}
+                                          className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${isSelected ? 'bg-teal-50 border-teal-500 text-teal-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-teal-300'} flex items-center justify-between group`}
                                        >
                                           <span className="truncate pr-2">{subSkill}</span>
-                                          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-600 group-hover:border-slate-500'}`}>
+                                          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-teal-500 border-teal-500' : 'bg-slate-100 border-slate-300 group-hover:border-teal-400'}`}>
                                              {isSelected && <Check size={14} className="text-white" />}
                                           </div>
                                        </button>
@@ -1036,35 +1036,35 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     <div className="pt-8 border-t border-slate-800/80">
+                     <div className="pt-8 border-t border-slate-200">
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-2xl font-extrabold text-white flex items-center gap-2"><Users className="text-purple-400"/> Behavioral & Soft Skills <span className="text-red-500 text-lg">*</span></h2>
-                           <span className="bg-slate-800 text-purple-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
+                           <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2"><Users className="text-indigo-500"/> Behavioral & Soft Skills <span className="text-red-500 text-lg">*</span></h2>
+                           <span className="bg-slate-100 text-indigo-600 px-3 py-1 rounded-lg text-xs font-bold border border-slate-200">
                               {formData.behavioralSkills.length} / 5 Selected
                            </span>
                         </div>
-                        <p className="text-slate-400 text-sm mb-6">Select <strong className="text-white">Minimum 1 and Maximum 5</strong> behavioral traits. You can choose from the list or type your own.</p>
+                        <p className="text-slate-600 text-sm mb-6">Select <strong className="text-slate-900">Minimum 1 and Maximum 5</strong> behavioral traits. You can choose from the list or type your own.</p>
                         
                         {formData.behavioralSkills.length > 0 && (
-                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                               {formData.behavioralSkills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg">
-                                    {skill} <X size={16} className="cursor-pointer hover:text-purple-300" onClick={() => removeBehavioralSkill(skill)}/>
+                                 <span key={skill} className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
+                                    {skill} <X size={16} className="cursor-pointer hover:text-indigo-200" onClick={() => removeBehavioralSkill(skill)}/>
                                  </span>
                               ))}
                            </div>
                         )}
 
                         <div className="grid md:grid-cols-2 gap-6">
-                            <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
-                               <label className="text-white font-bold mb-4 flex items-center gap-2">
-                                  <Plus className="text-purple-400" size={20}/> Add Custom Skill <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                               <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
+                                  <Plus className="text-indigo-500" size={20}/> Add Custom Skill <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
                                </label>
-                               <input type="text" value={behavInput} onChange={(e) => setBehavInput(e.target.value)} onKeyDown={handleAddBehavioralSkill} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-purple-500" placeholder="e.g. Public Speaking, Negotiation..."/>
+                               <input type="text" value={behavInput} onChange={(e) => setBehavInput(e.target.value)} onKeyDown={handleAddBehavioralSkill} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-indigo-500" placeholder="e.g. Public Speaking, Negotiation..."/>
                             </div>
 
-                            <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-                               <label className="text-white font-bold mb-4 block">Quick Suggestions</label>
+                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                               <label className="text-slate-900 font-bold mb-4 block">Quick Suggestions</label>
                                <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
                                   {BEHAVIORAL_SKILLS_LIST.map((bSkill: string) => {
                                      const isSelected = formData.behavioralSkills.includes(bSkill);
@@ -1078,9 +1078,9 @@ export default function CandidateProfile() {
                                                }
                                                setFormData(prev => ({...prev, behavioralSkills: isSelected ? prev.behavioralSkills.filter(item => item !== bSkill) : [...prev.behavioralSkills, bSkill]}));
                                            }} 
-                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-purple-600/20 border-purple-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}`}
                                         >
-                                           {isSelected && <Check size={12} className="text-purple-400" />}
+                                           {isSelected && <Check size={12} className="text-indigo-600" />}
                                            {bSkill}
                                         </button>
                                      );
@@ -1090,32 +1090,32 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 NEW: TECHNOLOGICAL SKILLS SECTION WITH LEVEL DROPDOWN 🔥 */}
-                     <div className="pt-8 border-t border-slate-800/80">
+                     {/* 🔥 TECHNOLOGICAL SKILLS SECTION WITH LEVEL DROPDOWN 🔥 */}
+                     <div className="pt-8 border-t border-slate-200">
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-2xl font-extrabold text-white flex items-center gap-2"><Monitor className="text-pink-400"/> Technological Tools & Software <span className="text-slate-500 text-sm font-medium ml-2">(Optional)</span></h2>
-                           <span className="bg-slate-800 text-pink-400 px-3 py-1 rounded-lg text-xs font-bold border border-slate-700">
+                           <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2"><Monitor className="text-blue-500"/> Technological Tools & Software <span className="text-slate-500 text-sm font-medium ml-2">(Optional)</span></h2>
+                           <span className="bg-slate-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold border border-slate-200">
                               {formData.technologicalSkills.length} / 8 Selected
                            </span>
                         </div>
-                        <p className="text-slate-400 text-sm mb-6">Select tools you are proficient in (Max 8) and set your level. <strong className="text-white">Note: Our AI will ask 5 questions per selected software tool with NO negative marking.</strong></p>
+                        <p className="text-slate-600 text-sm mb-6">Select tools you are proficient in (Max 8) and set your level. <strong className="text-slate-900">Note: Our AI will ask 5 questions per selected software tool with NO negative marking.</strong></p>
                         
                         {formData.technologicalSkills.length > 0 && (
-                           <div className="flex flex-col gap-3 mb-6 p-5 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                           <div className="flex flex-col gap-3 mb-6 p-5 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                               {formData.technologicalSkills.map(skill => (
-                                 <div key={skill.name} className="flex items-center gap-3 bg-pink-900/20 border border-pink-500/30 px-4 py-2.5 rounded-xl w-fit">
-                                    <span className="text-white text-sm font-bold">{skill.name}</span>
-                                    <div className="flex items-center gap-2 ml-2 border-l border-pink-500/30 pl-3">
+                                 <div key={skill.name} className="flex items-center gap-3 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl w-fit shadow-sm">
+                                    <span className="text-blue-900 text-sm font-bold">{skill.name}</span>
+                                    <div className="flex items-center gap-2 ml-2 border-l border-blue-200 pl-3">
                                         <select 
                                             value={skill.level} 
                                             onChange={(e) => updateTechSkillLevel(skill.name, e.target.value)}
-                                            className="bg-slate-950 text-pink-300 text-xs font-bold px-2 py-1.5 rounded-lg border border-pink-500/50 outline-none cursor-pointer hover:bg-slate-900 transition-colors"
+                                            className="bg-white text-blue-700 text-xs font-bold px-2 py-1.5 rounded-lg border border-blue-200 outline-none cursor-pointer hover:bg-blue-50 transition-colors"
                                         >
                                             <option value="Beginner">Beginner Level</option>
                                             <option value="Intermediate">Intermediate Level</option>
                                             <option value="Advanced">Advanced Level</option>
                                         </select>
-                                        <X size={18} className="cursor-pointer text-pink-500/70 hover:text-white ml-1 transition-colors" onClick={() => removeTechSkill(skill.name)}/>
+                                        <X size={18} className="cursor-pointer text-blue-400 hover:text-red-500 ml-1 transition-colors" onClick={() => removeTechSkill(skill.name)}/>
                                     </div>
                                  </div>
                                ))}
@@ -1123,15 +1123,15 @@ export default function CandidateProfile() {
                         )}
 
                         <div className="grid md:grid-cols-2 gap-6">
-                             <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
-                               <label className="text-white font-bold mb-4 flex items-center gap-2">
-                                  <Plus className="text-pink-400" size={20}/> Add Custom Tool <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
+                               <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
+                                  <Plus className="text-blue-500" size={20}/> Add Custom Tool <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
                                </label>
-                               <input type="text" value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={handleAddTechSkill} className="w-full bg-transparent border-b-2 border-slate-700 pb-2 outline-none text-white text-sm focus:border-pink-500" placeholder="e.g. Jira, Xero, Tally ERP 9..."/>
+                               <input type="text" value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={handleAddTechSkill} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-blue-500" placeholder="e.g. Jira, Xero, Tally ERP 9..."/>
                             </div>
 
-                            <div className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-                               <label className="text-white font-bold mb-4 block">Most Demanded Tools</label>
+                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                               <label className="text-slate-900 font-bold mb-4 block">Most Demanded Tools</label>
                                <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
                                   {TECH_SKILLS_LIST.map((tSkill: string) => {
                                      const isSelected = formData.technologicalSkills.some(s => s.name === tSkill);
@@ -1139,9 +1139,9 @@ export default function CandidateProfile() {
                                         <button 
                                            key={tSkill} 
                                            onClick={() => toggleTechSkill(tSkill)} 
-                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-pink-600/20 border-pink-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'}`}
+                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'}`}
                                         >
-                                           {isSelected && <Check size={12} className="text-pink-400" />}
+                                           {isSelected && <Check size={12} className="text-blue-600" />}
                                            {tSkill}
                                         </button>
                                      );
@@ -1158,15 +1158,15 @@ export default function CandidateProfile() {
                   <div className="space-y-12">
                      <div>
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-white">Past Work Experience</h2>
-                           <button onClick={addWorkExp} className="text-sm font-bold text-green-400 bg-green-500/10 px-4 py-2 rounded-xl">
+                           <h2 className="text-3xl font-extrabold text-slate-900">Past Work Experience</h2>
+                           <button onClick={addWorkExp} className="text-sm font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 border border-teal-100 px-4 py-2 rounded-xl transition-colors">
                                <Plus size={18} className="inline"/> Add Company
                            </button>
                         </div>
                         <div className="space-y-4">
                            {formData.workExperience.map((work, index) => (
-                              <div key={index} className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 relative">
-                                 <button onClick={() => removeWorkExp(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500">
+                              <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-200 relative shadow-sm">
+                                 <button onClick={() => removeWorkExp(index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500">
                                     <X size={18}/>
                                  </button>
                                  <div className="grid md:grid-cols-3 gap-4 mt-2">
@@ -1185,21 +1185,21 @@ export default function CandidateProfile() {
                                  </div>
                                </div>
                            ))}
-                           {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm">No past experience added. AI will auto-fill if found on resume.</p>}
+                           {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm font-medium">No past experience added. AI will auto-fill if found on resume.</p>}
                         </div>
                      </div>
 
-                     <div className="pt-8 border-t border-slate-800/80">
+                     <div className="pt-8 border-t border-slate-200">
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-white flex items-center gap-2"><Award className="text-yellow-400"/> Achievements & Certifications</h2>
-                           <button onClick={addAchievement} className="text-sm font-bold text-yellow-400 bg-yellow-500/10 px-4 py-2 rounded-xl">
+                           <h2 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2"><Award className="text-amber-500"/> Achievements & Certifications</h2>
+                           <button onClick={addAchievement} className="text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 px-4 py-2 rounded-xl transition-colors">
                               <Plus size={18} className="inline"/> Add Achievement
                            </button>
                         </div>
                         <div className="space-y-4">
                            {formData.achievements.map((ach, index) => (
-                              <div key={index} className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800 relative">
-                                 <button onClick={() => removeAchievement(index)} className="absolute top-4 right-4 text-slate-500 hover:text-red-500">
+                              <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-200 relative shadow-sm">
+                                 <button onClick={() => removeAchievement(index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500">
                                     <X size={18}/>
                                   </button>
                                  <div className="grid md:grid-cols-2 gap-4 mt-2">
@@ -1212,14 +1212,14 @@ export default function CandidateProfile() {
                                        <textarea value={ach.description} onChange={(e)=>updateAchievement(index, 'description', e.target.value)} className="input-field min-h-[60px]" placeholder="e.g. Awarded for generating maximum revenue..."/>
                                     </div>
                                     <div className="md:col-span-2">
-                                       <label className="form-label text-slate-400">Upload Certificate/Photo <span className="text-xs ml-1">(Optional)</span></label>
+                                       <label className="form-label text-slate-500">Upload Certificate/Photo <span className="text-xs ml-1">(Optional)</span></label>
                                        <div className="flex items-center gap-4">
                                           {ach.imageURL && (
-                                              <img src={ach.imageURL} alt="Achievement" className="w-16 h-16 object-cover rounded-xl border border-slate-700"/>
+                                              <img src={ach.imageURL} alt="Achievement" className="w-16 h-16 object-cover rounded-xl border border-slate-200 shadow-sm"/>
                                           )}
                                           <div className="relative">
                                              <input type="file" accept="image/*" onChange={(e) => handleAchievementImageUpload(index, e)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
-                                             <div className="bg-slate-800 hover:bg-slate-700 text-blue-400 text-sm font-bold px-4 py-2.5 rounded-xl border border-slate-700 flex items-center gap-2 transition-colors">
+                                             <div className="bg-white hover:bg-slate-100 text-teal-600 text-sm font-bold px-4 py-2.5 rounded-xl border border-slate-200 flex items-center gap-2 transition-colors shadow-sm">
                                                   <ImagePlus size={16}/> {ach.imageURL ? "Change Image" : "Upload Image"}
                                              </div>
                                           </div>
@@ -1228,16 +1228,16 @@ export default function CandidateProfile() {
                                  </div>
                                </div>
                            ))}
-                           {formData.achievements.length === 0 && <p className="text-slate-500 text-sm">Stand out by adding your awards or extra certifications.</p>}
+                           {formData.achievements.length === 0 && <p className="text-slate-500 text-sm font-medium">Stand out by adding your awards or extra certifications.</p>}
                         </div>
                      </div>
 
-                     <div className="pt-8 border-t border-slate-800/80">
-                        <h2 className="text-3xl font-extrabold text-white mb-8">Work & Salary Preferences</h2>
+                     <div className="pt-8 border-t border-slate-200">
+                        <h2 className="text-3xl font-extrabold text-slate-900 mb-8">Work & Salary Preferences</h2>
                         <div className="grid md:grid-cols-2 gap-8">
                            <div>
                               <label className="form-label">Total Experience <span className="text-red-500">*</span></label>
-                              <select value={formData.experience} onChange={(e)=>setFormData({...formData, experience: e.target.value})} className="input-field [color-scheme:dark]">
+                              <select value={formData.experience} onChange={(e)=>setFormData({...formData, experience: e.target.value})} className="input-field [color-scheme:light]">
                                  <option>Fresher</option>
                                  <option>0-1 Years</option>
                                  <option>1-3 Years</option>
@@ -1247,7 +1247,7 @@ export default function CandidateProfile() {
                            </div>
                            <div>
                               <label className="form-label">Notice Period <span className="text-red-500">*</span></label>
-                              <select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:dark]">
+                              <select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:light]">
                                  <option>Immediate Joiner</option>
                                  <option>15 Days</option>
                                  <option>1 Month</option>
@@ -1263,18 +1263,18 @@ export default function CandidateProfile() {
                            )}
                            <div>
                               <label className="form-label flex items-center gap-2">Monthly Expected Salary <span className="text-red-500">*</span></label>
-                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-blue-500/30" placeholder="e.g. ₹40,000"/>
+                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-teal-200 bg-teal-50" placeholder="e.g. ₹40,000"/>
                            </div>
 
                            <div className="md:col-span-2">
-                              <label className="form-label text-yellow-400">Looking For (Role Type) <span className="text-red-500">*</span></label>
+                              <label className="form-label text-indigo-600">Looking For (Role Type) <span className="text-red-500">*</span></label>
                               <select 
                                  value={formData.jobType} 
                                  onChange={(e)=>{
                                      const val = e.target.value;
                                      setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
                                  }} 
-                                 className="input-field border-yellow-500/30 [color-scheme:dark] mb-4"
+                                 className="input-field border-indigo-200 bg-indigo-50 [color-scheme:light] mb-4"
                               >
                                  <option value="Permanent Role">Permanent Role</option>
                                  <option value="1-3 Month Contract">1-3 Month Contract</option>
@@ -1285,21 +1285,21 @@ export default function CandidateProfile() {
                                </select>
                               
                               {formData.jobType === "Permanent Role" && (
-                                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/50 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-lg shadow-blue-900/20">
-                                    <div className="bg-blue-500/20 p-3 rounded-xl shrink-0 mt-1">
-                                       <Briefcase className="text-blue-400" size={28}/>
+                                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-indigo-50 border border-indigo-200 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-sm">
+                                    <div className="bg-white p-3 rounded-xl shrink-0 mt-1 border border-indigo-100 shadow-sm">
+                                       <Briefcase className="text-indigo-600" size={28}/>
                                     </div>
                                     <div className="w-full">
-                                       <h4 className="text-blue-300 font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
-                                       <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-400 text-xs ml-1">*Required</span>
+                                       <h4 className="text-indigo-900 font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
+                                       <p className="text-slate-700 text-sm mb-4 leading-relaxed font-medium">
+                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-500 text-xs ml-1">*Required</span>
                                        </p>
                                        
                                        <div className="flex flex-col sm:flex-row gap-4 mt-2">
                                           <button 
                                              type="button"
                                              onClick={() => setFormData({...formData, openToContractRoles: "Yes"})}
-                                             className={`flex-1 py-3.5 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "Yes" ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]' : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:bg-slate-800'}`}
+                                             className={`flex-1 py-3.5 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "Yes" ? 'bg-[#0f947e] border-[#0f947e] text-white shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:border-teal-500 hover:bg-teal-50'}`}
                                           >
                                              {formData.openToContractRoles === "Yes" && <Check size={18} strokeWidth={3}/>} Yes, I'm open to it
                                           </button>
@@ -1307,7 +1307,7 @@ export default function CandidateProfile() {
                                           <button 
                                              type="button"
                                              onClick={() => setFormData({...formData, openToContractRoles: "No"})}
-                                             className={`flex-1 py-3.5 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "No" ? 'bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]' : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:bg-slate-800'}`}
+                                             className={`flex-1 py-3.5 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "No" ? 'bg-red-50 border-red-300 text-red-600 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:bg-red-50'}`}
                                           >
                                              {formData.openToContractRoles === "No" && <X size={18} strokeWidth={3}/>} No, only permanent
                                           </button>
@@ -1319,7 +1319,7 @@ export default function CandidateProfile() {
 
                            <div>
                               <label className="form-label">Work Mode</label>
-                              <select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="input-field [color-scheme:dark]">
+                              <select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="input-field [color-scheme:light]">
                                  <option>On-site</option>
                                  <option>Hybrid</option>
                                  <option>Remote</option>
@@ -1327,22 +1327,22 @@ export default function CandidateProfile() {
                            </div>
                            <div>
                               <label className="form-label">Willing to Relocate?</label>
-                              <select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="input-field [color-scheme:dark]">
+                              <select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="input-field [color-scheme:light]">
                                  <option>No</option>
                                  <option>Yes</option>
                               </select>
                            </div>
 
-                           <div className="md:col-span-2 bg-slate-950/50 p-8 rounded-3xl border border-slate-800/80 mt-4">
-                              <label className="text-slate-300 font-bold mb-4 block text-base">Preferred Work Locations <span className="text-slate-500 font-normal text-sm ml-2">(Type city & press Enter)</span></label>
+                           <div className="md:col-span-2 bg-slate-50 p-8 rounded-3xl border border-slate-200 mt-4 shadow-sm">
+                              <label className="text-slate-900 font-bold mb-4 block text-base">Preferred Work Locations <span className="text-slate-500 font-normal text-sm ml-2">(Type city & press Enter)</span></label>
                               <div className="flex flex-wrap gap-3 mb-4">
                                  {formData.preferredLocations.map((loc, i) => (
-                                    <span key={i} className="flex items-center gap-2 bg-blue-600/10 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-xl text-sm font-bold">
-                                       {loc} <X size={16} className="cursor-pointer text-blue-400/70 hover:text-white" onClick={() => removeLocation(loc)}/>
+                                    <span key={i} className="flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+                                       {loc} <X size={16} className="cursor-pointer text-blue-400 hover:text-red-500" onClick={() => removeLocation(loc)}/>
                                     </span>
                                  ))}
                                </div>
-                              <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-700 pb-3 outline-none text-white text-base font-medium placeholder:text-slate-600 focus:border-blue-500" placeholder="e.g. Mumbai, Bangalore..."/>
+                              <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-300 pb-3 outline-none text-slate-900 text-base font-bold placeholder:text-slate-400 placeholder:font-medium focus:border-teal-500" placeholder="e.g. Mumbai, Bangalore..."/>
                            </div>
                         </div>
                      </div>
@@ -1351,38 +1351,38 @@ export default function CandidateProfile() {
 
                {currentStep === 4 && isOnboarding && (
                  <div className="space-y-8 text-center py-6">
-                     <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-                        <ShieldAlert size={48} className="text-red-500" />
+                     <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-amber-200 shadow-md">
+                        <ShieldAlert size={48} className="text-amber-500" />
                      </div>
-                     <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
-                        Profile Saved, but <span className="text-red-500">HIDDEN</span> 🔒
+                     <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                        Profile Saved, but <span className="text-amber-500">HIDDEN</span> 🔒
                       </h2>
-                     <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+                     <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
                         To maintain trust, companies can only see profiles that have passed the AI Skill Assessment. Unlock your profile now to get hired.
                      </p>
                      
                      <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
-                        <div className="bg-slate-950 p-8 rounded-[2rem] border border-slate-800 hover:border-blue-500 transition-all text-left flex flex-col">
-                           <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3">
-                              <PlayCircle className="text-blue-400" size={28}/> Practice First
+                        <div className="bg-white p-8 rounded-[2rem] border border-slate-200 hover:border-teal-500 transition-all text-left flex flex-col shadow-lg">
+                           <h3 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-3">
+                              <PlayCircle className="text-teal-500" size={28}/> Practice First
                            </h3>
-                           <p className="text-slate-400 text-sm mb-8 flex-1">Take a quick dummy test to understand how tracking works.</p>
-                           <button onClick={() => router.push('/student/demo-test?returnTo=profile')} className="w-full bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-transparent text-white py-4 rounded-xl font-bold transition-all shadow-lg text-lg">
+                           <p className="text-slate-500 text-sm mb-8 flex-1 font-medium">Take a quick dummy test to understand how tracking works.</p>
+                           <button onClick={() => router.push('/student/demo-test?returnTo=profile')} className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 py-4 rounded-xl font-bold transition-all shadow-sm text-lg">
                               Take Demo Test
                            </button>
                         </div>
-                        <div className="bg-gradient-to-b from-purple-900/20 to-slate-950 p-8 rounded-[2rem] border border-purple-500/50 hover:border-purple-400 transition-all text-left shadow-[0_0_40px_rgba(168,85,247,0.15)] relative overflow-hidden flex flex-col">
-                           <div className="absolute top-0 right-0 bg-purple-600 text-xs font-black tracking-widest px-4 py-1.5 rounded-bl-xl shadow-lg">REQUIRED</div>
-                           <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3">
-                              <Target className="text-purple-400" size={28}/> Final Assessment
+                        <div className="bg-teal-50 p-8 rounded-[2rem] border border-teal-200 hover:border-teal-400 transition-all text-left shadow-xl relative overflow-hidden flex flex-col">
+                           <div className="absolute top-0 right-0 bg-teal-500 text-white text-xs font-black tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md">REQUIRED</div>
+                           <h3 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-3">
+                              <Target className="text-teal-600" size={28}/> Final Assessment
                            </h3>
-                           <p className="text-purple-200/60 text-sm mb-8 flex-1">Ensure you are in a quiet room.</p>
-                           <button onClick={() => router.push('/student/test')} className="w-full bg-purple-600 hover:bg-purple-500 text-white py-4 rounded-xl font-bold shadow-xl shadow-purple-900/30 transition-all text-lg flex justify-center items-center gap-2">
+                           <p className="text-teal-800/70 font-medium text-sm mb-8 flex-1">Ensure you are in a quiet room.</p>
+                           <button onClick={() => router.push('/student/test')} className="w-full bg-[#0f947e] hover:bg-[#0c7a68] text-white py-4 rounded-xl font-bold shadow-lg shadow-teal-500/30 transition-all text-lg flex justify-center items-center gap-2">
                               Start AI Test Now <ChevronRight size={20}/>
                            </button>
                         </div>
                       </div>
-                     <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-slate-500 hover:text-white font-medium underline underline-offset-4 transition-colors">
+                     <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-slate-500 hover:text-slate-900 font-bold underline underline-offset-4 transition-colors">
                         Save as draft & take test later
                      </button>
                   </div>
@@ -1391,25 +1391,25 @@ export default function CandidateProfile() {
             </AnimatePresence>
 
             {currentStep < 4 && (
-               <div className="flex justify-between mt-12 pt-8 border-t border-slate-800/80">
+               <div className="flex justify-between mt-12 pt-8 border-t border-slate-200">
                   {currentStep > 1 ? (
-                     <button onClick={prevStep} className="px-8 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold flex items-center gap-3 text-white transition-all">
+                     <button onClick={prevStep} className="px-8 py-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-bold flex items-center gap-3 text-slate-700 transition-all shadow-sm">
                         <ChevronLeft size={20}/> Back
                      </button>
                   ) : <div></div>}
                   
                   {currentStep < 3 ? (
-                     <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold flex items-center gap-3 text-white shadow-lg shadow-blue-500/20 text-lg">
+                     <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-[#0f947e] hover:bg-[#0c7a68] font-bold flex items-center gap-3 text-white shadow-lg shadow-teal-500/20 text-lg transition-all">
                         Next <ChevronRight size={20}/>
                      </button>
                   ) : (
                      isOnboarding ?
                      (
-                        <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 font-bold flex items-center gap-3 text-white shadow-xl shadow-purple-500/20 text-lg transition-all">
+                        <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 font-bold flex items-center gap-3 text-white shadow-xl shadow-teal-500/30 text-lg transition-all">
                            {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={20}/></>}
                         </button>
                      ) : (
-                        <button onClick={() => saveProfileData()} disabled={savingData} className="px-10 py-4 rounded-xl bg-green-600 hover:bg-green-500 font-bold flex items-center gap-3 text-white shadow-xl shadow-green-500/20 text-lg transition-all">
+                        <button onClick={() => saveProfileData()} disabled={savingData} className="px-10 py-4 rounded-xl bg-teal-600 hover:bg-teal-700 font-bold flex items-center gap-3 text-white shadow-xl shadow-teal-500/20 text-lg transition-all">
                            {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <><Save size={20}/> Save Changes</>}
                         </button>
                      )
@@ -1424,30 +1424,31 @@ export default function CandidateProfile() {
         .form-label { 
             display: block;
             font-size: 0.9rem; 
-            font-weight: 600; 
-            color: #cbd5e1; 
+            font-weight: 700; 
+            color: #475569; 
             margin-bottom: 0.6rem; 
         }
         .input-field { 
             width: 100%;
-            background-color: #0f172a; 
-            border: 2px solid #1e293b; 
+            background-color: #ffffff; 
+            border: 2px solid #e2e8f0; 
             border-radius: 1rem; 
             padding: 1rem 1.25rem; 
-            color: white; 
+            color: #0f172a; 
             outline: none; 
             transition: all 0.2s; 
             font-size: 1rem;
-            font-weight: 500; 
+            font-weight: 600; 
             appearance: none; 
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
         .input-field:focus { 
-            border-color: #3b82f6;
-            background-color: #020617; 
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+            border-color: #0f947e;
+            background-color: #ffffff; 
+            box-shadow: 0 0 0 4px rgba(15, 148, 126, 0.1);
         }
         select.input-field { 
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat; 
             background-position: right 1.2rem top 50%; 
             background-size: 0.75rem auto;
@@ -1456,8 +1457,11 @@ export default function CandidateProfile() {
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: #1e293b;
+            background: #cbd5e1;
             border-radius: 10px; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+            background: #94a3b8;
         }
       `}</style>
     </div>

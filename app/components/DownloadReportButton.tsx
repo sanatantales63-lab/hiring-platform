@@ -4,6 +4,9 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Download, Loader2 } from "lucide-react";
 
+// 🔥 Naya Master Button Component 🔥
+import Button from "@/app/components/ui/Button";
+
 export default function DownloadReportButton({ candidate, buttonStyle = "default" }: { candidate: any, buttonStyle?: "default" | "admin" }) {
     const reportRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -97,7 +100,6 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
     const educations = Array.isArray(candidate?.educations) ? candidate.educations : [];
     const experience = Array.isArray(candidate?.workExperience) ? candidate.workExperience : [];
     
-    // Naye Arrays
     const skills = Array.isArray(candidate?.skills) ? candidate.skills : [];
     const behavioralSkills = Array.isArray(candidate?.behavioralSkills) ? candidate.behavioralSkills : [];
     const technologicalSkills = Array.isArray(candidate?.technologicalSkills) ? candidate.technologicalSkills : [];
@@ -105,23 +107,20 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
 
     return (
         <>
-            <button 
+            {/* 🔥 SIRF YE BUTTON MASTER COMPONENT SE REPLACE HUA HAI 🔥 */}
+            <Button 
+                variant={buttonStyle === "admin" ? "secondary" : "primary"}
                 onClick={handleDownload} 
                 disabled={isDownloading || status === "Pending"}
-                className={`flex items-center justify-center gap-2 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                    ${buttonStyle === "admin" 
-                        ? "bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 px-4 py-2 rounded-xl text-sm" 
-                        : "bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-900/20 w-full md:w-auto"
-                    }`}
+                className={`w-full md:w-auto ${buttonStyle === "admin" ? "py-2.5 text-sm" : ""}`}
             >
                 {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                {isDownloading ? "Generating Dynamic HD Report..." : "Download Verified Report"}
-            </button>
+                {isDownloading ? "Generating HD Report..." : "Download Verified Report"}
+            </Button>
 
-            {/* 🔥 ONE CONTINUOUS DYNAMIC CONTAINER 🔥 */}
+            {/* 🔥 PDF KA HIDDEN CONTAINER BILKUL WAISE HI RAKHA HAI 🔥 */}
             <div id="pdf-hidden-container" style={{ position: "fixed", top: 0, left: "-9999px", opacity: 0, visibility: "hidden", zIndex: -100, pointerEvents: "none", width: "794px" }}>
                 
-                {/* HEIGHT AUTO: Makes it flexible for large data */}
                 <div ref={reportRef} style={{ width: "794px", padding: "40px", boxSizing: "border-box", backgroundColor: "#ffffff", display: "flex", flexDirection: "column", fontFamily: "Arial, sans-serif", color: "#1e293b", height: "auto", minHeight: "1123px" }}>
                     
                     {/* Header: PERFECT LOGO ALIGNMENT */}
