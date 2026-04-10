@@ -12,6 +12,10 @@ import {
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 
+// 🔥 BULLETPROOF HELPER FUNCTIONS 🔥
+const normalizeText = (str: string) => (str || "").toLowerCase().trim();
+const isDontKnowOption = (text: string) => normalizeText(text).includes("don't know");
+
 export default function LiveTestPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -65,10 +69,6 @@ export default function LiveTestPage() {
 
   const [generatingAIQuestions, setGeneratingAIQuestions] = useState(false);
 
-  // ---------------------------------------------------------
-  // 🔥 NO LOGIC CHANGED BELOW - STRICTLY PRESERVED 🔥
-  // ---------------------------------------------------------
-
   useEffect(() => {
     const loadFaceAPI = async () => {
       if (typeof window !== 'undefined' && !(window as any).faceapi) {
@@ -121,38 +121,48 @@ export default function LiveTestPage() {
     if (faceMatchIntervalRef.current) clearInterval(faceMatchIntervalRef.current);
   }, []);
 
+  // 🔥 BULLETPROOF ANSWER CHECKER 🔥
   const checkIsCorrect = (q: any, ansIndex: number) => {
       if (ansIndex === -1 || ansIndex === undefined) return false;
-      const rawSelected = String(q.options[ansIndex]).trim();
-      const rawCorrect = String(q.correct_answer).trim();
+      const rawSelected = normalizeText(String(q.options[ansIndex]));
+      const rawCorrect = normalizeText(String(q.correct_answer));
+      
       if (rawSelected === rawCorrect) return true;
-      const cleanString = (str: string) => str.replace(/^[A-Ea-e][\)\.]\s*/, "").trim().toLowerCase();
+      
+      // Clean "A)", "Option B", "C.", etc.
+      const cleanString = (str: string) => str.replace(/^(option\s+)?[a-e][\)\.\-]?\s*/i, "").trim();
       const cleanSelected = cleanString(rawSelected);
       const cleanCorrect = cleanString(rawCorrect);
+      
       if (cleanSelected === cleanCorrect) return true;
+      
       const optionLetter = ['a', 'b', 'c', 'd', 'e'][ansIndex];
       if (cleanCorrect === optionLetter) return true;
-      if (rawCorrect.toLowerCase() === `option ${optionLetter}`) return true;
+      if (rawCorrect === `option ${optionLetter}`) return true;
+      
       if (cleanCorrect.length > 2 && cleanSelected.includes(cleanCorrect)) return true;
       if (cleanSelected.length > 2 && cleanCorrect.includes(cleanSelected)) return true;
+      
       return false;
   };
 
+  // 🔥 BULLETPROOF SCORE CALCULATOR 🔥
   const calculateCurrentScore = () => {
      let calcScore = 0;
-     const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
-        ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
+     const techSkillNamesNormalized = Array.isArray(studentProfile?.technologicalSkills) 
+        ? studentProfile.technologicalSkills.map((s:any) => normalizeText(typeof s === 'string' ? s : s.name)) 
         : [];
 
      questions.forEach((q, i) => {
         const ansIndex = answers[i];
         const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
-        const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
-        const isTechTool = techSkillNames.includes(q.skill);
+        
+        const isPsycho = q.category === "Psychometric" || normalizeText(q.skill).includes("psychometric");
+        const isTechTool = techSkillNamesNormalized.includes(normalizeText(q.skill));
         
         if (checkIsCorrect(q, ansIndex)) {
             calcScore += 1; 
-        } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
+        } else if (selectedOptionText && !isDontKnowOption(selectedOptionText)) {
             if (!isPsycho && !isTechTool) {
                 calcScore -= 0.5; 
             }
@@ -173,10 +183,12 @@ export default function LiveTestPage() {
      }
   };
 
+  // 🔥 BULLETPROOF BONUS ROUND 🔥
   const acceptBonusRound = () => {
      const extraQs = extraQuestionsPool.sort(() => 0.5 - Math.random()).slice(0, 5);
      const processedBonusQs = extraQs.map(q => {
-         if (!q.options.includes("I Don't Know")) {
+         const hasIDK = q.options.some((opt: string) => isDontKnowOption(opt));
+         if (!hasIDK) {
              return { ...q, options: [...q.options.slice(0, 4), "I Don't Know"] };
          }
          return q;
@@ -206,8 +218,8 @@ export default function LiveTestPage() {
     
     try {
         let analyticsData: any = {};
-        const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
-            ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
+        const techSkillNamesNormalized = Array.isArray(studentProfile?.technologicalSkills) 
+            ? studentProfile.technologicalSkills.map((s:any) => normalizeText(typeof s === 'string' ? s : s.name)) 
             : [];
 
         questions.forEach((q, i) => {
@@ -218,8 +230,8 @@ export default function LiveTestPage() {
 
            const ansIndex = answers[i];
            const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
-           const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
-           const isTechTool = techSkillNames.includes(q.skill);
+           const isPsycho = q.category === "Psychometric" || normalizeText(q.skill).includes("psychometric");
+           const isTechTool = techSkillNamesNormalized.includes(normalizeText(q.skill));
            
            if (checkIsCorrect(q, ansIndex)) {
                analyticsData[q.skill].correct += 1;
@@ -227,7 +239,7 @@ export default function LiveTestPage() {
                if(q.difficulty?.toLowerCase().includes('beginner')) analyticsData[q.skill].beginner += 1;
                if(q.difficulty?.toLowerCase().includes('intermediate')) analyticsData[q.skill].intermediate += 1;
                if(q.difficulty?.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
-           } else if (selectedOptionText && selectedOptionText !== "I Don't Know") {
+           } else if (selectedOptionText && !isDontKnowOption(selectedOptionText)) {
                if (!isPsycho && !isTechTool) {
                    analyticsData[q.skill].scoreCount -= 0.5;
                }
@@ -531,7 +543,7 @@ export default function LiveTestPage() {
             if (skillQs && skillQs.length > 0) {
                 const processedQs = skillQs.map(q => {
                     let opts = q.options;
-                    if (opts.length === 4 && !opts.includes("I Don't Know")) {
+                    if (opts.length === 4 && !opts.some((o:string) => isDontKnowOption(o))) {
                         opts = [...opts, "I Don't Know"];
                     }
                     return { ...q, options: opts, category: "Technical", skill: exactSkill }; 
@@ -654,7 +666,7 @@ export default function LiveTestPage() {
         
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
 
-        const existingQsTextLower = questions.map(q => q.question.toLowerCase().trim());
+        const existingQsTextLower = questions.map(q => normalizeText(q.question));
         const existingQsText = questions.map(q => q.question).join(" | ");
 
         const aiResponse = await fetch('/api/generate-ai-questions', {
@@ -672,17 +684,17 @@ export default function LiveTestPage() {
             if (aiData.success && aiData.questions) {
                 
                 const filteredAiQuestions = aiData.questions.filter((q: any) => {
-                    const qText = q.question.toLowerCase().trim();
+                    const qText = normalizeText(q.question);
                     return !existingQsTextLower.some(eq => eq.includes(qText) || qText.includes(eq));
                 });
 
                 const safeAiQuestions = filteredAiQuestions.map((q: any) => {
                     let opts = q.options;
-                    if (!opts.includes("I Don't Know")) {
+                    if (!opts.some((o:string) => isDontKnowOption(o))) {
                        opts = [...opts.slice(0, 4), "I Don't Know"];
                     }
                     
-                    const isPsycho = q.category === "Psychometric" || q.skill === "Psychometric & Behavioral Fit";
+                    const isPsycho = q.category === "Psychometric" || normalizeText(q.skill).includes("psychometric");
                     
                     let exactSkillAssigned = q.skill;
                     if (exactSkillAssigned && exactSkillAssigned.includes('(')) {
@@ -691,8 +703,8 @@ export default function LiveTestPage() {
 
                     if (!isPsycho) {
                        const matchedShortfall = shortfallData.find(s => {
-                           const sfName = s.skill.replace(/\s*\(.*?\)\s*/g, '').trim().toLowerCase();
-                           return sfName === exactSkillAssigned.toLowerCase();
+                           const sfName = normalizeText(s.skill.replace(/\s*\(.*?\)\s*/g, ''));
+                           return sfName === normalizeText(exactSkillAssigned);
                        });
                        if (matchedShortfall) exactSkillAssigned = matchedShortfall.skill.replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
@@ -889,10 +901,10 @@ export default function LiveTestPage() {
                <div className="space-y-4">
                   {Object.keys(skillAnalytics).map(skill => {
                      const isPsycho = skill === "Psychometric & Behavioral Fit";
-                     const techSkillNames = Array.isArray(studentProfile?.technologicalSkills) 
-                        ? studentProfile.technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name) 
+                     const techSkillNamesNormalized = Array.isArray(studentProfile?.technologicalSkills) 
+                        ? studentProfile.technologicalSkills.map((s:any) => normalizeText(typeof s === 'string' ? s : s.name)) 
                         : [];
-                     const isTechSkill = techSkillNames.includes(skill);
+                     const isTechSkill = techSkillNamesNormalized.includes(normalizeText(skill));
                      
                      return (
                      <div key={skill} className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm ${isPsycho ? 'bg-indigo-50 border-indigo-200' : isTechSkill ? 'bg-blue-50 border-blue-200' : 'bg-slate-50 border-slate-200'}`}>
@@ -916,7 +928,7 @@ export default function LiveTestPage() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 p-4 select-none relative z-10" onContextMenu={(e)=>e.preventDefault()}>
        
-       {/* Draggable PiP Video - Kept slightly dark/glassy for visibility over light bg */}
+       {/* Draggable PiP Video */}
        <AnimatePresence>
          {testStarted && (
            <motion.div 
@@ -983,11 +995,11 @@ export default function LiveTestPage() {
           <div className="flex justify-between items-center mb-8 bg-white/80 backdrop-blur-xl p-6 rounded-2xl border border-slate-200 shadow-sm">
              <span className="text-slate-500 font-bold">Question <span className="text-slate-900 font-black text-lg">{currentQ + 1}</span> <span className="text-sm">/ {questions.length}</span></span>
              
-             {questions.length > 0 && questions[currentQ].category === "Psychometric" && (
+             {questions.length > 0 && (questions[currentQ].category === "Psychometric" || normalizeText(questions[currentQ].skill).includes("psychometric")) && (
                  <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest animate-pulse shadow-sm">Behavioral (No Neg Marking)</span>
              )}
              
-             {questions.length > 0 && questions[currentQ].category !== "Psychometric" && Array.isArray(studentProfile?.technologicalSkills) && studentProfile.technologicalSkills.some((s:any) => (typeof s === 'string' ? s : s.name) === questions[currentQ].skill) && (
+             {questions.length > 0 && questions[currentQ].category !== "Psychometric" && !normalizeText(questions[currentQ].skill).includes("psychometric") && Array.isArray(studentProfile?.technologicalSkills) && studentProfile.technologicalSkills.some((s:any) => normalizeText(typeof s === 'string' ? s : s.name) === normalizeText(questions[currentQ].skill)) && (
                  <span className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-sm">Tech Tool (No Neg Marking)</span>
              )}
 
@@ -1004,7 +1016,7 @@ export default function LiveTestPage() {
                   </div>
                   <div className="space-y-4">
                      {questions[currentQ].options.map((opt: string, index: number) => {
-                        const isDontKnow = opt === "I Don't Know";
+                        const isDontKnow = isDontKnowOption(opt);
                         return (
                         <button 
                            key={index} 
