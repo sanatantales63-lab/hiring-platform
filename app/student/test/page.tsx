@@ -121,29 +121,37 @@ export default function LiveTestPage() {
     if (faceMatchIntervalRef.current) clearInterval(faceMatchIntervalRef.current);
   }, []);
 
-  // 🔥 BULLETPROOF ANSWER CHECKER 🔥
+  // 🔥 100% FIXED BULLETPROOF ANSWER CHECKER 🔥
   const checkIsCorrect = (q: any, ansIndex: number) => {
       if (ansIndex === -1 || ansIndex === undefined) return false;
-      const rawSelected = normalizeText(String(q.options[ansIndex]));
-      const rawCorrect = normalizeText(String(q.correct_answer));
       
-      if (rawSelected === rawCorrect) return true;
+      const selectedText = normalizeText(String(q.options[ansIndex]));
+      const correctText = normalizeText(String(q.correct_answer));
+      const selectedLetter = ['a', 'b', 'c', 'd', 'e'][ansIndex]; // e.g., 'a', 'b'...
       
-      // Clean "A)", "Option B", "C.", etc.
-      const cleanString = (str: string) => str.replace(/^(option\s+)?[a-e][\)\.\-]?\s*/i, "").trim();
-      const cleanSelected = cleanString(rawSelected);
-      const cleanCorrect = cleanString(rawCorrect);
+      // 1. Direct Exact Text Match (If they are literally the same)
+      if (selectedText === correctText) return true;
       
-      if (cleanSelected === cleanCorrect) return true;
+      // 2. Direct Letter Match (If DB only has "a", "b", "c" or "option a")
+      if (correctText === selectedLetter || correctText === `option ${selectedLetter}`) return true;
       
-      const optionLetter = ['a', 'b', 'c', 'd', 'e'][ansIndex];
-      if (cleanCorrect === optionLetter) return true;
-      if (rawCorrect === `option ${optionLetter}`) return true;
+      // 3. Prefix Letter Match (If DB has "A) Matching Concept" or "A. Something")
+      // This regex extracts the starting letter if it's followed by a bracket, dot, dash, or space
+      const prefixMatch = correctText.match(/^(?:option\s+)?([a-e])[\)\.\-\s:]/i);
+      if (prefixMatch && prefixMatch[1] === selectedLetter) return true;
       
-      if (cleanCorrect.length > 2 && cleanSelected.includes(cleanCorrect)) return true;
-      if (cleanSelected.length > 2 && cleanCorrect.includes(cleanSelected)) return true;
+      // 4. Clean Text Match (Strip "A) " from both and compare raw text)
+      const stripPrefix = (str: string) => str.replace(/^(?:option\s+)?([a-e])[\)\.\-\s:]+/i, "").trim();
+      const cleanSelected = stripPrefix(selectedText);
+      const cleanCorrect = stripPrefix(correctText);
       
-      return false;
+      if (cleanSelected && cleanCorrect && cleanSelected === cleanCorrect) return true;
+      
+      // 5. Substring Fallback Match (If one text contains the other)
+      if (cleanCorrect.length > 3 && cleanSelected.includes(cleanCorrect)) return true;
+      if (cleanSelected.length > 3 && cleanCorrect.includes(cleanSelected)) return true;
+      
+      return false; // If nothing matches, it's wrong
   };
 
   // 🔥 BULLETPROOF SCORE CALCULATOR 🔥
@@ -224,6 +232,7 @@ export default function LiveTestPage() {
 
         questions.forEach((q, i) => {
            if (!analyticsData[q.skill]) {
+               // Initializing data specifically for this exact subskill
                analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, scoreCount: 0, aiLevel: "Beginner" };
            }
            analyticsData[q.skill].total += 1;
@@ -241,7 +250,7 @@ export default function LiveTestPage() {
                if(q.difficulty?.toLowerCase().includes('advanced')) analyticsData[q.skill].advanced += 1;
            } else if (selectedOptionText && !isDontKnowOption(selectedOptionText)) {
                if (!isPsycho && !isTechTool) {
-                   analyticsData[q.skill].scoreCount -= 0.5;
+                   analyticsData[q.skill].scoreCount -= 0.5; // Negative marking applied only to this specific subskill
                }
            }
         });
