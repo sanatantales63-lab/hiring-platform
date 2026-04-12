@@ -870,7 +870,7 @@ export default function CandidateProfile() {
                          </div>
                          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                             <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-                               <TrendingDown className="text-red-500" size={20}/> Professional Weaknesses <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                               <TrendingDown className="text-red-500" size={20}/> Areas of Improvement <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
                             </label>
                             <div className="flex flex-wrap gap-2 mb-4">
                                {formData.weaknesses.map((wk, i) => (

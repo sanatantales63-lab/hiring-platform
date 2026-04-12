@@ -165,44 +165,48 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
       )}
 
       <div className="grid md:grid-cols-3 gap-8">
-         <div className="md:col-span-1 space-y-8">
-            <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
-               <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Briefcase className="text-indigo-500"/> Career Status</h3>
-               <div className="space-y-4 text-sm font-bold text-slate-600">
-                  <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Total Exp.</span><span className="text-slate-900 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 shadow-sm">{candidate.experience}</span></div>
-                  <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Current Status</span><span className="text-slate-900">{candidate.currentStatus}</span></div>
-                  <div className="flex justify-between pb-1"><span className="text-slate-500">Open to Work</span><span className={candidate.openToContractRoles ? "text-teal-600" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
-               </div>
-            </div>
+<div className="md:col-span-1 space-y-8">
+             <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Briefcase className="text-indigo-500"/> Career & Salary</h3>
+                <div className="space-y-4 text-sm font-bold text-slate-600">
+                   <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Total Exp.</span><span className="text-slate-900 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 shadow-sm">{candidate.experience}</span></div>
+                   <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Notice Period</span><span className="text-slate-900">{candidate.noticePeriod || "N/A"}</span></div>
+                   <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Expected Salary</span><span className="text-teal-600 font-extrabold">{candidate.expectedSalary || "N/A"}</span></div>
+                   {candidate.currentSalary && <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Current Salary</span><span className="text-slate-900">{candidate.currentSalary}</span></div>}
+                   <div className="flex justify-between pb-1"><span className="text-slate-500">Open to Contract</span><span className={candidate.openToContractRoles ? "text-teal-600" : "text-slate-500"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
+                </div>
+             </div>
 
-            <div className={`bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg relative ${isCompany ? 'overflow-hidden group' : ''}`}>
-               <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><User className="text-indigo-500"/> Personal Details</h3>
-               <div className={`space-y-4 text-sm font-bold text-slate-600 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
-                  <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">DOB</span><span className="text-slate-900">{dobToDisplay}</span></div>
-                  <div className="flex justify-between pb-1"><span className="text-slate-500 flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-slate-900 tracking-widest uppercase">{panToDisplay}</span></div>
-               </div>
-               {isCompany && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm">
-                     <Lock size={32} className="text-amber-500/80"/>
-                  </div>
-               )}
-            </div>
+             <div className={`bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg relative ${isCompany ? 'overflow-hidden group' : ''}`}>
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><User className="text-indigo-500"/> Personal Details</h3>
+                <div className={`space-y-4 text-sm font-bold text-slate-600 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                   <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">DOB</span><span className="text-slate-900">{dobToDisplay}</span></div>
+                   <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Work Mode</span><span className="text-slate-900">{candidate.workMode || "On-site"}</span></div>
+                   <div className="flex justify-between border-b border-slate-100 pb-3"><span className="text-slate-500">Relocate?</span><span className="text-slate-900">{candidate.willingToRelocate || "No"}</span></div>
+                   <div className="flex justify-between pb-1"><span className="text-slate-500 flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-slate-900 tracking-widest uppercase">{panToDisplay}</span></div>
+                </div>
+                {isCompany && (
+                   <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                      <Lock size={32} className="text-amber-500/80"/>
+                   </div>
+                )}
+             </div>
 
-            {candidate.languages && candidate.languages.length > 0 && (
-               <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
-                  <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Globe className="text-indigo-500"/> Languages Known</h3>
-                  <div className="flex flex-wrap gap-3">
-                     {candidate.languages.map((lang: any, idx: number) => (
-                        <div key={idx} className="bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 flex items-center gap-2 w-full justify-between shadow-sm">
-                           <span className="font-bold text-slate-900 text-sm">{lang.language}</span>
-                           <span className="text-xs font-bold bg-teal-50 text-teal-600 border border-teal-200 px-2 py-1 rounded-lg">{lang.proficiency}</span>
-                        </div>
-                     ))}
-                  </div>
-               </div>
-            )}
-         </div>
-
+             {candidate.languages && candidate.languages.length > 0 && (
+                <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
+                   <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Globe className="text-indigo-500"/> Languages Known</h3>
+                   <div className="flex flex-wrap gap-3">
+                      {candidate.languages.map((lang: any, idx: number) => (
+                         <div key={idx} className="bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 flex items-center gap-2 w-full justify-between shadow-sm">
+                            <span className="font-bold text-slate-900 text-sm">{lang.language}</span>
+                            <span className="text-xs font-bold bg-teal-50 text-teal-600 border border-teal-200 px-2 py-1 rounded-lg">{lang.proficiency}</span>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             )}
+          </div>
+          
          <div className="md:col-span-2 space-y-8">
             {/* EDUCATION SECTION */}
             <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
