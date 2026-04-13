@@ -937,21 +937,21 @@ export default function LiveTestPage() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 p-4 select-none relative z-10" onContextMenu={(e)=>e.preventDefault()}>
        
-       {/* Draggable PiP Video */}
+{/* Draggable PiP Video */}
        <AnimatePresence>
          {testStarted && (
            <motion.div 
               drag 
               dragConstraints={{ left: -1000, right: 20, top: -800, bottom: 20 }} 
               dragElastic={0.1}
-              className="fixed bottom-6 right-6 w-40 h-32 md:w-56 md:h-40 bg-slate-900 border-[3px] border-red-500/80 rounded-2xl overflow-hidden shadow-2xl z-50 cursor-move"
+              className="fixed top-4 right-4 md:top-auto md:bottom-6 md:right-6 w-24 h-32 md:w-56 md:h-40 bg-slate-900 border-[3px] border-red-500/80 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl z-50 cursor-move"
            >
               <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-90 pointer-events-none" />
-              <div className="absolute top-2 left-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1 pointer-events-none shadow-md">
-                 <Video size={10}/> Proctoring Active
+              <div className="absolute top-1 left-1 md:top-2 md:left-2 bg-red-600 text-white text-[7px] md:text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1 pointer-events-none shadow-md">
+                 <Video size={10} className="hidden md:block"/> <span className="md:hidden">REC</span><span className="hidden md:inline">Proctoring Active</span>
               </div>
-              <div className="absolute bottom-1 right-1 bg-black/50 p-1.5 rounded-lg backdrop-blur-sm pointer-events-none">
-                 <Move size={14} className="text-white/90" />
+              <div className="absolute bottom-1 right-1 bg-black/50 p-1 md:p-1.5 rounded-lg backdrop-blur-sm pointer-events-none">
+                 <Move size={12} className="text-white/90 md:w-[14px] md:h-[14px]" />
               </div>
            </motion.div>
          )}
@@ -982,24 +982,25 @@ export default function LiveTestPage() {
          )}
        </AnimatePresence>
 
-       <div className="max-w-5xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-xl border border-red-200 p-4 rounded-2xl mb-6 shadow-sm">
+ <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center bg-white/80 backdrop-blur-xl border border-red-200 p-3 md:p-4 rounded-2xl mb-6 shadow-sm gap-3">
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 shadow-sm">
-                <Lock size={16}/> <span className="text-xs font-black uppercase tracking-wider">Secure Exam</span>
+             <div className="flex items-center gap-1.5 text-red-600 bg-red-50 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg border border-red-100 shadow-sm">
+                <Lock size={14} className="md:w-4 md:h-4"/> <span className="text-[10px] md:text-xs font-black uppercase tracking-wider">Secure Exam</span>
              </div>
              {bonusRoundTaken && (
-                <div className="text-xs font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-lg shadow-sm">
-                    ✨ Bonus Round Active
+                <div className="text-[10px] md:text-xs font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg shadow-sm">
+                   ✨ Bonus Round
                 </div>
              )}
           </div>
-          <div className="flex gap-4 text-xs font-black uppercase tracking-wider">
-             <div className={`px-2.5 py-1.5 rounded-lg border shadow-sm ${faceWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Face: {MAX_FACE_WARNINGS - faceWarnings} Left</div>
-             <div className={`hidden md:block px-2.5 py-1.5 rounded-lg border shadow-sm ${tabWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings} Left</div>
-             <div className={`hidden md:block px-2.5 py-1.5 rounded-lg border shadow-sm ${micWarnings > 0 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200'}`}>Mic: {MAX_MIC_WARNINGS - micWarnings} Left</div>
+          <div className="flex flex-wrap gap-2 md:gap-4 text-[9px] md:text-xs font-black uppercase tracking-wider w-full md:w-auto justify-start md:justify-end">
+             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${faceWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Face: {MAX_FACE_WARNINGS - faceWarnings}</div>
+             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${tabWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings}</div>
+             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${micWarnings > 0 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200'}`}>Mic: {MAX_MIC_WARNINGS - micWarnings}</div>
           </div>
        </div>
 
+    
        <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8 bg-white/80 backdrop-blur-xl p-6 rounded-2xl border border-slate-200 shadow-sm">
              <span className="text-slate-500 font-bold">Question <span className="text-slate-900 font-black text-lg">{currentQ + 1}</span> <span className="text-sm">/ {questions.length}</span></span>

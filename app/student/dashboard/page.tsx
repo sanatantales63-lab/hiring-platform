@@ -96,17 +96,21 @@ export default function Dashboard() {
         <Button variant="ghost" onClick={handleLogout} className="mt-auto justify-start px-4 text-slate-500 hover:text-red-500"><LogOut size={20} /> Logout</Button>
       </aside>
 
-      {/* DASHBOARD CONTENT */}
-      <main className="flex-1 p-8 md:p-12 overflow-y-auto ml-0 md:ml-64 relative z-10">
+{/* DASHBOARD CONTENT */}
+      <main className="flex-1 p-5 md:p-12 pb-24 md:pb-12 overflow-y-auto ml-0 md:ml-64 relative z-10">
         
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <h1 className="text-4xl font-extrabold mb-2 text-slate-900">Welcome, {user?.user_metadata?.name?.split(' ')[0] || "Candidate"}! 👋</h1>
-            <p className="text-slate-500 font-medium">Manage your profile and assessment status.</p>
+<header className="flex justify-between items-start md:items-center mb-8 md:mb-12">
+          <div className="pr-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 md:mb-2 text-slate-900 leading-tight">Welcome, {user?.user_metadata?.name?.split(' ')[0] || "Candidate"}! 👋</h1>
+            <p className="text-slate-500 font-medium text-xs sm:text-sm md:text-base">Manage your profile and assessment status.</p>
           </div>
-          <Button variant="danger" onClick={handleLogout} className="md:hidden text-sm px-4 py-2">Logout</Button>
+          <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shrink-0 shadow-sm border border-red-100">
+             <LogOut size={20} />
+          </button>
+          <Button variant="danger" onClick={handleLogout} className="hidden md:flex text-sm px-4 py-2">Logout</Button>
         </header>
 
+      
         {profileData?.hired_status === 'hired' && (
            <Card className="mb-10 bg-emerald-50/80 border-emerald-200 flex items-center gap-4">
               <PartyPopper className="text-emerald-500" size={32}/>
@@ -117,7 +121,7 @@ export default function Dashboard() {
            </Card>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           <StatCard title="Profile Status" value="Complete" sub="Ready for Jobs" color="text-emerald-600" />
           <StatCard title="Assessment Status" value={examStatus === "granted" || examStatus === "none" ? "Ready" : examStatus === "pending" ? "Pending Approval" : examStatus === "completed" ? "Completed" : "Disqualified"} sub={examStatus === "granted" || examStatus === "none" ? "Start Test Now" : "Action Required"} color="text-blue-600" />
           <StatCard title="Skill Score" value={lastScore !== null ? lastScore : "N/A"} sub="Latest Result" color="text-purple-600" />
@@ -191,18 +195,33 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
-      </main>
+</main>
+
+{/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-2xl border-t border-slate-200/50 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+        <div className="flex justify-evenly items-center px-2 py-2">
+          <div onClick={() => router.push('/student/dashboard')} className="flex flex-col items-center gap-1 p-2 text-[#0f947e] cursor-pointer w-24">
+            <div className="bg-teal-50 p-2 rounded-2xl"><LayoutDashboard size={22} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Dashboard</span>
+          </div>
+          <div onClick={() => router.push('/student/profile')} className="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer w-24">
+            <div className="p-2 rounded-2xl hover:bg-slate-50"><UserCircle size={22} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Profile</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
 
 function StatCard({ title, value, sub, color }: any) {
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-      <Card>
-        <h3 className="text-slate-500 text-sm font-bold mb-2">{title}</h3>
-        <div className={`text-4xl font-black mb-1 ${color}`}>{value}</div>
-        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">{sub}</p>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-full">
+      <Card className="h-full overflow-hidden flex flex-col justify-center">
+        <h3 className="text-slate-500 text-sm font-bold mb-2 truncate">{title}</h3>
+        <div className={`text-2xl lg:text-3xl xl:text-4xl font-black mb-1 truncate ${color}`} title={String(value)}>{value}</div>
+        <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate">{sub}</p>
       </Card>
     </motion.div>
   );
