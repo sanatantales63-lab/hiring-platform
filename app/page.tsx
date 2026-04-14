@@ -33,16 +33,16 @@ export default function Home() {
              <span className="cursor-pointer hover:text-[#0f947e] transition-colors">Pricing</span>
           </div>
 
-          <div className="flex items-center gap-4">
+<div className="flex items-center gap-2 md:gap-4">
             <button 
               onClick={() => router.push("/admin/login")} 
-              className="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors bg-white/80 px-3 py-2 rounded-lg border border-slate-200 shadow-sm"
+              className="flex items-center gap-1 md:gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors bg-white/80 px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-slate-200 shadow-sm active:scale-95"
             >
-              <ShieldCheck size={16} /> Admin
+              <ShieldCheck size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Admin</span><span className="sm:hidden">Admin</span>
             </button>
             <button 
               onClick={() => router.push("/student/login")} 
-              className="bg-[#0f947e] hover:bg-[#0c7a68] text-white px-5 md:px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-teal-500/30 text-sm md:text-base active:scale-95"
+              className="bg-[#0f947e] hover:bg-[#0c7a68] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-teal-500/30 text-sm md:text-base active:scale-95"
             >
               Get Started
             </button>
@@ -82,24 +82,24 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Right Content (Floating UI Mockup) - ULTRA PREMIUM MOBILE FIX */}
-        <div className="flex-1 relative w-full h-[450px] md:h-[550px] mt-8 lg:mt-0 flex justify-center lg:justify-end perspective-1000">
-           
+{/* Right Content (Floating UI Mockup) - THE ULTIMATE RESPONSIVE FIX */}
+        <div className="flex-1 relative w-full max-w-md lg:max-w-none mx-auto flex flex-col lg:block items-center gap-5 lg:gap-0 h-auto lg:h-[550px] mt-12 lg:mt-0 perspective-1000 z-10">
+
            {/* Ambient Glow behind cards */}
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 bg-teal-400/20 blur-[80px] rounded-full pointer-events-none"></div>
 
-           {/* Abstract Decorative Lines */}
-           <svg className="absolute inset-0 w-full h-full text-slate-300/40 pointer-events-none" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+           {/* Abstract Decorative Lines (Hidden on mobile for cleaner look) */}
+           <svg className="hidden lg:block absolute inset-0 w-full h-full text-slate-300/40 pointer-events-none" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M-50 250 C 150 50, 350 450, 550 250" stroke="currentColor" strokeWidth="2" strokeDasharray="6 6" />
               <circle cx="250" cy="250" r="150" stroke="currentColor" strokeWidth="1" strokeDasharray="4 8" />
            </svg>
 
-           {/* CARD 1: Top Left */}
+           {/* CARD 1: Top (Roisan) */}
            <motion.div 
-              initial={{ opacity: 0, x: 20, y: 20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
-              className="absolute top-0 left-0 right-8 md:top-[10%] md:left-[10%] md:right-auto md:w-[360px] z-10"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative lg:absolute w-full sm:w-[90%] lg:w-[360px] lg:top-[10%] lg:left-[10%] z-30"
            >
-              <motion.div animate={floatAnimation} className="bg-white/80 backdrop-blur-2xl p-4 rounded-3xl shadow-2xl shadow-slate-200/50 border border-white/60 flex gap-4 items-center transform md:-rotate-3">
+              <motion.div animate={floatAnimation} className="bg-white/80 backdrop-blur-2xl p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-white/60 flex gap-4 items-center transform lg:-rotate-3">
                 <div className="w-12 h-12 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-200 shrink-0 shadow-inner">
                    <User size={24} className="text-slate-400"/>
                 </div>
@@ -118,12 +118,12 @@ export default function Home() {
               </motion.div>
            </motion.div>
 
-           {/* CARD 2: Middle Right (Overlaps Card 1) */}
+           {/* CARD 2: Middle (Maria) */}
            <motion.div 
-              initial={{ opacity: 0, x: -20, y: 20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}
-              className="absolute top-[130px] left-8 right-0 md:top-[40%] md:right-[5%] md:left-auto md:w-[380px] z-20"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}
+              className="relative lg:absolute w-full sm:w-[90%] lg:w-[380px] lg:top-[40%] lg:right-[5%] z-20"
            >
-              <motion.div animate={{...floatAnimation, transition: { ...floatAnimation.transition, delay: 1 }}} className="bg-white/90 backdrop-blur-2xl p-4 md:p-5 rounded-3xl shadow-2xl shadow-teal-900/10 border border-white/80 flex gap-4 items-center transform md:rotate-2">
+              <motion.div animate={{...floatAnimation, transition: { ...floatAnimation.transition, delay: 1 }}} className="bg-white/90 backdrop-blur-2xl p-4 md:p-5 rounded-3xl shadow-xl shadow-teal-900/10 border border-white/80 flex gap-4 items-center transform lg:rotate-2">
                 <div className="w-14 h-14 bg-teal-50 rounded-2xl overflow-hidden flex items-center justify-center border border-teal-100 shrink-0 shadow-inner">
                    <User size={28} className="text-[#0f947e]"/>
                 </div>
@@ -142,12 +142,12 @@ export default function Home() {
               </motion.div>
            </motion.div>
 
-           {/* CARD 3: Bottom Left */}
+           {/* CARD 3: Bottom (Jamer) */}
            <motion.div 
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}
-              className="absolute top-[260px] left-4 right-4 md:top-auto md:bottom-[5%] md:left-[15%] md:right-auto md:w-[340px] z-30"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}
+              className="relative lg:absolute w-full sm:w-[90%] lg:w-[340px] lg:top-auto lg:bottom-[5%] lg:left-[15%] z-10"
            >
-              <motion.div animate={{...floatAnimation, transition: { ...floatAnimation.transition, delay: 2 }}} className="bg-white/80 backdrop-blur-2xl p-4 rounded-3xl shadow-2xl shadow-slate-200/50 border border-white/60 flex gap-4 items-center transform md:-rotate-1">
+              <motion.div animate={{...floatAnimation, transition: { ...floatAnimation.transition, delay: 2 }}} className="bg-white/80 backdrop-blur-2xl p-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-white/60 flex gap-4 items-center transform lg:-rotate-1">
                 <div className="w-12 h-12 bg-slate-100 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-200 shrink-0 shadow-inner">
                    <User size={24} className="text-slate-400"/>
                 </div>
@@ -167,14 +167,14 @@ export default function Home() {
            </motion.div>
            
            {/* Decorative Floating Icons */}
-           <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }} className="absolute top-[-10px] right-[15%] md:top-[5%] md:right-[20%] w-10 h-10 md:w-12 md:h-12 bg-teal-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-teal-500/30 border-2 border-white z-0"><Search size={18}/></motion.div>
-           <motion.div animate={{ y: [5, -5, 5] }} transition={{ duration: 4, repeat: Infinity }} className="absolute bottom-[20%] right-[-5px] md:bottom-[25%] md:right-[10%] w-12 h-12 md:w-14 md:h-14 bg-emerald-400 text-white rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/30 border-2 border-white z-0"><Briefcase size={22}/></motion.div>
-           <motion.div animate={{ y: [-8, 8, -8] }} transition={{ duration: 5, repeat: Infinity }} className="absolute bottom-[0%] left-[-10px] md:bottom-[10%] md:left-[5%] w-10 h-10 md:w-12 md:h-12 bg-indigo-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-indigo-500/30 border-2 border-white z-40"><Users size={18}/></motion.div>
+           <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }} className="hidden sm:flex absolute top-[10%] right-[-10px] lg:top-[5%] lg:right-[15%] w-10 h-10 md:w-12 md:h-12 bg-teal-500 text-white rounded-full items-center justify-center shadow-xl shadow-teal-500/30 border-2 border-white z-40"><Search size={18}/></motion.div>
+           <motion.div animate={{ y: [5, -5, 5] }} transition={{ duration: 4, repeat: Infinity }} className="hidden sm:flex absolute bottom-[30%] right-[-20px] lg:bottom-[20%] lg:right-[5%] w-12 h-12 md:w-14 md:h-14 bg-emerald-400 text-white rounded-full items-center justify-center shadow-xl shadow-emerald-500/30 border-2 border-white z-40"><Briefcase size={22}/></motion.div>
+           <motion.div animate={{ y: [-8, 8, -8] }} transition={{ duration: 5, repeat: Infinity }} className="hidden lg:flex absolute bottom-[5%] left-[10%] w-10 h-10 md:w-12 md:h-12 bg-indigo-500 text-white rounded-full items-center justify-center shadow-xl shadow-indigo-500/30 border-2 border-white z-40"><Users size={18}/></motion.div>
         </div>
       </main>
 
       {/* STATS & LOGOS */}
-      <div className="max-w-7xl mx-auto px-6 w-full border-t border-slate-200/60 pt-12 pb-14 mt-8 lg:mt-0">
+      <div className="max-w-7xl mx-auto px-6 w-full border-t border-slate-200/60 pt-12 pb-14 mt-12 relative z-20 bg-[#f8fafc]">
          <div className="flex flex-col md:flex-row justify-center md:justify-start items-center gap-6 md:gap-12 mb-10 text-center md:text-left">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex items-center gap-4 bg-white/60 backdrop-blur-xl p-4 md:p-5 rounded-[2rem] border border-slate-100 shadow-lg shadow-slate-200/50 w-full md:w-auto">
                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 flex items-center justify-center text-[#0f947e] shrink-0 shadow-inner border border-teal-100"><ShieldCheck size={28}/></div>

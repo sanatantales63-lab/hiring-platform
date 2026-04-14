@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Timer, CheckCircle, HelpCircle, ArrowRight, Mic, ShieldAlert, AlertTriangle, Video, Camera, Loader2, Play } from "lucide-react";
 import { supabase } from "@/lib/supabase"; 
 
@@ -247,10 +247,10 @@ function DemoTestContent() {
     return (
       <div className="min-h-screen bg-transparent text-slate-900 flex items-center justify-center p-4 relative z-10">
         <Card className="max-w-2xl w-full p-10 shadow-2xl">
-          <div className="text-center mb-8">
-              <div className="bg-blue-50 border border-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><HelpCircle className="text-blue-600" size={32}/></div>
-              <h1 className="text-3xl font-extrabold mb-4 text-slate-900">Welcome to Practice Mode</h1>
-              <p className="text-slate-500 text-lg font-medium">This is a <strong>Tutorial</strong> to help you understand the exam interface.</p>
+          <div className="text-center mb-6 md:mb-8">
+              <div className="bg-blue-50 border border-blue-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 shadow-sm"><HelpCircle className="text-blue-600" size={28}/></div>
+              <h1 className="text-2xl md:text-3xl font-extrabold mb-2 md:mb-4 text-slate-900 leading-tight">Welcome to Practice Mode</h1>
+              <p className="text-slate-500 text-sm md:text-lg font-medium px-2">This is a <strong>Tutorial</strong> to help you understand the exam interface.</p>
           </div>
           
           <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -296,22 +296,35 @@ function DemoTestContent() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col items-center justify-center p-4 select-none relative z-10">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col items-center justify-start md:justify-center p-4 pt-8 md:pt-4 select-none relative z-10" onContextMenu={(e)=>e.preventDefault()}>
        
-       <div className="fixed bottom-6 right-6 w-32 h-24 bg-white border-2 border-red-500/50 rounded-xl overflow-hidden shadow-2xl z-50 pointer-events-none opacity-90">
-          <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100" />
-          <div className="absolute top-1 left-1 bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded uppercase font-bold animate-pulse">Demo Track</div>
-       </div>
+       {/* Draggable PiP Video (Real Test Jaisa Top-Right for Mobile) */}
+       <AnimatePresence>
+         <motion.div 
+            drag 
+            dragConstraints={{ left: -1000, right: 20, top: -800, bottom: 20 }} 
+            dragElastic={0.1}
+            className="fixed top-4 right-4 md:top-auto md:bottom-6 md:right-6 w-24 h-32 md:w-48 md:h-36 bg-slate-900 border-[3px] border-blue-500/80 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl z-50 cursor-move"
+         >
+            <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform -scale-x-100 opacity-90 pointer-events-none" />
+            <div className="absolute top-1 left-1 md:top-2 md:left-2 bg-blue-600 text-white text-[7px] md:text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-widest animate-pulse flex items-center gap-1 pointer-events-none shadow-md">
+               <Video size={10} className="hidden md:block"/> <span className="md:hidden">DEMO</span><span className="hidden md:inline">Demo Track</span>
+            </div>
+         </motion.div>
+       </AnimatePresence>
+       
        <canvas ref={canvasRef} width="64" height="48" className="hidden" />
 
-       <div className="w-full max-w-3xl">
-        <div className="flex justify-between items-center mb-8 bg-white/80 backdrop-blur-xl p-6 rounded-2xl border border-slate-200 shadow-md">
-          <div className="flex items-center gap-4">
-             <span className="text-slate-500 font-bold">Demo Question <span className="text-slate-900 font-black">{currentQ + 1}</span></span>
-             <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded uppercase font-black border border-emerald-200"><Mic size={12} className="inline mr-1 animate-pulse text-emerald-500"/> Tracking</span>
+       <div className="w-full max-w-3xl mt-12 md:mt-0">
+        
+        {/* Responsive Header (Question & Timer) */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 bg-white/80 backdrop-blur-xl p-4 md:p-6 rounded-2xl border border-slate-200 shadow-md gap-4 md:gap-0">
+          <div className="flex items-center gap-2 md:gap-4">
+             <span className="text-slate-500 font-bold text-sm md:text-base">Demo Question <span className="text-slate-900 font-black">{currentQ + 1}</span></span>
+             <span className="text-[9px] md:text-[10px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded uppercase font-black border border-emerald-200 flex items-center"><Mic size={10} className="mr-1 animate-pulse text-emerald-500"/> Tracking</span>
           </div>
-          <div className="flex items-center gap-2 font-mono text-xl font-bold text-blue-700 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
-            <Timer size={20} className="text-blue-500" /> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+          <div className="flex items-center gap-2 font-mono text-lg md:text-xl font-bold text-blue-700 bg-blue-50 px-3 py-1.5 md:px-4 md:py-2 rounded-lg border border-blue-200 w-full md:w-auto justify-center">
+            <Timer size={18} className="text-blue-500" /> {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
           </div>
         </div>
 
@@ -339,14 +352,15 @@ function DemoTestContent() {
           </div>
         </motion.div>
 
-        <div className="flex justify-between mt-8">
-           <Button variant="secondary" onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-6 py-3">Previous</Button>
+        <div className="flex justify-between mt-6 md:mt-8 pb-6 md:pb-10 gap-3">
+           <Button variant="secondary" onClick={() => setCurrentQ(p => Math.max(0, p - 1))} disabled={currentQ === 0} className="px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base flex-1 md:flex-none">Previous</Button>
            {currentQ < demoQuestions.length - 1 ?
-             <Button variant="primary" onClick={() => setCurrentQ(p => p+1)} className="px-8 py-3 bg-blue-600 hover:bg-blue-700 shadow-blue-500/20 text-white">Next Question</Button> :
-             <Button variant="primary" onClick={submitTest} className="px-8 py-3 shadow-teal-500/20">Finish Demo</Button>
+             <Button variant="primary" onClick={() => setCurrentQ(p => p+1)} className="px-5 md:px-8 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-700 shadow-blue-500/20 text-white text-sm md:text-base flex-1 md:flex-none">Next Question</Button> :
+             <Button variant="primary" onClick={submitTest} className="px-5 md:px-8 py-2.5 md:py-3 shadow-teal-500/20 text-sm md:text-base flex-1 md:flex-none">Finish Demo</Button>
            }
         </div>
       </div>
+      <style jsx global>{`body { user-select: none; }`}</style>
     </div>
   );
 }
