@@ -25,23 +25,24 @@ export async function POST(req: Request) {
     // 🔥 CRASH FIX 2: .join() error se bachne ke liye safe check 🔥
     const safeClaimedSkills = Array.isArray(claimedSkills) ? claimedSkills.join(", ") : (claimedSkills || "General Aptitude");
 
-    // AAPKA ELITE PROMPT
+    // 🔥 AAPKA NAYA ELITE PROMPT (STRICT 100-WORD LIMIT) 🔥
     const prompt = `
       You are an Elite Technical HR & Behavioral Assessor.
-      Write a highly professional, 3-paragraph "AI Executive Analysis Report" for a candidate named ${name || "the candidate"}.
+      Write a highly professional, extremely concise 3-paragraph "AI Executive Analysis Report" for a candidate named ${name || "the candidate"}.
 
       DATA PROVIDED:
       - Claimed Core Skills & Technological Tools: ${safeClaimedSkills}
       - Actual Test Performance (Includes Tech Tools, Core Skills & Psychometric fit): ${JSON.stringify(testScores)}
       - Proctoring Context: Tab Switches (${warnings?.tab || 0}), Audio Warnings (${warnings?.mic || 0}), Camera Warnings (${warnings?.cam || 0}).
 
-      INSTRUCTIONS:
-      1. Paragraph 1 (Technical & Software Proficiency): Professionally evaluate their actual test scores against their claimed core domains and technological tools/software. Explicitly highlight verified software proficiencies and areas needing improvement based on the exact scores.
-      2. Paragraph 2 (Behavioral & Culture Fit): Analyze their score in "Psychometric & Behavioral Fit". Discuss their workplace ethics, decision-making capabilities, and overall corporate culture fit potential based on this specific score.
-      3. Paragraph 3 (Reliability & Assessment Integrity): Address the proctoring context. Do NOT use the word "Cheat", "Suspicious", or "Warning". Use professional corporate terms (e.g., "Demonstrated high integrity and focus", "Maintained consistent test environment", or "Minor environmental/navigational distractions noted").
-
+      INSTRUCTIONS (STRICT LIMITATIONS):
+      1. TOTAL WORD COUNT MUST NOT EXCEED 120 WORDS. Keep paragraphs extremely short, punchy, and to the point.
+      2. Paragraph 1 (Tech & Software): 1-2 short sentences evaluating actual test scores against claimed skills.
+      3. Paragraph 2 (Culture Fit): 1-2 short sentences analyzing Psychometric & Behavioral fit.
+      4. Paragraph 3 (Integrity): 1-2 short sentences addressing proctoring context using positive corporate terms (Do NOT use the words "Cheat", "Suspicious", or "Warning").
+      
       Tone: Objective, Corporate, Unbiased.
-      Do NOT use markdown bolding (**). Just plain paragraphs separated by new lines.
+      Do NOT use markdown bolding (**). Just 3 plain, short paragraphs separated by new lines.
     `;
 
     let lastError: any = null;
@@ -69,7 +70,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("AI Report Final Error:", error);
     
-    // 🔥 CRASH FIX 3: 500 status ki jagah 200 return karo with Fallback message taaki frontend crash na ho 🔥
+    // 🔥 CRASH FIX 3: Fallback message 🔥
     return NextResponse.json({ 
         report: "AI Report generation is currently delayed due to server load. Your scores and analytics have been saved securely." 
     }, { status: 200 });

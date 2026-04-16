@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Download, Loader2 } from "lucide-react";
@@ -8,58 +8,138 @@ import Button from "@/app/components/ui/Button";
 export default function DownloadReportButton({ candidate, buttonStyle = "default" }: { candidate: any, buttonStyle?: "default" | "admin" }) {
     const [isDownloading, setIsDownloading] = useState(false);
 
+    // 🔥 FORCE LOAD FONTS FOR CRYSTAL CLEAR TEXT 🔥
+    useEffect(() => {
+        const linkId = "talexo-pdf-fonts";
+        if (!document.getElementById(linkId)) {
+            const link = document.createElement("link");
+            link.id = linkId;
+            link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap";
+            link.rel = "stylesheet";
+            document.head.appendChild(link);
+        }
+    }, []);
+
+    const getAge = (dobString: string) => {
+        if (!dobString) return "N/A";
+        const dob = new Date(dobString);
+        if (isNaN(dob.getTime())) return "N/A";
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age + " Yrs";
+    };
+
     const handleDownload = async () => {
         setIsDownloading(true);
 
         try {
-            const container = document.getElementById("pdf-hidden-container");
-            if (container) {
-                container.style.opacity = "1";
-                container.style.visibility = "visible";
-                container.style.position = "absolute";
-                container.style.top = "0";
-                container.style.left = "0";
-                container.style.zIndex = "-1000";
+            await document.fonts.ready;
+            
+            const container = document.getElementById("pdf-dynamic-html-container");
+            if (!container) throw new Error("Element not found");
+
+            // 🚀 THE FLAWLESS SPACER ALGORITHM 🚀
+            const PX_PER_MM = 1024 / 210; 
+            const PAGE_HEIGHT_PX = 297 * PX_PER_MM; // ~1448px (Exact A4 Height)
+            const FOOTER_SAFE_ZONE = 100; // px before bottom edge
+            const HEADER_CLEARANCE = 160; // 🔥 THE MAGIC FIX: 160px clearance to NEVER hide under the 78px header! 🔥
+
+            const elements = Array.from(container.querySelectorAll('.pdf-no-break'));
+
+            for (let i = 0; i < elements.length; i++) {
+                const el = elements[i] as HTMLElement;
+                const containerRect = container.getBoundingClientRect();
+                const rect = el.getBoundingClientRect();
+                
+                const top = rect.top - containerRect.top; 
+                const bottom = rect.bottom - containerRect.top;
+                
+                const currentPage = Math.floor(top / PAGE_HEIGHT_PX);
+                const pageBottomBoundary = (currentPage + 1) * PAGE_HEIGHT_PX;
+                
+                // If element crosses into the footer/cut-zone
+                if (bottom > (pageBottomBoundary - FOOTER_SAFE_ZONE)) {
+                    // Push it to the NEXT page, with 160px clearance to drop it SAFELY below the dark header!
+                    const targetTop = pageBottomBoundary + HEADER_CLEARANCE; 
+                    const pushAmount = targetTop - top;
+                    
+                    const currentMarginTop = parseFloat(window.getComputedStyle(el).marginTop || "0");
+                    el.style.marginTop = `${currentMarginTop + pushAmount}px`; 
+                    
+                    // Small delay to let browser calculate next elements correctly
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
             }
+
+            // Important: Let the DOM settle completely after all margins are applied
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const canvas = await html2canvas(container, {
+                scale: 3, 
+                useCORS: true,
+                backgroundColor: "#f7f5f0",
+                windowWidth: 1024,
+                logging: false
+            });
+
+            const imgData = canvas.toDataURL("image/png");
 
             const pdf = new jsPDF("p", "mm", "a4");
-            const pdfWidth = pdf.internal.pageSize.getWidth(); 
-            const pdfHeight = pdf.internal.pageSize.getHeight(); 
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 0;
+            let pageNum = 1;
 
-            const pages = ["pdf-page-1", "pdf-page-2", "pdf-page-3"];
-
-            for (let i = 0; i < pages.length; i++) {
-                const pageElement = document.getElementById(pages[i]);
-                if (!pageElement) continue;
-
-                const canvas = await html2canvas(pageElement, { 
-                    scale: 2, 
-                    useCORS: true, 
-                    backgroundColor: "#ffffff", 
-                    logging: false,
-                    width: 794,
-                    height: 1123
-                });
-
-                const imgData = canvas.toDataURL("image/png");
-
-                if (i > 0) pdf.addPage();
-                pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
-                // Premium Footer
+            const drawOverlays = (page: number) => {
+                // Common Footer
+                pdf.setFillColor(13, 17, 23); 
+                pdf.rect(0, pdfHeight - 12, pdfWidth, 12, 'F');
+                pdf.setTextColor(122, 135, 153); 
                 pdf.setFontSize(8);
-                pdf.setTextColor(150, 150, 150);
-                pdf.text(`Talexo Technologies Pvt. Ltd. | Verified Executive Report`, 15, pdfHeight - 10);
-                pdf.text(`Page ${i + 1} of ${pages.length}`, pdfWidth - 20, pdfHeight - 10);
+                pdf.text("Talexo Technologies Pvt. Ltd. | Verified Executive Report", 15, pdfHeight - 4.5);
+                pdf.text(`Page ${page}`, pdfWidth - 20, pdfHeight - 4.5);
+
+                // Common Header for Page 2 and beyond
+                if (page > 1) {
+                    pdf.setFillColor(30, 42, 58); 
+                    pdf.rect(0, 0, pdfWidth, 16, 'F');
+                    pdf.setDrawColor(201, 168, 76); 
+                    pdf.setLineWidth(0.5);
+                    pdf.line(0, 16, pdfWidth, 16);
+
+                    pdf.setTextColor(201, 168, 76);
+                    pdf.setFontSize(11);
+                    pdf.text("Talexo | Executive Assessment (Continued)", 15, 10);
+                }
+            };
+
+            pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfHeight;
+            drawOverlays(pageNum);
+
+            while (heightLeft > 0) {
+                position -= pdfHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, "PNG", 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+                pageNum++;
+                drawOverlays(pageNum);
             }
 
-            if (container) {
-                container.style.opacity = "0";
-                container.style.visibility = "hidden";
-                container.style.position = "fixed";
+            pdf.save(`${candidate?.fullName?.replace(/\s+/g, '_') || "Candidate"}_Talexo_Executive_Report.pdf`);
+            
+            // Clean up dynamic margins
+            for (let i = 0; i < elements.length; i++) {
+                (elements[i] as HTMLElement).style.marginTop = "";
             }
 
-            pdf.save(`${candidate?.fullName?.replace(/\s+/g, '_') || "Candidate"}_Talexo_Verified_Report.pdf`);
         } catch (error) {
             console.error("Error generating PDF", error);
             alert("Failed to generate PDF. Please try again.");
@@ -68,11 +148,10 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
         }
     };
 
+    // --- Data Mapping ---
     const meta = candidate?.meta || {};
     const skillScores = meta.skillScores || {};
-    const totalScore = meta.totalScore || 0;
     const aiReport = meta.ai_detailed_report || "AI detailed analysis is pending or not available for this candidate.";
-    const status = meta.status || "Pending";
     
     const warningsData = meta.warnings || { tab: 0, mic: 0, cam: 0, face: 0 };
     const totalWarnings = meta.warningsCount || (warningsData.tab + warningsData.mic + warningsData.cam + warningsData.face) || 0;
@@ -84,237 +163,373 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
     const behavioralSkills = Array.isArray(candidate?.behavioralSkills) ? candidate.behavioralSkills : [];
     const technologicalSkills = Array.isArray(candidate?.technologicalSkills) ? candidate.technologicalSkills : [];
     const achievements = Array.isArray(candidate?.achievements) ? candidate.achievements : [];
-
-    const dobToDisplay = candidate?.dob || "Not Provided";
-    const panToDisplay = candidate?.panCard || "Not Provided";
-    const expSalaryToDisplay = candidate?.expectedSalary || "Not Provided";
-    const curSalaryToDisplay = candidate?.currentSalary || "Not Provided";
-    const noticeToDisplay = candidate?.noticePeriod || "Not Provided";
-    const workModeToDisplay = candidate?.workMode || "On-site";
+    
+    const reportDate = new Date(meta.lastAttempt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     const refID = candidate?.id?.substring(0,8).toUpperCase() || "N/A";
-    const reportDate = new Date(meta.lastAttempt || Date.now()).toLocaleDateString('en-GB');
+    const aiParagraphs = aiReport.split('\n').filter((p: string) => p.trim() !== '');
 
     return (
         <>
             <Button 
                 variant={buttonStyle === "admin" ? "secondary" : "primary"}
                 onClick={handleDownload} 
-                disabled={isDownloading || status === "Pending"}
+                disabled={isDownloading || meta.status === "Pending"}
                 className={`w-full md:w-auto ${buttonStyle === "admin" ? "py-2.5 text-sm" : ""}`}
             >
                 {isDownloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                {isDownloading ? "Generating Premium Report..." : "Download Verified Report"}
+                {isDownloading ? "Optimizing Layout..." : "Download Verified Report"}
             </Button>
 
-            {/* STRICLY NO TAILWIND CLASSES INSIDE THIS CONTAINER */}
-            <div id="pdf-hidden-container" style={{ position: "fixed", top: 0, left: "-9999px", opacity: 0, visibility: "hidden", zIndex: -100, pointerEvents: "none", color: "#0f172a" }}>
+            {/* 🚀 INVISIBLE CONTAINER 🚀 */}
+            <div style={{ position: "absolute", top: "-20000px", left: "-20000px", zIndex: -100, pointerEvents: "none" }}>
                 
-                {/* ================= PAGE 1: EXECUTIVE SUMMARY & SCORE ================= */}
-                <div id="pdf-page-1" style={{ width: "794px", height: "1123px", padding: "40px", backgroundColor: "#ffffff", boxSizing: "border-box", overflow: "hidden", fontFamily: "Helvetica, Arial, sans-serif", color: "#0f172a" }}>
+                <style dangerouslySetInnerHTML={{__html: `
+                    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
                     
-                    {/* Perfect Header Table */}
-                    <table width="100%" cellPadding="0" cellSpacing="0" style={{ borderBottom: "2px solid #0f947e", paddingBottom: "10px", marginBottom: "25px" }}>
-                        <tbody>
-                            <tr>
-                                <td valign="bottom" style={{ width: "50%" }}>
-                                    <h1 style={{ margin: "0 0 4px 0", fontSize: "28px", color: "#0f172a", fontWeight: "bold", letterSpacing: "-0.5px" }}>Talexo</h1>
-                                    <span style={{ color: "#64748b", fontSize: "11px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "1px" }}>Executive Profile & Assessment</span>
-                                </td>
-                                <td align="right" valign="bottom" style={{ width: "50%" }}>
-                                    <div style={{ backgroundColor: "#f0fdf4", color: "#15803d", padding: "4px 8px", borderRadius: "4px", fontSize: "10px", fontWeight: "bold", border: "1px solid #bbf7d0", display: "inline-block", marginBottom: "6px" }}>✔ AI Verified Profile</div><br/>
-                                    <span style={{ color: "#94a3b8", fontSize: "10px", fontWeight: "bold" }}>Date: {reportDate} &nbsp;|&nbsp; Ref: TX-{refID}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    :root {
+                        --ink: #0d1117;
+                        --paper: #f7f5f0;
+                        --gold: #c9a84c;
+                        --gold-light: #e8cc7e;
+                        --slate: #1e2a3a;
+                        --slate-mid: #2d3f55;
+                        --accent-green: #2e7d52;
+                        --accent-red: #8b2635;
+                        --accent-amber: #c9a84c;
+                        --muted: #7a8799;
+                        --border: #ddd8ce;
+                        --white: #ffffff;
+                    }
 
-                    {/* Candidate Details & Photo Table */}
-                    <table width="100%" cellPadding="0" cellSpacing="0" style={{ marginBottom: "25px" }}>
-                        <tbody>
-                            <tr>
-                                <td valign="top" style={{ paddingRight: "20px" }}>
-                                    <h2 style={{ margin: "0 0 15px 0", fontSize: "24px", color: "#0f172a", fontWeight: "bold" }}>{candidate?.fullName || "Candidate Name"}</h2>
-                                    
-                                    <table width="100%" cellPadding="4" cellSpacing="0" style={{ fontSize: "12px", color: "#475569", marginBottom: "15px" }}>
-                                        <tbody>
-                                            <tr><td width="100" style={{ fontWeight: "bold", color: "#334155" }}>Email:</td><td>{candidate?.email || "N/A"}</td></tr>
-                                            <tr><td style={{ fontWeight: "bold", color: "#334155" }}>Phone:</td><td>{candidate?.phone || "N/A"}</td></tr>
-                                            <tr><td style={{ fontWeight: "bold", color: "#334155" }}>Location:</td><td>{candidate?.city || "N/A"}</td></tr>
-                                            <tr><td style={{ fontWeight: "bold", color: "#334155" }}>DOB:</td><td>{dobToDisplay}</td></tr>
-                                            <tr><td style={{ fontWeight: "bold", color: "#334155" }}>PAN:</td><td style={{ textTransform: "uppercase" }}>{panToDisplay}</td></tr>
-                                        </tbody>
-                                    </table>
+                    .pdf-continuous-doc { 
+                        font-family: 'DM Sans', sans-serif; 
+                        background: var(--paper); 
+                        color: var(--ink); 
+                        font-size: 14px; 
+                        line-height: 1.6;
+                        width: 1024px;
+                        box-sizing: border-box;
+                        position: relative;
+                        padding-bottom: 60px;
+                        min-height: 1448px;
+                    }
 
-                                    <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "10px", marginTop: "5px" }}>
-                                        <span style={{ fontSize: "12px", color: "#0f947e", fontWeight: "bold", textTransform: "uppercase" }}>Work Preferences</span>
-                                        <table width="100%" cellPadding="4" cellSpacing="0" style={{ fontSize: "12px", color: "#475569", marginTop: "5px" }}>
-                                            <tbody>
-                                                <tr>
-                                                    <td width="90" style={{ fontWeight: "bold", color: "#334155" }}>Exp. Salary:</td><td style={{ fontWeight: "bold", color: "#0f172a" }}>{expSalaryToDisplay}</td>
-                                                    <td width="90" style={{ fontWeight: "bold", color: "#334155" }}>Notice Period:</td><td>{noticeToDisplay}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style={{ fontWeight: "bold", color: "#334155" }}>Total Exp:</td><td>{candidate?.experience || "Fresher"}</td>
-                                                    <td style={{ fontWeight: "bold", color: "#334155" }}>Work Mode:</td><td>{workModeToDisplay}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </td>
-                                <td width="120" align="right" valign="top">
-                                    <div style={{ width: "110px", height: "140px", border: "1px solid #cbd5e1", borderRadius: "6px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f8fafc", textAlign: "center" }}>
-                                        {profileImage ? 
-                                            <img src={profileImage} crossOrigin="anonymous" alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> 
-                                            : <span style={{ fontSize: "10px", color: "#94a3b8", padding: "10px" }}>Passport Size<br/>Photo</span>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    /* ── HEADER ── */
+                    .header { background: var(--slate); color: var(--white); padding: 48px 56px 40px; position: relative; overflow: hidden; }
+                    .header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 70%); border-radius: 50%; }
+                    .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+                    .brand { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--gold); }
+                    .brand span { display: block; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+                    .report-meta { text-align: right; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); line-height: 1.8; letter-spacing: 0.5px; }
+                    
+                    /* 🔥 NO MORE BOXES! SLEEK TEXT WITH BOTTOM BORDER 🔥 */
+                    .ai-badge { display: inline-block; color: var(--gold-light); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid rgba(201,168,76,0.6); padding-bottom: 4px; margin-bottom: 10px; font-weight: 500;}
+                    
+                    .profile-row { display: flex; align-items: flex-end; gap: 32px; }
+                    .profile-photo { width: 80px; height: 80px; border-radius: 4px; border: 2px solid var(--gold); object-fit: cover; flex-shrink: 0; }
+                    .profile-photo-placeholder { width: 80px; height: 80px; border-radius: 4px; border: 2px solid var(--gold); background: var(--slate-mid); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--gold); flex-shrink: 0; }
+                    .candidate-name { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
+                    .candidate-tagline { color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 300; font-style: italic; max-width: 480px; }
+                    .contact-row { display: flex; gap: 24px; margin-top: 10px; flex-wrap: wrap; }
+                    .contact-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,0.65); }
+                    .contact-item .icon { color: var(--gold); font-size: 11px; }
 
-                    {/* Bio Quote */}
-                    {candidate?.bio && (
-                        <div style={{ backgroundColor: "#f8fafc", borderLeft: "3px solid #0f947e", padding: "12px 15px", marginBottom: "25px", borderRadius: "0 6px 6px 0" }}>
-                            <p style={{ margin: 0, fontSize: "12px", color: "#334155", fontStyle: "italic", lineHeight: "1.5" }}>"{candidate.bio}"</p>
+                    /* ── SCORE STRIP ── */
+                    .score-strip { background: var(--ink); padding: 0 56px; display: flex; gap: 0; border-bottom: 3px solid var(--gold); }
+                    .score-block { padding: 18px 32px 18px 0; flex: 1; border-right: 1px solid rgba(255,255,255,0.06); position: relative; }
+                    .score-block:last-child { border-right: none; padding-right: 0; }
+                    .score-block:first-child { padding-left: 0; }
+                    .score-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+                    .score-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--white); line-height: 1; }
+                    .score-value.gold { color: var(--gold); }
+                    .score-value.amber { color: #e8a030; }
+                    .score-value.green { color: #5ac88a; }
+                    .score-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+                    /* ── BODY LAYOUT (Original Flex Grid) ── */
+                    .body-wrap { display: flex; align-items: stretch; max-width: 100%; min-height: 800px;}
+                    .main-col { flex: 1; padding: 44px 48px 44px 56px; border-right: 1px solid var(--border); }
+                    .side-col { width: 340px; flex-shrink: 0; padding: 44px 40px 44px 36px; background: #faf9f5; }
+
+                    /* ── SECTION ── */
+                    .section { margin-bottom: 40px; }
+                    .section:last-child { margin-bottom: 0; }
+                    .section-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--slate); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--gold); display: flex; align-items: center; gap: 8px; }
+                    .section-title .num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 1px; }
+
+                    /* ── SKILL BARS ── */
+                    .skill-item { margin-bottom: 16px; }
+                    .skill-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+                    .skill-name { font-weight: 500; font-size: 13px; color: var(--slate); }
+                    
+                    /* 🔥 NO MORE SKILL BOXES EITHER! 🔥 */
+                    .skill-level-text { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+                    .text-expert { color: var(--accent-green); }
+                    .text-inter { color: #c07030; }
+                    .text-zero { color: var(--accent-red); }
+                    
+                    .skill-bar-track { height: 6px; background: #e8e4dc; border-radius: 3px; overflow: hidden; }
+                    .skill-bar-fill { height: 100%; border-radius: 3px; }
+                    .fill-green { background: linear-gradient(90deg, var(--accent-green), #5ac88a); }
+                    .fill-amber { background: linear-gradient(90deg, #c07030, #e8a050); }
+                    .fill-red { background: linear-gradient(90deg, var(--accent-red), #e05070); }
+                    .skill-score { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+                    /* ── EDUCATION ── */
+                    .edu-card { padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 4px 4px 0; margin-bottom: 12px; background: var(--white); }
+                    .edu-degree { font-weight: 600; font-size: 13px; color: var(--slate); margin-bottom: 2px; }
+                    .edu-school { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+                    .edu-meta { display: flex; gap: 16px; }
+                    .edu-chip { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; background: #eef2f8; color: var(--slate-mid); letter-spacing: 0.5px; }
+
+                    /* ── EXPERIENCE ── */
+                    .exp-card { padding: 16px 18px; border: 1px solid var(--border); border-radius: 4px; background: var(--white); margin-bottom: 12px;}
+                    .exp-role { font-weight: 600; font-size: 14px; color: var(--slate); }
+                    .exp-company { color: var(--gold); font-weight: 500; font-size: 13px; margin-top: 2px; }
+                    .exp-tenure { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 4px; }
+
+                    /* ── SIDEBAR CARDS ── */
+                    .info-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+                    .info-card-title { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+                    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0ece4; font-size: 12px; }
+                    .info-row:last-child { border-bottom: none; }
+                    .info-key { color: var(--muted); }
+                    .info-val { font-weight: 500; color: var(--slate); }
+
+                    /* ── TAGS ── */
+                    .tag-group { margin-bottom: 12px; }
+                    .tag-group-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+                    .tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+                    .tag { font-size: 11px; padding: 4px 10px; border-radius: 2px; font-weight: 500; display: inline-flex; align-items: center; line-height: 1;}
+                    .tag-core { background: #eef2fa; color: #2d4a8a; border: 1px solid #c8d4f0; }
+                    .tag-behav { background: #f5eef9; color: #6a3090; border: 1px solid #ddc8f0; }
+                    .tag-tool { background: #eaf6ef; color: #1e6040; border: 1px solid #b8dcc8; }
+
+                    /* ── WARNING CARD ── */
+                    .warning-card { background: #fff9ee; border: 1px solid #f0cc88; border-left: 3px solid var(--gold); border-radius: 0 4px 4px 0; padding: 12px 14px; margin-bottom: 16px; font-size: 12px; color: #7a5810; }
+                    .warning-title { font-weight: 600; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 3px; color: #8a6010; }
+
+                    /* ── AI ANALYSIS ── */
+                    .analysis-block { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 20px; }
+                    .analysis-item { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f0ece4; align-items: flex-start; }
+                    .analysis-item:last-child { border-bottom: none; padding-bottom: 0; }
+                    .analysis-icon { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+                    .icon-green { background: #e8f5ee; }
+                    .icon-amber { background: #fdf2e9; }
+                    .icon-blue  { background: #eef2fa; }
+                    .analysis-text p { font-size: 12px; color: #5a6878; line-height: 1.6; margin: 0; text-align: justify;}
+                `}} />
+
+                <div id="pdf-dynamic-html-container" className="pdf-root pdf-continuous-doc">
+                    
+                    {/* HEADER */}
+                    <div className="header">
+                        <div className="header-top">
+                            <div className="brand">Talexo<span>Executive Profile & Assessment</span></div>
+                            <div className="report-meta">
+                                {/* 🔥 NO BOX! CLEAN TEXT WITH LINE 🔥 */}
+                                <div className="ai-badge">✦ AI Verified Profile</div>
+                                <div>Date: {reportDate}</div>
+                                <div>Ref: TX-{refID}</div>
+                            </div>
                         </div>
-                    )}
 
-                    {/* Sleek Score Banner */}
-                    <table width="100%" cellPadding="0" cellSpacing="0" style={{ backgroundColor: "#0f172a", borderRadius: "8px", overflow: "hidden", marginBottom: "25px" }}>
-                        <tbody>
-                            <tr>
-                                <td style={{ padding: "15px 25px", width: "60%", borderRight: "1px solid #1e293b" }}>
-                                    <span style={{ fontSize: "10px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "bold" }}>Final AI Assessed Score</span><br/>
-                                    <span style={{ fontSize: "36px", color: "#10b981", fontWeight: "bold", lineHeight: "1.2" }}>{totalScore}</span> <span style={{ fontSize: "14px", color: "#cbd5e1" }}>Points</span>
-                                </td>
-                                <td style={{ backgroundColor: totalWarnings > 0 ? "#7f1d1d" : "#064e3b", padding: "15px 25px", textAlign: "right", width: "40%", verticalAlign: "middle" }}>
-                                    <span style={{ fontSize: "10px", color: totalWarnings > 0 ? "#fca5a5" : "#86efac", textTransform: "uppercase", letterSpacing: "1px", fontWeight: "bold" }}>Integrity Status</span><br/>
-                                    <span style={{ fontSize: "18px", color: "#ffffff", fontWeight: "bold" }}>{totalWarnings > 0 ? `⚠ ${totalWarnings} Warnings` : '✔ Clear Record'}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    {/* Detailed Per-Skill Breakdown (Now on Page 1) */}
-                    <div>
-                        <h3 style={{ fontSize: "16px", color: "#0f172a", borderBottom: "1px solid #e2e8f0", paddingBottom: "6px", margin: "0 0 15px 0" }}>Domain Skill Analytics</h3>
-                        
-                        {Object.keys(skillScores).length > 0 ? Object.keys(skillScores).map((skill, i) => {
-                            const data = skillScores[skill];
-                            const score = Math.max(0, data.scoreCount || data.correct || 0);
-                            const total = data.total || 5;
-                            const percentage = (score / total) * 100;
-                            const isPsycho = skill.includes('Psychometric');
-                            const techSkillNames = technologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name);
-                            const isTechSkill = techSkillNames.includes(skill);
-                            
-                            const color = isPsycho ? "#a855f7" : isTechSkill ? "#ec4899" : (percentage >= 80 ? "#10b981" : percentage >= 50 ? "#f59e0b" : "#ef4444");
-
-                            return (
-                                <div key={i} style={{ marginBottom: "12px" }}>
-                                    <table width="100%" cellPadding="0" cellSpacing="0" style={{ marginBottom: "4px" }}>
-                                        <tbody>
-                                            <tr>
-                                                <td align="left" style={{ fontSize: "12px", fontWeight: "bold", color: "#1e293b" }}>
-                                                    {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skill}` : skill}
-                                                </td>
-                                                <td align="right" style={{ fontSize: "12px", fontWeight: "bold", color: color }}>
-                                                    {data.aiLevel} ({score}/{total})
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <div style={{ width: "100%", backgroundColor: "#f1f5f9", height: "6px", borderRadius: "3px", overflow: "hidden" }}>
-                                        <div style={{ width: `${Math.max(3, percentage)}%`, backgroundColor: color, height: "100%", borderRadius: "3px" }}></div>
-                                    </div>
-                                </div>
-                            )
-                        }) : <p style={{ fontSize: "12px", color: "#64748b", fontStyle: "italic" }}>No test data available yet.</p>}
-                    </div>
-
-                </div>
-
-                {/* ================= PAGE 2: PROFESSIONAL BACKGROUND ================= */}
-                <div id="pdf-page-2" style={{ width: "794px", height: "1123px", padding: "50px 40px", backgroundColor: "#ffffff", boxSizing: "border-box", overflow: "hidden", fontFamily: "Helvetica, Arial, sans-serif", color: "#0f172a" }}>
-                    
-                    {/* Education */}
-                    <h2 style={{ color: "#0f172a", fontSize: "18px", borderBottom: "1px solid #e2e8f0", paddingBottom: "8px", margin: "0 0 15px 0" }}>Education & Credentials</h2>
-                    {educations.length > 0 ? educations.map((edu:any, i:number) => {
-                        const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test((edu.qualification || '').toLowerCase());
-                        return (
-                            <div key={i} style={{ marginBottom: "15px", padding: "12px", backgroundColor: "#f8fafc", border: "1px solid #f1f5f9", borderRadius: "6px" }}>
-                                <h4 style={{ margin: 0, fontSize: "14px", color: "#0f172a" }}>{edu.qualification} {edu.stageCleared ? `(${edu.stageCleared})` : ''}</h4>
-                                <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#475569" }}>{edu.collegeName}</p>
-                                <div style={{ margin: "6px 0 0 0", fontSize: "11px", color: "#64748b", display: "flex", gap: "15px" }}>
-                                    <span><b style={{color: "#334155"}}>Passed:</b> {edu.passingYear}</span>
-                                    {edu.percentage && <span><b style={{color: "#334155"}}>Score:</b> {edu.percentage}%</span>}
-                                    {isSchoolLevel && edu.mathsIncluded === 'Yes' && edu.mathsScore && (
-                                        <span style={{ color: "#0f947e", fontWeight: "bold" }}>Maths: {edu.mathsScore}%</span>
-                                    )}
+                        <div className="profile-row">
+                            {profileImage ? 
+                                <img src={profileImage} crossOrigin="anonymous" className="profile-photo" alt="Profile"/> : 
+                                <div className="profile-photo-placeholder">{candidate?.fullName?.charAt(0) || "C"}</div>
+                            }
+                            <div>
+                                <div className="candidate-name">{candidate?.fullName || "Candidate Name"}</div>
+                                <div className="candidate-tagline">"{candidate?.bio || "A highly motivated professional looking to leverage skills to achieve corporate goals."}"</div>
+                                <div className="contact-row">
+                                    <div className="contact-item"><span className="icon">📍</span> {candidate?.city || "Not Provided"}</div>
+                                    <div className="contact-item"><span className="icon">📞</span> {candidate?.phone || "Not Provided"}</div>
+                                    <div className="contact-item"><span className="icon">✉</span> {candidate?.email || "Not Provided"}</div>
+                                    <div className="contact-item"><span className="icon">🗓</span> Age: {getAge(candidate?.dob)}</div>
                                 </div>
                             </div>
-                        )
-                    }) : <p style={{ fontSize: "12px", color: "#64748b" }}>No education listed.</p>}
-
-                    {/* Work Experience */}
-                    <h2 style={{ color: "#0f172a", fontSize: "18px", borderBottom: "1px solid #e2e8f0", paddingBottom: "8px", margin: "25px 0 15px 0" }}>Professional Experience</h2>
-                    {experience.length > 0 ? experience.map((exp:any, i:number) => (
-                        <div key={i} style={{ marginBottom: "12px", paddingBottom: "12px", borderBottom: i !== experience.length -1 ? "1px dashed #e2e8f0" : "none" }}>
-                            <h4 style={{ margin: 0, fontSize: "14px", color: "#0f172a" }}>{exp.role} <span style={{ fontWeight: "normal", color: "#64748b" }}>at</span> {exp.company}</h4>
-                            <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#475569", fontWeight: "bold" }}>{exp.duration}</p>
                         </div>
-                    )) : <p style={{ fontSize: "12px", color: "#64748b" }}>No prior work experience listed.</p>}
-
-                    {/* Achievements */}
-                    {achievements.length > 0 && (
-                        <>
-                            <h2 style={{ color: "#0f172a", fontSize: "18px", borderBottom: "1px solid #e2e8f0", paddingBottom: "8px", margin: "25px 0 15px 0" }}>Key Achievements</h2>
-                            {achievements.map((ach:any, i:number) => (
-                                <div key={i} style={{ marginBottom: "12px" }}>
-                                    <h4 style={{ margin: 0, fontSize: "13px", color: "#0f172a" }}>🏆 {ach.title}</h4>
-                                    <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#475569", lineHeight: "1.4" }}>{ach.description}</p>
-                                </div>
-                            ))}
-                        </>
-                    )}
-
-                    {/* Mapped Skills Summary */}
-                    <h2 style={{ color: "#0f172a", fontSize: "18px", borderBottom: "1px solid #e2e8f0", paddingBottom: "8px", margin: "25px 0 15px 0" }}>Skill Mappings</h2>
-                    <table width="100%" cellPadding="0" cellSpacing="0">
-                        <tbody>
-                            <tr>
-                                <td width="33%" valign="top" style={{ paddingRight: "10px" }}>
-                                    <h4 style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#0f947e", textTransform: "uppercase" }}>Core Domains</h4>
-                                    {skills.length > 0 ? skills.map((s:string, i:number) => <div key={i} style={{ fontSize: "11px", backgroundColor: "#f0fdf4", padding: "4px 8px", marginBottom: "4px", borderRadius: "4px", border: "1px solid #bbf7d0", color: "#166534" }}>{s}</div>) : <span style={{fontSize:"11px", color:"#94a3b8"}}>N/A</span>}
-                                </td>
-                                <td width="33%" valign="top" style={{ paddingRight: "10px" }}>
-                                    <h4 style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#7e22ce", textTransform: "uppercase" }}>Behavioral</h4>
-                                    {behavioralSkills.length > 0 ? behavioralSkills.map((s:string, i:number) => <div key={i} style={{ fontSize: "11px", backgroundColor: "#faf5ff", padding: "4px 8px", marginBottom: "4px", borderRadius: "4px", border: "1px solid #e9d5ff", color: "#6b21a8" }}>{s}</div>) : <span style={{fontSize:"11px", color:"#94a3b8"}}>N/A</span>}
-                                </td>
-                                <td width="33%" valign="top">
-                                    <h4 style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#be185d", textTransform: "uppercase" }}>Tools & Software</h4>
-                                    {technologicalSkills.length > 0 ? technologicalSkills.map((s:any, i:number) => <div key={i} style={{ fontSize: "11px", backgroundColor: "#fdf2f8", padding: "4px 8px", marginBottom: "4px", borderRadius: "4px", border: "1px solid #fbcfe8", color: "#9d174d" }}>{typeof s === 'string' ? s : s.name}</div>) : <span style={{fontSize:"11px", color:"#94a3b8"}}>N/A</span>}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-
-                {/* ================= PAGE 3: AI EXECUTIVE REPORT ================= */}
-                <div id="pdf-page-3" style={{ width: "794px", height: "1123px", padding: "50px 40px", backgroundColor: "#ffffff", boxSizing: "border-box", overflow: "hidden", fontFamily: "Helvetica, Arial, sans-serif", color: "#0f172a" }}>
-                    
-                    <h2 style={{ color: "#0f172a", fontSize: "20px", borderBottom: "2px solid #e2e8f0", paddingBottom: "10px", margin: "0 0 20px 0" }}>AI Executive Analysis Report</h2>
-                    
-                    <div style={{ padding: "24px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px" }}>
-                        {aiReport.split('\n').filter((p:string) => p.trim() !== '').map((para:string, i:number) => (
-                            <p key={i} style={{ margin: "0 0 16px 0", fontSize: "13px", color: "#334155", lineHeight: "1.8", textAlign: "justify" }}>
-                                {para.replace(/\*\*/g, '')}
-                            </p>
-                        ))}
                     </div>
 
+                    {/* SCORE STRIP */}
+                    <div className="score-strip">
+                        <div className="score-block">
+                            <div className="score-label">Integrity Status</div>
+                            <div className={`score-value ${totalWarnings > 0 ? "amber" : "green"}`}>{totalWarnings > 0 ? `⚠ ${totalWarnings}` : "Clear"}</div>
+                            <div className="score-sub">{totalWarnings > 0 ? "Warnings noted" : "Secure Environment"}</div>
+                        </div>
+                        <div className="score-block" style={{paddingLeft: "32px"}}>
+                            <div className="score-label">Notice Period</div>
+                            <div className="score-value" style={{fontSize: "22px", color: "#fff", paddingTop: "4px"}}>{candidate?.noticePeriod || "Immediate"}</div>
+                            <div className="score-sub">{candidate?.experience || "Fresher"} Exp</div>
+                        </div>
+                        <div className="score-block" style={{paddingLeft: "32px"}}>
+                            <div className="score-label">Expected Salary</div>
+                            <div className="score-value" style={{fontSize: "22px", color: "#fff", paddingTop: "4px"}}>{candidate?.expectedSalary || "N/A"}</div>
+                            <div className="score-sub">Per Month</div>
+                        </div>
+                        <div className="score-block" style={{paddingLeft: "32px"}}>
+                            <div className="score-label">Work Mode</div>
+                            <div className="score-value" style={{fontSize: "22px", color: "#fff", paddingTop: "4px"}}>{candidate?.workMode || "On-site"}</div>
+                        </div>
+                    </div>
+
+                    {/* TWO-COLUMN BODY */}
+                    <div className="body-wrap">
+                        
+                        {/* MAIN COLUMN */}
+                        <div className="main-col">
+                            
+                            <div className="section pdf-no-break">
+                                <div className="section-title"><span className="num">01</span> Domain Skill Analytics</div>
+                                {Object.keys(skillScores).length > 0 ? Object.keys(skillScores).map((skill, i) => {
+                                    const data = skillScores[skill];
+                                    const score = Math.max(0, data.scoreCount || data.correct || 0);
+                                    const total = data.total || 5;
+                                    const pct = (score / total) * 100;
+                                    const isExpert = pct >= 80;
+                                    const isInter = pct >= 40 && pct < 80;
+                                    const textClass = isExpert ? "text-expert" : (isInter ? "text-inter" : "text-zero");
+                                    const fillClass = isExpert ? "fill-green" : (isInter ? "fill-amber" : "fill-red");
+
+                                    return (
+                                        <div className="skill-item pdf-no-break" key={i}>
+                                            <div className="skill-header">
+                                                <span className="skill-name">{skill}</span>
+                                                {/* 🔥 NO BOX! CLEAN COLORED TEXT WITH DOT 🔥 */}
+                                                <span className={`skill-level-text ${textClass}`}>
+                                                    {data.aiLevel || "Evaluated"} {isExpert ? "🟢" : isInter ? "🟡" : "🔴"}
+                                                </span>
+                                            </div>
+                                            <div className="skill-bar-track">
+                                                <div className={`skill-bar-fill ${fillClass}`} style={{ width: `${Math.max(4, pct)}%` }}></div>
+                                            </div>
+                                            <div className="skill-score">{score} / {total} Points Scored</div>
+                                        </div>
+                                    )
+                                }) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No skill data recorded yet.</p>}
+                            </div>
+
+                            <div className="section">
+                                <div className="section-title pdf-no-break"><span className="num">02</span> Education & Credentials</div>
+                                {educations.length > 0 ? educations.map((edu:any, i:number) => (
+                                    <div className="edu-card pdf-no-break" key={i}>
+                                        <div className="edu-degree">{edu.qualification}</div>
+                                        <div className="edu-school">{edu.collegeName}</div>
+                                        <div className="edu-meta">
+                                            <span className="edu-chip">Pass: {edu.passingYear}</span>
+                                            {edu.percentage && <span className="edu-chip">Score: {edu.percentage}%</span>}
+                                            {(edu.mathsScore !== undefined && edu.mathsScore !== null) && <span className="edu-chip" style={{color: "#0f947e", background: "#e6f4f1", border: "1px solid #b2dfd6"}}>Maths: {edu.mathsScore}%</span>}
+                                        </div>
+                                    </div>
+                                )) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No education listed.</p>}
+                            </div>
+
+                            <div className="section">
+                                <div className="section-title pdf-no-break"><span className="num">03</span> Professional Experience</div>
+                                {experience.length > 0 ? experience.map((exp:any, i:number) => (
+                                    <div className="exp-card pdf-no-break" key={i}>
+                                        <div className="exp-role">{exp.role}</div>
+                                        <div className="exp-company">{exp.company}</div>
+                                        <div className="exp-tenure">{exp.duration}</div>
+                                    </div>
+                                )) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No prior experience listed.</p>}
+                            </div>
+                            
+                            {achievements.length > 0 && (
+                                <div className="section">
+                                    <div className="section-title pdf-no-break"><span className="num">04</span> Key Achievements</div>
+                                    {achievements.map((ach:any, i:number) => (
+                                        <div className="exp-card pdf-no-break" key={i}>
+                                            <div className="exp-role">🏆 {ach.title}</div>
+                                            <div style={{ fontSize: "12px", color: "#475569", lineHeight: "1.6", marginTop: "4px" }}>{ach.description}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="section pdf-no-break">
+                                <div className="section-title"><span className="num">{achievements.length > 0 ? "05" : "04"}</span> AI Executive Analysis</div>
+                                <div className="analysis-block">
+                                    {aiParagraphs.map((para: string, i: number) => {
+                                        const icon = i === 0 ? "💻" : (i === 1 ? "🧠" : "🛡️");
+                                        const iconClass = i === 0 ? "icon-blue" : (i === 1 ? "icon-amber" : "icon-green");
+                                        return (
+                                            <div className="analysis-item pdf-no-break" key={i}>
+                                                <div className={`analysis-icon ${iconClass}`}>{icon}</div>
+                                                <div className="analysis-text">
+                                                    <p>{para.replace(/\*\*/g, '')}</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* SIDE COLUMN */}
+                        <div className="side-col">
+                            
+                            <div className="info-card pdf-no-break">
+                                <div className="info-card-title">Work Preferences</div>
+                                <div className="info-row">
+                                    <span className="info-key">Expected Salary</span>
+                                    <span className="info-val">{candidate?.expectedSalary || "N/A"}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-key">Notice Period</span>
+                                    <span className="info-val">{candidate?.noticePeriod || "Immediate"}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-key">Work Mode</span>
+                                    <span className="info-val">{candidate?.workMode || "On-site"}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-key">Experience</span>
+                                    <span className="info-val">{candidate?.experience || "Fresher"}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="info-key">Location</span>
+                                    <span className="info-val">{candidate?.city || "Not Provided"}</span>
+                                </div>
+                            </div>
+
+                            {totalWarnings > 0 && (
+                                <div className="warning-card pdf-no-break">
+                                    <div className="warning-title">⚠ Integrity Note</div>
+                                    {totalWarnings} minor infractions (Tab switches or Audio/Camera noise) were recorded during the AI assessment.
+                                </div>
+                            )}
+
+                            <div className="info-card pdf-no-break">
+                                <div className="info-card-title">Skill Mappings</div>
+                                
+                                <div className="tag-group">
+                                    <div className="tag-group-label">Core Domains</div>
+                                    <div className="tag-wrap">
+                                        {skills.length > 0 ? skills.map((s:string, i:number) => <span key={i} className="tag tag-core">{s}</span>) : <span className="tag tag-core">N/A</span>}
+                                    </div>
+                                </div>
+
+                                <div className="tag-group" style={{marginTop: "16px"}}>
+                                    <div className="tag-group-label">Tools & Software</div>
+                                    <div className="tag-wrap">
+                                        {technologicalSkills.length > 0 ? technologicalSkills.map((s:any, i:number) => <span key={i} className="tag tag-tool">{typeof s === 'string' ? s : s.name}</span>) : <span className="tag tag-tool">N/A</span>}
+                                    </div>
+                                </div>
+                                
+                                <div className="tag-group" style={{marginTop: "16px"}}>
+                                    <div className="tag-group-label">Behavioral</div>
+                                    <div className="tag-wrap">
+                                        {behavioralSkills.length > 0 ? behavioralSkills.map((s:string, i:number) => <span key={i} className="tag tag-behav">{s}</span>) : <span className="tag tag-behav">N/A</span>}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
             </div>
