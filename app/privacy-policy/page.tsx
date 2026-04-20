@@ -38,17 +38,17 @@ export default function PrivacyPolicy() {
           <div className="space-y-8 text-sm md:text-base leading-relaxed text-slate-700 font-medium">
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-3">1. Information We Collect</h2>
-              <p>When you use Talexo, we collect information that you provide directly to us, such as when you create an account, update your profile, upload a resume, or contact customer support. This includes your name, email address, phone number, educational background, and employment history.</p>
+              <p>When you use Resourcemania, we collect information that you provide directly to us, such as when you create an account, update your profile, upload a resume, or contact customer support. This includes your name, email address, phone number, educational background, and employment history.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-3">2. How We Use AI and Data</h2>
-              <p>Talexo utilizes advanced Artificial Intelligence (AI) to parse resumes and accurately assess skills. By uploading your resume, you consent to our AI processing your document to extract professional details and calculate market-standard salary expectations. We do not use your personal data to train public AI models.</p>
+              <p>Resourcemania utilizes advanced Artificial Intelligence (AI) to parse resumes and accurately assess skills. By uploading your resume, you consent to our AI processing your document to extract professional details and calculate market-standard salary expectations. We do not use your personal data to train public AI models.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-3">3. Data Sharing with Employers</h2>
-              <p>For candidates, your profile information and assessment scores are shared with registered recruiters and companies on Talexo to facilitate hiring. Sensitive contact information (like phone and email) may be locked and only revealed to verified employers at our discretion or upon your approval.</p>
+              <p>For candidates, your profile information and assessment scores are shared with registered recruiters and companies on Resourcemania to facilitate hiring. Sensitive contact information (like phone and email) may be locked and only revealed to verified employers at our discretion or upon your approval.</p>
             </section>
 
             <section>

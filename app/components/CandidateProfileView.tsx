@@ -121,7 +121,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0"><Briefcase className="text-amber-600" size={32}/></div>
                <div>
                   <h3 className="text-xl font-extrabold text-slate-900 mb-1 flex items-center gap-2">Verified Corporate Experience <CheckCircle className="text-teal-500" size={18}/></h3>
-                  <p className="text-slate-600 mb-3 font-medium">Hired by <strong className="text-slate-900">{candidate.hired_company_name}</strong> through Talexo</p>
+                  <p className="text-slate-600 mb-3 font-medium">Hired by <strong className="text-slate-900">{candidate.hired_company_name}</strong> through Resourcemania</p>
                   <div className="flex gap-1 mb-3">
                      {[1,2,3,4,5].map(star => <Star key={star} size={18} fill={star <= candidate.company_rating ? "#D97706" : "none"} className={star <= candidate.company_rating ? "text-amber-600" : "text-slate-300"}/>)}
                   </div>

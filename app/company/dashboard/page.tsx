@@ -177,7 +177,7 @@ export default function CompanyDashboard() {
              <Lock className="w-12 h-12 text-amber-500" />
           </div>
           <h1 className="text-3xl font-extrabold mb-4 text-slate-900">Account Pending Approval</h1>
-          <p className="text-slate-500 font-medium mb-8">Please wait for the Talexo admin team to verify and approve your company account.</p>
+          <p className="text-slate-500 font-medium mb-8">Please wait for the Resourcemania admin team to verify and approve your company account.</p>
           <Button variant="secondary" onClick={handleLogout} className="w-full">Logout</Button>
         </Card>
       </div>
@@ -226,7 +226,7 @@ export default function CompanyDashboard() {
         <header className="flex justify-between items-center mb-8">
           <div>
              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
-             <p className="text-slate-500 mt-2 font-medium">{activeTab === 'assigned' ? 'Candidates verified by Talexo AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
+             <p className="text-slate-500 mt-2 font-medium">{activeTab === 'assigned' ? 'Candidates verified by Resourcemania AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
           </div>
         </header>
 
@@ -352,7 +352,7 @@ export default function CompanyDashboard() {
          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 md:p-10 shadow-2xl">
                <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Rate {reviewStudent.fullName}</h3>
-               <p className="text-slate-500 font-medium text-sm mb-6 leading-relaxed">Your honest review helps Talexo maintain quality. Positive reviews (3+ stars) will be shown on their profile.</p>
+               <p className="text-slate-500 font-medium text-sm mb-6 leading-relaxed">Your honest review helps Resourcemania maintain quality. Positive reviews (3+ stars) will be shown on their profile.</p>
                
                <div className="flex justify-center gap-2 mb-6">
                   {[1,2,3,4,5].map(star => (

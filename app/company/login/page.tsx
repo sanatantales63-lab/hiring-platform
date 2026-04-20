@@ -180,7 +180,7 @@ export default function CompanyLogin() {
                     className="mt-1 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
                  />
                  <label htmlFor="terms" className="text-xs text-slate-600 font-medium leading-relaxed cursor-pointer select-none">
-                    By creating an account, I confirm that I have read, understood, and agree to be legally bound by Talexo's <Link href="/terms-of-service" className="text-indigo-600 hover:underline font-bold" target="_blank">Terms & Conditions</Link>, and I authorise Talexo to securely store my access logs.
+                    By creating an account, I confirm that I have read, understood, and agree to be legally bound by Resourcemania's <Link href="/terms-of-service" className="text-indigo-600 hover:underline font-bold" target="_blank">Terms & Conditions</Link>, and I authorise Resourcemania to securely store my access logs.
                  </label>
               </div>
             ) : (

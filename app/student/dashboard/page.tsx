@@ -88,7 +88,7 @@ export default function Dashboard() {
 
       {/* PREMIUM GLASS SIDEBAR */}
       <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 hidden md:flex flex-col p-6 fixed h-full z-10 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Talexo</h2>
+        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Resourcemania</h2>
         <nav className="space-y-4 flex-1">
           <div onClick={() => router.push('/student/dashboard')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer bg-[#0f947e] text-white shadow-md shadow-teal-500/20"><LayoutDashboard size={20}/> <span className="font-bold">Dashboard</span></div>
           <div onClick={() => router.push('/student/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-500 hover:bg-white hover:text-slate-900 transition-all font-bold shadow-sm border border-transparent hover:border-slate-200"><UserCircle size={20}/> <span>My Profile</span></div>

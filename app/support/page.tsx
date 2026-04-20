@@ -37,7 +37,7 @@ export default function SupportPage() {
              <Mail className="text-blue-500 mb-4 group-hover:scale-110 transition-transform" size={32}/>
              <h3 className="text-xl font-extrabold text-slate-900 mb-2">Email Support</h3>
              <p className="text-slate-500 font-medium text-sm mb-4">Drop us an email anytime. We usually reply within 24 hours.</p>
-             <a href="mailto:support@talexo.com" className="text-blue-600 font-bold hover:underline">support@talexo.com</a>
+             <a href="mailto:support@Resourcemania.com" className="text-blue-600 font-bold hover:underline">support@Resourcemania.com</a>
           </Card>
 
           <Card className="hover:border-emerald-300 transition-colors shadow-lg group">

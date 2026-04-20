@@ -10,7 +10,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
 
     // 🔥 FORCE LOAD FONTS FOR CRYSTAL CLEAR TEXT 🔥
     useEffect(() => {
-        const linkId = "talexo-pdf-fonts";
+        const linkId = "Resourcemania-pdf-fonts";
         if (!document.getElementById(linkId)) {
             const link = document.createElement("link");
             link.id = linkId;
@@ -103,7 +103,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                 pdf.rect(0, pdfHeight - 12, pdfWidth, 12, 'F');
                 pdf.setTextColor(122, 135, 153); 
                 pdf.setFontSize(8);
-                pdf.text("Talexo Technologies Pvt. Ltd. | Verified Executive Report", 15, pdfHeight - 4.5);
+                pdf.text("Resourcemania Technologies Pvt. Ltd. | Verified Executive Report", 15, pdfHeight - 4.5);
                 pdf.text(`Page ${page}`, pdfWidth - 20, pdfHeight - 4.5);
 
                 // Common Header for Page 2 and beyond
@@ -116,7 +116,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
 
                     pdf.setTextColor(201, 168, 76);
                     pdf.setFontSize(11);
-                    pdf.text("Talexo | Executive Assessment (Continued)", 15, 10);
+                    pdf.text("Resourcemania | Executive Assessment (Continued)", 15, 10);
                 }
             };
 
@@ -133,7 +133,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                 drawOverlays(pageNum);
             }
 
-            pdf.save(`${candidate?.fullName?.replace(/\s+/g, '_') || "Candidate"}_Talexo_Executive_Report.pdf`);
+            pdf.save(`${candidate?.fullName?.replace(/\s+/g, '_') || "Candidate"}_Resourcemania_Executive_Report.pdf`);
             
             // Clean up dynamic margins
             for (let i = 0; i < elements.length; i++) {
@@ -325,7 +325,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                     {/* HEADER */}
                     <div className="header">
                         <div className="header-top">
-                            <div className="brand">Talexo<span>Executive Profile & Assessment</span></div>
+                            <div className="brand">Resourcemania<span>Executive Profile & Assessment</span></div>
                             <div className="report-meta">
                                 {/* 🔥 NO BOX! CLEAN TEXT WITH LINE 🔥 */}
                                 <div className="ai-badge">✦ AI Verified Profile</div>

@@ -1292,7 +1292,7 @@ export default function CandidateProfile() {
                                     <div className="w-full">
                                        <h4 className="text-indigo-900 font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
                                        <p className="text-slate-700 text-sm mb-4 leading-relaxed font-medium">
-                                          Top companies on Talexo often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-500 text-xs ml-1">*Required</span>
+                                          Top companies on Resourcemania often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-500 text-xs ml-1">*Required</span>
                                        </p>
                                        
                                        <div className="flex flex-col sm:flex-row gap-4 mt-2">

@@ -776,7 +776,7 @@ export default function LiveTestPage() {
         <div className="min-h-screen bg-transparent text-slate-900 flex items-center justify-center p-4 font-sans relative z-10">
             <div className="max-w-4xl w-full bg-white/90 backdrop-blur-xl border border-slate-200 rounded-[2rem] overflow-hidden shadow-2xl">
                 <div className="bg-slate-50 border-b border-slate-200 p-8">
-                    <h1 className="text-3xl font-extrabold mb-2 text-slate-900">Talexo Skill Assessment</h1>
+                    <h1 className="text-3xl font-extrabold mb-2 text-slate-900">Resourcemania Skill Assessment</h1>
                     <p className="text-slate-500 font-medium">Please read the instructions carefully before starting.</p>
                 </div>
                 

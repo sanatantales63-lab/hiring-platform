@@ -24,7 +24,7 @@ export default function Home() {
       <nav className="w-full bg-white/70 backdrop-blur-xl sticky top-0 z-50 border-b border-slate-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="text-2xl font-black text-slate-900 flex items-center gap-2 cursor-pointer tracking-tight" onClick={() => router.push('/')}>
-             <Briefcase className="text-[#0f947e]" size={28} strokeWidth={2.5}/> Talexo
+             <Briefcase className="text-[#0f947e]" size={28} strokeWidth={2.5}/> Resourcemania
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
@@ -200,7 +200,7 @@ export default function Home() {
             
             <div className="md:col-span-1">
               <Link href="/" className="text-2xl font-black text-slate-900 flex items-center gap-2 mb-4">
-                 <Briefcase className="text-[#0f947e]"/> Talexo
+                 <Briefcase className="text-[#0f947e]"/> Resourcemania
               </Link>
               <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
                 Revolutionizing hiring with AI-driven skill assessments and verified profiles.
@@ -249,7 +249,7 @@ export default function Home() {
 
           <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-400 text-sm font-medium">
-              © {new Date().getFullYear()} Talexo Technologies Pvt. Ltd. All rights reserved.
+              © {new Date().getFullYear()} Resourcemania Technologies Pvt. Ltd. All rights reserved.
             </p>
           </div>
         </div>

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Talexo - The Future of Hiring",
+  title: "Resourcemania - The Future of Hiring",
   description: "Unlock your career with AI verified profiles.",
 };
 
