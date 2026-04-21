@@ -16,7 +16,7 @@ import Button from "@/app/components/ui/Button";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const ADMIN_EMAIL = "admin@Resourcemania.in"; 
+  const ADMIN_EMAIL = "admin@talexo.in"; 
 
   const [activeTab, setActiveTab] = useState("students");
   const [students, setStudents] = useState<any[]>([]);
