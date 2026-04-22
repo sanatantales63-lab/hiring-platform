@@ -139,33 +139,50 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          </div>
       )}
 
-      {/* PAST WORK EXPERIENCE */}
+      {/* PAST WORK EXPERIENCE - ULTRA THIN COMPACT VIEW */}
       {workExpList.length > 0 && (
-          <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
-             <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Building className="text-teal-600"/> Past Work Experience</h3>
-             <div className="space-y-4">
-                 {displayedWorkExp.map((work:any, i:number) => (
-                    <div key={i} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-slate-300 transition-colors shadow-sm">
-                       <div>
-                          <p className="font-bold text-lg text-slate-900">{work.company}</p>
-                          <p className="text-sm text-teal-600 font-bold mt-1">{work.role}</p>
-                       </div>
-                       <div className="text-left sm:text-right">
-                          <p className="text-slate-600 text-sm font-bold bg-white border border-slate-200 shadow-sm px-3 py-1 rounded-lg inline-block">{work.duration}</p>
-                       </div>
-                    </div>
-                 ))}
-                 {extraWorkCount > 0 && (
-                    <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-2 py-3 border border-dashed border-slate-300 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors text-sm font-bold flex items-center justify-center gap-2">
-                       {showAllWork ? <><ChevronUp size={16}/> Show Less</> : <><ChevronDown size={16}/> View {extraWorkCount} More Experiences</>}
-                    </button>
-                 )}
+          <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-[2rem] shadow-lg mb-8">
+             <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3"><Building className="text-teal-600"/> Past Work Experience</h3>
+             <div className="flex flex-col">
+                {displayedWorkExp.map((work:any, i:number) => (
+                   <div key={i} className="py-3 border-b border-slate-100 last:border-0 flex flex-col justify-center">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-4">
+                         {/* Left Side: Company, Role, Designation */}
+                         <div className="flex items-center flex-wrap gap-2">
+                            <h4 className="font-bold text-base text-slate-900">{work.company}</h4>
+                            <span className="hidden md:inline-block text-slate-300">•</span>
+                            <span className="text-sm font-bold text-teal-600">{work.role}</span>
+                            {work.designation && (
+                               <span className="text-[10px] bg-slate-100 border border-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider whitespace-nowrap">
+                                  {work.designation}
+                               </span>
+                            )}
+                         </div>
+                         {/* Right Side: Duration */}
+                         <div className="shrink-0">
+                            <span className="text-xs font-bold text-slate-500 whitespace-nowrap">{work.duration}</span>
+                         </div>
+                      </div>
+                      {/* Ultra Thin Summary (1 Line, expands on hover) */}
+                      {work.summary && (
+                         <p className="text-xs text-slate-500 mt-1.5 line-clamp-1 hover:line-clamp-none cursor-pointer transition-all w-full" title="Hover to read full summary">
+                            <span className="font-semibold text-slate-400 mr-1">Summary:</span>{work.summary}
+                         </p>
+                      )}
+                   </div>
+                ))}
+                
+                {extraWorkCount > 0 && (
+                   <button onClick={() => setShowAllWork(!showAllWork)} className="w-full mt-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors text-xs font-bold flex items-center justify-center gap-2">
+                      {showAllWork ? <><ChevronUp size={14}/> Show Less</> : <><ChevronDown size={14}/> View {extraWorkCount} More</>}
+                   </button>
+                )}
              </div>
           </div>
       )}
 
       <div className="grid md:grid-cols-3 gap-8">
-<div className="md:col-span-1 space-y-8">
+         <div className="md:col-span-1 space-y-8">
              <div className="bg-white border border-slate-200 p-8 rounded-[2rem] shadow-lg">
                 <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-3"><Briefcase className="text-indigo-500"/> Career & Salary</h3>
                 <div className="space-y-4 text-sm font-bold text-slate-600">

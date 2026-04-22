@@ -58,34 +58,34 @@ export async function POST(req: Request) {
       You are an elite HR AI Data Extractor.
       CRITICAL: The resume text below was extracted from a document. Read it carefully.
       
-      RULES:
-      1. EDUCATIONS (STRICT): Extract EVERY SINGLE ROW under the Qualifications table.
-         - WARNING: DO NOT group degrees! Extract "CA-Final", "CA-Intermediate", and "CA-Foundation" as COMPLETELY SEPARATE entries.
-         - DO NOT extract 'Stage Cleared' or 'Attempts' for general graduation degrees like B.Com, B.Sc, BBA, B.Tech. Only extract them if the degree is CA, CMA, CS, or ACCA.
-         - NEW RULE: If the qualification is '10th', '12th', 'High School', 'Secondary' or 'Intermediate', check if "Mathematics" or "Maths" is mentioned. Set "mathsIncluded" to "Yes" or "No". Otherwise leave it "".
-      2. WORK EXPERIENCE: Look for "Work Experience", "Work done", or "Professional Experience". Extract Company/Client Name, Job Role, and Duration.
-      3. ACHIEVEMENTS & CERTIFICATIONS: Extract notable awards, external certifications, or specific major achievements explicitly written in the resume. Put them in the 'achievements' array.
-      4. BIO: Write a comprehensive, elite, and highly professional executive summary (around 50 to 60 words).
-      5. SALARY: Do NOT guess Expected Salary. Leave it completely blank ("").
-      6. STRENGTHS & WEAKNESSES: Infer 2-3 professional strengths (e.g., Analytical Thinking, Compliance Accuracy) and 1 professional, acceptable weakness (e.g., Over-detail oriented, Learning new tech stacks) based on the resume.
-      7. FORMAT: Return ONLY valid JSON. Do not extract technical skills (they will be provided manually).
+ RULES:
+      1. EDUCATIONS (STRICT): Extract EVERY SINGLE ROW under the Qualifications table.
+         - WARNING: DO NOT group degrees! Extract "CA-Final", "CA-Intermediate", and "CA-Foundation" as COMPLETELY SEPARATE entries.
+         - DO NOT extract 'Stage Cleared' or 'Attempts' for general graduation degrees like B.Com, B.Sc, BBA, B.Tech. Only extract them if the degree is CA, CMA, CS, or ACCA.
+         - NEW RULE: If the qualification is '10th', '12th', 'High School', 'Secondary' or 'Intermediate', check if "Mathematics" or "Maths" is mentioned. Set "mathsIncluded" to "Yes" or "No". Otherwise leave it "".
+      2. WORK EXPERIENCE: Extract Company Name, Job Role, and Duration. ALSO extract a brief 'summary' (2-3 sentences of tasks handled). ALWAYS infer the hierarchy 'designation' level (Choose EXACTLY ONE from: "Intern / Trainee", "Associate / Executive", "Senior Associate / Analyst", "Supervisor / Team Lead", "Manager", "Director / VP").
+      3. ACHIEVEMENTS & CERTIFICATIONS: Extract notable awards, external certifications, or specific major achievements explicitly written in the resume. Put them in the 'achievements' array.
+      4. BIO: Write a comprehensive, elite, and highly professional executive summary (around 50 to 60 words).
+      5. SALARY: Do NOT guess Expected Salary. Leave it completely blank ("").
+      6. STRENGTHS & WEAKNESSES: Infer 2-3 professional strengths (e.g., Analytical Thinking, Compliance Accuracy) and 1 professional, acceptable weakness (e.g., Over-detail oriented, Learning new tech stacks) based on the resume.
+      7. FORMAT: Return ONLY valid JSON. Do not extract technical skills (they will be provided manually).
 
-      Strict JSON Format:
-      {
-        "fullName": "Name",
-        "phone": "Phone",
-        "city": "City",
-        "state": "State",
-        "experience": "Map to: 'Fresher', '0-1 Years', '1-3 Years', '3-5 Years', or '5+ Years'",
-        "bio": "Comprehensive Elite Professional Bio (50-60 words)",
-        "strengths": ["Strength 1", "Strength 2"],
-        "weaknesses": ["Weakness 1"],
-        "languages": [{"language": "Language", "proficiency": "Fluent"}],
-        "educations": [{"qualification": "Exact Degree Name", "collegeName": "Institution (or N/A)", "passingYear": "YYYY", "percentage": "XX%", "stageCleared": "", "attempts": "", "mathsIncluded": "Yes/No/''"}],
-        "workExperience": [{"company": "Company Name", "role": "Job Role", "duration": "Duration"}],
-        "achievements": [{"title": "Certificate or Award Title", "description": "Short details", "imageURL": ""}],
-        "preferredLocations": ["City"]
-      }
+      Strict JSON Format:
+      {
+        "fullName": "Name",
+        "phone": "Phone",
+        "city": "City",
+        "state": "State",
+        "experience": "Map to: 'Fresher', '0-1 Years', '1-3 Years', '3-5 Years', or '5+ Years'",
+        "bio": "Comprehensive Elite Professional Bio (50-60 words)",
+        "strengths": ["Strength 1", "Strength 2"],
+        "weaknesses": ["Weakness 1"],
+        "languages": [{"language": "Language", "proficiency": "Fluent"}],
+        "educations": [{"qualification": "Exact Degree Name", "collegeName": "Institution (or N/A)", "passingYear": "YYYY", "percentage": "XX%", "stageCleared": "", "attempts": "", "mathsIncluded": "Yes/No/''"}],
+        "workExperience": [{"company": "Company Name", "role": "Job Role", "designation": "Mapped Level", "duration": "Duration", "summary": "Short task summary..."}],
+        "achievements": [{"title": "Certificate or Award Title", "description": "Short details", "imageURL": ""}],
+        "preferredLocations": ["City"]
+      }
 
       Resume Text:
       ${truncatedText}
