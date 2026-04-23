@@ -276,17 +276,24 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                     .skill-score { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 3px; }
 
                     /* ── EDUCATION ── */
-                    .edu-card { padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 4px 4px 0; margin-bottom: 12px; background: var(--white); }
-                    .edu-degree { font-weight: 600; font-size: 13px; color: var(--slate); margin-bottom: 2px; }
-                    .edu-school { font-size: 12px; color: var(--muted); margin-bottom: 5px; }
-                    .edu-meta { display: flex; gap: 16px; }
-                    .edu-chip { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 2px; background: #eef2f8; color: var(--slate-mid); letter-spacing: 0.5px; }
+                    .edu-card { padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 0; background: transparent; }
+                    .edu-card:last-child { border-bottom: none; }
+                    .edu-degree { font-weight: 700; font-size: 14px; color: var(--slate); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;}
+                    .edu-school { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+                    .edu-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+                    .edu-chip { font-family: 'DM Mono', monospace; font-size: 9.5px; padding: 3px 8px; border-radius: 4px; background: #eef2f8; color: var(--slate-mid); letter-spacing: 0.5px; font-weight: 600; white-space: nowrap; }
 
                     /* ── EXPERIENCE ── */
-                    .exp-card { padding: 16px 18px; border: 1px solid var(--border); border-radius: 4px; background: var(--white); margin-bottom: 12px;}
-                    .exp-role { font-weight: 600; font-size: 14px; color: var(--slate); }
-                    .exp-company { color: var(--gold); font-weight: 500; font-size: 13px; margin-top: 2px; }
-                    .exp-tenure { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 4px; }
+                    .exp-card { padding: 12px 0; border-bottom: 1px solid var(--border); background: transparent; margin-bottom: 0;}
+                    .exp-card:last-child { border-bottom: none; }
+                    .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+                    .exp-left { display: flex; flex-direction: column; gap: 2px; }
+                    .exp-company { font-weight: 700; font-size: 14px; color: var(--slate); }
+                    .exp-role-row { display: flex; align-items: center; gap: 8px; }
+                    .exp-role { color: var(--accent-green); font-weight: 600; font-size: 12px; }
+                    .exp-badge { font-size: 8.5px; background: #f0ece4; color: var(--slate-mid); padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; white-space: nowrap; }
+                    .exp-tenure { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--slate-mid); background: var(--paper); border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+                    .exp-summary { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; text-align: justify; }
 
                     /* ── SIDEBAR CARDS ── */
                     .info-card { background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
@@ -411,28 +418,48 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                 }) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No skill data recorded yet.</p>}
                             </div>
 
-                            <div className="section">
+<div className="section">
                                 <div className="section-title pdf-no-break"><span className="num">02</span> Education & Credentials</div>
-                                {educations.length > 0 ? educations.map((edu:any, i:number) => (
+                                {educations.length > 0 ? educations.map((edu:any, i:number) => {
+                                    const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test((edu.qualification || '').toLowerCase());
+                                    return (
                                     <div className="edu-card pdf-no-break" key={i}>
-                                        <div className="edu-degree">{edu.qualification}</div>
+                                        <div className="edu-degree">
+                                            {edu.qualification}
+                                            {edu.stageCleared && <span style={{ fontSize: "8.5px", background: "#fdf2e9", color: "#c07030", padding: "2px 5px", borderRadius: "3px", textTransform: "uppercase", fontWeight: "bold", whiteSpace: "nowrap" }}>{edu.stageCleared}</span>}
+                                        </div>
                                         <div className="edu-school">{edu.collegeName}</div>
                                         <div className="edu-meta">
                                             <span className="edu-chip">Pass: {edu.passingYear}</span>
-                                            {edu.percentage && <span className="edu-chip">Score: {edu.percentage}%</span>}
-                                            {(edu.mathsScore !== undefined && edu.mathsScore !== null) && <span className="edu-chip" style={{color: "#0f947e", background: "#e6f4f1", border: "1px solid #b2dfd6"}}>Maths: {edu.mathsScore}%</span>}
+                                            {/* Extra '%' hata diya hai taaki 'CGPA%' jaisa ajeeb na dikhe */}
+                                            {edu.percentage && <span className="edu-chip">Score: {edu.percentage}</span>}
+                                            
+                                            {/* Naya Maths Yes/No aur Score ka Logic */}
+                                            {isSchoolLevel && edu.mathsIncluded && edu.mathsIncluded !== "" && (
+                                                <span className="edu-chip" style={{color: edu.mathsIncluded === 'Yes' ? "var(--accent-green)" : "var(--accent-red)", background: edu.mathsIncluded === 'Yes' ? "#e8f5ee" : "#faeef0", border: "none"}}>
+                                                    Maths: {edu.mathsIncluded} {edu.mathsIncluded === 'Yes' && edu.mathsScore ? `(${edu.mathsScore}%)` : ''}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
-                                )) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No education listed.</p>}
+                                )}) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No education listed.</p>}
                             </div>
 
                             <div className="section">
                                 <div className="section-title pdf-no-break"><span className="num">03</span> Professional Experience</div>
                                 {experience.length > 0 ? experience.map((exp:any, i:number) => (
                                     <div className="exp-card pdf-no-break" key={i}>
-                                        <div className="exp-role">{exp.role}</div>
-                                        <div className="exp-company">{exp.company}</div>
-                                        <div className="exp-tenure">{exp.duration}</div>
+                                        <div className="exp-header">
+                                            <div className="exp-left">
+                                                <div className="exp-company">{exp.company}</div>
+                                                <div className="exp-role-row">
+                                                    <span className="exp-role">{exp.role}</span>
+                                                    {exp.designation && <span className="exp-badge">{exp.designation}</span>}
+                                                </div>
+                                            </div>
+                                            <div className="exp-tenure">{exp.duration}</div>
+                                        </div>
+                                        {exp.summary && <div className="exp-summary">{exp.summary}</div>}
                                     </div>
                                 )) : <p className="pdf-no-break" style={{fontSize: "12px", color: "var(--muted)"}}>No prior experience listed.</p>}
                             </div>
