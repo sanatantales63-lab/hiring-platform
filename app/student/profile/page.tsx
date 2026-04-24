@@ -1156,57 +1156,66 @@ export default function CandidateProfile() {
                {currentStep === 3 && (
                   <div className="space-y-12">
                      <div>
-                        <div className="flex justify-between items-center mb-6">
+ <div className="flex justify-between items-center mb-6">
                            <h2 className="text-3xl font-extrabold text-slate-900">Past Work Experience</h2>
-                           <button onClick={addWorkExp} className="text-sm font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 border border-teal-100 px-4 py-2 rounded-xl transition-colors">
-                               <Plus size={18} className="inline"/> Add Company
+                           <button onClick={addWorkExp} className="text-sm font-bold text-teal-600 hover:text-teal-700 flex items-center gap-2 bg-teal-50 px-4 py-2 rounded-xl transition-colors">
+                               <Plus size={18}/> Add Company
                            </button>
                         </div>
-                        <div className="space-y-4">
+                        
+                        <div className="space-y-6">
                            {formData.workExperience.map((work, index) => (
-                              <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-200 relative shadow-sm">
-                                 <button onClick={() => removeWorkExp(index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500">
+                              <div key={index} className="bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-200 relative shadow-sm">
+                                 
+                                 {/* Perfectly aligned Delete Button */}
+                                 <button 
+                                    onClick={() => removeWorkExp(index)} 
+                                    className="absolute top-5 right-5 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full shadow-sm transition-all z-10 flex items-center justify-center"
+                                    title="Remove Experience"
+                                 >
                                     <X size={18}/>
                                  </button>
-        <div className="grid md:grid-cols-2 gap-4 mt-2">
-                                    <div>
-                                       <label className="form-label">Company Name</label>
-                                       <input type="text" value={work.company} onChange={(e)=>updateWorkExp(index, 'company', e.target.value)} className="input-field" placeholder="e.g. TCS"/>
-                                    </div>
-                                    <div>
-                                       <label className="form-label">Job Role / Position</label>
-                                       <input type="text" value={work.role} onChange={(e)=>updateWorkExp(index, 'role', e.target.value)} className="input-field" placeholder="e.g. Audit Exec"/>
-                                    </div>
-                                    <div>
-                                       <label className="form-label">Designation Level</label>
-                                       <select value={work.designation || ""} onChange={(e)=>updateWorkExp(index, 'designation', e.target.value)} className="input-field [color-scheme:light]">
-                                          <option value="">Select Level</option>
-                                          <option>Intern / Trainee</option>
-                                          <option>Associate / Executive</option>
-                                          <option>Senior Associate / Analyst</option>
-                                          <option>Supervisor / Team Lead</option>
-                                          <option>Manager</option>
-                                          <option>Director / VP</option>
-                                       </select>
-                                    </div>
-                                    <div>
-                                       <label className="form-label">Duration</label>
-                                       <input type="text" value={work.duration} onChange={(e)=>updateWorkExp(index, 'duration', e.target.value)} className="input-field" placeholder="e.g. 2021 - 2023"/>
-                                    </div>
-                                    <div className="md:col-span-2">
-                                       <label className="form-label">Work Summary <span className="text-slate-400 text-xs font-normal">(Auto-filled by AI)</span></label>
-                                       <textarea value={work.summary || ""} onChange={(e)=>updateWorkExp(index, 'summary', e.target.value)} className="input-field min-h-[80px]" placeholder="Brief summary of tasks handled..."/>
-                                    </div>
-                                 </div>
-                               </div>
+                                 
+                                 {/* 2-Column Professional Grid */}
+                                 <div className="grid md:grid-cols-2 gap-6 mt-2">
+                                    <div>
+                                       <label className="form-label">Company Name</label>
+                                       <input type="text" value={work.company} onChange={(e)=>updateWorkExp(index, 'company', e.target.value)} className="input-field" placeholder="e.g. TCS"/>
+                                    </div>
+                                    <div>
+                                       <label className="form-label">Job Role / Position</label>
+                                       <input type="text" value={work.role} onChange={(e)=>updateWorkExp(index, 'role', e.target.value)} className="input-field" placeholder="e.g. Audit Exec"/>
+                                    </div>
+                                    <div>
+                                       <label className="form-label">Designation Level</label>
+                                       <select value={work.designation || ""} onChange={(e)=>updateWorkExp(index, 'designation', e.target.value)} className="input-field [color-scheme:light]">
+                                          <option value="">Select Level</option>
+                                          <option>Intern / Trainee</option>
+                                          <option>Associate / Executive</option>
+                                          <option>Senior Associate / Analyst</option>
+                                          <option>Supervisor / Team Lead</option>
+                                          <option>Manager</option>
+                                          <option>Director / VP</option>
+                                       </select>
+                                    </div>
+                                    <div>
+                                       <label className="form-label">Duration</label>
+                                       <input type="text" value={work.duration} onChange={(e)=>updateWorkExp(index, 'duration', e.target.value)} className="input-field" placeholder="e.g. 2021 - 2023"/>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                       <label className="form-label">Work Summary <span className="text-slate-400 text-xs font-normal ml-1">(Auto-filled by AI)</span></label>
+                                       <textarea value={work.summary || ""} onChange={(e)=>updateWorkExp(index, 'summary', e.target.value)} className="input-field min-h-[100px] resize-y" placeholder="Brief summary of tasks handled..."/>
+                                    </div>
+                                 </div>
+                              </div>
                            ))}
-                           {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm font-medium">No past experience added. AI will auto-fill if found on resume.</p>}
+                           {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm font-medium pl-2">No past experience added. AI will auto-fill if found on resume.</p>}
                         </div>
-                     </div>
+                     </div>
 
-                     <div className="pt-8 border-t border-slate-200">
-                        <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2"><Award className="text-amber-500"/> Achievements & Certifications</h2>
+                     <div className="pt-8 border-t border-slate-200">
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2"><Award className="text-amber-500"/> Achievements & Certifications</h2>
                            <button onClick={addAchievement} className="text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 px-4 py-2 rounded-xl transition-colors">
                               <Plus size={18} className="inline"/> Add Achievement
                            </button>

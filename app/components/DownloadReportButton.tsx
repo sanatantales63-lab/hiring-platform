@@ -389,8 +389,15 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                         <div className="main-col">
                             
                             <div className="section pdf-no-break">
-                                <div className="section-title"><span className="num">01</span> Domain Skill Analytics</div>
-                                {Object.keys(skillScores).length > 0 ? Object.keys(skillScores).map((skill, i) => {
+                                <div className="section-title pdf-no-break" style={{ justifyContent: "space-between", width: "100%" }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span className="num">01</span>
+                                        <span style={{ whiteSpace: "nowrap" }}>Domain Skill Analytics</span>
+                                    </div>
+                                    <span style={{ fontSize: "9px", fontFamily: "'DM Mono', monospace", color: "var(--muted)", fontWeight: "normal", letterSpacing: "0.5px", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                                        *Scores via Resourcemania Test
+                                    </span>
+                              </div>                                {Object.keys(skillScores).length > 0 ? Object.keys(skillScores).map((skill, i) => {
                                     const data = skillScores[skill];
                                     const score = Math.max(0, data.scoreCount || data.correct || 0);
                                     const total = data.total || 5;
@@ -523,12 +530,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                 </div>
                             </div>
 
-                            {totalWarnings > 0 && (
-                                <div className="warning-card pdf-no-break">
-                                    <div className="warning-title">⚠ Integrity Note</div>
-                                    {totalWarnings} minor infractions (Tab switches or Audio/Camera noise) were recorded during the AI assessment.
-                                </div>
-                            )}
+                           {/* Integrity Note Removed */}
 
                             <div className="info-card pdf-no-break">
                                 <div className="info-card-title">Skill Mappings</div>
