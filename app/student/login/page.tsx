@@ -62,14 +62,17 @@ export default function CandidateLogin() {
       let authUserId = null;
 
       if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        authUserId = data.user?.id;
-        alert("Success! Please check your email for the confirmation link.");
-      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/student/login?verified=true`,
+          }
+        });
+        if (error) throw error;
+        authUserId = data.user?.id;
+        alert("Success! Please check your email for the confirmation link.");
+      } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,

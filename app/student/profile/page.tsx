@@ -10,6 +10,10 @@ import {
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
+import { City } from "country-state-city";
+
+// Fetching all 4000+ Indian Cities for Autocomplete
+const INDIAN_CITIES = City.getCitiesOfCountry("IN") || [];
 
 // 🔥 UPDATED EXCEL MASTER SKILLS DATA 🔥
 const MASTER_SKILLS_DATA: Record<string, string[]> = {
@@ -229,15 +233,23 @@ export default function CandidateProfile() {
     return () => stopCamera();
   }, []);
 
-  const handleAddLocation = (e: any) => {
-    if (e.key === 'Enter' && locInput.trim() !== '') {
-      e.preventDefault();
-      if (!formData.preferredLocations.includes(locInput.trim())) {
-          setFormData(p => ({ ...p, preferredLocations: [...p.preferredLocations, locInput.trim()] }));
-      }
-      setLocInput("");
-    }
-  };
+ const handleAddLocation = (e: any) => {
+    if (e.key === 'Enter' && locInput.trim() !== '') {
+      e.preventDefault();
+      const inputCity = locInput.trim();
+      
+      // Smart check for dropdown selection (handles both strings and objects)
+      const isValid = INDIAN_CITIES.some((c: any) => (c.name || c) === inputCity);
+      if (!isValid) {
+          return alert("🛑 Invalid Location! Please select a valid city from the dropdown suggestions.");
+      }
+
+      if (!formData.preferredLocations.includes(inputCity)) {
+          setFormData(p => ({ ...p, preferredLocations: [...p.preferredLocations, inputCity] }));
+      }
+      setLocInput("");
+    }
+  };
 
   const removeLocation = (loc: string) => {
       setFormData(p => ({ ...p, preferredLocations: p.preferredLocations.filter(l => l !== loc) }));
@@ -506,9 +518,15 @@ export default function CandidateProfile() {
             return alert("🛑 Profile Photo is mandatory! Please click a clear profile photo to proceed.");
         }
         if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
-            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
-        }
-        if (formData.dob) {
+            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
+        }
+        
+        const isValidCity = INDIAN_CITIES.some((c: any) => (c.name || c) === formData.city.trim());
+        if (!isValidCity) {
+            return alert("🛑 Invalid City! Please select a valid city from the dropdown suggestions.");
+        }
+
+        if (formData.dob) {
             const birthDate = new Date(formData.dob);
             const today = new Date();
             let age = today.getFullYear() - birthDate.getFullYear();
@@ -844,9 +862,12 @@ export default function CandidateProfile() {
                            </select>
                         </div>
                         <div>
-                           <label className="form-label">City <span className="text-red-500">*</span></label>
-                           <input type="text" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field"/>
-                        </div>
+                           <label className="form-label">City <span className="text-red-500">*</span></label>
+                           <input type="text" list="indian-cities" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Type to search your city..."/>
+                           <datalist id="indian-cities">
+                              {INDIAN_CITIES.map((c, idx) => <option key={idx} value={c.name} />)}
+                           </datalist>
+                        </div>
                         <div>
                            <label className="form-label">PAN Card <span className="text-slate-400 text-xs ml-1">(Optional)</span></label>
                            <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/>
@@ -1366,7 +1387,7 @@ export default function CandidateProfile() {
                                     </span>
                                  ))}
                                </div>
-                              <input type="text" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-300 pb-3 outline-none text-slate-900 text-base font-bold placeholder:text-slate-400 placeholder:font-medium focus:border-teal-500" placeholder="e.g. Mumbai, Bangalore..."/>
+                             <input type="text" list="indian-cities" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-300 pb-3 outline-none text-slate-900 text-base font-bold placeholder:text-slate-400 placeholder:font-medium focus:border-teal-500" placeholder="Type city and press Enter..."/>
                            </div>
                         </div>
                      </div>
