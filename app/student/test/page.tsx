@@ -17,14 +17,18 @@ const normalizeText = (str: string) => (str || "").toLowerCase().trim();
 const isDontKnowOption = (text: string) => normalizeText(text).includes("don't know");
 
 export default function LiveTestPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [studentProfile, setStudentProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [testStarted, setTestStarted] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  
-  const [mediaAllowed, setMediaAllowed] = useState(false);
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [studentProfile, setStudentProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [testStarted, setTestStarted] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  
+  // Mobile Detection State
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [mobileWarningDismissed, setMobileWarningDismissed] = useState(false);
+
+  const [mediaAllowed, setMediaAllowed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -416,77 +420,83 @@ export default function LiveTestPage() {
       }, 30000); 
 
       const checkActivity = () => {
-        if (isSubmitted || isTerminated) return;
-        frameCount++;
-        analyser.getByteFrequencyData(dataArray);
-        
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
+        if (isSubmitted || isTerminated) return;
+        frameCount++;
+        analyser.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+            sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
 
-        if (average > 35) {
-          noiseFramesRef.current += 1;
-          if (noiseFramesRef.current > 150) { 
-              noiseFramesRef.current = 0;
-              triggerWarning('mic'); 
-          }
-        } else { 
-            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
-        }
+        // Smart Audio Check (Only catches loud continuous speaking, ignores quick rustling)
+        if (average > 65) { 
+          noiseFramesRef.current += 1;
+          if (noiseFramesRef.current > 30) { // ~0.5 seconds of loud noise
+              noiseFramesRef.current = 0;
+              triggerWarning('mic'); 
+          }
+        } else { 
+            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
+        }
 
-        if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
-            const video = videoRef.current;
-            const canvas = canvasRef.current;
-            const videoTrack = stream.getVideoTracks()[0]; 
-            const audioTrack = stream.getAudioTracks()[0];
+        if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            const videoTrack = stream.getVideoTracks()[0]; 
+            const audioTrack = stream.getAudioTracks()[0];
 
-            if ((videoTrack && (!videoTrack.enabled || videoTrack.readyState === 'ended')) || 
-                (audioTrack && (!audioTrack.enabled || audioTrack.readyState === 'ended'))) { 
-                triggerWarning('cam');
-            }
-            
-            if (video.readyState >= 2) {
-                const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                if (ctx) {
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                    
-                    let totalBrightness = 0;
-                    for(let i=0; i<currentFrame.length; i+=4) totalBrightness += currentFrame[i] + currentFrame[i+1] + currentFrame[i+2];
-                    
-                    if (totalBrightness < 1000) {
-                        movementFramesRef.current += 1;
-                        if (movementFramesRef.current > 4) { 
-                            movementFramesRef.current = 0;
-                            triggerWarning('cam'); 
-                        }
-                    } else if (previousFrameRef.current) {
-                        let diffCount = 0;
-                        const totalPixels = currentFrame.length / 4;
-                        for (let i = 0; i < currentFrame.length; i += 4) {
-                            const rDiff = Math.abs(currentFrame[i] - previousFrameRef.current[i]);
-                            const gDiff = Math.abs(currentFrame[i+1] - previousFrameRef.current[i+1]);
-                            const bDiff = Math.abs(currentFrame[i+2] - previousFrameRef.current[i+2]);
-                            if (rDiff + gDiff + bDiff > 60) diffCount++; 
-                        }
-                        if ((diffCount / totalPixels) * 100 > 15) {
-                            movementFramesRef.current += 1;
-                            if (movementFramesRef.current > 4) { 
-                                movementFramesRef.current = 0;
-                                triggerWarning('cam'); 
-                            }
-                        } else { 
-                            movementFramesRef.current = Math.max(0, movementFramesRef.current - 1);
-                        }
-                    }
-                    previousFrameRef.current = new Uint8Array(currentFrame);
-                }
-            }
-        }
-        animationFrameRef.current = requestAnimationFrame(checkActivity);
-      };
+            if ((videoTrack && (!videoTrack.enabled || videoTrack.readyState === 'ended')) || 
+                (audioTrack && (!audioTrack.enabled || audioTrack.readyState === 'ended'))) { 
+                triggerWarning('cam');
+            }
+            
+            if (video.readyState >= 2) {
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                if (ctx) {
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                    
+                    let totalBrightness = 0;
+                    for(let i=0; i<currentFrame.length; i+=4) totalBrightness += currentFrame[i] + currentFrame[i+1] + currentFrame[i+2];
+                    
+                    if (totalBrightness < 1000) {
+                        movementFramesRef.current += 1;
+                        if (movementFramesRef.current > 4) { 
+                            movementFramesRef.current = 0;
+                            triggerWarning('cam', "Camera blocked or too dark!"); 
+                        }
+                    } else if (previousFrameRef.current) {
+                        let diffCount = 0;
+                        const totalPixels = currentFrame.length / 4;
+                        for (let i = 0; i < currentFrame.length; i += 4) {
+                            const rDiff = Math.abs(currentFrame[i] - previousFrameRef.current[i]);
+                            const gDiff = Math.abs(currentFrame[i+1] - previousFrameRef.current[i+1]);
+                            const bDiff = Math.abs(currentFrame[i+2] - previousFrameRef.current[i+2]);
+                            if (rDiff + gDiff + bDiff > 60) diffCount++; 
+                        }
+
+                        // Device-aware threshold (Relaxed for mobile, Strict for PC)
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                        const movementThreshold = isMobile ? 35 : 15; 
+                        
+                        if ((diffCount / totalPixels) * 100 > movementThreshold) {
+                            movementFramesRef.current += 1;
+                            if (movementFramesRef.current > 4) { 
+                                movementFramesRef.current = 0;
+                                triggerWarning('cam', "Excessive movement detected!"); 
+                            }
+                        } else { 
+                            movementFramesRef.current = Math.max(0, movementFramesRef.current - 1);
+                        }
+                    }
+                    previousFrameRef.current = new Uint8Array(currentFrame);
+                }
+            }
+        }
+        animationFrameRef.current = requestAnimationFrame(checkActivity);
+      };
       checkActivity();
     } catch (error) { 
         console.error("Proctoring failed:", error); 
@@ -753,14 +763,59 @@ export default function LiveTestPage() {
   // ---------------------------------------------------------
 
 
-  if (loading) return (
-      <div className="h-screen bg-transparent flex flex-col items-center justify-center text-slate-900 relative z-10">
-         <Loader2 className="animate-spin text-[#0f947e] w-12 h-12 mb-4"/> 
-         <p className="text-lg font-extrabold">{aiReportGenerating ? "AI is Analyzing your Performance..." : "Loading Secure Environment..."}</p>
+  // Effect to check if user is on mobile device when component mounts
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        const mobileCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        setIsMobileDevice(mobileCheck);
+    }
+  }, []);
+
+  if (loading) return (
+      <div className="h-screen bg-transparent flex flex-col items-center justify-center text-slate-900 relative z-10">
+         <Loader2 className="animate-spin text-[#0f947e] w-12 h-12 mb-4"/> 
+         <p className="text-lg font-extrabold">{aiReportGenerating ? "AI is Analyzing your Performance..." : "Loading Secure Environment..."}</p>
+      </div>
+  );
+
+  // 🛑 MOBILE WARNING POPUP (Locks the screen until accepted)
+  if (isMobileDevice && !mobileWarningDismissed && !testStarted) return (
+      <div className="min-h-screen bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 relative z-50">
+        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-3xl p-5 md:p-8 max-w-md w-full text-center shadow-2xl border border-amber-200 mx-4">
+            <div className="w-14 h-14 md:w-20 md:h-20 bg-amber-50 border-2 border-amber-200 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-6 shadow-sm">
+               <AlertTriangle size={28} className="text-amber-500" />
+            </div>
+            <h2 className="text-xl md:text-2xl font-extrabold mb-2 md:mb-3 text-slate-900">Mobile Device Detected!</h2>
+            <p className="text-slate-600 text-xs md:text-sm font-medium mb-4 md:mb-6 leading-relaxed">
+               For the best experience and to avoid <strong className="text-red-600">Auto-Disqualification</strong>, we highly recommend taking this test on a <strong>Laptop or Desktop PC</strong>.
+            </p>
+            <div className="bg-red-50 border border-red-100 p-3 md:p-4 rounded-xl text-left mb-5 md:mb-8 shadow-sm">
+               <p className="text-[10px] md:text-xs text-red-800 font-bold mb-1 md:mb-2 uppercase tracking-widest">Risks of using mobile:</p>
+               <ul className="text-[11px] md:text-sm text-red-700 space-y-1.5 md:space-y-2 font-medium">
+                  <li className="flex gap-2 items-start"><Ban size={14} className="mt-0.5 shrink-0"/> Calls/messages may trigger Tab Switch warnings.</li>
+                  <li className="flex gap-2 items-start"><Camera size={14} className="mt-0.5 shrink-0"/> Shaky hands may trigger Camera Movement warnings.</li>
+               </ul>
+            </div>
+            <div className="flex flex-col gap-2 md:gap-3 text-left">
+               {/* Option 1: Continue on Mobile */}
+               <button onClick={() => setMobileWarningDismissed(true)} className="flex items-center gap-3 p-3 md:p-4 rounded-xl border-2 border-slate-200 hover:border-amber-500 hover:bg-amber-50 transition-all group">
+                  <div className="w-4 h-4 md:w-5 md:h-5 rounded border-2 border-slate-300 group-hover:border-amber-500 bg-white shrink-0 flex items-center justify-center"></div>
+                  <span className="text-xs md:text-sm font-bold text-slate-700 group-hover:text-amber-800">I Understand, Continue on Mobile Anyway</span>
+               </button>
+               
+               {/* Option 2: Exit to Laptop (Recommended) */}
+               <button onClick={() => window.location.href = '/student/dashboard'} className="flex items-center gap-3 p-3 md:p-4 rounded-xl border-2 border-[#0f947e] bg-teal-50 hover:bg-teal-100 transition-all group shadow-sm">
+                  <div className="w-4 h-4 md:w-5 md:h-5 rounded border-2 border-[#0f947e] bg-[#0f947e] shrink-0 flex items-center justify-center">
+                     <CheckCircle size={12} className="text-white"/>
+                  </div>
+                  <span className="text-xs md:text-sm font-bold text-[#0f947e]">Exit and open on Laptop (Recommended)</span>
+               </button>
+            </div>
+         </motion.div>
       </div>
   );
 
-  if (generatingAIQuestions) return (
+  if (generatingAIQuestions) return (
       <div className="h-screen bg-transparent flex flex-col items-center justify-center text-slate-900 px-4 text-center relative z-10">
          <Sparkles className="animate-pulse text-[#0f947e] w-16 h-16 mb-6"/>
          <h2 className="text-3xl font-extrabold mb-2">Generating Dynamic Assessment</h2>
