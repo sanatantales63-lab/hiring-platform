@@ -438,15 +438,16 @@ export default function LiveTestPage() {
         }
         const average = sum / bufferLength;
 
-        // Smart Audio Check (Only catches loud continuous speaking, ignores quick rustling)
-        if (average > 65) { 
+       // Smart Audio Check: Catches normal/low speaking voices over a duration, ignores brief background noises
+        if (average > 48) { // Lowered threshold to catch normal/quiet talking
           noiseFramesRef.current += 1;
-          if (noiseFramesRef.current > 30) { // ~0.5 seconds of loud noise
+          if (noiseFramesRef.current > 75) { // ~1.2 seconds of continuous talking
               noiseFramesRef.current = 0;
-              triggerWarning('mic'); 
+              triggerWarning('mic', "Continuous talking or audio detected!"); 
           }
         } else { 
-            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
+            // Slower reset (-1 instead of -2) so natural pauses between words don't reset the penalty
+            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 1);
         }
 
         if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {

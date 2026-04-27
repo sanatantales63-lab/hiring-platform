@@ -33,18 +33,12 @@ export default function Home() {
              <span className="cursor-pointer hover:text-[#0f947e] transition-colors">Pricing</span>
           </div>
 
-<div className="flex items-center gap-2 md:gap-4">
+<div className="flex items-center">
             <button 
               onClick={() => router.push("/admin/login")} 
-              className="flex items-center gap-1 md:gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors bg-white/80 px-2.5 py-2 md:px-3 md:py-2.5 rounded-xl border border-slate-200 shadow-sm active:scale-95"
+              className="flex items-center gap-1.5 text-xs md:text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors bg-white hover:bg-slate-50 px-3 py-2 md:px-4 md:py-2.5 rounded-xl border border-slate-200 shadow-sm active:scale-95"
             >
-              <ShieldCheck size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">Admin</span><span className="sm:hidden">Admin</span>
-            </button>
-            <button 
-              onClick={() => router.push("/student/login")} 
-              className="bg-[#0f947e] hover:bg-[#0c7a68] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-teal-500/30 text-sm md:text-base active:scale-95"
-            >
-              Get Started
+              <ShieldCheck size={16} /> <span>Admin Login</span>
             </button>
           </div>
         </div>

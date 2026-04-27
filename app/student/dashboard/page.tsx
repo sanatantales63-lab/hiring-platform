@@ -101,7 +101,7 @@ export default function Dashboard() {
         
 <header className="flex justify-between items-start md:items-center mb-8 md:mb-12">
           <div className="pr-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 md:mb-2 text-slate-900 leading-tight">Welcome, {user?.user_metadata?.name?.split(' ')[0] || "Candidate"}! 👋</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 md:mb-2 text-slate-900 leading-tight truncate">Welcome, {profileData?.fullName?.split(' ')[0] || "Candidate"}! 👋</h1>
             <p className="text-slate-500 font-medium text-xs sm:text-sm md:text-base">Manage your profile and assessment status.</p>
           </div>
           <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shrink-0 shadow-sm border border-red-100">

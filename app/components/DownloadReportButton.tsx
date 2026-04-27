@@ -360,27 +360,22 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                     </div>
 
                     {/* SCORE STRIP */}
-                    <div className="score-strip">
-                        <div className="score-block">
-                            <div className="score-label">Integrity Status</div>
-                            <div className={`score-value ${totalWarnings > 0 ? "amber" : "green"}`}>{totalWarnings > 0 ? `⚠ ${totalWarnings}` : "Clear"}</div>
-                            <div className="score-sub">{totalWarnings > 0 ? "Warnings noted" : "Secure Environment"}</div>
-                        </div>
-                        <div className="score-block" style={{paddingLeft: "32px"}}>
-                            <div className="score-label">Notice Period</div>
-                            <div className="score-value" style={{fontSize: "22px", color: "#fff", paddingTop: "4px"}}>{candidate?.noticePeriod || "Immediate"}</div>
-                            <div className="score-sub">{candidate?.experience || "Fresher"} Exp</div>
-                        </div>
-                        <div className="score-block" style={{paddingLeft: "32px"}}>
-                            <div className="score-label">Expected Salary</div>
-                            <div className="score-value" style={{fontSize: "22px", color: "#fff", paddingTop: "4px"}}>{candidate?.expectedSalary || "N/A"}</div>
-                            <div className="score-sub">Per Month</div>
-                        </div>
-                        <div className="score-block" style={{paddingLeft: "32px"}}>
-                            <div className="score-label">Work Mode</div>
-                            <div className="score-value" style={{fontSize: "22px", color: "#fff", paddingTop: "4px"}}>{candidate?.workMode || "On-site"}</div>
-                        </div>
-                    </div>
+                    <div className="score-strip" style={{ display: "flex", justifyContent: "center", padding: "0" }}>
+                        <div className="score-block" style={{ width: "250px", flex: "none", padding: "2px 0", textAlign: "center" }}>
+                            <div className="score-label" style={{ margin: "0", padding: "0", lineHeight: "1" }}>Notice Period</div>
+                            <div className="score-value" style={{ fontSize: "20px", color: "#fff", margin: "0", padding: "0", lineHeight: "1" }}>{candidate?.noticePeriod || "Immediate"}</div>
+                            <div className="score-sub" style={{ margin: "0", padding: "0", lineHeight: "1" }}>{candidate?.experience || "Fresher"} Exp</div>
+                        </div>
+                        <div className="score-block" style={{ width: "250px", flex: "none", padding: "2px 0", textAlign: "center" }}>
+                            <div className="score-label" style={{ margin: "0", padding: "0", lineHeight: "1" }}>Expected Salary</div>
+                            <div className="score-value" style={{ fontSize: "20px", color: "#fff", margin: "0", padding: "0", lineHeight: "1" }}>{candidate?.expectedSalary || "N/A"}</div>
+                            <div className="score-sub" style={{ margin: "0", padding: "0", lineHeight: "1" }}>Per Month</div>
+                        </div>
+                        <div className="score-block" style={{ width: "250px", flex: "none", padding: "2px 0", textAlign: "center", borderRight: "none" }}>
+                            <div className="score-label" style={{ margin: "0", padding: "0", lineHeight: "1" }}>Work Mode</div>
+                            <div className="score-value" style={{ fontSize: "20px", color: "#fff", margin: "0", padding: "0", lineHeight: "1" }}>{candidate?.workMode || "On-site"}</div>
+                        </div>
+                    </div>
 
                     {/* TWO-COLUMN BODY */}
                     <div className="body-wrap">
@@ -395,7 +390,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                         <span style={{ whiteSpace: "nowrap" }}>Domain Skill Analytics</span>
                                     </div>
                                     <span style={{ fontSize: "9px", fontFamily: "'DM Mono', monospace", color: "var(--muted)", fontWeight: "normal", letterSpacing: "0.5px", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                                        *Scores via Resourcemania Test
+                                        * Skill-based assessment by Resourcemania; results below:
                                     </span>
                               </div>                                {Object.keys(skillScores).length > 0 ? Object.keys(skillScores).map((skill, i) => {
                                     const data = skillScores[skill];
