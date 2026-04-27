@@ -183,9 +183,17 @@ export default function LiveTestPage() {
      return Math.max(0, calcScore); 
   };
 
-  const handlePreSubmit = () => {
-     if (isTerminated || isSubmitted) return;
-     const currentScore = calculateCurrentScore();
+ const handlePreSubmit = () => {
+     if (isTerminated || isSubmitted) return;
+
+     // Check if candidate has attempted at least 1 question
+     const hasAttemptedAtLeastOne = answers.some(ans => ans !== -1 && ans !== undefined);
+     if (!hasAttemptedAtLeastOne) {
+         alert("🛑 Please attempt at least 1 question before submitting the assessment.");
+         return;
+     }
+
+     const currentScore = calculateCurrentScore();
      const percentage = questions.length > 0 ? (currentScore / questions.length) * 100 : 0;
      
      if (percentage < 30 && !bonusRoundTaken && extraQuestionsPool.length > 0) {
