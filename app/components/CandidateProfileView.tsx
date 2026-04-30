@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { 
-  User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
-  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award, Users
+  User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
+  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award, Users
 } from "lucide-react";
+import DownloadReportButton from "@/app/components/DownloadReportButton";
 
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
   const [showAllEdu, setShowAllEdu] = useState(false);
@@ -107,12 +108,35 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
           </div>
 
           {isCompany && (
-             <div className="mt-4 inline-flex bg-white px-5 py-2 rounded-xl border border-amber-300 text-amber-600 text-xs font-bold items-center gap-2 shadow-md">
-                <Lock size={16}/> CONTACT INFO LOCKED BY ADMIN
-             </div>
-          )}
-        </div>
-      </div>
+             <div className="mt-4 inline-flex bg-white px-5 py-2 rounded-xl border border-amber-300 text-amber-600 text-xs font-bold items-center gap-2 shadow-md">
+                <Lock size={16}/> CONTACT INFO LOCKED BY ADMIN
+             </div>
+          )}
+
+          {/* 🔥 ADMIN ONLY: RESUME & REPORT BUTTONS DIRECTLY IN PROFILE 🔥 */}
+          {isAdmin && (
+             <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6 pt-5 border-t border-slate-200">
+                {candidate.resumeURL ? (
+                    <a href={candidate.resumeURL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-400 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm">
+                        <FileText size={16} /> View Resume
+                    </a>
+                ) : (
+                    <button disabled className="flex items-center gap-2 bg-slate-100 text-slate-400 px-5 py-2.5 rounded-xl text-sm font-bold cursor-not-allowed border border-slate-200">
+                        <FileText size={16} /> No Resume Uploaded
+                    </button>
+                )}
+
+                {(candidate.examAccess === 'completed' || metaObj.totalScore !== undefined) ? (
+                    <DownloadReportButton candidate={candidate} buttonStyle="admin" />
+                ) : (
+                    <button disabled className="flex items-center gap-2 bg-slate-100 text-slate-400 px-5 py-2.5 rounded-xl text-sm font-bold cursor-not-allowed border border-slate-200">
+                        Test Not Completed
+                    </button>
+                )}
+             </div>
+          )}
+        </div>
+      </div>
 
       {showReview && (
          <div className="bg-amber-50 border border-amber-200 p-8 rounded-[2rem] shadow-md relative overflow-hidden">

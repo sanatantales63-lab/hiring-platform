@@ -216,8 +216,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex font-sans relative">
-      <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 p-6 flex flex-col fixed h-full z-10 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Owner Panel</h2>
+      <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 p-6 hidden md:flex flex-col fixed h-full z-10 shadow-sm">
+        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Owner Panel</h2>
         <nav className="space-y-3 flex-1">
           <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
             <div className="flex items-center gap-3"><Bell size={20} /> Alerts</div>
@@ -241,15 +241,15 @@ export default function AdminDashboard() {
               <Upload size={18} /> Upload Q-Bank
             </Button>
           </div>
-        </nav>
-        <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex items-center gap-3 text-slate-500 mt-auto hover:text-red-500 font-bold transition-colors px-4">
-          <LogOut size={20} /> Exit Admin
-        </button>
-      </aside>
+       </nav>
+        <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex items-center gap-3 text-slate-500 mt-auto hover:text-red-500 font-bold transition-colors px-4">
+          <LogOut size={20} /> Exit Admin
+        </button>
+      </aside>
 
-      <main className="flex-1 p-8 md:p-10 ml-64 overflow-y-auto min-h-screen relative z-10">
-        
-        {activeTab === "students" && (
+      <main className="flex-1 p-5 md:p-10 ml-0 md:ml-64 pb-24 md:pb-10 overflow-y-auto min-h-screen relative z-10">
+        
+        {activeTab === "students" && (
            <div className="animate-in fade-in duration-300">
              <div className="flex justify-between items-end mb-8">
                 <div>
@@ -663,12 +663,40 @@ export default function AdminDashboard() {
                    <Button variant="primary" onClick={() => setShowAccessModal(false)}>Done Assigning</Button>
                 </div>
              </div>
-          </div>
-        )}
+          </div>
+        )}
 
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      {/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-2xl border-t border-slate-200/50 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+        <div className="flex justify-evenly items-center px-1 py-2">
+          <div onClick={() => setActiveTab("requests")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'requests' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`relative p-2 rounded-2xl ${activeTab === 'requests' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}>
+               <Bell size={20} />
+               {totalAlerts > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>}
+            </div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Alerts</span>
+          </div>
+          
+          <div onClick={() => setActiveTab("students")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'students' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeTab === 'students' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Users size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Talent</span>
+          </div>
+
+          <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Firms</span>
+          </div>
+
+          <div onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex flex-col items-center gap-1 p-2 w-16 cursor-pointer text-slate-400 hover:text-red-500">
+            <div className="p-2 rounded-2xl hover:bg-red-50"><LogOut size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Exit</span>
+          </div>
+        </div>
+      </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>

@@ -2,7 +2,7 @@
 import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 
 // Yahan humne wahi Master Component Admin ke liye bulaya hai
 import CandidateProfileView from "@/app/components/CandidateProfileView";
@@ -32,15 +32,37 @@ export default function AdminStudentView({ params }: { params: Promise<{ id: str
       <div className="max-w-5xl mx-auto relative z-10">
         
         <div className="flex justify-between items-center mb-8">
-            <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-              <ArrowLeft size={18}/> <span className="font-bold">Back to Admin Panel</span>
-            </button>
+            <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft size={18}/> <span className="font-bold">Back to Admin Panel</span>
+            </button>
 
-            {/* 🔥 ONLY SHOW DOWNLOAD IF TEST COMPLETED 🔥 */}
-            {student?.examAccess === 'completed' && (
-                <DownloadReportButton candidate={student} buttonStyle="admin" />
-            )}
-        </div>
+            <div className="flex items-center gap-4">
+                {/* 🔥 ADMIN KE LIYE RESUME VIEW BUTTON 🔥 */}
+                {student?.resumeURL ? (
+                    <a 
+                        href={student.resumeURL} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-blue-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border border-slate-700 shadow-sm"
+                    >
+                        <FileText size={16} /> View Resume
+                    </a>
+                ) : (
+                    <button disabled className="flex items-center gap-2 bg-slate-800/40 text-slate-500 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border border-slate-700/50 cursor-not-allowed">
+                        <FileText size={16} /> No Resume Found
+                    </button>
+                )}
+
+                {/* 🔥 REPORT DOWNLOAD BUTTON 🔥 */}
+                {(student?.examAccess === 'completed' || student?.meta?.totalScore !== undefined) ? (
+                    <DownloadReportButton candidate={student} buttonStyle="admin" />
+                ) : (
+                    <button disabled className="flex items-center gap-2 bg-slate-800/40 text-slate-500 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border border-slate-700/50 cursor-not-allowed">
+                        Test Not Completed
+                    </button>
+                )}
+            </div>
+        </div>
         
         {/* JADOO YAHAN HAI: Admin Mode mein Master Design fetch */}
         <CandidateProfileView candidate={student} role="admin" />
