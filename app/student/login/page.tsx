@@ -90,6 +90,19 @@ export default function CandidateLogin() {
              email: email,
              ...legalData 
          }, { onConflict: 'id' });
+
+         // 🚀 BREVO ALERT: New Signup
+         try {
+             await fetch('/api/send-admin-alert', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify({
+                     type: "signup",
+                     candidateName: email.split('@')[0], 
+                     candidateEmail: email
+                 })
+             });
+         } catch (e) { console.error("Email alert failed", e); }
       }
 
     } catch (error: any) {

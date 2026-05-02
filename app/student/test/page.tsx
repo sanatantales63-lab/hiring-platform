@@ -322,6 +322,22 @@ export default function LiveTestPage() {
            }
         }).eq("id", user.id);
 
+        // 🚀 BREVO ALERT: Test Completed
+        if (!isDisqualified) {
+            try {
+                await fetch('/api/send-admin-alert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: "test_completed",
+                        candidateName: studentProfile?.fullName || "Candidate",
+                        candidateEmail: user.email,
+                        extraInfo: `${currentTestTotalScore} / ${questions.length}`
+                    })
+                });
+            } catch (e) { console.error("Email alert failed", e); }
+        }
+
     } catch (error) {
         console.error("Critical error during submission", error);
     } finally {

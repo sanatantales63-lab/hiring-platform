@@ -55,6 +55,20 @@ export default function Dashboard() {
       if (error) throw error;
       setExamStatus("pending");
       alert("Re-test request sent to Admin! Please wait for approval.");
+
+      // 🚀 BREVO ALERT: Re-test Request
+      try {
+          await fetch('/api/send-admin-alert', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  type: "retest",
+                  candidateName: profileData?.fullName || "Candidate",
+                  candidateEmail: user.email
+              })
+          });
+      } catch (e) { console.error("Email alert failed", e); }
+
     } catch (e) { alert("Error sending request."); }
   };
 
