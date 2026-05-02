@@ -170,16 +170,16 @@ export default function CompanyProfile() {
           <CompanyProfileView company={formData} />
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Card className="p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <Card className="p-8 md:p-12 shadow-elevated relative overflow-hidden bg-[var(--card)] border border-[var(--border)]">
                
-               <div className="flex flex-col items-center mb-10 pb-10 border-b border-slate-200">
-                  <div className="relative group cursor-pointer w-28 h-28 rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden hover:border-indigo-500 transition-colors shadow-sm">
-                     {uploading ? <Loader2 className="animate-spin text-indigo-600"/> : formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Camera className="text-slate-400 group-hover:text-indigo-500 transition-colors"/>}
+               <div className="flex flex-col items-center mb-10 pb-10 border-b border-[var(--border)]">
+                  <div className="relative group cursor-pointer w-28 h-28 rounded-[2rem] bg-[var(--surface)] border-2 border-dashed border-[var(--border)] flex items-center justify-center overflow-hidden hover:border-[var(--primary)] transition-colors shadow-sm">
+                     {uploading ? <Loader2 className="animate-spin text-[var(--primary)]"/> : formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Camera className="text-[var(--muted-foreground)] group-hover:text-[var(--primary)] transition-colors"/>}
                      <input type="file" accept="image/*" onChange={handleLogoUpload} className="absolute inset-0 opacity-0 cursor-pointer"/>
                   </div>
-                  <p className="text-slate-500 text-xs font-bold mt-3 uppercase tracking-wider">Upload Logo (Max 150KB)</p>
+                  <p className="text-[var(--muted-foreground)] text-xs font-bold mt-3 uppercase tracking-wider">Upload Logo (Max 150KB)</p>
                </div>
-
+               
                <div className="grid md:grid-cols-2 gap-8 mb-8">
                   <div className="space-y-5">
                      <div>

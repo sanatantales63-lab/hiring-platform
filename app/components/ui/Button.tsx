@@ -9,10 +9,10 @@ export default function Button({ children, variant = "primary", className = "", 
   const baseStyle = "px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-[#0f947e] hover:bg-[#0c7a68] text-white shadow-lg shadow-teal-500/20",
-    secondary: "bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500 hover:text-teal-700 hover:bg-teal-50 shadow-sm",
-    danger: "bg-red-50 border border-red-200 text-red-600 hover:bg-red-100",
-    ghost: "bg-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+    primary: "bg-gradient-primary text-[var(--primary-foreground)] shadow-glow hover:shadow-ring hover:-translate-y-0.5",
+    secondary: "bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] shadow-sm",
+    danger: "bg-[var(--destructive)] text-[var(--destructive-foreground)] hover:bg-[var(--destructive)]/90 shadow-sm",
+    ghost: "bg-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent)]"
   };
 
   return (

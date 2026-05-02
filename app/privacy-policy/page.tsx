@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-900 p-6 md:p-12 font-sans relative z-10">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-6 md:p-12 font-sans relative z-10">
       <div className="max-w-4xl mx-auto relative z-10">
         
         <Button 
@@ -18,46 +18,46 @@ export default function PrivacyPolicy() {
           onClick={() => router.push('/')} 
           className="mb-8 pl-0 hover:bg-transparent"
         >
-          <div className="bg-white border border-slate-200 p-2 rounded-xl shadow-sm text-slate-600 hover:text-[#0f947e] transition-colors">
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-2 rounded-xl shadow-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors">
             <ArrowLeft size={20} />
           </div>
-          <span className="font-bold text-slate-700">Back to Home</span>
+          <span className="font-bold text-[var(--foreground)]">Back to Home</span>
         </Button>
 
-        <Card className="p-8 md:p-12 shadow-2xl">
-          <div className="flex items-center gap-4 mb-8 border-b border-slate-200 pb-8">
-            <div className="w-16 h-16 bg-teal-50 border border-teal-100 rounded-2xl flex items-center justify-center shadow-sm shrink-0">
-              <Shield size={32} className="text-[#0f947e]"/>
+        <Card className="p-8 md:p-12 shadow-elevated">
+          <div className="flex items-center gap-4 mb-8 border-b border-[var(--border)] pb-8">
+            <div className="w-16 h-16 bg-[var(--accent)] border border-[var(--border)] rounded-2xl flex items-center justify-center shadow-sm shrink-0">
+              <Shield size={32} className="text-[var(--primary)]"/>
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">Privacy Policy</h1>
-              <p className="text-slate-500 mt-2 font-medium">Last updated: February 2026</p>
+              <h1 className="font-display text-3xl md:text-4xl font-extrabold text-[var(--foreground)]">Privacy Policy</h1>
+              <p className="text-[var(--muted-foreground)] mt-2 font-medium">Last updated: February 2026</p>
             </div>
           </div>
 
-          <div className="space-y-8 text-sm md:text-base leading-relaxed text-slate-700 font-medium">
+          <div className="space-y-8 text-sm md:text-base leading-relaxed text-[var(--ink-soft)] font-medium">
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">1. Information We Collect</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)] mb-3">1. Information We Collect</h2>
               <p>When you use Resourcemania, we collect information that you provide directly to us, such as when you create an account, update your profile, upload a resume, or contact customer support. This includes your name, email address, phone number, educational background, and employment history.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">2. How We Use AI and Data</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)] mb-3">2. How We Use AI and Data</h2>
               <p>Resourcemania utilizes advanced Artificial Intelligence (AI) to parse resumes and accurately assess skills. By uploading your resume, you consent to our AI processing your document to extract professional details and calculate market-standard salary expectations. We do not use your personal data to train public AI models.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">3. Data Sharing with Employers</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)] mb-3">3. Data Sharing with Employers</h2>
               <p>For candidates, your profile information and assessment scores are shared with registered recruiters and companies on Resourcemania to facilitate hiring. Sensitive contact information (like phone and email) may be locked and only revealed to verified employers at our discretion or upon your approval.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">4. Proctoring and Anti-Cheat Data</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)] mb-3">4. Proctoring and Anti-Cheat Data</h2>
               <p>During skill assessments, our platform monitors tab-switching, right-clicks, and screen activity to ensure fairness. This activity is logged temporarily to generate a proctoring trust score but is not sold to any third-party analytics firms.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-3">5. Data Security</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)] mb-3">5. Data Security</h2>
               <p>We use industry-standard database security (including Row Level Security) to protect your personal information from unauthorized access. However, no internet transmission is 100% secure.</p>
             </section>
           </div>

@@ -216,36 +216,36 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex font-sans relative">
-      <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 p-6 hidden md:flex flex-col fixed h-full z-10 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Owner Panel</h2>
+     <aside className="w-64 bg-[var(--background)]/80 backdrop-blur-xl border-r border-[var(--border)] p-6 hidden md:flex flex-col fixed h-full z-10 shadow-soft">
+        <h2 className="font-display text-2xl font-black text-[var(--foreground)] mb-10 tracking-tight">Owner Panel</h2>
         <nav className="space-y-3 flex-1">
-          <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
+          <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-[var(--destructive)] text-[var(--destructive-foreground)] shadow-md' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <div className="flex items-center gap-3"><Bell size={20} /> Alerts</div>
-            {totalAlerts > 0 && <span className="bg-red-100 text-red-600 text-xs font-black px-2 py-1 rounded-lg animate-pulse">{totalAlerts}</span>}
+            {totalAlerts > 0 && <span className="bg-[var(--background)] text-[var(--destructive)] text-xs font-black px-2 py-1 rounded-lg animate-pulse">{totalAlerts}</span>}
           </button>
           
-          <button onClick={() => setActiveTab("companies")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'companies' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
+          <button onClick={() => setActiveTab("companies")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'companies' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <Building2 size={20} /> Companies
           </button>
           
-          <button onClick={() => setActiveTab("students")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'students' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
+          <button onClick={() => setActiveTab("students")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'students' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <Users size={20} /> Candidates
           </button>
           
-          <button onClick={() => setActiveTab("billing")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'billing' ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'}`}>
+          <button onClick={() => setActiveTab("billing")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'billing' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <CreditCard size={20} /> Billing
           </button>
           
-          <div className="pt-6 mt-6 border-t border-slate-200/50">
+          <div className="pt-6 mt-6 border-t border-[var(--border)]">
             <Button variant="secondary" onClick={() => router.push('/admin/upload-questions')} className="w-full text-sm">
               <Upload size={18} /> Upload Q-Bank
             </Button>
           </div>
        </nav>
-        <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex items-center gap-3 text-slate-500 mt-auto hover:text-red-500 font-bold transition-colors px-4">
-          <LogOut size={20} /> Exit Admin
-        </button>
-      </aside>
+        <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex items-center gap-3 text-[var(--muted-foreground)] mt-auto hover:text-[var(--destructive)] font-bold transition-colors px-4">
+          <LogOut size={20} /> Exit Admin
+        </button>
+      </aside>
 
       <main className="flex-1 p-5 md:p-10 ml-0 md:ml-64 pb-24 md:pb-10 overflow-y-auto min-h-screen relative z-10">
         

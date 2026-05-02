@@ -87,13 +87,13 @@ export default function Dashboard() {
       )}
 
       {/* PREMIUM GLASS SIDEBAR */}
-      <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 hidden md:flex flex-col p-6 fixed h-full z-10 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Resourcemania</h2>
+      <aside className="w-64 bg-[var(--background)]/80 backdrop-blur-xl border-r border-[var(--border)] hidden md:flex flex-col p-6 fixed h-full z-10 shadow-soft">
+        <h2 className="font-display text-2xl font-black text-[var(--foreground)] mb-10 tracking-tight">Resource<span className="text-[var(--primary)]">mania</span></h2>
         <nav className="space-y-4 flex-1">
-          <div onClick={() => router.push('/student/dashboard')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer bg-[#0f947e] text-white shadow-md shadow-teal-500/20"><LayoutDashboard size={20}/> <span className="font-bold">Dashboard</span></div>
-          <div onClick={() => router.push('/student/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-slate-500 hover:bg-white hover:text-slate-900 transition-all font-bold shadow-sm border border-transparent hover:border-slate-200"><UserCircle size={20}/> <span>My Profile</span></div>
+          <div onClick={() => router.push('/student/dashboard')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer bg-gradient-primary text-[var(--primary-foreground)] shadow-glow"><LayoutDashboard size={20}/> <span className="font-bold">Dashboard</span></div>
+          <div onClick={() => router.push('/student/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] transition-all font-bold shadow-sm border border-transparent hover:border-[var(--border)]"><UserCircle size={20}/> <span>My Profile</span></div>
         </nav>
-        <Button variant="ghost" onClick={handleLogout} className="mt-auto justify-start px-4 text-slate-500 hover:text-red-500"><LogOut size={20} /> Logout</Button>
+        <Button variant="ghost" onClick={handleLogout} className="mt-auto justify-start px-4 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"><LogOut size={20} /> Logout</Button>
       </aside>
 
 {/* DASHBOARD CONTENT */}

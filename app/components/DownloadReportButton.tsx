@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro"; // 🔥 FIX: Using PRO version for oklch color support
 import jsPDF from "jspdf";
 import { Download, Loader2 } from "lucide-react";
 import Button from "@/app/components/ui/Button";

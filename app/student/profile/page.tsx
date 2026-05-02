@@ -696,14 +696,14 @@ export default function CandidateProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-6 md:p-12 font-sans relative overflow-hidden">
-      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-teal-500/10 blur-[150px] rounded-full pointer-events-none"></div>
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-6 md:p-12 font-sans relative overflow-hidden">
+      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[var(--primary)]/10 blur-[150px] rounded-full pointer-events-none"></div>
       
       <div className="max-w-4xl mx-auto relative z-10">
          <div className="flex justify-between items-center mb-10">
             <button 
                 onClick={() => router.push('/student/dashboard')} 
-                className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors font-bold"
+                className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors font-bold"
             >
                 <ArrowLeft size={18} /> Dashboard
             </button>
@@ -715,7 +715,7 @@ export default function CandidateProfile() {
                       setCurrentStep(1); 
                       setIsOnboarding(false); 
                   }} 
-                  className="bg-[#0f947e] hover:bg-[#0c7a68] px-6 py-2.5 rounded-xl text-white font-bold flex items-center gap-2 transition-all shadow-lg shadow-teal-500/25"
+                  className="bg-gradient-primary hover:shadow-ring px-6 py-2.5 rounded-xl text-[var(--primary-foreground)] font-bold flex items-center gap-2 transition-all shadow-glow"
                >
                   <Edit size={16}/> Edit Profile
                </button>
@@ -735,20 +735,20 @@ export default function CandidateProfile() {
                  <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Supercharge Your Profile</h1>
                  <p className="text-slate-600 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
               
-                 <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-xl mx-auto bg-slate-50 border-2 rounded-2xl p-6 mb-8 transition-all flex items-start gap-5 ${consentGiven ? 'border-teal-500 shadow-md bg-teal-50' : 'border-slate-200 hover:border-teal-300'}`}>
-                    <div className={`w-7 h-7 border-2 rounded-lg flex items-center justify-center shrink-0 ${consentGiven ? 'bg-teal-500 border-teal-500' : 'border-slate-300 bg-white'}`}>
-                        <Check size={18} className={`text-white transition-opacity ${consentGiven ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3}/>
+                <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-xl mx-auto bg-[var(--surface)] border-2 rounded-2xl p-6 mb-8 transition-all flex items-start gap-5 ${consentGiven ? 'border-[var(--primary)] shadow-md bg-[var(--primary)]/5' : 'border-[var(--border)] hover:border-[var(--primary)]/50'}`}>
+                    <div className={`w-7 h-7 border-2 rounded-lg flex items-center justify-center shrink-0 ${consentGiven ? 'bg-gradient-primary border-transparent' : 'border-[var(--border)] bg-[var(--background)]'}`}>
+                        <Check size={18} className={`text-[var(--primary-foreground)] transition-opacity ${consentGiven ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3}/>
                     </div>
                     <div className="text-left">
-                       <p className={`font-bold text-lg mb-1 ${consentGiven ? 'text-teal-700' : 'text-slate-900'}`}>I agree to the Data Privacy Terms</p>
-                       <p className="text-sm text-slate-500 leading-relaxed">I consent to the secure processing of my resume data by AI.</p>
+                       <p className={`font-bold text-lg mb-1 ${consentGiven ? 'text-[var(--primary)]' : 'text-[var(--foreground)]'}`}>I agree to the Data Privacy Terms</p>
+                       <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">I consent to the secure processing of my resume data by AI.</p>
                     </div>
                  </div>
 
                  <div className="flex flex-col sm:flex-row gap-5 max-w-xl mx-auto">
                     <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above.");}}>
                        <input type="file" accept=".pdf,.docx,.txt" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
-                       <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-[#0f947e] text-white shadow-lg hover:bg-[#0c7a68] hover:-translate-y-1' : 'bg-slate-100 text-slate-400'}`}>
+                       <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow hover:shadow-ring hover:-translate-y-1' : 'bg-[var(--surface)] text-[var(--muted-foreground)] border border-[var(--border)]'}`}>
                            {uploading ? <Loader2 size={22} className="animate-spin"/> : <Sparkles size={22}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
                        </div>
                     </div>
@@ -759,7 +759,7 @@ export default function CandidateProfile() {
                                 setCurrentStep(1); 
                             } else alert("Please accept terms."); 
                         }} 
-                        className={`flex-1 py-4 rounded-xl font-bold border-2 transition-all ${consentGiven ? 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:-translate-y-1' : 'border-slate-100 text-slate-300 cursor-not-allowed'}`}
+                        className={`flex-1 py-4 rounded-xl font-bold border transition-all ${consentGiven ? 'border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:bg-[var(--accent)] hover:-translate-y-1' : 'border-[var(--border)] text-[var(--muted-foreground)] cursor-not-allowed opacity-50'}`}
                     >
                         Skip & Fill Manually
                     </button>
@@ -767,16 +767,16 @@ export default function CandidateProfile() {
               </div>
            </motion.div>
         ) : (
-          <div className="bg-white border border-slate-200 p-8 md:p-12 rounded-[2.5rem] shadow-xl">
+          <div className="bg-[var(--card)] border border-[var(--border)] p-8 md:p-12 rounded-[2.5rem] shadow-elevated">
             <div className="mb-12">
                <div className="flex justify-between text-sm md:text-base font-bold mb-4">
-                  <span className={currentStep >= 1 ? "text-teal-600" : "text-slate-400"}>1. Personal</span>
-                  <span className={currentStep >= 2 ? "text-teal-600" : "text-slate-400"}>2. Education</span>
-                  <span className={currentStep >= 3 ? "text-teal-600" : "text-slate-400"}>3. Preferences</span>
-                  {isOnboarding && <span className={currentStep >= 4 ? "text-teal-600" : "text-slate-400 hidden md:inline"}>4. Unlock Profile</span>}
+                  <span className={currentStep >= 1 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>1. Personal</span>
+                  <span className={currentStep >= 2 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>2. Education</span>
+                  <span className={currentStep >= 3 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>3. Preferences</span>
+                  {isOnboarding && <span className={currentStep >= 4 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)] hidden md:inline"}>4. Unlock Profile</span>}
                </div>
-               <div className="h-2 bg-slate-100 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-teal-500 transition-all duration-500" style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
+               <div className="h-2 bg-[var(--surface)] border border-[var(--border)] rounded-full overflow-hidden flex">
+                  <div className="h-full bg-gradient-primary transition-all duration-500" style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
                </div>
             </div>
 
@@ -1010,30 +1010,30 @@ export default function CandidateProfile() {
                         <p className="text-slate-600 text-sm mb-6">Select <strong className="text-slate-900">Minimum 1 and Maximum 10</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
                         
                         {formData.skills.length > 0 && (
-                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-[var(--surface)] rounded-2xl border border-[var(--border)] border-dashed">
                               {formData.skills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-[#0f947e] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
-                                    {skill} <X size={16} className="cursor-pointer hover:text-red-200" onClick={() => toggleSkill(skill)}/>
+                                 <span key={skill} className="flex items-center gap-2 bg-gradient-primary text-[var(--primary-foreground)] px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
+                                    {skill} <X size={16} className="cursor-pointer hover:text-[var(--background)]/70 transition-colors" onClick={() => toggleSkill(skill)}/>
                                  </span>
                               ))}
                            </div>
                         )}
                         
-                        <div className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 flex flex-col md:flex-row shadow-sm">
-                           <div className="md:w-1/3 bg-slate-100 border-r border-slate-200 p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
+                        <div className="border border-[var(--border)] rounded-2xl overflow-hidden bg-[var(--surface)] flex flex-col md:flex-row shadow-sm">
+                           <div className="md:w-1/3 bg-[var(--background)] border-r border-[var(--border)] p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
                               {(Object.keys(MASTER_SKILLS_DATA) as Array<keyof typeof MASTER_SKILLS_DATA>).map((mainSkill) => (
                                  <button 
                                     key={mainSkill} 
                                     onClick={() => setActiveSkillTab(mainSkill)} 
-                                    className={`w-full text-left px-4 py-3 mb-2 text-sm font-bold rounded-xl transition-all ${activeSkillTab === mainSkill ? 'bg-[#0f947e] text-white shadow-md' : 'hover:bg-slate-200 text-slate-600'}`}
+                                    className={`w-full text-left px-4 py-3 mb-2 text-sm font-bold rounded-xl transition-all ${activeSkillTab === mainSkill ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-sm' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
                                  >
                                     {mainSkill}
                                  </button>
                               ))}
                            </div>
-                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto custom-scrollbar bg-white">
-                              <h4 className="text-slate-900 font-bold mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
-                                 Select Sub-Skills for <span className="text-teal-600">{activeSkillTab}</span>
+                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto custom-scrollbar bg-[var(--card)]">
+                              <h4 className="text-[var(--foreground)] font-bold mb-4 flex items-center gap-2 border-b border-[var(--border)] pb-2">
+                                 Select Sub-Skills for <span className="text-[var(--primary)]">{activeSkillTab}</span>
                               </h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                  {(MASTER_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
@@ -1042,11 +1042,11 @@ export default function CandidateProfile() {
                                        <button 
                                           key={subSkill} 
                                           onClick={() => toggleSkill(subSkill)} 
-                                          className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${isSelected ? 'bg-teal-50 border-teal-500 text-teal-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-teal-300'} flex items-center justify-between group`}
+                                          className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${isSelected ? 'bg-[var(--accent)]/50 border-[var(--primary)] text-[var(--foreground)] shadow-sm' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/50'} flex items-center justify-between group`}
                                        >
                                           <span className="truncate pr-2">{subSkill}</span>
-                                          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-teal-500 border-teal-500' : 'bg-slate-100 border-slate-300 group-hover:border-teal-400'}`}>
-                                             {isSelected && <Check size={14} className="text-white" />}
+                                          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-[var(--background)] border-[var(--border)] group-hover:border-[var(--primary)]/50'}`}>
+                                             {isSelected && <Check size={14} className="text-[var(--primary-foreground)]" />}
                                           </div>
                                        </button>
                                     );
@@ -1330,21 +1330,21 @@ export default function CandidateProfile() {
                                </select>
                               
                               {formData.jobType === "Permanent Role" && (
-                                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-indigo-50 border border-indigo-200 p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-sm">
-                                    <div className="bg-white p-3 rounded-xl shrink-0 mt-1 border border-indigo-100 shadow-sm">
-                                       <Briefcase className="text-indigo-600" size={28}/>
+                                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-sm">
+                                    <div className="bg-[var(--background)] p-3 rounded-xl shrink-0 mt-1 border border-[var(--border)] shadow-sm">
+                                       <Briefcase className="text-[var(--primary)]" size={28}/>
                                     </div>
                                     <div className="w-full">
-                                       <h4 className="text-indigo-900 font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
-                                       <p className="text-slate-700 text-sm mb-4 leading-relaxed font-medium">
-                                          Top companies on Resourcemania often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-red-500 text-xs ml-1">*Required</span>
+                                       <h4 className="text-[var(--foreground)] font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
+                                       <p className="text-[var(--muted-foreground)] text-sm mb-4 leading-relaxed font-medium">
+                                          Top companies on Resourcemania often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-[var(--destructive)] text-xs ml-1">*Required</span>
                                        </p>
                                        
                                        <div className="flex flex-col sm:flex-row gap-4 mt-2">
                                           <button 
                                              type="button"
                                              onClick={() => setFormData({...formData, openToContractRoles: "Yes"})}
-                                             className={`flex-1 py-3.5 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "Yes" ? 'bg-[#0f947e] border-[#0f947e] text-white shadow-md' : 'bg-white border-slate-200 text-slate-600 hover:border-teal-500 hover:bg-teal-50'}`}
+                                             className={`flex-1 py-3.5 rounded-xl font-bold border transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "Yes" ? 'bg-gradient-primary border-[var(--primary)] text-[var(--primary-foreground)] shadow-glow' : 'bg-[var(--background)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--foreground)]'}`}
                                           >
                                              {formData.openToContractRoles === "Yes" && <Check size={18} strokeWidth={3}/>} Yes, I'm open to it
                                           </button>
@@ -1352,7 +1352,7 @@ export default function CandidateProfile() {
                                           <button 
                                              type="button"
                                              onClick={() => setFormData({...formData, openToContractRoles: "No"})}
-                                             className={`flex-1 py-3.5 rounded-xl font-bold border-2 transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "No" ? 'bg-red-50 border-red-300 text-red-600 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-red-300 hover:bg-red-50'}`}
+                                             className={`flex-1 py-3.5 rounded-xl font-bold border transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "No" ? 'bg-[var(--destructive)]/10 border-[var(--destructive)] text-[var(--destructive)] shadow-sm' : 'bg-[var(--background)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--destructive)] hover:bg-[var(--destructive)]/5 hover:text-[var(--destructive)]'}`}
                                           >
                                              {formData.openToContractRoles === "No" && <X size={18} strokeWidth={3}/>} No, only permanent
                                           </button>
@@ -1436,25 +1436,25 @@ export default function CandidateProfile() {
             </AnimatePresence>
 
             {currentStep < 4 && (
-               <div className="flex justify-between mt-12 pt-8 border-t border-slate-200">
+               <div className="flex justify-between mt-12 pt-8 border-t border-[var(--border)]">
                   {currentStep > 1 ? (
-                     <button onClick={prevStep} className="px-8 py-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 font-bold flex items-center gap-3 text-slate-700 transition-all shadow-sm">
+                     <button onClick={prevStep} className="px-8 py-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] font-bold flex items-center gap-3 text-[var(--muted-foreground)] transition-all shadow-sm">
                         <ChevronLeft size={20}/> Back
                      </button>
                   ) : <div></div>}
                   
                   {currentStep < 3 ? (
-                     <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-[#0f947e] hover:bg-[#0c7a68] font-bold flex items-center gap-3 text-white shadow-lg shadow-teal-500/20 text-lg transition-all">
+                     <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-gradient-primary hover:shadow-ring font-bold flex items-center gap-3 text-[var(--primary-foreground)] shadow-glow text-lg transition-all">
                         Next <ChevronRight size={20}/>
                      </button>
                   ) : (
                      isOnboarding ?
                      (
-                        <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 font-bold flex items-center gap-3 text-white shadow-xl shadow-teal-500/30 text-lg transition-all">
+                        <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-primary hover:shadow-ring font-bold flex items-center gap-3 text-[var(--primary-foreground)] shadow-glow text-lg transition-all">
                            {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={20}/></>}
                         </button>
                      ) : (
-                        <button onClick={() => saveProfileData()} disabled={savingData} className="px-10 py-4 rounded-xl bg-teal-600 hover:bg-teal-700 font-bold flex items-center gap-3 text-white shadow-xl shadow-teal-500/20 text-lg transition-all">
+                        <button onClick={() => saveProfileData()} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-primary hover:shadow-ring font-bold flex items-center gap-3 text-[var(--primary-foreground)] shadow-glow text-lg transition-all">
                            {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <><Save size={20}/> Save Changes</>}
                         </button>
                      )
@@ -1469,28 +1469,28 @@ export default function CandidateProfile() {
         .form-label { 
             display: block;
             font-size: 0.9rem; 
-            font-weight: 700; 
-            color: #475569; 
+            font-weight: 800; 
+            color: var(--foreground); 
             margin-bottom: 0.6rem; 
         }
         .input-field { 
             width: 100%;
-            background-color: #ffffff; 
-            border: 2px solid #e2e8f0; 
+            background-color: var(--input); 
+            border: 1px solid var(--border); 
             border-radius: 1rem; 
             padding: 1rem 1.25rem; 
-            color: #0f172a; 
+            color: var(--foreground); 
             outline: none; 
             transition: all 0.2s; 
             font-size: 1rem;
             font-weight: 600; 
             appearance: none; 
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-sm);
         }
         .input-field:focus { 
-            border-color: #0f947e;
-            background-color: #ffffff; 
-            box-shadow: 0 0 0 4px rgba(15, 148, 126, 0.1);
+            border-color: var(--primary);
+            background-color: var(--surface); 
+            box-shadow: var(--shadow-ring);
         }
         select.input-field { 
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23475569%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
@@ -1502,11 +1502,11 @@ export default function CandidateProfile() {
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: #cbd5e1;
+            background: var(--border);
             border-radius: 10px; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
-            background: #94a3b8;
+            background: var(--muted-foreground);
         }
       `}</style>
     </div>

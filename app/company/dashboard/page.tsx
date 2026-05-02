@@ -230,35 +230,35 @@ export default function CompanyDashboard() {
           </div>
         </header>
 
-        {/* 🔥 SMART FILTERS SECTION 🔥 */}
-        <Card className="mb-10 shadow-sm p-6 md:p-8">
+       {/* 🔥 SMART FILTERS SECTION 🔥 */}
+        <Card className="mb-10 p-6 md:p-8 border border-[var(--border)] bg-[var(--card)] shadow-soft">
            <div className="relative mb-5">
-             <Search className="absolute left-4 top-4 text-slate-400" />
-             <input type="text" placeholder="Search by Name, Skill (e.g. GST, Excel)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-sm placeholder:text-slate-400 font-medium"/>
+             <Search className="absolute left-4 top-4 text-[var(--muted-foreground)]" />
+             <input type="text" placeholder="Search by Name, Skill (e.g. GST, Excel)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-4 pl-12 pr-4 text-[var(--foreground)] focus:border-[var(--primary)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm placeholder:text-[var(--muted-foreground)] font-medium"/>
            </div>
            
-           <div className="flex items-center gap-2 mb-4 text-sm font-extrabold text-slate-700 uppercase tracking-wider">
+           <div className="flex items-center gap-2 mb-4 text-sm font-extrabold text-[var(--ink-soft)] uppercase tracking-wider">
               <Filter size={16}/> Advanced Filters
            </div>
            
            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <select value={filterType} onChange={(e)=>setFilterType(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
+              <select value={filterType} onChange={(e)=>setFilterType(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
                  <option value="">Any Role Type</option>
                  <option value="Permanent">Permanent Roles</option>
                  <option value="Contract">Contract / Temp Roles</option>
               </select>
 
-              <select value={filterExp} onChange={(e)=>setFilterExp(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
+              <select value={filterExp} onChange={(e)=>setFilterExp(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
                  <option value="">Any Experience</option>
                  {uniqueExp.map((exp:any, i) => <option key={i} value={exp}>{exp}</option>)}
               </select>
 
-              <select value={filterLoc} onChange={(e)=>setFilterLoc(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
+              <select value={filterLoc} onChange={(e)=>setFilterLoc(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
                  <option value="">Any Location</option>
                  {uniqueLocations.map((loc:any, i) => <option key={i} value={loc}>{loc}</option>)}
               </select>
 
-              <select value={filterNotice} onChange={(e)=>setFilterNotice(e.target.value)} className="bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-3 outline-none focus:border-[#0f947e] text-sm font-bold shadow-sm">
+              <select value={filterNotice} onChange={(e)=>setFilterNotice(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
                  <option value="">Notice Period</option>
                  {uniqueNotice.map((np:any, i) => <option key={i} value={np}>{np}</option>)}
               </select>

@@ -1,9 +1,11 @@
 "use client";
+"use client";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRight, Brain, Building2, Handshake, IdCard, Search, UserPlus,
-  Briefcase, Twitter, Linkedin, Github, Mail
+  Briefcase, Twitter, Linkedin, Github, Mail, ShieldCheck, Menu, X
 } from "lucide-react";
 
 const CAND = [
@@ -22,12 +24,13 @@ const COMP = [
 
 export default function HowPage() {
   const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--background)] text-[var(--foreground)] font-sans">
       
-      {/* 🚀 HEADER / NAVBAR */}
-      <header className="sticky top-0 z-50 w-full transition-all duration-300 bg-[var(--background)]/80 backdrop-blur-md border-b border-transparent">
+     {/* 🚀 HEADER / NAVBAR */}
+      <header className="sticky top-0 z-50 w-full transition-all duration-300 bg-[var(--background)]/90 backdrop-blur-xl border-b border-[var(--border)]/50">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 group">
             <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary text-[var(--primary-foreground)] shadow-glow transition-transform group-hover:scale-105">
@@ -36,6 +39,7 @@ export default function HowPage() {
             <span className="font-display text-lg font-bold tracking-tight text-[var(--foreground)]">Resource<span className="text-[var(--primary)]">mania</span></span>
           </Link>
           
+          {/* Desktop Nav */}
           <nav className="hidden items-center gap-1 md:flex">
             <Link href="/" className="relative rounded-lg px-3 py-2 text-sm font-medium transition-colors text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--accent)]/60">Home</Link>
             <Link href="/candidates" className="relative rounded-lg px-3 py-2 text-sm font-medium transition-colors text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--accent)]/60">For Candidates</Link>
@@ -44,11 +48,34 @@ export default function HowPage() {
             <Link href="#" className="relative rounded-lg px-3 py-2 text-sm font-medium transition-colors text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--accent)]/60">Pricing</Link>
           </nav>
 
+          {/* Desktop Admin Login Button */}
           <div className="hidden items-center gap-2 md:flex">
-            <button onClick={() => router.push('/student/login')} className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] h-8 rounded-md px-3 text-xs text-[var(--foreground)] focus-visible:outline-none">Sign in</button>
-            <button onClick={() => router.push('/company/login')} className="inline-flex items-center justify-center gap-2 whitespace-nowrap bg-gradient-primary text-[var(--primary-foreground)] shadow-glow hover:shadow-ring hover:-translate-y-0.5 transition-all duration-300 font-semibold h-8 rounded-md px-3 text-xs focus-visible:outline-none">Get started</button>
+            <button onClick={() => router.push('/admin/login')} className="inline-flex items-center justify-center gap-2 whitespace-nowrap bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--accent)] hover:text-[var(--primary)] h-9 rounded-lg px-4 text-sm font-semibold transition-all shadow-sm focus-visible:outline-none">
+              <ShieldCheck size={16} className="text-[var(--primary)]" /> Admin Login
+            </button>
+          </div>
+
+          {/* Mobile Menu & Buttons */}
+          <div className="flex md:hidden items-center gap-3">
+            <button onClick={() => router.push('/admin/login')} className="flex items-center justify-center gap-1.5 whitespace-nowrap bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] h-8 rounded-md px-2.5 text-xs font-bold shadow-sm">
+              <ShieldCheck size={14} className="text-[var(--primary)]" /> Admin
+            </button>
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-1.5 text-[var(--foreground)] bg-[var(--surface)] hover:bg-[var(--accent)] rounded-md border border-[var(--border)] transition-colors">
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown List */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-16 left-0 w-full bg-[var(--background)]/95 backdrop-blur-xl border-b border-[var(--border)] shadow-xl animate-in slide-in-from-top-2 p-4 flex flex-col gap-2 z-50">
+            <Link href="/" className="px-4 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent)] text-[var(--foreground)] transition-colors">Home</Link>
+            <Link href="/candidates" className="px-4 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent)] text-[var(--foreground)] transition-colors">For Candidates</Link>
+            <Link href="/companies" className="px-4 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent)] text-[var(--foreground)] transition-colors">For Companies</Link>
+            <Link href="/how-it-works" className="px-4 py-3 rounded-xl text-sm font-semibold bg-[var(--accent)]/60 text-[var(--primary)] border border-[var(--primary)]/10">How it Works</Link>
+            <Link href="#" className="px-4 py-3 rounded-xl text-sm font-semibold hover:bg-[var(--accent)] text-[var(--foreground)] transition-colors">Pricing</Link>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">

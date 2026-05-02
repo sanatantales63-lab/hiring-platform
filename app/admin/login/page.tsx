@@ -35,43 +35,41 @@ export default function AdminLogin() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
+ return (
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md"
       >
-        {/* Naya Master Card Component */}
-        <Card className="p-8 md:p-12 relative overflow-hidden border-t-4 border-t-red-500">
+        <Card className="p-8 md:p-12 relative overflow-hidden border-t-4 border-t-[var(--destructive)]">
           
-          {/* Subtle Red Admin Glow inside the card */}
-          <div className="absolute top-[-20%] left-[-20%] w-64 h-64 bg-red-500/10 rounded-full blur-[60px] pointer-events-none" />
+          <div className="absolute top-[-20%] left-[-20%] w-64 h-64 bg-[var(--destructive)]/10 rounded-full blur-[60px] pointer-events-none" />
 
           <div className="flex justify-center mb-8 relative z-10">
-            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl shadow-sm">
-              <ShieldCheck className="w-10 h-10 text-red-500" />
+            <div className="bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 p-4 rounded-2xl shadow-sm">
+              <ShieldCheck className="w-10 h-10 text-[var(--destructive)]" />
             </div>
           </div>
-          <h2 className="text-3xl font-extrabold text-center mb-2 text-slate-900 relative z-10">Owner Portal</h2>
-          <p className="text-slate-500 font-medium text-center mb-8 relative z-10">Secure access to admin controls.</p>
+          <h2 className="text-3xl font-extrabold text-center mb-2 text-[var(--foreground)] relative z-10 font-display">Owner Portal</h2>
+          <p className="text-[var(--muted-foreground)] font-medium text-center mb-8 relative z-10 text-sm">Secure access to admin controls.</p>
 
           <form onSubmit={handleEmailLogin} className="space-y-4 mb-6 relative z-10">
             <div className="relative">
-              <Mail className="absolute left-4 top-3.5 text-slate-400" size={20} />
+              <Mail className="absolute left-4 top-3.5 text-[var(--muted-foreground)]" size={20} />
               <input 
                 type="email" required placeholder="Admin Email" 
                 value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white outline-none transition-all shadow-sm"
+                className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--destructive)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm"
               />
             </div>
             
             <div className="relative">
-              <Lock className="absolute left-4 top-3.5 text-slate-400" size={20} />
+              <Lock className="absolute left-4 top-3.5 text-[var(--muted-foreground)]" size={20} />
               <input 
                 type="password" required placeholder="Admin Password"
                 value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white outline-none transition-all shadow-sm"
+                className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--destructive)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm"
               />
             </div>
 
