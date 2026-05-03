@@ -17,45 +17,45 @@ const INDIAN_CITIES = City.getCitiesOfCountry("IN") || [];
 
 // 🔥 UPDATED EXCEL MASTER SKILLS DATA 🔥
 const MASTER_SKILLS_DATA: Record<string, string[]> = {
-  "Financiacial Reporting and Accounting": [
+  "1. Financial Reporting and Accounting": [
       "Accounting & Bookkeeping", "Accounting Standards (AS)", "Accounts Payable Assistance", 
       "Accounts Receivables Assistaance", "Business Combinations Accounting", "Consolidation of Accounts", 
       "Ind AS Accounting", "US GAAP"
   ],
-  "Internal Audit & Risk assessment & testing": [
+  "2. Internal Audit & Risk assessment & testing": [
       "AML Investigation Techniques", "Contractual Compliance Testing", "Corporate governance framework assessment", 
       "Digital Forensic Investigation", "Fraud Risk Assessment Models", "Internal Audit", "Internal Control Testing", 
       "IT and Data Analytics", "Litigation Support Reporting", "RCM Prepration", "SOP Preparation & Implementation", 
       "SOX Audit"
   ],
-  "Statutory Audit & Compliances": [
+  "3. Statutory Audit & Compliances": [
       "Audit Assistance for Companies", "Audit Documentation", "Audit Observations Correction", 
       "Audit Reports Drafting", "Bank Audit", "Compliance & Legal Verifications", "Concurrent Audit", 
       "Control Testing", "Financial Due Diligence Audit", "Group Audit", "NBFCs Audit", "Physical Verification"
   ],
-  "Direct & International Taxation": [
+  "4. Direct & International Taxation": [
       "Cross-Border Structuring", "GAAR", "Income Tax Return Preparation and Filing", 
       "MAT-AMT Calculation", "Permanent Establishment", "Tax Audit", "Tax Structuring Advisory", 
       "Tax Treaty", "TDS-TCS Filling", "Transfer Pricing"
   ],
-  "Indirect Taxation & Transaction Taxes": [
+  "5. Indirect Taxation & Transaction Taxes": [
       "Customs Valuation", "E-Invoicing Compliance", "E-Way Bill", "GST Audit", 
       "GST Reconciliation", "GST Return Filing", "Input Tax Credit Optimisation", 
       "M&A Tax Due Diligence", "Refund Claim Processing"
   ],
-  "Costing & Strategic Cost Management": [
+  "6. Costing & Strategic Cost Management": [
       "Break-Even Analysis & Optimization", "Job Costing", "Kaizen Costing", "Lean Accounting", 
       "Life-Cycle Costing", "MIS For Cost Analysis", "MIS For Variance Analysis", 
       "Process Costing", "Target Costing"
   ],
-  "Financial Modeling & Valuation Engineering": ["Three-Statement Integrated Modeling", "Dynamic Scenario Simulation", "Sensitivity Matrix Design", "DCF Valuation Construction", "Comparable Company Analysis", "Precedent Transaction Analysis", "Leveraged Buyout Modeling", "Project Finance Modeling", "Startup Valuation", "Model Audit"],
-  "Investment & Portfolio Analytics": ["Equity Valuation Frameworks", "Fixed Income Duration Analysis", "Credit Spread Modeling", "Alternative Asset Evaluation", "Hedge Fund Performance", "Portfolio Optimisation (Markowitz)", "CAPM & Multifactor Modeling", "Derivatives Pricing Models"],
-  "Treasury & Corporate Liquidity Management": ["Bank Reconcilations", "Treasury operation management", "Working Capital Structuring", "Cash Forecasting Architecture", "Bank Relationship Management", "Foreign Exchange Exposure Hedging", "Interest Rate Swap Structuring", "Debt Issuance Strategy"],
-  "Corporate Law, Governance & Secretarial Practice": ["Company Incorporation", "MCA filings", "MOA/AOA/Deeds drafting", "Compliance Checklist drafting", "Companies Act Compliance", "Board Process Advisory", "SEBI Listing Regulations", "Insider Trading Compliance", "Secretarial Audit Execution", "FEMA Compliance"],
-  "Information Systems Audit & IT Governance": ["ITGC Testing", "ERP Control Mapping", "Access Rights Review", "Cybersecurity Audit", "Data Integrity Verification", "SOC Report Evaluation", "Cloud Risk Assessment", "Change Management Audit", "Business Continuity System Review"],
-  "Insolvency, Restructuring & Distressed Advisory": ["CIRP Process Management", "Resolution Plan Evaluation", "Liquidation Waterfall Distribution", "Forensic Transaction Review", "Avoidance Transaction Analysis", "Insolvency Law Compliance", "Revival Feasibility Assessment", "Debt Restructuring Modeling"],
-  "Wealth Management & Financial Planning": ["Retirement Corpus Planning", "Estate Planning Structuring", "Tax-Efficient Investment Strategy", "Insurance Planning", "Succession Planning", "Client Risk Profiling", "Portfolio Rebalancing Strategy"],
-  "Financial Operations & Process Optimization": ["Procure-To-Pay Cycle Control", "Order-To-Cash Optimization", "Record-To-Report Efficiency", "Financial Close Acceleration", "Shared Services Setup", "ERP Migration Planning", "Internal SOP Drafting", "Process Automation Evaluation"]
+  "7. Financial Modeling & Valuation Engineering": ["Three-Statement Integrated Modeling", "Dynamic Scenario Simulation", "Sensitivity Matrix Design", "DCF Valuation Construction", "Comparable Company Analysis", "Precedent Transaction Analysis", "Leveraged Buyout Modeling", "Project Finance Modeling", "Startup Valuation", "Model Audit"],
+  "8. Investment & Portfolio Analytics": ["Equity Valuation Frameworks", "Fixed Income Duration Analysis", "Credit Spread Modeling", "Alternative Asset Evaluation", "Hedge Fund Performance", "Portfolio Optimisation (Markowitz)", "CAPM & Multifactor Modeling", "Derivatives Pricing Models"],
+  "9. Treasury & Corporate Liquidity Management": ["Bank Reconcilations", "Treasury operation management", "Working Capital Structuring", "Cash Forecasting Architecture", "Bank Relationship Management", "Foreign Exchange Exposure Hedging", "Interest Rate Swap Structuring", "Debt Issuance Strategy"],
+  "10. Corporate Law, Governance & Secretarial Practice": ["Company Incorporation", "MCA filings", "MOA/AOA/Deeds drafting", "Compliance Checklist drafting", "Companies Act Compliance", "Board Process Advisory", "SEBI Listing Regulations", "Insider Trading Compliance", "Secretarial Audit Execution", "FEMA Compliance"],
+  "11. Information Systems Audit & IT Governance": ["ITGC Testing", "ERP Control Mapping", "Access Rights Review", "Cybersecurity Audit", "Data Integrity Verification", "SOC Report Evaluation", "Cloud Risk Assessment", "Change Management Audit", "Business Continuity System Review"],
+  "12. Insolvency, Restructuring & Distressed Advisory": ["CIRP Process Management", "Resolution Plan Evaluation", "Liquidation Waterfall Distribution", "Forensic Transaction Review", "Avoidance Transaction Analysis", "Insolvency Law Compliance", "Revival Feasibility Assessment", "Debt Restructuring Modeling"],
+  "13. Wealth Management & Financial Planning": ["Retirement Corpus Planning", "Estate Planning Structuring", "Tax-Efficient Investment Strategy", "Insurance Planning", "Succession Planning", "Client Risk Profiling", "Portfolio Rebalancing Strategy"],
+  "14. Financial Operations & Process Optimization": ["Procure-To-Pay Cycle Control", "Order-To-Cash Optimization", "Record-To-Report Efficiency", "Financial Close Acceleration", "Shared Services Setup", "ERP Migration Planning", "Internal SOP Drafting", "Process Automation Evaluation"]
 };
 
 // 🔥 PRESET BEHAVIORAL SKILLS LIST 🔥
@@ -68,7 +68,7 @@ const BEHAVIORAL_SKILLS_LIST = [
 
 // 🔥 PRESET TECHNOLOGICAL SKILLS LIST 🔥
 const TECH_SKILLS_LIST = [
-    "Advanced Excel", "Tally Prime", "SAP FICO", "MS Word", "MS PowerPoint", 
+    "Excel", "Tally Prime", "SAP FICO", "MS Word", "MS PowerPoint", 
     "Power BI", "Tableau", "Oracle ERP", "QuickBooks", "Zoho Books", 
     "SQL", "Python for Finance", "Macros & VBA"
 ];

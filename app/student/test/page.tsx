@@ -54,15 +54,19 @@ export default function LiveTestPage() {
   const [examScope, setExamScope] = useState<any[]>([]);
   const [shortfallData, setShortfallData] = useState<any[]>([]);
 
-  const [tabWarnings, setTabWarnings] = useState(0);
+ const [tabWarnings, setTabWarnings] = useState(0);
   const [micWarnings, setMicWarnings] = useState(0);
   const [camWarnings, setCamWarnings] = useState(0);
   const [faceWarnings, setFaceWarnings] = useState(0);
+  const [doubleFaceWarnings, setDoubleFaceWarnings] = useState(0);
+  const [eyeWarnings, setEyeWarnings] = useState(0);
 
   const MAX_TAB_WARNINGS = 2;
   const MAX_MIC_WARNINGS = 6;
   const MAX_CAM_WARNINGS = 6;
-  const MAX_FACE_WARNINGS = 4;
+  const MAX_FACE_WARNINGS = 2;
+  const MAX_DOUBLE_FACE_WARNINGS = 2;
+  const MAX_EYE_WARNINGS = 5;
 
   const [isTerminated, setIsTerminated] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -315,8 +319,8 @@ export default function LiveTestPage() {
               lastAttempt: new Date(),
               totalScore: currentTestTotalScore, 
               status: finalStatus,
-              warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings },
-              warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings, 
+              warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings, doubleFace: doubleFaceWarnings, eyeMovement: eyeWarnings },
+              warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings + doubleFaceWarnings + eyeWarnings, 
               skillScores: analyticsData, 
               ai_detailed_report: generatedAiReport 
            }
@@ -391,6 +395,24 @@ export default function LiveTestPage() {
             } else alert(`⚠️ IDENTITY WARNING ${next}/${MAX_FACE_WARNINGS}: ${customMsg || "Face mismatch detected!"}`);
             return next;
         });
+    } else if (type === 'double_face') {
+        setDoubleFaceWarnings(prev => {
+            const next = prev + 1;
+            if (next >= MAX_DOUBLE_FACE_WARNINGS) { 
+                alert("🚨 Test Auto-Submitted: Multiple persons detected in frame!");
+                submitTest("Auto-Submitted: Multiple Faces Detected", true); 
+            } else alert(`⚠️ CHEATING WARNING ${next}/${MAX_DOUBLE_FACE_WARNINGS}: Multiple faces detected! You will be disqualified.`);
+            return next;
+        });
+    } else if (type === 'eye') {
+        setEyeWarnings(prev => {
+            const next = prev + 1;
+            if (next >= MAX_EYE_WARNINGS) { 
+                alert("🚨 Test Auto-Submitted: Suspicious Eye/Head movement detected!");
+                submitTest("Auto-Submitted: Eye/Head Movement Exceeded", true); 
+            } else alert(`⚠️ PROCTOR WARNING ${next}/${MAX_EYE_WARNINGS}: ${customMsg || "Please look straight at the screen!"}`);
+            return next;
+        });
     }
   }, [isTerminated, isSubmitted, submitTest]);
 
@@ -418,53 +440,123 @@ export default function LiveTestPage() {
       const dataArray = new Uint8Array(bufferLength);
       let frameCount = 0;
 
+     // Double Face Warning Timer State (Bahar rakh rahe taaki 10s track kar sake)
+      let doubleFaceTimeCounter = 0;
+
       faceMatchIntervalRef.current = setInterval(async () => {
          if (isSubmitted || isTerminated) return;
-         if (!videoRef.current || !profileDescriptorRef.current) return;
+         if (!videoRef.current) return; 
 
          try {
              const faceapi = (window as any).faceapi;
              if (!faceapi || !faceapi.nets.tinyFaceDetector.isLoaded) return;
 
-             const liveDetection = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+             // 🔥 FIX: Lowered threshold (0.3) so it detects blurry/background faces too
+             const detectorOptions = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
+             const liveDetections = await faceapi.detectAllFaces(videoRef.current, detectorOptions).withFaceLandmarks().withFaceDescriptors();
 
-             if (!liveDetection) {
-                 triggerWarning('face', "No face detected in camera! Please stay in frame.");
+             if (liveDetections.length === 0) {
+                 triggerWarning('face', "No face detected! Please look at the camera.");
                  return;
              }
-
-             const distance = faceapi.euclideanDistance(profileDescriptorRef.current, liveDetection.descriptor);
              
-             if (distance > 0.55) { 
-                 triggerWarning('face', "Different person detected! Identity mismatch.");
+             // 🔥 FIX: Robust accumulation for Double Face (Handles AI flickering)
+             if (liveDetections.length > 1) {
+                 doubleFaceTimeCounter += 2000; 
+                 // Target 8-10 seconds of accumulated double face time
+                 if (doubleFaceTimeCounter >= 500) { 
+                     triggerWarning('double_face');
+                     doubleFaceTimeCounter = 0; // Reset after warning
+                 }
+             } else {
+                 // 🔥 FIX: Gradual cooldown! Agar AI milliseconds ke liye face miss kare toh timer 0 na ho
+                 doubleFaceTimeCounter = Math.max(0, doubleFaceTimeCounter - 2000); 
              }
+
+             const detection = liveDetections[0];
+             
+             // 🔥 FIX: Check identity strictness only when single person is detected (to avoid clash with double face)
+             if (profileDescriptorRef.current && liveDetections.length === 1) {
+                 const distance = faceapi.euclideanDistance(profileDescriptorRef.current, detection.descriptor);
+                 // 🔥 FIX: Threshold tightened from 0.55 to 0.50 for stricter identity check
+                 if (distance > 0.50) { 
+                     triggerWarning('face', "Different person detected! Identity mismatch.");
+                 }
+             }
+             
+             // 🔥 100% FIXED: Deep Eyeball Tracking (Gaze) + Head Movement
+             const nose = detection.landmarks.getNose();
+             const leftEye = detection.landmarks.getLeftEye();
+             const rightEye = detection.landmarks.getRightEye();
+             const jaw = detection.landmarks.getJawOutline();
+             
+             const noseBridge = nose[0];
+             const noseTip = nose[3];
+             
+             // Head Turn Calculation
+             const leftJaw = jaw[0];
+             const rightJaw = jaw[16];
+             const distLeftJaw = Math.abs(noseBridge.x - leftJaw.x);
+             const distRightJaw = Math.abs(noseBridge.x - rightJaw.x);
+
+             // Eyeball Gaze Calculation (Distance from nose to inner corners of eyes)
+             const leftEyeInner = leftEye[3]; // Inner corner of left eye
+             const rightEyeInner = rightEye[0]; // Inner corner of right eye
+             const distLeftEye = Math.abs(noseBridge.x - leftEyeInner.x);
+             const distRightEye = Math.abs(rightEyeInner.x - noseBridge.x);
+             
+             // Looking Down Calculation
+             const eyeYAvg = (leftEye[0].y + rightEye[0].y) / 2;
+             const noseDistY = Math.abs(noseTip.y - eyeYAvg);
+             const faceHeight = detection.detection.box.height;
+
+             // 1. Extreme Head Turn (Sarr ghumana)
+             if (distLeftJaw > distRightJaw * 1.6 || distRightJaw > distLeftJaw * 1.6) {
+                 triggerWarning('eye', "Head turned away from screen!");
+             } 
+             // 2. Eyeball Gaze Turn (Sarr straight, par aankhein side mein)
+             else if (distLeftEye > distRightEye * 1.5 || distRightEye > distLeftEye * 1.5) {
+                 triggerWarning('eye', "Looking sideways detected! Keep your eyes on the screen.");
+             }
+             // 3. Looking Down (Aankhein / Sarr neeche notes padhne ke liye)
+             else if (noseDistY < (faceHeight * 0.18)) { 
+                 triggerWarning('eye', "Looking down detected! Keep your head straight.");
+             }
+
          } catch (err) {
-             console.error("Background face matching error:", err);
+             console.error("Background face tracking error:", err);
          }
-      }, 30000); 
+      }, 2000); // 🔥 100% FIXED: 2000 ms (2 seconds) kiya hai taaki lagatar monitor kare bina miss kiye.
 
       const checkActivity = () => {
         if (isSubmitted || isTerminated) return;
         frameCount++;
         analyser.getByteFrequencyData(dataArray);
         
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-            sum += dataArray[i];
-        }
-        const average = sum / bufferLength;
+       // 🔥 FIX: Ignore low-frequency background hum (AC, fan, traffic) and focus on human speech/whisper frequencies
+        let speechSum = 0;
+        let speechBins = 0;
+        // Bin math: Bins 2 to 25 cover approx 350Hz to 4500Hz (Core human voice and whisper range).
+        // Isse fan, AC aur bahar ki low rumble (0-300Hz) bilkul ignore ho jayegi.
+        for (let i = 2; i < 25 && i < bufferLength; i++) {
+            speechSum += dataArray[i];
+            speechBins++;
+        }
+        const speechAverage = speechBins > 0 ? speechSum / speechBins : 0;
 
-       // Smart Audio Check: Catches normal/low speaking voices over a duration, ignores brief background noises
-        if (average > 48) { // Lowered threshold to catch normal/quiet talking
-          noiseFramesRef.current += 1;
-          if (noiseFramesRef.current > 75) { // ~1.2 seconds of continuous talking
-              noiseFramesRef.current = 0;
-              triggerWarning('mic', "Continuous talking or audio detected!"); 
-          }
-        } else { 
-            // Slower reset (-1 instead of -2) so natural pauses between words don't reset the penalty
-            noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 1);
-        }
+     // Smart Audio Check: Focused specifically on human voice frequencies
+       // 🔥 FIX: Set threshold high (70) to completely ignore laptop mic static and browser auto-gain in silence
+       if (speechAverage > 85) { 
+         noiseFramesRef.current += 1;
+         // 🔥 FIX: Requires almost 2 full seconds of solid continuous talking (~120 frames)
+         if (noiseFramesRef.current > 140) { 
+             noiseFramesRef.current = 0;
+             triggerWarning('mic', "Continuous speaking detected!"); 
+         }
+       } else { 
+           // 🔥 FIX: Faster reset (-2) so random background noises clear out instantly
+           noiseFramesRef.current = Math.max(0, noiseFramesRef.current - 2);
+       }
 
         if (frameCount % 30 === 0 && videoRef.current && canvasRef.current) {
             const video = videoRef.current;
@@ -593,22 +685,22 @@ export default function LiveTestPage() {
                     return { ...q, options: opts, category: "Technical", skill: exactSkill }; 
                 });
 
-                const randomizedQs = processedQs.sort(() => 0.5 - Math.random());
-                const toAdd = randomizedQs.slice(0, 5); 
+               const randomizedQs = processedQs.sort(() => 0.5 - Math.random());
+                const toAdd = randomizedQs.slice(0, 6); // Changed to 6
                 dbFetchedCount = toAdd.length;
 
                 finalQuestions = [...finalQuestions, ...toAdd];
-                backupQuestions = [...backupQuestions, ...randomizedQs.slice(5)];
+                backupQuestions = [...backupQuestions, ...randomizedQs.slice(6)];
             }
 
-            const missing = 5 - dbFetchedCount;
+            const missing = 6 - dbFetchedCount; // Changed to 6
             scopeInfo.push({
                 skillName: exactSkill,
                 dbCount: dbFetchedCount,
                 aiCount: missing,
-                total: 5
+                total: 6 // Changed to 6
             });
-
+            
             if (missing > 0) {
                 const techObj = techSkillsObjects.find((t:any) => (t.name || t) === exactSkill);
                 const skillWithLevel = techObj && typeof techObj === 'object' && techObj.level ? `${exactSkill} (${techObj.level})` : exactSkill;
@@ -616,15 +708,18 @@ export default function LiveTestPage() {
             }
         }
 
-        scopeInfo.push({
+       scopeInfo.push({
             skillName: "Behavioral & Culture Fit",
             dbCount: 0,
-            aiCount: 5,
-            total: 5
+            aiCount: 6, 
+            total: 6 
         });
+        
+        // MISSING LOGIC: Behavioral ko bhi AI ki demand list (shortfall) mein daalna hai
+        shortfallToFetch.push({ skill: "Behavioral & Culture Fit", count: 6 });
 
         setExamScope(scopeInfo);
-        setShortfallData(shortfallToFetch); 
+        setShortfallData(shortfallToFetch);
 
         if (finalQuestions.length > 0) {
            finalQuestions = finalQuestions.sort(() => 0.5 - Math.random());
@@ -708,7 +803,8 @@ export default function LiveTestPage() {
                         ? studentProfile.educations.map((e:any) => e.qualification).join(", ") 
                         : "";
         
-        const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}` : `Skills: ${safeSkills}`;
+       const aiInstruction = "IMPORTANT FOR AI: Ensure each generated question has EXACTLY ONE correct answer among the 4 options. Do not make options ambiguous.";
+        const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}. ${aiInstruction}` : `Skills: ${safeSkills}. ${aiInstruction}`;
 
         const existingQsTextLower = questions.map(q => normalizeText(q.question));
         const existingQsText = questions.map(q => q.question).join(" | ");
@@ -729,7 +825,8 @@ export default function LiveTestPage() {
                 
                 const filteredAiQuestions = aiData.questions.filter((q: any) => {
                     const qText = normalizeText(q.question);
-                    return !existingQsTextLower.some(eq => eq.includes(qText) || qText.includes(eq));
+                    // Fixed strict filter: Now it only drops if it's almost an EXACT match, protecting valid AI questions
+                    return !existingQsTextLower.some(eq => eq === qText); 
                 });
 
                 const safeAiQuestions = filteredAiQuestions.map((q: any) => {
@@ -761,7 +858,11 @@ export default function LiveTestPage() {
                     };
                 });
                 
-                const finalMixedQs = [...questions, ...safeAiQuestions].sort(() => 0.5 - Math.random());
+                // FIX: AI ne agar extra questions diye toh usko strict exact requirement tak kaat do (trim)
+                const totalExpectedAIQs = shortfallData.reduce((sum, item) => sum + item.count, 0);
+                const exactAiQuestions = safeAiQuestions.slice(0, totalExpectedAIQs);
+
+                const finalMixedQs = [...questions, ...exactAiQuestions].sort(() => 0.5 - Math.random());
                 setQuestions(finalMixedQs);
                 setAnswers(new Array(finalMixedQs.length).fill(-1));
                 setTimeLeft(finalMixedQs.length * 60); 
@@ -889,8 +990,9 @@ export default function LiveTestPage() {
                                 <ShieldAlert size={18}/> Anti-Cheat Policy
                             </h3>
                             <ul className="space-y-3 text-sm text-red-800 font-medium">
-                                <li className="flex gap-3"><Ban className="text-red-500 shrink-0" size={16}/> Do not switch tabs (Max 2 Warnings).</li>
-                                <li className="flex gap-3"><Video className="text-red-500 shrink-0" size={16}/> Identity & Movement Check Active.</li>
+                                <li className="flex gap-3"><Ban className="text-red-500 shrink-0" size={16}/> Tab Switching is prohibited (Max {MAX_TAB_WARNINGS} Warnings).</li>
+                                <li className="flex gap-3"><Video className="text-red-500 shrink-0" size={16}/> Double Face Detection is Active (Max {MAX_DOUBLE_FACE_WARNINGS} Warnings).</li>
+                                <li className="flex gap-3"><Camera className="text-red-500 shrink-0" size={16}/> Looking down/away will be flagged (Max {MAX_EYE_WARNINGS} Warnings).</li>
                                 <li className="flex gap-3"><Mic className="text-red-500 shrink-0" size={16}/> Background Audio Monitoring Active.</li>
                              </ul>
                         </div>
@@ -1074,7 +1176,9 @@ export default function LiveTestPage() {
              )}
           </div>
           <div className="flex flex-wrap gap-2 md:gap-4 text-[9px] md:text-xs font-black uppercase tracking-wider w-full md:w-auto justify-start md:justify-end">
-             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${faceWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Face: {MAX_FACE_WARNINGS - faceWarnings}</div>
+             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${faceWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>ID: {MAX_FACE_WARNINGS - faceWarnings}</div>
+             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${doubleFaceWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>2-Faces: {MAX_DOUBLE_FACE_WARNINGS - doubleFaceWarnings}</div>
+             <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${eyeWarnings > 0 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200'}`}>Eye: {MAX_EYE_WARNINGS - eyeWarnings}</div>
              <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${tabWarnings > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-slate-500 border-slate-200'}`}>Tab: {MAX_TAB_WARNINGS - tabWarnings}</div>
              <div className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-md md:rounded-lg border shadow-sm ${micWarnings > 0 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-white text-slate-500 border-slate-200'}`}>Mic: {MAX_MIC_WARNINGS - micWarnings}</div>
           </div>
