@@ -121,7 +121,8 @@ export default function CandidateProfile() {
     willingToRelocate: "No",
     panCard: "", 
     bio: "", 
-    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "", mathsScore: "" }], 
+    highestQualification: "", // 🔥 NEW: Track Highest Qualification Level
+    educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "", mathsScore: "" }],
     workExperience: [] as { company: string, role: string, duration: string, designation: string, summary: string }[],    achievements: [] as { title: string, description: string, imageURL: string }[], 
     languages: [] as { language: string; proficiency: string }[],
     skills: [] as string[],
@@ -192,6 +193,7 @@ export default function CandidateProfile() {
             expectedSalary: data.expectedSalary || "",
             jobType: data.jobType || "Permanent Role",
             openToContractRoles: data.openToContractRoles === true ? "Yes" : (data.openToContractRoles === false ? "No" : ""),
+            highestQualification: data.highestQualification || "", // 🔥 NEW: Pre-fill from DB
             educations: data.educations?.length ? data.educations : formData.educations,
             workExperience: data.workExperience || [],
             achievements: data.achievements || [],
@@ -544,6 +546,9 @@ export default function CandidateProfile() {
            }
         }
      } else if (currentStep === 2) {
+        if (!formData.highestQualification || formData.highestQualification.trim() === "") {
+            return alert("🛑 Please select your Highest Qualification Level to proceed.");
+        }
         if (!formData.educations[0].qualification || !formData.educations[0].collegeName || !formData.educations[0].passingYear) {
             return alert("🛑 Please complete at least one Education block completely.");
         }
@@ -915,6 +920,45 @@ export default function CandidateProfile() {
                               <Plus size={18}/> Add More
                            </button>
                         </div>
+                        
+                        {/* 🔥 NEW: Highest Qualification Dropdown */}
+                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm mb-6">
+                            <label className="form-label flex items-center gap-2 text-indigo-700">
+                                <GraduationCap size={18}/> Highest Qualification Level <span className="text-red-500">*</span>
+                            </label>
+                            <p className="text-xs text-slate-500 mb-3 font-medium">This will help our AI tailor the assessment difficulty specifically for your profile level.</p>
+                            <input 
+                                type="text" 
+                                list="highest-qual-list" 
+                                value={formData.highestQualification} 
+                                onChange={(e)=>setFormData({...formData, highestQualification: e.target.value})} 
+                                className="input-field bg-white border-indigo-200 focus:border-indigo-500" 
+                                placeholder="Select or type your highest qualification level..."
+                            />
+                            <datalist id="highest-qual-list">
+                                <option value="Chartered Accountant (CA) - Qualified" />
+                                <option value="CA Finalist (Group 1 Cleared)" />
+                                <option value="CA Finalist (Group 2 Cleared)" />
+                                <option value="CA Intermediate - Cleared" />
+                                <option value="Cost & Management Accountant (CMA) - Qualified" />
+                                <option value="CMA Finalist" />
+                                <option value="CMA Intermediate" />
+                                <option value="Company Secretary (CS) - Qualified" />
+                                <option value="CS Professional" />
+                                <option value="CS Executive" />
+                                <option value="ACCA - Qualified / Affiliate" />
+                                <option value="Master of Business Administration (MBA)" />
+                                <option value="Post Graduate Diploma in Management (PGDM)" />
+                                <option value="Master of Commerce (M.Com)" />
+                                <option value="Bachelor of Commerce (B.Com)" />
+                                <option value="Bachelor of Business Administration (BBA)" />
+                                <option value="Bachelor of Technology (B.Tech / B.E.)" />
+                                <option value="Bachelor of Arts / Science (B.A. / B.Sc)" />
+                                <option value="Diploma / Polytechnic" />
+                                <option value="High School (12th / PUC)" />
+                            </datalist>
+                        </div>
+
                         <div className="space-y-6">
                            {formData.educations.map((edu, index) => {
                               const qualText = (edu.qualification || '').toLowerCase();

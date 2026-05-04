@@ -349,7 +349,16 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                             <div>
                                 <div className="candidate-name">{candidate?.fullName || "Candidate Name"}</div>
                                 <div className="candidate-tagline">"{candidate?.bio || "A highly motivated professional looking to leverage skills to achieve corporate goals."}"</div>
-                                <div className="contact-row">
+                                
+                                {/* 🔥 NEW: Highest Qualification in PDF Header */}
+                                {candidate?.highestQualification && (
+                                    <div style={{ marginTop: "12px", display: "inline-flex", background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.3)", padding: "4px 10px", borderRadius: "4px", alignItems: "center", gap: "6px" }}>
+                                        <span style={{ fontSize: "12px" }}>🎓</span>
+                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "10px", color: "var(--gold-light)", fontWeight: "600", letterSpacing: "0.5px" }}>{candidate.highestQualification}</span>
+                                    </div>
+                                )}
+
+                                <div className="contact-row" style={{ marginTop: candidate?.highestQualification ? "8px" : "10px" }}>
                                     <div className="contact-item"><span className="icon">📍</span> {candidate?.city || "Not Provided"}</div>
                                     <div className="contact-item"><span className="icon">📞</span> {candidate?.phone || "Not Provided"}</div>
                                     <div className="contact-item"><span className="icon">✉</span> {candidate?.email || "Not Provided"}</div>

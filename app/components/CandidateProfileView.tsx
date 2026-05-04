@@ -155,6 +155,17 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
          </div>
       )}
 
+      {/* 🔥 NEW: Highest Qualification Badge displayed prominently above Bio */}
+      {candidate.highestQualification && (
+         <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-center gap-3 shadow-sm">
+            <div className="bg-indigo-100 p-2 rounded-lg"><GraduationCap size={20} className="text-indigo-600"/></div>
+            <div>
+               <p className="text-[10px] uppercase tracking-widest font-black text-indigo-500 mb-0.5">Highest Qualification Level</p>
+               <p className="font-bold text-indigo-900 text-sm">{candidate.highestQualification}</p>
+            </div>
+         </div>
+      )}
+
       {candidate.bio && (
          <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-primary"></div>
