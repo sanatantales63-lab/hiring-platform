@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { 
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
-  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award, Users
+  Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award, Users, MessageCircle
 } from "lucide-react";
 import DownloadReportButton from "@/app/components/DownloadReportButton";
 
@@ -19,8 +19,9 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const isDisqualified = candidate.examAccess === 'disqualified';
   
   const emailToDisplay = isCompany ? "hidden@candidate.com" : (candidate.email || "Email Not Added");
-  const phoneToDisplay = isCompany ? "+91 98XXXXXX00" : (candidate.phone || "Phone Not Added");
-  const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
+  const phoneToDisplay = isCompany ? "+91 98XXXXXX00" : (candidate.phone || "Phone Not Added");
+  const whatsappToDisplay = isCompany ? "+91 98XXXXXX00" : (candidate.whatsappNumber || "Not Added");
+  const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
   const dobToDisplay = isCompany ? "XX/XX/XXXX" : (candidate.dob || "Not Provided");
 
   let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
@@ -101,10 +102,18 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
              )}
           </div>
           
-          <div className={`flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold mt-2 ${isCompany ? 'blur-[4px] select-none opacity-50' : ''}`}>
-            <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}</span>
-            <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><Phone size={16} className="text-[var(--primary)]"/> {phoneToDisplay}</span>
-            <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><Mail size={16} className="text-amber-500"/> {emailToDisplay}</span>
+         {/* 🔥 FIX: Grouped beautifully into two aligned rows to look premium */}
+          <div className={`flex flex-col items-center md:items-start gap-3 mt-4 ${isCompany ? 'blur-[4px] select-none opacity-50' : ''}`}>
+             <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold">
+                <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}</span>
+                <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><Phone size={16} className="text-[var(--primary)]"/> {phoneToDisplay}</span>
+             </div>
+             <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold">
+                {candidate.whatsappNumber && (
+                   <span className="flex items-center gap-2 text-emerald-800 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 shadow-sm"><MessageCircle size={16} className="text-emerald-500"/> {whatsappToDisplay}</span>
+                )}
+                <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><Mail size={16} className="text-amber-500"/> {emailToDisplay}</span>
+             </div>
           </div>
 
           {isCompany && (

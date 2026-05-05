@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; 
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  User, MapPin, Briefcase, 
-  Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users, Monitor
+  User, MapPin, Briefcase, 
+  Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users, Monitor, MessageCircle
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
@@ -109,11 +109,12 @@ export default function CandidateProfile() {
   const streamRef = useRef<MediaStream | null>(null);
   
   const [formData, setFormData] = useState({
-    fullName: "", 
-    dob: "", 
-    gender: "", 
-    phone: "", 
-    photoURL: "", 
+    fullName: "", 
+    dob: "", 
+    gender: "", 
+    phone: "", 
+    whatsappNumber: "", 
+    photoURL: "", 
     addressLine: "", 
     city: "", 
     state: "", 
@@ -183,13 +184,14 @@ export default function CandidateProfile() {
       try {
         const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
     
-        if (data && data.fullName) {
-          setFormData({ 
-            ...formData, 
-            ...data,
-            bio: data.bio || "", 
-            panCard: data.panCard || "",
-            currentSalary: data.currentSalary || "", 
+       if (data && data.fullName) {
+          setFormData({ 
+            ...formData, 
+            ...data,
+            bio: data.bio || "", 
+            panCard: data.panCard || "",
+            whatsappNumber: data.whatsappNumber || "",
+            currentSalary: data.currentSalary || "", 
             expectedSalary: data.expectedSalary || "",
             jobType: data.jobType || "Permanent Role",
             openToContractRoles: data.openToContractRoles === true ? "Yes" : (data.openToContractRoles === false ? "No" : ""),
@@ -477,13 +479,14 @@ export default function CandidateProfile() {
          const aiData = await aiResponse.json();
          const cleanedLocs = (aiData.preferredLocations || []).filter((l:string) => l.toLowerCase() !== 'remote');
          setFormData(prev => ({ 
-            ...prev, 
-            resumeURL: publicUrlData.publicUrl,
-            fullName: aiData.fullName || prev.fullName, 
-            dob: aiData.dob || prev.dob, 
-            gender: aiData.gender || prev.gender, 
-            phone: aiData.phone || prev.phone,
-            city: aiData.city || prev.city, 
+            ...prev, 
+            resumeURL: publicUrlData.publicUrl,
+            fullName: aiData.fullName || prev.fullName, 
+            dob: aiData.dob || prev.dob, 
+            gender: aiData.gender || prev.gender, 
+            phone: aiData.phone || prev.phone,
+            whatsappNumber: aiData.whatsappNumber || prev.whatsappNumber || "",
+            city: aiData.city || prev.city,
             state: aiData.state || prev.state, 
             pincode: aiData.pincode || prev.pincode, 
             experience: aiData.experience || prev.experience,
@@ -536,16 +539,20 @@ export default function CandidateProfile() {
             if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                 age--;
             }
-            if (age < 18) {
-                return alert("🛑 You must be at least 18 years old to register on this platform.");
-            }
-        }
-        if (formData.panCard && formData.panCard.trim() !== "") {
-           if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panCard.toUpperCase())) {
-               return alert("🛑 Invalid PAN Card format!");
-           }
-        }
-     } else if (currentStep === 2) {
+           if (age < 18) {
+                return alert("🛑 You must be at least 18 years old to register on this platform.");
+            }
+        }
+        if (!formData.panCard || formData.panCard.trim() === "") {
+            return alert("🛑 PAN Card is mandatory to verify your identity.");
+        }
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panCard.toUpperCase())) {
+            return alert("🛑 Invalid PAN Card format! It should be like ABCDE1234F.");
+        }
+        if (formData.whatsappNumber && !/^[0-9]{10}$/.test(formData.whatsappNumber.trim())) {
+            return alert("🛑 Invalid WhatsApp Number! Must be exactly 10 digits.");
+        }
+     } else if (currentStep === 2) {
         if (!formData.highestQualification || formData.highestQualification.trim() === "") {
             return alert("🛑 Please select your Highest Qualification Level to proceed.");
         }
@@ -844,38 +851,45 @@ export default function CandidateProfile() {
                         )}
                      </AnimatePresence>
 
-                     <div className="grid md:grid-cols-2 gap-6">
-                        <div>
+                    {/* 🔥 FIX: Restored the proper 2-column grid layout so it doesn't stretch weirdly */}
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                        <div className="w-full">
                            <label className="form-label">Full Name <span className="text-red-500">*</span></label>
-                           <input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field"/>
+                           <input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field w-full"/>
                         </div>
-                        <div>
+                        <div className="w-full">
                            <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
-                           <input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field w-full"/>
+                           <input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field w-full" placeholder="e.g. 9876543210"/>
                         </div>
-                        <div>
-                           <label className="form-label">Date of Birth <span className="text-red-500">*</span> <span className="text-slate-400 text-xs">(Min. 18 Years)</span></label>
-                           <input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field [color-scheme:light]"/>
+                        <div className="w-full">
+                           <label className="form-label flex items-center gap-2 text-emerald-700">
+                               <MessageCircle size={16} className="text-emerald-500"/> WhatsApp Number
+                           </label>
+                           <input type="text" value={formData.whatsappNumber || ""} onChange={(e)=>setFormData({...formData, whatsappNumber: e.target.value})} className="input-field border-emerald-200 focus:border-emerald-500 bg-emerald-50 focus:bg-white w-full" placeholder="e.g. 9876543210" maxLength={10}/>
                         </div>
-                        <div>
+                        <div className="w-full">
+                           <label className="form-label">Date of Birth <span className="text-red-500">*</span> <span className="text-slate-400 text-xs">(Min. 18)</span></label>
+                           <input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field w-full [color-scheme:light]"/>
+                        </div>
+                        <div className="w-full">
                            <label className="form-label">Gender <span className="text-red-500">*</span></label>
-                           <select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field [color-scheme:light]">
+                           <select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field w-full [color-scheme:light]">
                               <option value="">Select</option>
                               <option>Male</option>
                               <option>Female</option>
                               <option>Other</option>
                            </select>
                         </div>
-                        <div>
-                           <label className="form-label">City <span className="text-red-500">*</span></label>
-                           <input type="text" list="indian-cities" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field" placeholder="Type to search your city..."/>
+                        <div className="w-full">
+                           <label className="form-label">City <span className="text-red-500">*</span></label>
+                           <input type="text" list="indian-cities" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field w-full" placeholder="Type to search your city..."/>
                            <datalist id="indian-cities">
                               {INDIAN_CITIES.map((c, idx) => <option key={idx} value={c.name} />)}
                            </datalist>
-                        </div>
-                        <div>
-                           <label className="form-label">PAN Card <span className="text-slate-400 text-xs ml-1">(Optional)</span></label>
-                           <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest" maxLength={10}/>
+                        </div>
+                        <div className="w-full md:col-span-2">
+                           <label className="form-label text-rose-700">PAN Card <span className="text-red-500">*</span></label>
+                           <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest border-rose-200 bg-rose-50 focus:border-rose-500 focus:bg-white w-full md:w-1/2" maxLength={10} placeholder="ABCDE1234F"/>
                         </div>
                      </div>
 
