@@ -53,10 +53,28 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const candidateWeaknesses = Array.isArray(candidate.weaknesses) ? candidate.weaknesses : [];
   const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
   const metaObj = candidate.meta || {};
-  const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0 };
-  const hasMediaWarnings = warns.mic > 0 || warns.cam > 0;
+  const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0 };
+  const hasMediaWarnings = warns.mic > 0 || warns.cam > 0;
 
-  const handleResetMediaWarnings = async () => {
+  // 🔥 SALARY DISPLAY LOGIC: Company sees +25%, Admin sees both, Candidate sees original
+  let displayExpectedSalary = candidate.expectedSalary || "N/A";
+  let adminBumpedSalary = null;
+  if (candidate.expectedSalary) {
+      const numMatch = candidate.expectedSalary.replace(/[^0-9]/g, '');
+      if (numMatch) {
+          const baseNum = parseInt(numMatch, 10);
+          const bumpedNum = Math.round(baseNum * 1.25);
+          const bumpedStr = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(bumpedNum);
+          
+          if (isCompany) {
+              displayExpectedSalary = bumpedStr; 
+          } else if (isAdmin) {
+              adminBumpedSalary = bumpedStr; 
+          }
+      }
+  }
+
+  const handleResetMediaWarnings = async () => {
      if(!confirm("Are you sure you want to forgive this candidate and clear their Mic/Camera warnings?")) return;
      setIsResetting(true);
      try {
@@ -225,15 +243,25 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
       <div className="grid md:grid-cols-3 gap-8">
          <div className="md:col-span-1 space-y-8">
              <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
-                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Briefcase className="text-[var(--primary)]"/> Career & Salary</h3>
-                <div className="space-y-4 text-sm font-bold text-[var(--ink-soft)]">
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Total Exp.</span><span className="text-[var(--foreground)] bg-[var(--surface)] px-3 py-1 rounded-lg border border-[var(--border)] shadow-sm">{candidate.experience}</span></div>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Notice Period</span><span className="text-[var(--foreground)]">{candidate.noticePeriod || "N/A"}</span></div>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Expected Salary</span><span className="text-[var(--primary)] font-extrabold">{candidate.expectedSalary || "N/A"}</span></div>
-                   {candidate.currentSalary && <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Current Salary</span><span className="text-[var(--foreground)]">{candidate.currentSalary}</span></div>}
-                   <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)]">Open to Contract</span><span className={candidate.openToContractRoles ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
-                </div>
-             </div>
+                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Briefcase className="text-[var(--primary)]"/> Career & Salary</h3>
+                <div className="space-y-4 text-sm font-bold text-[var(--ink-soft)]">
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Total Exp.</span><span className="text-[var(--foreground)] bg-[var(--surface)] px-3 py-1 rounded-lg border border-[var(--border)] shadow-sm">{candidate.experience}</span></div>
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Notice Period</span><span className="text-[var(--foreground)]">{candidate.noticePeriod || "N/A"}</span></div>
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3 items-center">
+                      <span className="text-[var(--muted-foreground)]">Expected Salary</span>
+                      <div className="text-right">
+                         <span className="text-[var(--primary)] font-extrabold text-lg">{displayExpectedSalary}</span>
+                         {adminBumpedSalary && (
+                            <div className="text-[10px] text-amber-700 mt-1 font-extrabold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                               Company Sees: {adminBumpedSalary}
+                            </div>
+                         )}
+                      </div>
+                   </div>
+                   {candidate.currentSalary && <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Current Salary</span><span className="text-[var(--foreground)]">{candidate.currentSalary}</span></div>}
+                   <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)]">Open to Contract</span><span className={candidate.openToContractRoles ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
+                </div>
+             </div>
 
              <div className={`bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft relative ${isCompany ? 'overflow-hidden group' : ''}`}>
                 <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><User className="text-[var(--primary)]"/> Personal Details</h3>

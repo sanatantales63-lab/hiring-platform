@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   User, MapPin, Briefcase, 
   Edit, Save, Phone, Camera, Loader2, ArrowLeft, 
-  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users, Monitor, MessageCircle
+  GraduationCap, ChevronRight, ChevronLeft, Sparkles, Plus, X, Check, Globe, FileText, Search, ShieldAlert, PlayCircle, Target, TrendingUp, TrendingDown, ScanFace, Award, ImagePlus, Users, Monitor, MessageCircle, AlertTriangle
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import { QUALIFICATIONS_LIST } from "@/lib/constants";
@@ -698,9 +698,21 @@ export default function CandidateProfile() {
   };
 
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
-  
-  if (loading) {
-      return (
+  
+  // 🔥 SMART SALARY CHECK: Over 30% Hike Warning
+  let showHikeWarning = false;
+  if (formData.currentSalary && formData.expectedSalary) {
+     const currNum = parseInt(formData.currentSalary.replace(/[^0-9]/g, ''), 10);
+     const expNum = parseInt(formData.expectedSalary.replace(/[^0-9]/g, ''), 10);
+     if (!isNaN(currNum) && !isNaN(expNum) && currNum > 0) {
+        if (expNum > currNum * 1.30) {
+           showHikeWarning = true;
+        }
+     }
+  }
+
+  if (loading) {
+      return (
           <div className="h-screen bg-slate-50 text-slate-900 flex gap-3 items-center justify-center">
               <Loader2 className="animate-spin text-teal-600" /> Loading...
           </div>
@@ -1364,12 +1376,21 @@ export default function CandidateProfile() {
                                  <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹30,000"/>
                               </div>
                            )}
-                           <div>
-                              <label className="form-label flex items-center gap-2">Monthly Expected Salary <span className="text-red-500">*</span></label>
-                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className="input-field border-teal-200 bg-teal-50" placeholder="e.g. ₹40,000"/>
-                           </div>
+                          <div>
+                              <label className="form-label flex items-center gap-2">Monthly Expected Salary <span className="text-red-500">*</span></label>
+                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className={`input-field bg-teal-50 ${showHikeWarning ? 'border-amber-400 focus:border-amber-500' : 'border-teal-200'}`} placeholder="e.g. ₹40,000"/>
+                              <AnimatePresence>
+                                 {showHikeWarning && (
+                                    <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="overflow-hidden">
+                                       <p className="text-xs text-amber-700 mt-2 font-bold flex items-center gap-1 bg-amber-50 p-2 rounded-lg border border-amber-200 shadow-sm">
+                                          <AlertTriangle size={14} className="shrink-0"/> Asking for &gt;30% hike may slow down your hiring process.
+                                       </p>
+                                    </motion.div>
+                                 )}
+                              </AnimatePresence>
+                           </div>
 
-                           <div className="md:col-span-2">
+                           <div className="md:col-span-2">
                               <label className="form-label text-indigo-600">Looking For (Role Type) <span className="text-red-500">*</span></label>
                               <select 
                                  value={formData.jobType} 
