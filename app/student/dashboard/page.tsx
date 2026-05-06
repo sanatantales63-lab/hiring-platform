@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, UserCircle, LogOut, 
-  ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, ArrowRight
+  ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, ArrowRight, Globe
 } from "lucide-react";
 import DownloadReportButton from "@/app/components/DownloadReportButton";
 
@@ -113,15 +113,34 @@ export default function Dashboard() {
 {/* DASHBOARD CONTENT */}
       <main className="flex-1 p-5 md:p-12 pb-24 md:pb-12 overflow-y-auto ml-0 md:ml-64 relative z-10">
         
-<header className="flex justify-between items-start md:items-center mb-8 md:mb-12">
-          <div className="pr-4">
+<header className="flex justify-between items-start md:items-center mb-8 md:mb-12 gap-2">
+          <div className="pr-2 sm:pr-4 flex-1 overflow-hidden">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 md:mb-2 text-slate-900 leading-tight truncate">Welcome, {profileData?.fullName?.split(' ')[0] || "Candidate"}! 👋</h1>
-            <p className="text-slate-500 font-medium text-xs sm:text-sm md:text-base">Manage your profile and assessment status.</p>
+            <p className="text-slate-500 font-medium text-xs sm:text-sm md:text-base truncate">Manage your profile and assessment status.</p>
           </div>
-          <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shrink-0 shadow-sm border border-red-100">
-             <LogOut size={20} />
-          </button>
-          <Button variant="danger" onClick={handleLogout} className="hidden md:flex text-sm px-4 py-2">Logout</Button>
+          
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+             <button 
+                 onClick={() => {
+                     if (!profileData?.id) return alert("Please complete your profile first.");
+                     const shortId = `RM-${profileData.id.substring(0, 8)}`;
+                     const profileLink = `${window.location.origin}/p/${profileData.id}`;
+                     navigator.clipboard.writeText(profileLink);
+                     alert(`Public Link Copied!\n\nYour Unique ID is: ${shortId}`);
+                 }} 
+                 title="Share Profile & Get ID"
+                 className="flex items-center justify-center p-3 md:px-4 md:py-2 bg-white text-teal-600 border border-slate-200 rounded-2xl md:rounded-xl hover:bg-slate-50 transition-colors shadow-sm gap-2 font-bold text-sm"
+             >
+                 <Globe size={20} className="md:w-[18px] md:h-[18px]" />
+                 <span className="hidden md:inline">Share Profile</span>
+             </button>
+
+             {/* LOGOUT BUTTONS */}
+             <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shadow-sm border border-red-100">
+                <LogOut size={20} />
+             </button>
+             <Button variant="danger" onClick={handleLogout} className="hidden md:flex text-sm px-4 py-2 shadow-sm">Logout</Button>
+          </div>
         </header>
 
       

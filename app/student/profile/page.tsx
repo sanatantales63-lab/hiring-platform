@@ -723,7 +723,7 @@ export default function CandidateProfile() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-6 md:p-12 font-sans relative overflow-hidden">
       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[var(--primary)]/10 blur-[150px] rounded-full pointer-events-none"></div>
       
-      <div className="max-w-4xl mx-auto relative z-10">
+ <div className="max-w-4xl mx-auto relative z-10">
          <div className="flex justify-between items-center mb-10">
             <button 
                 onClick={() => router.push('/student/dashboard')} 
@@ -731,18 +731,21 @@ export default function CandidateProfile() {
             >
                 <ArrowLeft size={18} /> Dashboard
             </button>
+
             {!isEditing && (
-               <button 
-                  onClick={() => { 
-                      setIsEditing(true); 
-                      setShowGatekeeper(false); 
-                      setCurrentStep(1); 
-                      setIsOnboarding(false); 
-                  }} 
-                  className="bg-gradient-primary hover:shadow-ring px-6 py-2.5 rounded-xl text-[var(--primary-foreground)] font-bold flex items-center gap-2 transition-all shadow-glow"
-               >
-                  <Edit size={16}/> Edit Profile
-               </button>
+               <div className="flex items-center">
+                  <button 
+                     onClick={() => { 
+                         setIsEditing(true); 
+                         setShowGatekeeper(false); 
+                         setCurrentStep(1); 
+                         setIsOnboarding(false); 
+                     }} 
+                     className="bg-gradient-primary hover:shadow-ring px-6 py-2.5 rounded-xl text-[var(--primary-foreground)] font-bold flex items-center gap-2 transition-all shadow-glow"
+                  >
+                     <Edit size={16}/> Edit Profile
+                  </button>
+               </div>
             )}
          </div>
 

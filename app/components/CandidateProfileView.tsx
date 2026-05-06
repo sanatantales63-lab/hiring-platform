@@ -100,8 +100,9 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
         </div>
         
         <div className="relative z-10 text-center md:text-left flex-1 mt-2">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-             <div>
+          {/* 🔥 FIX: Changed 'md:justify-between' to simple flex with gap, taaki photo aur text paas-paas rahein */}
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between w-full">
+             <div className="flex-1">
                 <h2 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--foreground)] mb-2 tracking-tight">{candidate.fullName || "Name Not Set"}</h2>
                 <p className="text-[var(--primary)] font-bold tracking-wider uppercase text-sm mb-6 bg-[var(--primary)]/10 inline-block px-4 py-1.5 rounded-xl border border-[var(--primary)]/20">
                    {smartTitle}
@@ -109,7 +110,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
              </div>
 
              {(isAdmin || isCompany) && (
-                <div className="text-right bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] shadow-sm min-w-[180px]">
+                <div className="text-right bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] shadow-sm min-w-[180px] shrink-0 mt-4 md:mt-0">
                    {isDisqualified ? (
                        <div className="text-2xl font-extrabold text-[var(--destructive)] flex items-center gap-2 justify-end mb-1"><ShieldAlert size={24}/> Banned</div>
                    ) : (
@@ -264,10 +265,15 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
              </div>
 
              <div className={`bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft relative ${isCompany ? 'overflow-hidden group' : ''}`}>
-                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><User className="text-[var(--primary)]"/> Personal Details</h3>
-                <div className={`space-y-4 text-sm font-bold text-[var(--ink-soft)] ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
+                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><User className="text-[var(--primary)]"/> Personal Details</h3>
+                <div className={`space-y-4 text-sm font-bold text-[var(--ink-soft)] ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                   {candidate.id && (
+                      <div className="flex justify-between border-b border-[var(--border)] pb-3">
+                         <span className="text-[var(--muted-foreground)]">Profile ID</span>
+                         <span className="text-[var(--foreground)] bg-slate-100 px-2 py-0.5 rounded border border-slate-200 tracking-widest font-mono uppercase text-xs">RM-{candidate.id.substring(0, 8)}</span>
+                      </div>
+                   )}
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
                    <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Relocate?</span><span className="text-[var(--foreground)]">{candidate.willingToRelocate || "No"}</span></div>
                    <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)] flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-[var(--foreground)] tracking-widest uppercase">{panToDisplay}</span></div>
                 </div>
