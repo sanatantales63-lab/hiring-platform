@@ -24,20 +24,38 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
   const dobToDisplay = isCompany ? "XX/XX/XXXX" : (candidate.dob || "Not Provided");
 
-  let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
-  const topEdu = candidate.educations?.[0];
-  if (topEdu && topEdu.qualification) {
-     const q = topEdu.qualification.toLowerCase();
-     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) smartTitle = 'Chartered Accountant (CA)';
-     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) smartTitle = 'Cost & Management Accountant (CMA)';
-     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) smartTitle = 'Company Secretary (CS)';
-     else if (q.includes('acca')) smartTitle = 'ACCA Professional';
-     else if (q.includes('mba')) smartTitle = 'MBA Professional';
-     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
-     else smartTitle = topEdu.qualification;
-  }
+ let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
+  const topEdu = candidate.educations?.[0];
+  if (topEdu && topEdu.qualification) {
+     const q = topEdu.qualification.toLowerCase();
+     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) smartTitle = 'Chartered Accountant (CA)';
+     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) smartTitle = 'Cost & Management Accountant (CMA)';
+     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) smartTitle = 'Company Secretary (CS)';
+     else if (q.includes('acca')) smartTitle = 'ACCA Professional';
+     else if (q.includes('mba')) smartTitle = 'MBA Professional';
+     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
+     else smartTitle = topEdu.qualification;
+  }
 
-  const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
+  // 🔥 DYNAMIC PROFESSIONAL ID LOGIC 🔥
+  let qualPrefix = "PR"; 
+  if (candidate.highestQualification) {
+      const hq = candidate.highestQualification.toLowerCase();
+      if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qualPrefix = "CA";
+      else if (hq.includes('cma') || hq.includes('cost & management')) qualPrefix = "CM";
+      else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qualPrefix = "CS";
+      else if (hq.includes('acca')) qualPrefix = "AC";
+      else if (hq.includes('mba') || hq.includes('pgdm')) qualPrefix = "MB";
+      else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qualPrefix = "BT";
+      else if (hq.includes('m.com') || hq.includes('mcom')) qualPrefix = "MC";
+      else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qualPrefix = "BC";
+      else if (hq.includes('diploma') || hq.includes('polytechnic')) qualPrefix = "DP";
+      else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qualPrefix = "HS";
+      else qualPrefix = "GD"; // General Graduate
+  }
+  const displayId = candidate.id ? `RM-${qualPrefix}-${candidate.id.substring(0, 8).toUpperCase()}` : "N/A";
+
+  const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
   const workExpList = Array.isArray(candidate.workExperience) ? candidate.workExperience : [];
   
   const displayedEducations = showAllEdu ? educationsList : educationsList.slice(0, 3);
@@ -264,24 +282,34 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 </div>
              </div>
 
-             <div className={`bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft relative ${isCompany ? 'overflow-hidden group' : ''}`}>
-                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><User className="text-[var(--primary)]"/> Personal Details</h3>
-                <div className={`space-y-4 text-sm font-bold text-[var(--ink-soft)] ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+             <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
+                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><User className="text-[var(--primary)]"/> Personal Details</h3>
+                
+                <div className="space-y-4 text-sm font-bold text-[var(--ink-soft)]">
+                   {/* 🔥 ID ALWAYS VISIBLE 🔥 */}
                    {candidate.id && (
-                      <div className="flex justify-between border-b border-[var(--border)] pb-3">
+                      <div className="flex justify-between border-b border-[var(--border)] pb-4 mb-4">
                          <span className="text-[var(--muted-foreground)]">Profile ID</span>
-                         <span className="text-[var(--foreground)] bg-slate-100 px-2 py-0.5 rounded border border-slate-200 tracking-widest font-mono uppercase text-xs">RM-{candidate.id.substring(0, 8)}</span>
+                         <span className="text-[var(--primary)] bg-[var(--primary)]/10 px-2.5 py-0.5 rounded border border-[var(--primary)]/20 tracking-widest font-mono font-bold uppercase text-xs">{displayId}</span>
                       </div>
                    )}
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Relocate?</span><span className="text-[var(--foreground)]">{candidate.willingToRelocate || "No"}</span></div>
-                   <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)] flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-[var(--foreground)] tracking-widest uppercase">{panToDisplay}</span></div>
-                </div>
-                {isCompany && (
-                   <div className="absolute inset-0 flex items-center justify-center bg-[var(--card)]/60 backdrop-blur-sm">
-                      <Lock size={32} className="text-amber-500/80"/>
+                   
+                   {/* SENSITIVE INFO - ONLY THIS BLURS FOR COMPANY */}
+                   <div className="relative">
+                      <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>
+                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
+                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Relocate?</span><span className="text-[var(--foreground)]">{candidate.willingToRelocate || "No"}</span></div>
+                         <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)] flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-[var(--foreground)] tracking-widest uppercase">{panToDisplay}</span></div>
+                      </div>
+                      
+                      {isCompany && (
+                         <div className="absolute inset-0 flex items-center justify-center z-10">
+                            <Lock size={32} className="text-amber-500 drop-shadow-md"/>
+                         </div>
+                      )}
                    </div>
-                )}
+                </div>
              </div>
 
              {candidate.languages && candidate.languages.length > 0 && (

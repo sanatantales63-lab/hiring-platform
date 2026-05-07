@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { 
-  User, Users, Building2, CreditCard, LogOut, Upload, Bell, 
-  UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star
+  User, Users, Building2, CreditCard, LogOut, Upload, Bell, 
+  UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star, Globe
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import CompanyProfileView from "@/app/components/CompanyProfileView";
@@ -317,12 +317,31 @@ export default function AdminDashboard() {
                  const isDisqualified = s.examAccess === 'disqualified';
                  const scoreColorClass = score >= 15 ? 'text-teal-700 bg-teal-50 border-teal-200' : score > 5 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-red-700 bg-red-50 border-red-200';
                  
+                 // 🔥 Admin Talent Pool Professional ID 🔥
+                 let qualPrefix = "PR"; 
+                 if (s.highestQualification) {
+                     const hq = s.highestQualification.toLowerCase();
+                     if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qualPrefix = "CA";
+                     else if (hq.includes('cma') || hq.includes('cost & management')) qualPrefix = "CM";
+                     else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qualPrefix = "CS";
+                     else if (hq.includes('acca')) qualPrefix = "AC";
+                     else if (hq.includes('mba') || hq.includes('pgdm')) qualPrefix = "MB";
+                     else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qualPrefix = "BT";
+                     else if (hq.includes('m.com') || hq.includes('mcom')) qualPrefix = "MC";
+                     else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qualPrefix = "BC";
+                     else if (hq.includes('diploma') || hq.includes('polytechnic')) qualPrefix = "DP";
+                     else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qualPrefix = "HS";
+                     else qualPrefix = "GD";
+                 }
+                 const displayId = s.id ? `RM-${qualPrefix}-${s.id.substring(0, 8).toUpperCase()}` : "N/A";
+
                  return (
                    <div key={s.id} className={`flex flex-col bg-white/80 backdrop-blur-md border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 shadow-sm hover:shadow-lg h-full ${isDisqualified ? 'border-red-200 opacity-70' : 'border-slate-200 hover:border-teal-300'}`}>
                      <div className="flex justify-between items-start mb-4">
                         <div className="flex-1 pr-2">
                            <h3 className="text-xl font-extrabold text-slate-900 flex flex-wrap items-center gap-2 mb-1.5">
                               <span className="truncate max-w-[150px] xl:max-w-[180px]">{s.fullName}</span>
+                              <span className="text-[10px] text-teal-600 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono font-bold">{displayId}</span>
                               {isDisqualified && <span className="text-[9px] bg-red-100 text-red-600 border border-red-200 px-2 py-0.5 rounded-full uppercase font-black tracking-wider">Banned</span>}
                            </h3>
                            <p className="text-slate-500 text-sm font-medium flex items-center gap-1.5"><MapPin size={14} className="text-blue-500"/> {s.city || "Location not set"}</p>
@@ -371,7 +390,7 @@ export default function AdminDashboard() {
                         ))}
                      </div>
 
-                     <div className="mt-auto">
+                    <div className="mt-auto">
                         {s.hired_status === 'hired' && s.company_rating && (
                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 mb-3 flex items-center justify-between">
                               <span className="text-[10px] text-amber-700 font-bold uppercase tracking-wider">Company Rating</span>
@@ -383,9 +402,26 @@ export default function AdminDashboard() {
                            </div>
                         )}
                         
-                        <Button variant="secondary" onClick={() => setViewingStudent(s)} className="w-full text-sm py-3 flex justify-center group">
-                           <ExternalLink size={18} className="group-hover:scale-110 transition-transform"/> View Full Profile
-                        </Button>
+                        <div className="flex items-center gap-2">
+                           {/* 🔥 NEW: Chota Share Icon Button for Admin 🔥 */}
+                           <button 
+                              onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  const profileLink = `${window.location.origin}/p/${s.id}`;
+                                  navigator.clipboard.writeText(profileLink);
+                                  alert(`Public Link Copied for ${s.fullName}!`);
+                              }} 
+                              className="p-3 bg-white border border-slate-200 text-teal-600 rounded-xl hover:bg-teal-50 transition-colors shadow-sm shrink-0"
+                              title="Copy Public Link"
+                           >
+                              <Globe size={18} />
+                           </button>
+                           
+                           {/* Original View Full Profile Button */}
+                           <Button variant="secondary" onClick={() => setViewingStudent(s)} className="flex-1 text-sm py-3 flex justify-center group">
+                              <ExternalLink size={18} className="group-hover:scale-110 transition-transform"/> View Full Profile
+                           </Button>
+                        </div>
                      </div>
                    </div>
                  )

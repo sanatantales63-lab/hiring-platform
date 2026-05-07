@@ -3,6 +3,7 @@ import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Globe } from "lucide-react";
 
 // Yahan humne wahi Master Component Admin ke liye bulaya hai
 import CandidateProfileView from "@/app/components/CandidateProfileView";
@@ -31,12 +32,25 @@ export default function AdminStudentView({ params }: { params: Promise<{ id: str
 
       <div className="max-w-5xl mx-auto relative z-10">
         
-        <div className="flex justify-between items-center mb-8">
+       <div className="flex justify-between items-center mb-8">
             <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
               <ArrowLeft size={18}/> <span className="font-bold">Back to Admin Panel</span>
             </button>
 
             <div className="flex items-center gap-4">
+                {/* 🔥 ADMIN ONLY: SHARE LINK BUTTON 🔥 */}
+                <button 
+                    onClick={() => {
+                        if (!student?.id) return;
+                        const profileLink = `${window.location.origin}/p/${student.id}`;
+                        navigator.clipboard.writeText(profileLink);
+                        alert(`Public Link Copied Successfully!`);
+                    }}
+                    className="flex items-center gap-2 bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border border-teal-500/30 shadow-sm"
+                >
+                    <Globe size={16} /> Copy Public Link
+                </button>
+
                 {/* 🔥 ADMIN KE LIYE RESUME VIEW BUTTON 🔥 */}
                 {student?.resumeURL ? (
                     <a 

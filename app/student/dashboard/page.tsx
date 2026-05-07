@@ -120,28 +120,13 @@ export default function Dashboard() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-             <button 
-                 onClick={() => {
-                     if (!profileData?.id) return alert("Please complete your profile first.");
-                     const shortId = `RM-${profileData.id.substring(0, 8)}`;
-                     const profileLink = `${window.location.origin}/p/${profileData.id}`;
-                     navigator.clipboard.writeText(profileLink);
-                     alert(`Public Link Copied!\n\nYour Unique ID is: ${shortId}`);
-                 }} 
-                 title="Share Profile & Get ID"
-                 className="flex items-center justify-center p-3 md:px-4 md:py-2 bg-white text-teal-600 border border-slate-200 rounded-2xl md:rounded-xl hover:bg-slate-50 transition-colors shadow-sm gap-2 font-bold text-sm"
-             >
-                 <Globe size={20} className="md:w-[18px] md:h-[18px]" />
-                 <span className="hidden md:inline">Share Profile</span>
-             </button>
-
              {/* LOGOUT BUTTONS */}
              <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shadow-sm border border-red-100">
                 <LogOut size={20} />
              </button>
              <Button variant="danger" onClick={handleLogout} className="hidden md:flex text-sm px-4 py-2 shadow-sm">Logout</Button>
           </div>
-        </header>
+</header>
 
       
         {profileData?.hired_status === 'hired' && (
