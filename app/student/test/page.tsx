@@ -440,8 +440,11 @@ export default function LiveTestPage() {
       const dataArray = new Uint8Array(bufferLength);
       let frameCount = 0;
 
-     // Double Face Warning Timer State (Bahar rakh rahe taaki 10s track kar sake)
+    // Buffers & Timers (Taaki turant warning na aaye)
       let doubleFaceTimeCounter = 0;
+      let noFaceTimeCounter = 0;
+      let mismatchTimeCounter = 0;
+      let eyeTimeCounter = 0;
 
       faceMatchIntervalRef.current = setInterval(async () => {
          if (isSubmitted || isTerminated) return;
@@ -451,40 +454,52 @@ export default function LiveTestPage() {
              const faceapi = (window as any).faceapi;
              if (!faceapi || !faceapi.nets.tinyFaceDetector.isLoaded) return;
 
-             // 🔥 FIX: Lowered threshold (0.3) so it detects blurry/background faces too
              const detectorOptions = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
              const liveDetections = await faceapi.detectAllFaces(videoRef.current, detectorOptions).withFaceLandmarks().withFaceDescriptors();
 
+             // 1. NO FACE DETECTED (6 Seconds Buffer)
              if (liveDetections.length === 0) {
-                 triggerWarning('face', "No face detected! Please look at the camera.");
+                 noFaceTimeCounter += 2000;
+                 if (noFaceTimeCounter >= 6000) { // 6 Seconds tak face na dikhe tab warning
+                     triggerWarning('face', "No face detected! Please look at the camera.");
+                     noFaceTimeCounter = 0;
+                 }
                  return;
+             } else {
+                 noFaceTimeCounter = 0; // Agar wapas face aa gaya toh buffer reset
              }
              
-             // 🔥 FIX: Robust accumulation for Double Face (Handles AI flickering)
+             // 2. DOUBLE FACE DETECTED (6 Seconds Buffer)
              if (liveDetections.length > 1) {
                  doubleFaceTimeCounter += 2000; 
-                 // Target 8-10 seconds of accumulated double face time
-                 if (doubleFaceTimeCounter >= 500) { 
+                 if (doubleFaceTimeCounter >= 6000) { 
                      triggerWarning('double_face');
-                     doubleFaceTimeCounter = 0; // Reset after warning
+                     doubleFaceTimeCounter = 0; 
                  }
              } else {
-                 // 🔥 FIX: Gradual cooldown! Agar AI milliseconds ke liye face miss kare toh timer 0 na ho
                  doubleFaceTimeCounter = Math.max(0, doubleFaceTimeCounter - 2000); 
              }
 
              const detection = liveDetections[0];
              
-             // 🔥 FIX: Check identity strictness only when single person is detected (to avoid clash with double face)
+             // 3. IDENTITY MISMATCH (Perfected to 0.54 & Smooth Buffer)
              if (profileDescriptorRef.current && liveDetections.length === 1) {
                  const distance = faceapi.euclideanDistance(profileDescriptorRef.current, detection.descriptor);
-                 // 🔥 FIX: Threshold tightened from 0.55 to 0.50 for stricter identity check
-                 if (distance > 0.50) { 
-                     triggerWarning('face', "Different person detected! Identity mismatch.");
+                 
+                 // 0.58 bahut loose tha, 0.50 bahut strict tha. 0.54 is the perfect sweet spot!
+                 if (distance > 0.52) { 
+                     mismatchTimeCounter += 2000;
+                     if (mismatchTimeCounter >= 6000) {
+                         triggerWarning('face', "Different person detected! Identity mismatch.");
+                         mismatchTimeCounter = 0; // Warning dene ke baad reset
+                     }
+                 } else {
+                     // TRICK: Instantly 0 mat karo, warna smart cheaters pakde nahi jayenge. Dheere-dheere kam karo.
+                     mismatchTimeCounter = Math.max(0, mismatchTimeCounter - 2000);
                  }
              }
              
-             // 🔥 100% FIXED: Deep Eyeball Tracking (Gaze) + Head Movement
+             // 4. EYE & HEAD MOVEMENT (Relaxed Limits & 6 Seconds Buffer)
              const nose = detection.landmarks.getNose();
              const leftEye = detection.landmarks.getLeftEye();
              const rightEye = detection.landmarks.getRightEye();
@@ -493,40 +508,44 @@ export default function LiveTestPage() {
              const noseBridge = nose[0];
              const noseTip = nose[3];
              
-             // Head Turn Calculation
              const leftJaw = jaw[0];
              const rightJaw = jaw[16];
              const distLeftJaw = Math.abs(noseBridge.x - leftJaw.x);
              const distRightJaw = Math.abs(noseBridge.x - rightJaw.x);
 
-             // Eyeball Gaze Calculation (Distance from nose to inner corners of eyes)
-             const leftEyeInner = leftEye[3]; // Inner corner of left eye
-             const rightEyeInner = rightEye[0]; // Inner corner of right eye
+             const leftEyeInner = leftEye[3]; 
+             const rightEyeInner = rightEye[0]; 
              const distLeftEye = Math.abs(noseBridge.x - leftEyeInner.x);
              const distRightEye = Math.abs(rightEyeInner.x - noseBridge.x);
              
-             // Looking Down Calculation
              const eyeYAvg = (leftEye[0].y + rightEye[0].y) / 2;
              const noseDistY = Math.abs(noseTip.y - eyeYAvg);
              const faceHeight = detection.detection.box.height;
 
-             // 1. Extreme Head Turn (Sarr ghumana)
-             if (distLeftJaw > distRightJaw * 1.6 || distRightJaw > distLeftJaw * 1.6) {
-                 triggerWarning('eye', "Head turned away from screen!");
-             } 
-             // 2. Eyeball Gaze Turn (Sarr straight, par aankhein side mein)
-             else if (distLeftEye > distRightEye * 1.5 || distRightEye > distLeftEye * 1.5) {
-                 triggerWarning('eye', "Looking sideways detected! Keep your eyes on the screen.");
+             let isLookingAway = false;
+
+             if (distLeftJaw > distRightJaw * 1.9 || distRightJaw > distLeftJaw * 1.9) {
+                 isLookingAway = true; // Head turned
+             } else if (distLeftEye > distRightEye * 1.8 || distRightEye > distLeftEye * 1.8) {
+                 isLookingAway = true; // Eyes turned
+             } else if (noseDistY < (faceHeight * 0.12)) { 
+                 isLookingAway = true; // Looking down
              }
-             // 3. Looking Down (Aankhein / Sarr neeche notes padhne ke liye)
-             else if (noseDistY < (faceHeight * 0.18)) { 
-                 triggerWarning('eye', "Looking down detected! Keep your head straight.");
+
+             if (isLookingAway) {
+                 eyeTimeCounter += 2000;
+                 if (eyeTimeCounter >= 6000) { // 6 Seconds tak lagatar dusri taraf dekha tab warning
+                     triggerWarning('eye', "Continuous distraction detected! Keep your eyes on the screen.");
+                     eyeTimeCounter = 0;
+                 }
+             } else {
+                 eyeTimeCounter = Math.max(0, eyeTimeCounter - 2000);
              }
 
          } catch (err) {
              console.error("Background face tracking error:", err);
          }
-      }, 2000); // 🔥 100% FIXED: 2000 ms (2 seconds) kiya hai taaki lagatar monitor kare bina miss kiye.
+      }, 2000);
 
       const checkActivity = () => {
         if (isSubmitted || isTerminated) return;
