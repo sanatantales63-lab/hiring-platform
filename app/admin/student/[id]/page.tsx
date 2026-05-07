@@ -2,7 +2,6 @@
 import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, FileText } from "lucide-react";
 import { ArrowLeft, FileText, Globe } from "lucide-react";
 
 // Yahan humne wahi Master Component Admin ke liye bulaya hai
