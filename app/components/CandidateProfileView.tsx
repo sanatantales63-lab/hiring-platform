@@ -514,13 +514,21 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   const textClass = isPsycho ? 'text-indigo-600' : isTechSkill ? 'text-blue-600' : (percentage >= 80 ? 'text-[var(--primary)]' : percentage >= 50 ? 'text-amber-600' : 'text-[var(--destructive)]');
                   const borderClass = isPsycho ? 'border-indigo-200 bg-indigo-50' : isTechSkill ? 'border-blue-200 bg-blue-50' : 'border-[var(--border)] bg-[var(--surface)]';
 
-                  return (
+                 return (
                      <div key={skillName} className={`p-5 rounded-2xl border shadow-sm ${borderClass}`}>
-                        <div className="flex justify-between items-center mb-4">
-                           <span className={`font-bold text-sm ${isPsycho ? 'text-indigo-800' : isTechSkill ? 'text-blue-800' : 'text-[var(--foreground)]'}`}>
-                               {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skillName}` : skillName}
-                           </span>
-                           <span className={`font-bold ${textClass}`}>{data.correct} / {data.total}</span>
+                        <div className="flex justify-between items-start mb-4">
+                           <div className="flex flex-col gap-1.5 pr-3">
+                               <span className={`font-bold text-sm leading-tight ${isPsycho ? 'text-indigo-800' : isTechSkill ? 'text-blue-800' : 'text-[var(--foreground)]'}`}>
+                                   {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skillName}` : skillName}
+                               </span>
+                               {/* 🔥 SMART UI TRICK: Explain why it's > 6 without touching Test Engine 🔥 */}
+                               {data.total > 6 && (
+                                   <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-max shadow-sm">
+                                      ✨ Includes Bonus Round
+                                   </span>
+                               )}
+                           </div>
+                           <span className={`font-bold text-lg shrink-0 ${textClass}`}>{data.correct} / {data.total}</span>
                         </div>
                         <div className="h-2 w-full bg-[var(--border)] rounded-full overflow-hidden shadow-inner">
                            <div className={`h-full ${colorClass} transition-all duration-1000`} style={{ width: `${percentage}%` }}></div>

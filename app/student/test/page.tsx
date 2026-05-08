@@ -47,6 +47,7 @@ export default function LiveTestPage() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(0);
 
+
   const [showBonusPopup, setShowBonusPopup] = useState(false);
   const [bonusRoundTaken, setBonusRoundTaken] = useState(false);
   const [extraQuestionsPool, setExtraQuestionsPool] = useState<any[]>([]); 
@@ -60,6 +61,17 @@ export default function LiveTestPage() {
   const [faceWarnings, setFaceWarnings] = useState(0);
   const [doubleFaceWarnings, setDoubleFaceWarnings] = useState(0);
   const [eyeWarnings, setEyeWarnings] = useState(0);
+
+  // 🔥 FIX 1: Live Refs to prevent Stale Closure during Auto-Submit 🔥
+  const liveAnswersRef = useRef<number[]>([]);
+  const liveQuestionsRef = useRef<any[]>([]);
+  const liveWarningsRef = useRef({ tab: 0, mic: 0, cam: 0, face: 0, doubleFace: 0, eye: 0 });
+  
+  useEffect(() => {
+      liveAnswersRef.current = answers;
+      liveQuestionsRef.current = questions;
+      liveWarningsRef.current = { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings, doubleFace: doubleFaceWarnings, eye: eyeWarnings };
+  }, [answers, questions, tabWarnings, micWarnings, camWarnings, faceWarnings, doubleFaceWarnings, eyeWarnings]);
 
   const MAX_TAB_WARNINGS = 2;
   const MAX_MIC_WARNINGS = 6;
@@ -211,11 +223,18 @@ export default function LiveTestPage() {
   const acceptBonusRound = () => {
      const extraQs = extraQuestionsPool.sort(() => 0.5 - Math.random()).slice(0, 5);
      const processedBonusQs = extraQs.map(q => {
-         const hasIDK = q.options.some((opt: string) => isDontKnowOption(opt));
-         if (!hasIDK) {
-             return { ...q, options: [...q.options.slice(0, 4), "I Don't Know"] };
+         let opts = q.options || [];
+         const hasIDK = opts.some((opt: string) => isDontKnowOption(opt));
+         if (!hasIDK && opts.length >= 4) {
+             opts = [...opts.slice(0, 4), "I Don't Know"];
          }
-         return q;
+         
+         // 🔥 FIX: Override skill name so it creates a separate row in the report 🔥
+         return { 
+             ...q, 
+             options: opts,
+             skill: "Bonus Assessment Challenge" 
+         };
      });
 
      setQuestions(prev => [...prev, ...processedBonusQs]);
@@ -240,20 +259,24 @@ export default function LiveTestPage() {
     setAiReportGenerating(true);
     stopProctoring(); 
     
-    try {
+   try {
         let analyticsData: any = {};
         const techSkillNamesNormalized = Array.isArray(studentProfile?.technologicalSkills) 
             ? studentProfile.technologicalSkills.map((s:any) => normalizeText(typeof s === 'string' ? s : s.name)) 
             : [];
 
-        questions.forEach((q, i) => {
+        // 🔥 FIX 2: Reading from Live Refs instead of stale state variables 🔥
+        const currentLiveQuestions = liveQuestionsRef.current;
+        const currentLiveAnswers = liveAnswersRef.current;
+
+        currentLiveQuestions.forEach((q, i) => {
            if (!analyticsData[q.skill]) {
                // Initializing data specifically for this exact subskill
                analyticsData[q.skill] = { total: 0, correct: 0, beginner: 0, intermediate: 0, advanced: 0, scoreCount: 0, aiLevel: "Beginner" };
            }
            analyticsData[q.skill].total += 1;
 
-           const ansIndex = answers[i];
+           const ansIndex = currentLiveAnswers[i];
            const selectedOptionText = ansIndex !== -1 && ansIndex !== undefined ? q.options[ansIndex] : null;
            const isPsycho = q.category === "Psychometric" || normalizeText(q.skill).includes("psychometric");
            const isTechTool = techSkillNamesNormalized.includes(normalizeText(q.skill));
@@ -319,8 +342,8 @@ export default function LiveTestPage() {
               lastAttempt: new Date(),
               totalScore: currentTestTotalScore, 
               status: finalStatus,
-              warnings: { tab: tabWarnings, mic: micWarnings, cam: camWarnings, face: faceWarnings, doubleFace: doubleFaceWarnings, eyeMovement: eyeWarnings },
-              warningsCount: tabWarnings + micWarnings + camWarnings + faceWarnings + doubleFaceWarnings + eyeWarnings, 
+             warnings: { tab: liveWarningsRef.current.tab, mic: liveWarningsRef.current.mic, cam: liveWarningsRef.current.cam, face: liveWarningsRef.current.face, doubleFace: liveWarningsRef.current.doubleFace, eyeMovement: liveWarningsRef.current.eye },
+               warningsCount: liveWarningsRef.current.tab + liveWarningsRef.current.mic + liveWarningsRef.current.cam + liveWarningsRef.current.face + liveWarningsRef.current.doubleFace + liveWarningsRef.current.eye,
               skillScores: analyticsData, 
               ai_detailed_report: generatedAiReport 
            }
@@ -336,7 +359,7 @@ export default function LiveTestPage() {
                         type: "test_completed",
                         candidateName: studentProfile?.fullName || "Candidate",
                         candidateEmail: user.email,
-                        extraInfo: `${currentTestTotalScore} / ${questions.length}`
+                       extraInfo: `${currentTestTotalScore} / ${currentLiveQuestions.length}`
                     })
                 });
             } catch (e) { console.error("Email alert failed", e); }
@@ -877,11 +900,46 @@ export default function LiveTestPage() {
                     };
                 });
                 
-                // FIX: AI ne agar extra questions diye toh usko strict exact requirement tak kaat do (trim)
-                const totalExpectedAIQs = shortfallData.reduce((sum, item) => sum + item.count, 0);
-                const exactAiQuestions = safeAiQuestions.slice(0, totalExpectedAIQs);
+               // 🔥 THE GUARANTOR LOGIC: EXACTLY 6 QUESTIONS PER SKILL NO MATTER WHAT 🔥
+                let finalGuaranteedQs: any[] = [];
 
-                const finalMixedQs = [...questions, ...exactAiQuestions].sort(() => 0.5 - Math.random());
+                // 'examScope' mein har ek skill ka record hai jo student ne select kiya hai + Behavioral
+                examScope.forEach(scope => {
+                    const reqSkill = normalizeText(scope.skillName);
+                    
+                    // 1. Pehle database se aae hue questions filter karo is skill ke liye
+                    const dbQs = questions.filter(q => normalizeText(q.skill).includes(reqSkill) || (reqSkill.includes("behavioral") && normalizeText(q.category) === "psychometric"));
+                    
+                    // 2. Phir AI se aae hue questions filter karo is skill ke liye
+                    const aiQs = safeAiQuestions.filter((q: any) => normalizeText(q.skill).includes(reqSkill) || (reqSkill.includes("behavioral") && normalizeText(q.category) === "psychometric"));
+                    
+                    let combinedSkillQs = [...dbQs, ...aiQs];
+
+                    // 3. ZIDDI LOGIC: Agar DB + AI milakar bhi 6 se kam hain, toh hum padding karenge (auto-fill)
+                    while (combinedSkillQs.length < 6) {
+                        if (combinedSkillQs.length > 0) {
+                            // Smart Fallback: Usi skill ka koi ek question utha kar usko slightly variant bana do
+                            const fallbackQ = combinedSkillQs[Math.floor(Math.random() * combinedSkillQs.length)];
+                            combinedSkillQs.push({ ...fallbackQ, question: fallbackQ.question + " (Scenario Variant)" });
+                        } else {
+                            // Emergency Fallback: Agar AI ne ek bhi question nahi diya is skill ka
+                            combinedSkillQs.push({
+                                question: `Assess the correct professional approach regarding ${scope.skillName}.`,
+                                options: ["Follow standard protocols", "Ignore guidelines", "Ask a colleague to do it", "Skip the task", "I Don't Know"],
+                                correct_answer: "Follow standard protocols",
+                                skill: scope.skillName,
+                                category: reqSkill.includes("behavioral") ? "Psychometric" : "Technical",
+                                difficulty: "Beginner"
+                            });
+                        }
+                    }
+
+                    // 4. Strict Cut: Agar galti se 6 se zyada ho gaye toh theek 6 par kaat do
+                    finalGuaranteedQs.push(...combinedSkillQs.slice(0, 6));
+                });
+
+                // Ab har haal mein exact (Total Skills * 6) questions hi milenge!
+                const finalMixedQs = finalGuaranteedQs.sort(() => 0.5 - Math.random());
                 setQuestions(finalMixedQs);
                 setAnswers(new Array(finalMixedQs.length).fill(-1));
                 setTimeLeft(finalMixedQs.length * 60); 

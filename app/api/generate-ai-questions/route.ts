@@ -20,24 +20,28 @@ export async function POST(req: Request) {
     let skillInstructions = "";
     let totalAiTechQs = 0;
 
-    if (missingSkillsMap.length > 0) {
-        skillInstructions = missingSkillsMap.map((s:any) => `- Exactly ${s.count} questions for the specific skill: "${s.skill}".`).join("\n");
-        totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
-    } else {
-        skillInstructions = `- Exactly 7 advanced-level Technical questions strictly based on their core qualifications.`;
-        totalAiTechQs = 7;
-    }
+   if (missingSkillsMap.length > 0) {
+        skillInstructions = missingSkillsMap.map((s:any) => {
+            if (s.skill.includes("Behavioral")) {
+                return `- Exactly ${s.count} Psychometric/Situational questions to test workplace ethics and decision-making.`;
+            }
+            return `- Exactly ${s.count} practical questions for the specific skill: "${s.skill}".`;
+        }).join("\n");
+        totalAiTechQs = missingSkillsMap.reduce((acc:number, curr:any) => acc + curr.count, 0);
+    } else {
+        skillInstructions = `- Exactly 6 Technical questions.\n- Exactly 6 Psychometric questions.`;
+        totalAiTechQs = 12;
+    }
 
-    const totalQuestions = totalAiTechQs + 5; 
+    const totalQuestions = totalAiTechQs; // 🔥 FIX: No confused +5 math anymore
 
-    // 🔥 STRICT PROMPT: MUTUALLY EXCLUSIVE OPTIONS & ANTI-REPEAT 🔥
-    const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
-    The candidate has the following educational qualifications and background: ${qualString}.
-    
-    Generate EXACTLY ${totalQuestions} multiple-choice questions based on these precise requirements:
-    ${skillInstructions}
-    - Exactly 5 Psychometric/Situational questions to test workplace ethics, culture fit, and decision-making under pressure.
-    
+    // 🔥 STRICT PROMPT: MUTUALLY EXCLUSIVE OPTIONS & ANTI-REPEAT 🔥
+    const prompt = `You are an elite corporate technical examiner and HR behavioral analyst.
+    The candidate has the following educational qualifications and background: ${qualString}.
+    
+    Generate EXACTLY ${totalQuestions} multiple-choice questions based on these precise requirements:
+    ${skillInstructions}
+
     CRITICAL QUESTION QUALITY RULES (MUST FOLLOW):
     1. DO NOT ask simple theoretical or definitional questions.
     2. ALL Technical questions MUST be PRACTICAL, SCENARIO-BASED, or CASE-STUDY type.
