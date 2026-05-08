@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 // 🔥 Naye Master Components 🔥
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
+import * as XLSX from 'xlsx'; // 🔥 EXCEL EXPORT LOGIC 🔥
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -48,6 +49,79 @@ export default function AdminDashboard() {
   const [aiSkills, setAiSkills] = useState<string[]>([]);
   const [viewingStudent, setViewingStudent] = useState<any>(null);
   const [viewingCompany, setViewingCompany] = useState<any>(null);
+
+  // 🔥 EXCEL EXPORT STATES & LOGIC 🔥
+  const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
+
+  const toggleExcelSelection = (id: string) => {
+      setSelectedForExcel(prev => prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]);
+  };
+
+  const handleExportExcel = () => {
+      if (selectedForExcel.length === 0) return alert("Please select at least one candidate!");
+
+      const selectedData = filteredMainStudents.filter(s => selectedForExcel.includes(s.id));
+      
+      const excelData = selectedData.map(s => {
+          const baseData: any = {
+              "Name": s.fullName || "N/A",
+              "Phone no": s.phone || "N/A",
+              "Email ID": s.email || "N/A",
+              "Highest Qual.": s.highestQualification || "N/A",
+              "Passing Year": s.educations?.[0]?.passingYear || "N/A",
+              "Experience": s.experience || "N/A",
+              "Location": s.city || "N/A",
+              "Notice Period": s.noticePeriod || "N/A",
+              "Current Salary": s.currentSalary || "N/A",
+              "Expected Salary": s.expectedSalary || "N/A",
+              "Rating": s.company_rating || "N/A",
+              "Relocate": s.willingToRelocate || "N/A",
+              "Contract Ready": s.openToContractRoles ? "Yes" : "No"
+          };
+
+          // 🔥 PRO FORMAT: Combine all scores into one clean readable column
+          let skillsText = "Not Assessed";
+          if (s.meta?.skillScores) {
+              const skillEntries = Object.keys(s.meta.skillScores).map(skillName => {
+                  const score = Math.max(0, s.meta.skillScores[skillName].scoreCount);
+                  const total = s.meta.skillScores[skillName].total;
+                  return `${skillName} (${score}/${total})`;
+              });
+              if (skillEntries.length > 0) {
+                  skillsText = skillEntries.join("  |  ");
+              }
+          }
+          baseData["Assessed Skills & Scores"] = skillsText;
+
+          return baseData;
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+      // 🔥 FIX: Auto-adjust column widths so text doesn't get cut 🔥
+      const colWidths = [
+          { wch: 25 }, // Name
+          { wch: 15 }, // Phone
+          { wch: 35 }, // Email ID (Lamba rakha taaki cut na ho)
+          { wch: 25 }, // Highest Qual
+          { wch: 15 }, // Year
+          { wch: 15 }, // Experience
+          { wch: 18 }, // Location
+          { wch: 15 }, // Notice
+          { wch: 15 }, // Curr Salary
+          { wch: 15 }, // Exp Salary
+          { wch: 10 }, // Rating
+          { wch: 12 }, // Relocate
+          { wch: 15 }, // Contract
+          { wch: 80 }  // Assessed Skills (Bahut lamba rakha taaki sab ek line me aaye)
+      ];
+      worksheet['!cols'] = colWidths;
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
+      XLSX.writeFile(workbook, "Talent_Pool_Export.xlsx");
+      setSelectedForExcel([]); 
+  };
 
   useEffect(() => {
     let sub1: any;
@@ -254,7 +328,19 @@ export default function AdminDashboard() {
              <div className="flex justify-between items-end mb-8">
                 <div>
                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Talent Pool</h2>
-                   <p className="text-slate-500 font-medium">Search with AI or use manual filters to find exact matches.</p>
+                   <p className="text-slate-500 font-medium mb-4">Search with AI or use manual filters to find exact matches.</p>
+                   
+                   {/* 🔥 EXCEL BUTTONS 🔥 */}
+                   <div className="flex items-center gap-3">
+                      <button onClick={() => setSelectedForExcel(selectedForExcel.length === filteredMainStudents.length ? [] : filteredMainStudents.map(s => s.id))} className="text-sm font-bold text-slate-600 bg-white border border-slate-200 px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+                          {selectedForExcel.length > 0 && selectedForExcel.length === filteredMainStudents.length ? "Deselect All" : "Select All"}
+                      </button>
+                      {selectedForExcel.length > 0 && (
+                          <Button variant="primary" onClick={handleExportExcel} className="text-sm py-2 px-5 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20">
+                              <Upload size={16}/> Export {selectedForExcel.length} to Excel
+                          </Button>
+                      )}
+                   </div>
                 </div>
                 <div className="bg-white/80 backdrop-blur-md border border-slate-200 px-5 py-2 rounded-xl text-center shadow-sm">
                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Found</p>
@@ -336,9 +422,20 @@ export default function AdminDashboard() {
                  const displayId = s.id ? `RM-${qualPrefix}-${s.id.substring(0, 8).toUpperCase()}` : "N/A";
 
                  return (
-                   <div key={s.id} className={`flex flex-col bg-white/80 backdrop-blur-md border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 shadow-sm hover:shadow-lg h-full ${isDisqualified ? 'border-red-200 opacity-70' : 'border-slate-200 hover:border-teal-300'}`}>
-                     <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1 pr-2">
+                   <div key={s.id} className={`relative flex flex-col bg-white/80 backdrop-blur-md border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 shadow-sm hover:shadow-lg h-full ${selectedForExcel.includes(s.id) ? 'border-emerald-400 shadow-emerald-500/10' : isDisqualified ? 'border-red-200 opacity-70' : 'border-slate-200 hover:border-teal-300'}`}>
+                     
+                     {/* 🔥 EXCEL CHECKBOX 🔥 */}
+                     <div className="absolute top-5 right-5 z-10">
+                         <input 
+                             type="checkbox" 
+                             checked={selectedForExcel.includes(s.id)}
+                             onChange={() => toggleExcelSelection(s.id)}
+                             className="w-5 h-5 cursor-pointer accent-emerald-600 rounded border-slate-300"
+                         />
+                     </div>
+
+                     <div className="flex justify-between items-start mb-4 mt-2">
+                        <div className="flex-1 pr-10">
                            <h3 className="text-xl font-extrabold text-slate-900 flex flex-wrap items-center gap-2 mb-1.5">
                               <span className="truncate max-w-[150px] xl:max-w-[180px]">{s.fullName}</span>
                               <span className="text-[10px] text-teal-600 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono font-bold">{displayId}</span>
