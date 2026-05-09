@@ -120,9 +120,9 @@ export default function Home() {
                 <div className="absolute -right-6 -top-6 h-72 w-72 rounded-full bg-[var(--primary)]/15 blur-3xl" />
                 <div className="absolute -bottom-10 -left-10 h-72 w-72 rounded-full bg-[var(--primary-glow)]/20 blur-3xl" />
 
-                <CandidateCard className="absolute left-0 top-4 w-[300px] animate-float" name="Aarav Sharma" role="Senior React Engineer" tags={["React", "TypeScript", "AWS"]} score={94} />
-                <CandidateCard className="absolute right-0 top-44 w-[320px] animate-float-slow" name="Maria Velasquez" role="Lead Data Scientist" tags={["Python", "PyTorch", "MLOps"]} score={97} />
-                <CandidateCard className="absolute bottom-0 left-6 w-[300px] animate-float" name="Jamal Okafor" role="Product Designer" tags={["Figma", "Systems", "Motion"]} score={91} />
+                <CandidateCard className="absolute left-0 top-4 w-[300px] animate-float" name="Aarav Sharma" role="Chartered Accountant" tags={["Accountant", "Taxation", "Tally"]} score={94} />
+                <CandidateCard className="absolute right-0 top-44 w-[320px] animate-float-slow" name="Maria Velasquez" role="BBA Graduate" tags={["Accounts", "Tally", "Taxation"]} score={97} />
+                <CandidateCard className="absolute bottom-0 left-6 w-[300px] animate-float" name="Jamal Okafor" role="Bcom Graduate" tags={["Accounts", "Tally", "Taxation"]} score={91} />
 
                 <div className="absolute -right-2 top-24 grid h-12 w-12 place-items-center rounded-full bg-gradient-primary text-[var(--primary-foreground)] shadow-glow animate-pulse-ring z-20">
                   <Sparkles className="h-5 w-5" />
@@ -149,7 +149,7 @@ export default function Home() {
         {/* 🚀 2. DUAL PATH SECTION */}
         <section className="py-20 sm:py-28 relative z-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl text-center md:text-left">
+           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--accent)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] animate-pulse-ring"></span>Two sides. One platform.
               </span>
@@ -169,7 +169,7 @@ export default function Home() {
         {/* 🚀 3. FEATURES SECTION */}
         <section className="py-20 sm:py-28 bg-[var(--surface)]/60 relative z-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl text-center md:text-left">
+            <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--accent)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] animate-pulse-ring"></span>The platform
               </span>
@@ -192,7 +192,7 @@ export default function Home() {
         {/* 🚀 4. HOW IT WORKS SECTION */}
         <section className="py-20 sm:py-28 relative z-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl text-center md:text-left">
+            <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--accent)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] animate-pulse-ring"></span>How it works
               </span>
@@ -229,7 +229,7 @@ export default function Home() {
         {/* 🚀 6. TESTIMONIALS */}
         <section className="py-20 sm:py-28 relative z-10">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl text-center md:text-left">
+            <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--accent)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] animate-pulse-ring"></span>Voices
               </span>

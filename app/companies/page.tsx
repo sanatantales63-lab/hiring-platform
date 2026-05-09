@@ -164,7 +164,7 @@ export default function CompaniesPage() {
         {/* 🚀 2. FEATURES PILLARS */}
         <section className="py-20 sm:py-28 relative z-10 bg-[var(--background)]">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl text-center md:text-left">
+            <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--accent)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] animate-pulse-ring"></span>Built for hiring teams
               </span>

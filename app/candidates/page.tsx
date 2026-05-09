@@ -117,13 +117,13 @@ export default function CandidatesPage() {
                       <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-primary font-display text-xl font-bold text-[var(--primary-foreground)] shadow-glow">A</div>
                       <div>
                         <div className="flex items-center gap-1 font-display text-lg font-bold text-[var(--foreground)]">Aarav Sharma <BadgeCheck className="h-4 w-4 text-[var(--primary)]" /></div>
-                        <div className="text-sm font-medium text-[var(--primary)]">Senior Full-Stack Engineer</div>
+                        <div className="text-sm font-medium text-[var(--primary)]">Chartered Accountant</div>
                       </div>
                     </div>
 
                     <div className="mt-6 space-y-3">
-                      {[{ l: "React & TypeScript", v: 96 }, { l: "System Design", v: 91 }, { l: "AWS & DevOps", v: 88 }].map((s) => (
-                        <div key={s.l}>
+                      {[{ l: "Accountant", v: 96 }, { l: "Taxation", v: 91 }, { l: "Tally", v: 88 }].map((s) => (
+                        <div key={s.l}>S
                           <div className="flex items-center justify-between text-xs mb-1">
                             <span className="font-semibold text-[var(--foreground)]">{s.l}</span>
                             <span className="font-bold text-[var(--primary)]">{s.v}%</span>
@@ -136,7 +136,7 @@ export default function CandidatesPage() {
                     </div>
 
                     <div className="mt-6 flex flex-wrap gap-2">
-                      {["React", "TypeScript", "Node.js", "AWS", "PostgreSQL"].map((t) => (
+                      {["Accountant", "Taxation", "Tally", "Tax Audit", "TDS"].map((t) => (
                         <span key={t} className="rounded-md border border-[var(--border)] bg-[var(--muted)] px-2 py-1 text-xs font-medium text-[var(--ink-soft)]">{t}</span>
                       ))}
                     </div>
@@ -165,7 +165,7 @@ export default function CandidatesPage() {
         {/* 🚀 2. WHY CHOOSE US */}
         <section className="py-20 sm:py-28 relative z-10 bg-[var(--background)]">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl text-center md:text-left">
+            <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
               <span className="inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--accent)]/60 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--primary)] mb-4">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] animate-pulse-ring"></span>Why candidates choose us
               </span>
