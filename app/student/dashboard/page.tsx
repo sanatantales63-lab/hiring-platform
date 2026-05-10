@@ -5,7 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { 
   LayoutDashboard, UserCircle, LogOut, 
-  ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, ArrowRight, Globe
+  ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, ArrowRight, Globe,
+  IndianRupee, Receipt, Download, Send, FileText, X
 } from "lucide-react";
 import DownloadReportButton from "@/app/components/DownloadReportButton";
 
@@ -13,14 +14,46 @@ import DownloadReportButton from "@/app/components/DownloadReportButton";
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 
+// 🔥 STAT CARD COMPONENT MOVED TO TOP 🔥
+function StatCard({ title, value, sub, color }: any) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-full">
+      <Card className="h-full overflow-hidden flex flex-col justify-center">
+        <h3 className="text-slate-500 text-sm font-bold mb-2 truncate">{title}</h3>
+        <div className={`text-2xl lg:text-3xl xl:text-4xl font-black mb-1 truncate ${color}`} title={String(value)}>{value}</div>
+        <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate">{sub}</p>
+      </Card>
+    </motion.div>
+  );
+}
+
 export default function Dashboard() {
   const router = useRouter();
+  
+  // 🔥 HYDRATION ERROR FIX 🔥
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const [user, setUser] = useState<any>(null);
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [profileComplete, setProfileComplete] = useState(false);
   const [examStatus, setExamStatus] = useState("none"); 
   const [lastScore, setLastScore] = useState<number | null>(null);
+
+  // 🔥 EARNINGS MODULE STATES 🔥
+  const [activeView, setActiveView] = useState("overview"); // 'overview' ya 'earnings'
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+  const [isSubmittingInvoice, setIsSubmittingInvoice] = useState(false);
+
+  // Dummy Earning Data (Baad mein backend se fetch karenge)
+  const [assignments, setAssignments] = useState([
+      { id: "RM-A001", title: "Frontend UI Overhaul Task", date: "2026-05-02", gross: 40000, status: "completed", invoiceSubmitted: false },
+      { id: "RM-A005", title: "API Integration Audit", date: "2026-05-08", gross: 15000, status: "completed", invoiceSubmitted: true }
+  ]);
+  const totalGross = assignments.reduce((acc, curr) => acc + curr.gross, 0);
+  const totalTDS = totalGross * 0.10; // 10% TDS Fixed
+  const totalNet = totalGross - totalTDS;
 
   useEffect(() => {
     const checkUser = async () => {
@@ -69,11 +102,34 @@ export default function Dashboard() {
           });
       } catch (e) { console.error("Email alert failed", e); }
 
-    } catch (e) { alert("Error sending request."); }
+   } catch (e) { alert("Error sending request."); }
   };
 
-  if (loading) return <div className="h-screen bg-transparent flex items-center justify-center"><Loader2 className="animate-spin text-teal-600" size={48} /></div>;
+  // 🔥 INVOICE SUBMIT & DOWNLOAD LOGIC 🔥
+  const handleGenerateAndSubmitInvoice = async (assignment: any) => {
+      setIsSubmittingInvoice(true);
+      try {
+          await fetch('/api/send-admin-alert', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  type: "invoice_submitted",
+                  candidateName: profileData?.fullName || "Candidate",
+                  candidateEmail: user?.email,
+                  extraInfo: `Invoice generated for ${assignment.title}. Net Amount payable: ₹${(assignment.gross * 0.9).toLocaleString('en-IN')}`
+              })
+          });
 
+          setAssignments(prev => prev.map(a => a.id === assignment.id ? { ...a, invoiceSubmitted: true } : a));
+          alert("Invoice Submitted to Resource Mania Pvt Ltd successfully!");
+          setSelectedAssignment(null);
+      } catch (error) { alert("Failed to submit invoice."); } 
+      finally { setIsSubmittingInvoice(false); }
+  };
+
+  const handleDownloadInvoice = () => window.print(); // Simple Native PDF Export Trick
+
+if (!isMounted || loading) return <div className="h-screen bg-transparent flex items-center justify-center"><Loader2 className="animate-spin text-teal-600" size={48} /></div>;
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex font-sans relative">
       
@@ -93,7 +149,7 @@ export default function Dashboard() {
                  </Button>
                  
                  <Button variant="ghost" onClick={handleLogout} className="mt-4 mx-auto text-sm">
-                   Logout
+                    Logout
                  </Button>
                </Card>
             </motion.div>
@@ -101,128 +157,281 @@ export default function Dashboard() {
       )}
 
       {/* PREMIUM GLASS SIDEBAR */}
-      <aside className="w-64 bg-[var(--background)]/80 backdrop-blur-xl border-r border-[var(--border)] hidden md:flex flex-col p-6 fixed h-full z-10 shadow-soft">
+      <aside className="w-64 bg-[var(--background)]/80 backdrop-blur-xl border-r border-[var(--border)] hidden md:flex flex-col p-6 fixed h-full z-10 shadow-soft print:hidden">
         <h2 className="font-display text-2xl font-black text-[var(--foreground)] mb-10 tracking-tight">Resource<span className="text-[var(--primary)]">mania</span></h2>
         <nav className="space-y-4 flex-1">
-          <div onClick={() => router.push('/student/dashboard')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer bg-gradient-primary text-[var(--primary-foreground)] shadow-glow"><LayoutDashboard size={20}/> <span className="font-bold">Dashboard</span></div>
+          <div onClick={() => setActiveView('overview')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold transition-all ${activeView === 'overview' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)] shadow-sm'}`}><LayoutDashboard size={20}/> <span>Dashboard</span></div>
+          <div onClick={() => setActiveView('earnings')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold transition-all ${activeView === 'earnings' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)] shadow-sm'}`}><IndianRupee size={20}/> <span>Earnings & Invoices</span></div>
           <div onClick={() => router.push('/student/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] transition-all font-bold shadow-sm border border-transparent hover:border-[var(--border)]"><UserCircle size={20}/> <span>My Profile</span></div>
         </nav>
         <Button variant="ghost" onClick={handleLogout} className="mt-auto justify-start px-4 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"><LogOut size={20} /> Logout</Button>
       </aside>
 
 {/* DASHBOARD CONTENT */}
-      <main className="flex-1 p-5 md:p-12 pb-24 md:pb-12 overflow-y-auto ml-0 md:ml-64 relative z-10">
+      <main className="flex-1 p-5 md:p-12 pb-24 md:pb-12 overflow-y-auto ml-0 md:ml-64 relative z-10 print:m-0 print:p-0">
         
-<header className="flex justify-between items-start md:items-center mb-8 md:mb-12 gap-2">
-          <div className="pr-2 sm:pr-4 flex-1 overflow-hidden">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 md:mb-2 text-slate-900 leading-tight truncate">Welcome, {profileData?.fullName?.split(' ')[0] || "Candidate"}! 👋</h1>
-            <p className="text-slate-500 font-medium text-xs sm:text-sm md:text-base truncate">Manage your profile and assessment status.</p>
-          </div>
-          
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-             {/* LOGOUT BUTTONS */}
-             <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shadow-sm border border-red-100">
-                <LogOut size={20} />
-             </button>
-             <Button variant="danger" onClick={handleLogout} className="hidden md:flex text-sm px-4 py-2 shadow-sm">Logout</Button>
-          </div>
-</header>
-
-      
-        {profileData?.hired_status === 'hired' && (
-           <Card className="mb-10 bg-emerald-50/80 border-emerald-200 flex items-center gap-4">
-              <PartyPopper className="text-emerald-500" size={32}/>
-              <div>
-                 <h3 className="text-xl font-extrabold text-emerald-700">You are Hired!</h3>
-                 <p className="text-emerald-600/80 text-sm font-medium">Your profile is now locked and hidden from other recruiters. Keep up the great work at <strong className="text-emerald-800">{profileData.hired_company_name}</strong>!</p>
+        {/* VIEW 1: OLD DASHBOARD OVERVIEW */}
+        {activeView === 'overview' && (
+          <div className="animate-in fade-in duration-300 print:hidden">
+            <header className="flex justify-between items-start md:items-center mb-8 md:mb-12 gap-2">
+              <div className="pr-2 sm:pr-4 flex-1 overflow-hidden">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-1 md:mb-2 text-slate-900 leading-tight truncate">Welcome, {profileData?.fullName?.split(' ')[0] || "Candidate"}! 👋</h1>
+                <p className="text-slate-500 font-medium text-xs sm:text-sm md:text-base truncate">Manage your profile and assessment status.</p>
               </div>
-           </Card>
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                 <button onClick={handleLogout} className="md:hidden flex items-center justify-center p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors shadow-sm border border-red-100"><LogOut size={20} /></button>
+                 <Button variant="danger" onClick={handleLogout} className="hidden md:flex text-sm px-4 py-2 shadow-sm">Logout</Button>
+              </div>
+            </header>
+
+            {profileData?.hired_status === 'hired' && (
+               <Card className="mb-10 bg-emerald-50/80 border-emerald-200 flex items-center gap-4">
+                  <PartyPopper className="text-emerald-500" size={32}/>
+                  <div>
+                     <h3 className="text-xl font-extrabold text-emerald-700">You are Hired!</h3>
+                     <p className="text-emerald-600/80 text-sm font-medium">Your profile is now locked. Keep up the great work at <strong className="text-emerald-800">{profileData.hired_company_name}</strong>!</p>
+                  </div>
+               </Card>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+               <StatCard title="Profile Status" value="Complete" sub="Ready for Jobs" color="text-emerald-600" />
+               <StatCard title="Assessment Status" value={examStatus === "granted" || examStatus === "none" ? "Ready" : examStatus === "pending" ? "Pending Approval" : examStatus === "completed" ? "Completed" : "Disqualified"} sub={examStatus === "granted" || examStatus === "none" ? "Start Test Now" : "Action Required"} color="text-blue-600" />
+               <StatCard title="Skill Score" value={lastScore !== null ? lastScore : "N/A"} sub="Latest Result" color="text-purple-600" />
+            </div>
+
+            <h3 className="text-xl font-extrabold mb-6 text-slate-900">Your Actions</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              
+              <motion.div onClick={() => router.push('/student/profile')} whileHover={{ scale: 1.02 }} className="cursor-pointer h-full">
+                <Card className="flex flex-col sm:flex-row items-start gap-5 h-full hover:border-emerald-300">
+                  <div className="p-3 rounded-xl bg-emerald-100 border border-emerald-200"><CheckCircle className="text-emerald-600" size={28} /></div>
+                  <div>
+                    <h4 className="text-xl font-extrabold mb-1 text-emerald-900">Edit Profile</h4>
+                    <p className="text-slate-500 text-sm mb-4 font-medium leading-relaxed">Keep your skills and experience updated.</p>
+                    <span className="text-emerald-600 text-sm font-bold flex items-center gap-1">Update Details <ArrowRight size={16}/></span>
+                  </div>
+                </Card>
+              </motion.div>
+
+              <motion.div whileHover={{ scale: 1.02 }} className="h-full">
+                <Card className={`flex flex-col sm:flex-row items-start gap-5 h-full ${examStatus === "pending" ? "border-amber-200 bg-amber-50/50" : examStatus === "disqualified" ? "border-red-200 bg-red-50/50" : ""}`}>
+                  <div className={`p-3 rounded-xl border ${ (examStatus === "none" || examStatus === "granted") ? "bg-teal-50 border-teal-100" : examStatus === "pending" ? "bg-amber-100 border-amber-200" : examStatus === "disqualified" ? "bg-red-100 border-red-200" : "bg-slate-100 border-slate-200"}`}>
+                    {(examStatus === "none" || examStatus === "granted") ? <ShieldCheck className="text-teal-600" size={28} /> : examStatus === "pending" ? <Clock className="text-amber-600" size={28} /> : examStatus === "disqualified" ? <AlertTriangle className="text-red-500" size={28} /> : <Lock className="text-slate-500" size={28} />}
+                  </div>
+                  <div className="flex-1 w-full">
+                    <h4 className="text-xl font-extrabold mb-1 text-slate-900">Final Skill Assessment</h4>
+                    
+                    {(examStatus === "none" || !examStatus || examStatus === "granted") && (
+                      <>
+                        <p className="text-slate-500 text-sm mb-5 font-medium leading-relaxed">You have 1 attempt available.</p>
+                        <Button variant="primary" onClick={() => router.push('/student/test')}>Start Assessment <ArrowRight size={16}/></Button>
+                      </>
+                    )}
+                    
+                    {examStatus === "pending" && (
+                      <>
+                        <p className="text-amber-700 text-sm mb-5 font-medium">Re-test request sent. Waiting for approval.</p>
+                        <Button variant="secondary" disabled className="w-full">Approval Pending...</Button>
+                      </>
+                    )}
+                    
+                    {examStatus === "completed" && (
+                      <>
+                        <p className="text-green-600 text-sm mb-5 font-medium">Test Completed!</p>
+                        <div className="flex flex-col gap-3">
+                           <DownloadReportButton candidate={profileData} />
+                           <Button variant="secondary" onClick={requestReTestAccess} className="w-full">Request Re-test</Button>
+                        </div>
+                      </>
+                    )}
+                    
+                    {examStatus === "disqualified" && (
+                      <>
+                        <p className="text-red-600 text-sm mb-5 font-medium">Locked for Anti-Cheat violations.</p>
+                        <Button variant="danger" onClick={requestReTestAccess} className="w-full">Request Re-test</Button>
+                      </>
+                    )}
+                  </div>
+                </Card>
+              </motion.div>
+
+              <motion.div onClick={() => router.push('/student/demo-test')} whileHover={{ scale: 1.02 }} className="cursor-pointer md:col-span-2">
+                <Card className="flex flex-col sm:flex-row items-start gap-5 hover:border-blue-300">
+                  <div className="p-3 bg-blue-50 rounded-xl border border-blue-100"><PlayCircle className="text-blue-500" size={28} /></div>
+                  <div>
+                    <h4 className="text-xl font-extrabold mb-1 text-slate-900">Try Practice Mode (Tutorial)</h4>
+                    <p className="text-slate-500 text-sm mb-5 font-medium leading-relaxed">Understand the secure interface before the real exam.</p>
+                    <Button variant="primary" className="bg-blue-600 hover:bg-blue-700 shadow-blue-500/20">Start Demo <ArrowRight size={16}/></Button>
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
         )}
 
-       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
-          <StatCard title="Profile Status" value="Complete" sub="Ready for Jobs" color="text-emerald-600" />
-          <StatCard title="Assessment Status" value={examStatus === "granted" || examStatus === "none" ? "Ready" : examStatus === "pending" ? "Pending Approval" : examStatus === "completed" ? "Completed" : "Disqualified"} sub={examStatus === "granted" || examStatus === "none" ? "Start Test Now" : "Action Required"} color="text-blue-600" />
-          <StatCard title="Skill Score" value={lastScore !== null ? lastScore : "N/A"} sub="Latest Result" color="text-purple-600" />
-        </div>
+        {/* 🔥 VIEW 2: EARNINGS & INVOICE MODULE 🔥 */}
+        {activeView === 'earnings' && (
+           <div className="animate-in fade-in duration-300">
+              <header className="mb-8 print:hidden">
+                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 flex items-center gap-3"><IndianRupee className="text-teal-600" size={32}/> Earnings & Invoices</h1>
+                 <p className="text-slate-500 font-medium">Track your completed freelance assignments, check TDS, and generate official invoices.</p>
+              </header>
 
-        <h3 className="text-xl font-extrabold mb-6 text-slate-900">Your Actions</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-          
-          <motion.div onClick={() => router.push('/student/profile')} whileHover={{ scale: 1.02 }} className="cursor-pointer h-full">
-            <Card className="flex flex-col sm:flex-row items-start gap-5 h-full hover:border-emerald-300">
-              <div className="p-3 rounded-xl bg-emerald-100 border border-emerald-200"><CheckCircle className="text-emerald-600" size={28} /></div>
-              <div>
-                <h4 className="text-xl font-extrabold mb-1 text-emerald-900">Edit Profile</h4>
-                <p className="text-slate-500 text-sm mb-4 font-medium leading-relaxed">Keep your skills and experience updated to match with the best companies.</p>
-                <span className="text-emerald-600 text-sm font-bold flex items-center gap-1">Update Details <ArrowRight size={16}/></span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-10 print:hidden">
+                 <Card className="bg-white shadow-sm border border-slate-200">
+                    <p className="text-slate-500 font-bold text-xs mb-1 uppercase tracking-wider">Gross Earnings</p>
+                    <p className="text-3xl font-black text-slate-800">₹ {totalGross.toLocaleString('en-IN')}</p>
+                 </Card>
+                 <Card className="bg-red-50/50 shadow-sm border border-red-100">
+                    <p className="text-red-500 font-bold text-xs mb-1 uppercase tracking-wider">TDS Deducted (10%)</p>
+                    <p className="text-3xl font-black text-red-600">- ₹ {totalTDS.toLocaleString('en-IN')}</p>
+                 </Card>
+                 <Card className="bg-emerald-50 shadow-sm border border-emerald-200">
+                    <p className="text-emerald-700 font-bold text-xs mb-1 uppercase tracking-wider">Net Payable Amount</p>
+                    <p className="text-4xl font-black text-emerald-600">₹ {totalNet.toLocaleString('en-IN')}</p>
+                 </Card>
               </div>
-            </Card>
-          </motion.div>
 
-          <motion.div whileHover={{ scale: 1.02 }} className="h-full">
-            <Card className={`flex flex-col sm:flex-row items-start gap-5 h-full ${examStatus === "pending" ? "border-amber-200 bg-amber-50/50" : examStatus === "disqualified" ? "border-red-200 bg-red-50/50" : ""}`}>
-              <div className={`p-3 rounded-xl border ${ (examStatus === "none" || examStatus === "granted") ? "bg-teal-50 border-teal-100" : examStatus === "pending" ? "bg-amber-100 border-amber-200" : examStatus === "disqualified" ? "bg-red-100 border-red-200" : "bg-slate-100 border-slate-200"}`}>
-                {(examStatus === "none" || examStatus === "granted") ? <ShieldCheck className="text-teal-600" size={28} /> : examStatus === "pending" ? <Clock className="text-amber-600" size={28} /> : examStatus === "disqualified" ? <AlertTriangle className="text-red-500" size={28} /> : <Lock className="text-slate-500" size={28} />}
+              <div className="print:hidden">
+                 <h3 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2"><Receipt size={20} className="text-teal-600"/> Assignment History</h3>
+                 <div className="space-y-4">
+                    {assignments.map(assign => (
+                       <Card key={assign.id} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-slate-200 hover:border-teal-300 transition-colors shadow-sm">
+                          <div>
+                             <h4 className="text-lg font-bold text-slate-900">{assign.title}</h4>
+                             <p className="text-sm text-slate-500 font-medium mt-1">Assignment ID: <span className="font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">{assign.id}</span> • Completed: {assign.date}</p>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 shrink-0">
+                             <div className="text-left sm:text-right border-l-4 border-emerald-500 pl-4 sm:border-l-0 sm:pl-0">
+                                <p className="text-xl font-black text-slate-800 leading-none">₹ {(assign.gross * 0.9).toLocaleString('en-IN')}</p>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Net Payable</p>
+                             </div>
+                             {assign.invoiceSubmitted ? (
+                                <span className="flex items-center justify-center gap-1.5 bg-emerald-50 text-emerald-700 px-5 py-2.5 rounded-xl text-sm font-bold border border-emerald-200 w-full sm:w-auto">
+                                   <CheckCircle size={16}/> Sent to Admin
+                                </span>
+                             ) : (
+                                <Button variant="primary" onClick={() => setSelectedAssignment(assign)} className="px-5 py-2.5 flex items-center justify-center gap-2 w-full sm:w-auto">
+                                   <FileText size={16}/> Create Invoice
+                                </Button>
+                             )}
+                          </div>
+                       </Card>
+                    ))}
+                 </div>
               </div>
-              <div className="flex-1 w-full">
-                <h4 className="text-xl font-extrabold mb-1 text-slate-900">Final Skill Assessment</h4>
-                
-                {(examStatus === "none" || !examStatus || examStatus === "granted") && (
-                  <>
-                    <p className="text-slate-500 text-sm mb-5 font-medium leading-relaxed">You have 1 attempt available. Take the test securely to verify your profile.</p>
-                    <Button variant="primary" onClick={() => router.push('/student/test')}>Start Assessment <ArrowRight size={16}/></Button>
-                  </>
-                )}
-                
-                {examStatus === "pending" && (
-                  <>
-                    <p className="text-amber-700 text-sm mb-5 font-medium">Re-test request sent to Admin. Waiting for approval.</p>
-                    <Button variant="secondary" disabled className="w-full">Approval Pending...</Button>
-                  </>
-                )}
-                
-                {examStatus === "completed" && (
-                  <>
-                    <p className="text-green-600 text-sm mb-5 font-medium">Test Completed! Check profile for detailed analytics.</p>
-                    <div className="flex flex-col gap-3">
-                       <DownloadReportButton candidate={profileData} />
-                       <Button variant="secondary" onClick={requestReTestAccess} className="w-full">Request Re-test</Button>
+
+              {/* 🔥 INVOICE MODAL & PRINT FORMAT 🔥 */}
+              {selectedAssignment && (
+                 <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex justify-center items-start overflow-y-auto p-4 md:p-8 print:static print:bg-white print:p-0">
+                    <div className="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl relative print:shadow-none print:w-full overflow-hidden">
+                       
+                       <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 print:hidden sticky top-0 z-10">
+                          <h3 className="font-extrabold text-slate-800 flex items-center gap-2"><Receipt size={18}/> Preview Invoice</h3>
+                          <button onClick={() => setSelectedAssignment(null)} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20}/></button>
+                       </div>
+
+                       {/* PROFESSIONAL INVOICE PAPER */}
+                       <div className="p-8 md:p-14 text-slate-800 bg-white">
+                          <div className="flex flex-col-reverse md:flex-row justify-between items-start md:items-end mb-12 border-b-4 border-slate-900 pb-8 gap-6">
+                             <div>
+                                <h1 className="text-5xl font-black text-slate-900 tracking-tighter mb-4">INVOICE</h1>
+                                <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                                   <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Invoice No.</p>
+                                   <p className="font-mono font-bold text-slate-800">RM-INV-{selectedAssignment.id}</p>
+                                   <p className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Date Issued</p>
+                                   <p className="font-bold text-slate-800">{new Date().toLocaleDateString()}</p>
+                                </div>
+                             </div>
+                             <div className="text-left md:text-right">
+                                <h2 className="text-3xl font-black text-teal-600 mb-1 tracking-tight">Resource<span className="text-slate-900">mania</span></h2>
+                                <p className="text-sm font-bold text-slate-600">Resource Mania Private Ltd.</p>
+                                <p className="text-sm font-medium text-slate-500">Corporate HQ, Kolkata, WB, India</p>
+                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Bill To (Client)</p>
+                                <h3 className="text-lg font-extrabold text-slate-900">Resource Mania Private Ltd.</h3>
+                                <p className="text-sm font-medium text-slate-600 mt-1">accounts@resourcemania.com</p>
+                                <p className="text-sm font-medium text-slate-600 mt-1">GSTIN: 19AAAAA0000A1Z5</p>
+                             </div>
+                             <div className="bg-teal-50/50 p-6 rounded-2xl border border-teal-100 text-left md:text-right">
+                                <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-3">From (Contractor)</p>
+                                <h3 className="text-lg font-extrabold text-slate-900">{profileData?.fullName || "Candidate Name"}</h3>
+                                <p className="text-sm font-medium text-slate-600 mt-1">{user?.email}</p>
+                                <p className="text-sm font-medium text-slate-600 mt-1">{profileData?.phone || "Phone Not Provided"}</p>
+                             </div>
+                          </div>
+
+                          <table className="w-full text-left border-collapse mb-10">
+                             <thead>
+                                <tr className="bg-slate-900 text-white uppercase tracking-widest text-[10px] font-black">
+                                   <th className="p-4 rounded-tl-xl">Description of Assignment</th>
+                                   <th className="p-4 text-right rounded-tr-xl">Gross Amount</th>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                <tr className="border-b-2 border-slate-100 bg-slate-50">
+                                   <td className="p-4 font-bold text-slate-800 text-lg">{selectedAssignment.title} <span className="block text-xs font-medium text-slate-500 mt-1 font-mono">Ref ID: {selectedAssignment.id}</span></td>
+                                   <td className="p-4 text-right font-black text-lg">₹ {selectedAssignment.gross.toLocaleString('en-IN')}</td>
+                                </tr>
+                             </tbody>
+                          </table>
+
+                          <div className="flex justify-end w-full mb-12">
+                             <div className="w-full md:w-3/5 space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                                <div className="flex justify-between text-slate-600 font-bold text-sm">
+                                   <span>Subtotal (Gross)</span>
+                                   <span>₹ {selectedAssignment.gross.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div className="flex justify-between text-red-600 font-bold text-sm border-b border-slate-200 pb-4">
+                                   <span>TDS Deduction (10% u/s 194J)</span>
+                                   <span>- ₹ {(selectedAssignment.gross * 0.10).toLocaleString('en-IN')}</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2">
+                                   <span className="text-sm font-bold uppercase tracking-widest text-slate-500">Net Payable</span>
+                                   <span className="text-3xl font-black text-emerald-600">₹ {(selectedAssignment.gross * 0.90).toLocaleString('en-IN')}</span>
+                                </div>
+                             </div>
+                          </div>
+
+                          <div className="border-t-2 border-dashed border-slate-200 pt-8 text-center text-xs font-medium text-slate-400">
+                             <p>This is a system-generated electronic invoice. No physical signature is required.</p>
+                             <p className="mt-1">For any payment disputes, contact accounts@resourcemania.com within 7 days.</p>
+                          </div>
+                       </div>
+
+                       {/* Action Buttons (Hidden in print) */}
+                       <div className="p-6 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row justify-end gap-3 print:hidden">
+                          <Button variant="secondary" onClick={handleDownloadInvoice} className="flex items-center justify-center gap-2 bg-white w-full sm:w-auto"><Download size={16}/> Download PDF Invoice</Button>
+                          <Button variant="primary" onClick={() => handleGenerateAndSubmitInvoice(selectedAssignment)} disabled={isSubmittingInvoice} className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
+                             {isSubmittingInvoice ? <Loader2 className="animate-spin" size={16}/> : <Send size={16}/>} 
+                             Submit to Resource Mania
+                          </Button>
+                       </div>
+
                     </div>
-                  </>
-                )}
-                
-                {examStatus === "disqualified" && (
-                  <>
-                    <p className="text-red-600 text-sm mb-5 font-medium">Test Locked. Terminated for Anti-Cheat violations.</p>
-                    <Button variant="danger" onClick={requestReTestAccess} className="w-full">Request Re-test</Button>
-                  </>
-                )}
-              </div>
-            </Card>
-          </motion.div>
+                 </div>
+              )}
+           </div>
+        )}
+      </main>
 
-          <motion.div onClick={() => router.push('/student/demo-test')} whileHover={{ scale: 1.02 }} className="cursor-pointer md:col-span-2">
-            <Card className="flex flex-col sm:flex-row items-start gap-5 hover:border-blue-300">
-              <div className="p-3 bg-blue-50 rounded-xl border border-blue-100"><PlayCircle className="text-blue-500" size={28} /></div>
-              <div>
-                <h4 className="text-xl font-extrabold mb-1 text-slate-900">Try Practice Mode (Tutorial)</h4>
-                <p className="text-slate-500 text-sm mb-5 font-medium leading-relaxed">Take a dummy test to understand the secure exam interface before taking the real one.</p>
-                <Button variant="primary" className="bg-blue-600 hover:bg-blue-700 shadow-blue-500/20">Start Demo <ArrowRight size={16}/></Button>
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-
-</main>
-
-{/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-2xl border-t border-slate-200/50 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+      {/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-2xl border-t border-slate-200/50 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] print:hidden">
         <div className="flex justify-evenly items-center px-2 py-2">
-          <div onClick={() => router.push('/student/dashboard')} className="flex flex-col items-center gap-1 p-2 text-[#0f947e] cursor-pointer w-24">
-            <div className="bg-teal-50 p-2 rounded-2xl"><LayoutDashboard size={22} /></div>
-            <span className="text-[10px] font-bold mt-0.5">Dashboard</span>
+          <div onClick={() => setActiveView('overview')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-20 ${activeView === 'overview' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeView === 'overview' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><LayoutDashboard size={22} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Overview</span>
           </div>
-          <div onClick={() => router.push('/student/profile')} className="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer w-24">
+          <div onClick={() => setActiveView('earnings')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-20 ${activeView === 'earnings' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeView === 'earnings' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><IndianRupee size={22} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Earnings</span>
+          </div>
+          <div onClick={() => router.push('/student/profile')} className="flex flex-col items-center gap-1 p-2 text-slate-400 hover:text-slate-900 transition-colors cursor-pointer w-20">
             <div className="p-2 rounded-2xl hover:bg-slate-50"><UserCircle size={22} /></div>
             <span className="text-[10px] font-bold mt-0.5">Profile</span>
           </div>
@@ -230,17 +439,5 @@ export default function Dashboard() {
       </div>
 
     </div>
-  );
-}
-
-function StatCard({ title, value, sub, color }: any) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-full">
-      <Card className="h-full overflow-hidden flex flex-col justify-center">
-        <h3 className="text-slate-500 text-sm font-bold mb-2 truncate">{title}</h3>
-        <div className={`text-2xl lg:text-3xl xl:text-4xl font-black mb-1 truncate ${color}`} title={String(value)}>{value}</div>
-        <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider truncate">{sub}</p>
-      </Card>
-    </motion.div>
   );
 }
