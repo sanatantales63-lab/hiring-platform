@@ -561,7 +561,7 @@ const submitInterviewRequest = async () => {
         </div>
       )}
 
-      {/* REVIEW MODAL */}
+      {/* REVIEW MODAls */}
       {showReviewModal && reviewStudent && (
          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 md:p-10 shadow-2xl">
