@@ -5,8 +5,11 @@ import {
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
   Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award, Users, MessageCircle
 } from "lucide-react";
-import DownloadReportButton from "@/app/components/DownloadReportButton";
-
+import dynamic from "next/dynamic";
+const DownloadReportButton = dynamic(
+  () => import("@/app/components/DownloadReportButton").then((mod: any) => mod.default || mod.DownloadReportButton), 
+  { ssr: false }
+);
 export default function CandidateProfileView({ candidate, role }: { candidate: any, role: 'student' | 'company' | 'admin' }) {
   const [showAllEdu, setShowAllEdu] = useState(false);
   const [showAllWork, setShowAllWork] = useState(false); 
@@ -107,7 +110,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div suppressHydrationWarning className="space-y-8 animate-in fade-in duration-500">
       
       {/* HEADER CARD */}
       <div className="bg-[var(--card)]/90 backdrop-blur-xl border border-[var(--border)] p-8 md:p-12 rounded-[2.5rem] shadow-elevated flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">

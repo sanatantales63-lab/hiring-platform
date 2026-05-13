@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { 
   User, Users, Building2, CreditCard, LogOut, Upload, Bell, 
-  UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star, Globe
+  UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star, Globe, Video
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import CompanyProfileView from "@/app/components/CompanyProfileView";
@@ -23,9 +23,11 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   
-  const [examRequests, setExamRequests] = useState<any[]>([]);
+ const [examRequests, setExamRequests] = useState<any[]>([]);
   const [shortlistedProfiles, setShortlistedProfiles] = useState<any[]>([]);
   const [hireRequests, setHireRequests] = useState<any[]>([]);
+  const [interviewRequests, setInterviewRequests] = useState<any[]>([]); // 🔥 NAYA STATE
+  const [meetLinks, setMeetLinks] = useState<{ [key: string]: string }>({}); // Meet Link save karne ke liye
   
   const [loading, setLoading] = useState(true);
 
@@ -144,6 +146,7 @@ export default function AdminDashboard() {
           setExamRequests(allStudents.filter((s: any) => s.examAccess === "pending"));
           setShortlistedProfiles(allStudents.filter((s: any) => s.hired_status === "shortlisted"));
           setHireRequests(allStudents.filter((s: any) => s.hired_status === "hire_requested"));
+          setInterviewRequests(allStudents.filter((s: any) => s.hired_status === "interview_requested")); // 🔥 NAYA FILTER
         }
         
         const { data: allCompanies } = await supabase.from("companies").select("*");
@@ -202,6 +205,21 @@ export default function AdminDashboard() {
       setStudents(prev => prev.map(s => s.id === id ? {...s, hired_status: "none", hired_company_id: null, hired_company_name: null} : s));
       alert("Candidate returned to pool.");
     } catch (error) { alert("Action failed."); }
+  };
+
+  const sendMeetLink = async (id: string) => {
+    const link = meetLinks[id];
+    if(!link) return alert("Pehle Google Meet ka link daalo!");
+    try {
+      const { error } = await supabase.from("profiles").update({ 
+        hired_status: "shortlisted", // Status update ho gaya "Meet Link Ready" par
+        meet_link: link
+      }).eq("id", id);
+      if (error) throw error;
+      
+      alert("Meet Link sent to Company successfully!");
+      setInterviewRequests(prev => prev.filter(r => r.id !== id));
+    } catch (error) { alert("Failed to send link."); }
   };
 
   const approveHire = async (id: string) => {
@@ -286,7 +304,7 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="min-h-screen bg-transparent text-slate-900 flex items-center justify-center font-bold text-xl tracking-widest animate-pulse">VERIFYING ADMIN...</div>;
   
-  const totalAlerts = examRequests.length + shortlistedProfiles.length + hireRequests.length;
+  const totalAlerts = examRequests.length + shortlistedProfiles.length + hireRequests.length + interviewRequests.length;
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex font-sans relative">
@@ -604,6 +622,41 @@ export default function AdminDashboard() {
              </div>
 
              <div className="border-t border-slate-200 my-4"></div>
+
+             {/* 🔥 NAYA MEET LINK REQUESTS SECTION 🔥 */}
+             <div>
+               <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight mb-2 flex items-center gap-2"><Video/> Meet Link Requests</h2>
+               <p className="text-slate-500 font-medium mb-6">Companies requested interviews. Generate a Google Meet link and send it to them below.</p>
+               <div className="space-y-4">
+                 {interviewRequests.map((s) => (
+                    <Card key={s.id} className="bg-indigo-50/50 border-indigo-200 flex flex-col lg:flex-row justify-between items-center gap-4">
+                       <div className="mb-2 lg:mb-0 w-full lg:w-auto">
+                          <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
+                          <p className="text-indigo-700 text-sm mt-1 font-medium">Req by: <strong>{s.hired_company_name}</strong></p>
+                          <p className="text-indigo-600/80 text-xs mt-0.5 font-bold">📅 {s.interview_date} | ⏰ {s.interview_time}</p>
+                       </div>
+                       <div className="flex w-full lg:w-auto gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="Paste Google Meet Link..." 
+                            value={meetLinks[s.id] || ""}
+                            onChange={(e) => setMeetLinks({...meetLinks, [s.id]: e.target.value})}
+                            className="flex-1 lg:w-64 bg-white border border-indigo-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                          />
+                          <Button variant="primary" onClick={() => sendMeetLink(s.id)} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">Send Link</Button>
+                       </div>
+                    </Card>
+                 ))}
+                 {interviewRequests.length === 0 && (
+                    <div className="text-center p-8 bg-white/60 rounded-2xl border border-slate-200 text-slate-500 font-medium shadow-sm">
+                       <p>No pending meet link requests.</p>
+                    </div>
+                 )}
+               </div>
+             </div>
+
+             <div className="border-t border-slate-200 my-4"></div>
+             {/* -------------------------------------- */}
 
              <div>
                <h2 className="text-3xl font-extrabold text-blue-600 tracking-tight mb-2 flex items-center gap-2"><UserPlus/> Interview Shortlists</h2>

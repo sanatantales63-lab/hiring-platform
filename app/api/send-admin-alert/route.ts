@@ -39,6 +39,17 @@ export async function POST(req: Request) {
         <p>Candidate has requested a re-test. Please check the Admin Panel to grant access.</p>
       `;
     }
+    // 🔥 4. Interview Request Mail (YE MISSING THA) 🔥
+    else if (type === "interview_request") {
+      subject = `📅 Meet Link Required: ${candidateName}`;
+      htmlContent = `
+        <h3>New Interview Scheduled!</h3>
+        <p><strong>Candidate:</strong> ${candidateName}</p>
+        <p><strong>Requested Schedule:</strong> ${extraInfo}</p>
+        <hr/>
+        <p>Please log in to the Admin Panel, confirm availability, and generate a Google Meet link for the company.</p>
+      `;
+    }
 
    // Brevo API ko Hit karna
     // GitHub Bypass: Key ko 3 tukdon mein tod diya taaki scanner pakad na sake
