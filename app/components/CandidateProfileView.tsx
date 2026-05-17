@@ -124,7 +124,9 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
           {/* 🔥 FIX: Changed 'md:justify-between' to simple flex with gap, taaki photo aur text paas-paas rahein */}
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between w-full">
              <div className="flex-1">
-                <h2 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--foreground)] mb-2 tracking-tight">{candidate.fullName || "Name Not Set"}</h2>
+               <h2 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--foreground)] mb-2 tracking-tight">
+  {isCompany ? displayId : (candidate.fullName || "Name Not Set")}
+</h2>
                 <p className="text-[var(--primary)] font-bold tracking-wider uppercase text-sm mb-6 bg-[var(--primary)]/10 inline-block px-4 py-1.5 rounded-xl border border-[var(--primary)]/20">
                    {smartTitle}
                 </p>
@@ -280,7 +282,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                          )}
                       </div>
                    </div>
-                   {candidate.currentSalary && <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Current Salary</span><span className="text-[var(--foreground)]">{candidate.currentSalary}</span></div>}
+                   {candidate.currentSalary && !isCompany && <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Current Salary</span><span className="text-[var(--foreground)]">{candidate.currentSalary}</span></div>}
                    <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)]">Open to Contract</span><span className={candidate.openToContractRoles ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
                 </div>
              </div>
@@ -498,9 +500,13 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
             {metaObj.ai_detailed_report && (
                <div className="bg-[var(--primary)]/5 p-6 rounded-2xl border-l-4 border-[var(--primary)] mb-8 relative z-10 text-[var(--ink-soft)] text-sm md:text-base font-medium leading-relaxed space-y-4 shadow-sm">
                   <p className="font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Sparkles className="text-[var(--primary)]" size={18}/> AI Review</p>
-                  {metaObj.ai_detailed_report.split('\n').map((para:string, index:number) => (
-                     <p key={index} className="text-justify">{para.replace(/\*\*/g, '')}</p>
-                  ))}
+                 {metaObj.ai_detailed_report.split('\n').map((para:string, index:number) => (
+         <p key={index} className="text-justify">
+           {(isCompany && candidate.fullName
+             ? para.replace(new RegExp(candidate.fullName, 'gi'), displayId)
+             : para).replace(/\*\*/g, '')}
+         </p>
+      ))}
                </div>
             )}
 

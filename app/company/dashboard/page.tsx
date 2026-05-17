@@ -12,6 +12,7 @@ import {
 // 🔥 Naye Master Components 🔥
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
+import * as XLSX from 'xlsx';
 
 export default function CompanyDashboard() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function CompanyDashboard() {
   const [interviewStudent, setInterviewStudent] = useState<any>(null);
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
+  const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
 
   useEffect(() => {
     let subscription: any;
@@ -180,6 +182,86 @@ const submitInterviewRequest = async () => {
     } catch (e) { alert("Error submitting review."); }
   };
 
+  // 🔥 COMPANY EXCEL EXPORT 🔥
+  const toggleExcelSelection = (id: string) => {
+    setSelectedForExcel(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleCompanyExportExcel = () => {
+    const currentList = activeTab === 'assigned' ? assignedList : hiredList;
+    const toExport = selectedForExcel.length > 0
+      ? currentList.filter(c => selectedForExcel.includes(c.id))
+      : currentList;
+    if (toExport.length === 0) return alert("No candidates to export!");
+
+    // Collect all unique skills across selected candidates
+    const allSkills = new Set<string>();
+    toExport.forEach(c => {
+      const scores = c.meta?.skillScores || {};
+      Object.keys(scores).forEach(s => allSkills.add(s));
+    });
+
+    const excelData = toExport.map(c => {
+      let bumpedSalary = c.expectedSalary || "N/A";
+      if (c.expectedSalary) {
+        const numMatch = c.expectedSalary.replace(/[^0-9]/g, '');
+        if (numMatch) {
+          const bumpedNum = Math.round(parseInt(numMatch, 10) * 1.25);
+          bumpedSalary = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(bumpedNum);
+        }
+      }
+
+      const row: any = {
+        "Resource ID":                 `RM-${c.id?.substring(0, 6).toUpperCase()}`,
+        "Highest Qualification":       c.highestQualification || "N/A",
+        "Year of Passing":             c.educations?.[0]?.passingYear || "N/A",
+        "Total Experience (Years)":    c.experience || "N/A",
+        "Location":                    c.city || "N/A",
+        "Notice Period":               c.noticePeriod || "N/A",
+        "Expected Salary (INR)":       bumpedSalary,
+        "Rating (out of 5)":           c.company_rating || "N/A",
+        "Ready to Relocate":           c.willingToRelocate || "No",
+        "Open to Contract / Temp":     c.openToContractRoles ? "Yes" : "No",
+      };
+
+      allSkills.forEach(skill => {
+        const scoreData = c.meta?.skillScores?.[skill];
+        row[skill] = scoreData ? `${scoreData.correct} / ${scoreData.total}` : "N/A";
+      });
+
+      return row;
+    });
+
+    // 🔥 PROFESSIONAL EXCEL: Title rows + data + auto column widths 🔥
+    const generatedOn = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+    const titleRows = [
+      [`RESOURCEMANIA — Verified Candidate Export`],
+      [`Generated: ${generatedOn}  |  Confidential — For Authorized Recruiters Only`],
+      [`Total Candidates: ${toExport.length}  |  Platform: resourcemania.in`],
+      [], // blank separator row
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(titleRows);
+
+    // Add candidate data starting from row 5
+    XLSX.utils.sheet_add_json(ws, excelData, { origin: `A5`, skipHeader: false });
+
+    // Auto column widths — no more cut-off text
+    const allKeys = Object.keys(excelData[0] || {});
+    const colWidths = allKeys.map(key => ({
+      wch: Math.max(
+        key.length,
+        ...excelData.map(row => String(row[key] ?? '').length)
+      ) + 4  // +4 padding on each column
+    }));
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Candidates");
+    XLSX.writeFile(wb, `Resourcemania_Candidates_${new Date().toISOString().split('T')[0]}.xlsx`);
+    setSelectedForExcel([]);
+  };
+
   // 🔥 DYNAMIC FILTER OPTIONS MAKER 🔥
   const uniqueLocations = Array.from(new Set(candidates.map(c => c.city).filter(Boolean)));
   const uniqueExp = Array.from(new Set(candidates.map(c => c.experience).filter(Boolean)));
@@ -298,10 +380,53 @@ const submitInterviewRequest = async () => {
            </Card>
         )}
 
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex justify-between items-start mb-8 gap-4 flex-wrap">
           <div>
              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
              <p className="text-slate-500 mt-2 font-medium">{activeTab === 'assigned' ? 'Candidates verified by Resourcemania AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
+          </div>
+         <div className="flex items-center gap-3 shrink-0">
+            {/* Select All / Deselect All */}
+            {(() => {
+              const currentList = activeTab === 'assigned' ? assignedList : hiredList;
+              const allSelected = currentList.length > 0 && currentList.every(c => selectedForExcel.includes(c.id));
+              return (
+                <label className="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition-all">
+                  <div
+                    onClick={() => {
+                      if (allSelected) {
+                        setSelectedForExcel([]);
+                      } else {
+                        setSelectedForExcel(currentList.map(c => c.id));
+                      }
+                    }}
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${
+                      allSelected
+                        ? 'bg-[#0f947e] border-[#0f947e] shadow-[#0f947e]/30'
+                        : 'bg-white border-slate-300 hover:border-[#0f947e]'
+                    }`}
+                  >
+                    {allSelected && (
+                      <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                        <path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-sm font-bold text-slate-600 whitespace-nowrap">
+                    {allSelected ? 'Deselect All' : 'Select All'}
+                  </span>
+                </label>
+              );
+            })()}
+
+            {/* Export Button */}
+            <button
+              onClick={handleCompanyExportExcel}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              {selectedForExcel.length > 0 ? `Export ${selectedForExcel.length} Selected` : 'Export All (.xlsx)'}
+            </button>
           </div>
         </header>
 
@@ -379,14 +504,28 @@ const submitInterviewRequest = async () => {
                       </div>
                     )}
 
-                    {/* ✅ FIX: removed h-full from inner content div */}
                     <div className="p-5 flex flex-col relative z-10">
                       
                       {/* 1. Header: Avatar & Name */}
                       <div className="flex items-start gap-3 mb-4">
+                       {/* ✅ Per-card export checkbox — premium */}
+                        <div
+                          onClick={(e) => { e.stopPropagation(); toggleExcelSelection(candidate.id); }}
+                          className={`absolute top-3 right-3 z-20 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${
+                            selectedForExcel.includes(candidate.id)
+                              ? 'bg-[#0f947e] border-[#0f947e] shadow-[#0f947e]/30'
+                              : 'bg-white/90 border-slate-300 hover:border-[#0f947e] backdrop-blur-sm'
+                          }`}
+                        >
+                          {selectedForExcel.includes(candidate.id) && (
+                            <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+                              <path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </div>
                         <div className="relative shrink-0">
                           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0f947e] to-teal-600 text-white flex items-center justify-center font-black text-lg shadow-sm shadow-[#0f947e]/20">
-                            {candidate.fullName?.substring(0, 2).toUpperCase()}
+                            RM
                           </div>
                           <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-white border border-teal-100 flex items-center justify-center shadow-sm" title="AI Proctored">
                             <ShieldCheck size={10} className="text-[#0f947e]" />
@@ -394,7 +533,7 @@ const submitInterviewRequest = async () => {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-base font-black text-slate-900 truncate max-w-[130px] group-hover:text-[#0f947e] transition-colors">{candidate.fullName}</h3>
+                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[#0f947e] transition-colors leading-tight">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
                           <p className="text-[11px] font-bold text-[#0f947e] mt-0.5 truncate">{roleTitle}</p>
                           <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500 mt-1">
                             <span className="flex items-center gap-1"><MapPin size={10} className="text-slate-400" /> {candidate.city || "Remote"}</span>
