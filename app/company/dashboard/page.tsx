@@ -42,6 +42,7 @@ export default function CompanyDashboard() {
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     let subscription: any;
@@ -126,7 +127,7 @@ const submitInterviewRequest = async () => {
       }
 
       // Brevo Mail bhejna Admin ko
-      const emailRes = await fetch('/api/send-email', {
+      const emailRes = await fetch('/api/send-admin-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -385,7 +386,24 @@ const submitInterviewRequest = async () => {
              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
              <p className="text-slate-500 mt-2 font-medium">{activeTab === 'assigned' ? 'Candidates verified by Resourcemania AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
           </div>
-         <div className="flex items-center gap-3 shrink-0">
+         <div className="flex items-center gap-3 shrink-0 flex-wrap justify-end">
+            {/* Grid / List Toggle */}
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm gap-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'grid' ? 'bg-[#0f947e] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
+                title="Grid View"
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/></svg>
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'list' ? 'bg-[#0f947e] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
+                title="List View"
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="1.5" width="13" height="2.2" rx="1.1" fill="currentColor"/><rect x="1" y="6.4" width="13" height="2.2" rx="1.1" fill="currentColor"/><rect x="1" y="11.3" width="13" height="2.2" rx="1.1" fill="currentColor"/></svg>
+              </button>
+            </div>
             {/* Select All / Deselect All */}
             {(() => {
               const currentList = activeTab === 'assigned' ? assignedList : hiredList;
@@ -465,9 +483,8 @@ const submitInterviewRequest = async () => {
            </div>
         </Card>
 
-      {/* 🚀 CANDIDATES GRID 🚀 */}
-      {/* ✅ FIX: items-start so cards don't stretch to equal height */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-start">
+      {/* 🚀 CANDIDATES GRID / LIST 🚀 */}
+       <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start" : "flex flex-col gap-3"}>
           <AnimatePresence>
             {(activeTab === 'assigned' ? assignedList : hiredList).map((candidate, index) => {
               const aiScore = candidate.meta?.totalScore || 0;
@@ -485,15 +502,114 @@ const submitInterviewRequest = async () => {
               const status = statusMap[candidate.hired_status];
 
               return (
-                <motion.div 
+               <motion.div 
                   key={candidate.id} 
                   initial={{ opacity: 0, y: 15 }} 
                   animate={{ opacity: 1, y: 0, transition: { delay: index * 0.05 } }} 
                   exit={{ opacity: 0, scale: 0.95 }}
-                  // ✅ FIX: removed h-full — card takes natural height now
                   className="block"
                 >
-                  {/* ✅ FIX: removed h-full and flex-col from card wrapper */}
+                  {/* ===================== LIST VIEW ===================== */}
+                  {viewMode === 'list' ? (
+                    <div className="relative bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0f947e]/30 overflow-hidden group">
+                      {status && (
+                        <div className={`px-4 py-1 text-[8px] font-black tracking-widest uppercase flex items-center gap-1.5 border-b ${status.cls}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0 opacity-80" />
+                          {status.label}
+                        </div>
+                      )}
+                      {/* Mobile: stack, Laptop: single row */}
+                      <div className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+
+                        {/* Row 1 mobile: checkbox + avatar + identity */}
+                        <div className="flex items-center gap-3 md:contents">
+
+                          {/* Checkbox */}
+                          <div
+                            onClick={(e) => { e.stopPropagation(); toggleExcelSelection(candidate.id); }}
+                            className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${selectedForExcel.includes(candidate.id) ? 'bg-[#0f947e] border-[#0f947e]' : 'bg-white border-slate-300 hover:border-[#0f947e]'}`}
+                          >
+                            {selectedForExcel.includes(candidate.id) && (
+                              <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                            )}
+                          </div>
+
+                          {/* Avatar */}
+                          <div className="relative shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0f947e] to-teal-600 text-white flex items-center justify-center font-black text-sm shadow-sm">RM</div>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white border border-teal-100 flex items-center justify-center shadow-sm">
+                              <ShieldCheck size={8} className="text-[#0f947e]" />
+                            </div>
+                          </div>
+
+                          {/* Identity */}
+                          <div className="min-w-0 md:w-44 md:shrink-0">
+                            <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[#0f947e] transition-colors">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
+                            <p className="text-[10px] font-bold text-[#0f947e] truncate">{roleTitle}</p>
+                            <div className="flex items-center gap-1 text-[9px] text-slate-500 font-semibold mt-0.5">
+                              <MapPin size={8} className="text-slate-400"/> {candidate.city || "Remote"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Skills */}
+                        <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+                          {candidate.skills?.slice(0, 4).map((skill: string, idx: number) => (
+                            <span key={idx} className="px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[8px] font-bold whitespace-nowrap">{skill}</span>
+                          ))}
+                          {candidate.skills?.length > 4 && <span className="px-2 py-0.5 bg-white text-slate-400 rounded border border-slate-100 text-[8px] font-bold">+{candidate.skills.length - 4}</span>}
+                        </div>
+
+                        {/* Metrics */}
+                        <div className="flex items-center gap-4 shrink-0">
+                          <div className="text-center">
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Intg</p>
+                            <p className={`text-xs font-black ${isClean ? 'text-emerald-600' : 'text-amber-600'}`}>{integrityScore}%</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">AI Score</p>
+                           <p className="text-xs font-black text-[#0f947e]">{aiScore}</p>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                          {activeTab === 'assigned' && (
+                            <>
+                              <button type="button" onClick={() => router.push(`/company/student/${candidate.id}`)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
+                                <FileText size={10} className="opacity-70"/> Profile
+                              </button>
+                              <button type="button" onClick={() => openInterviewModal(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-[#0f947e] hover:bg-teal-50 shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
+                                <Video size={10} className="opacity-70"/> Interview
+                              </button>
+                              <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
+                                <Zap size={10}/> Hire
+                              </button>
+                            </>
+                          )}
+                          {activeTab === 'hired' && (
+                            <>
+                              <button type="button" onClick={() => router.push(`/company/student/${candidate.id}`)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-sm rounded-lg h-7 flex items-center cursor-pointer">Profile</button>
+                              {candidate.hired_status === 'interview_requested' && <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-3 rounded-lg h-7 flex items-center gap-1"><Clock size={10}/> Awaiting</span>}
+                              {candidate.hired_status === 'shortlisted' && (
+                                <>
+                                  <button type="button" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-blue-50 cursor-pointer"><Video size={10}/> Meet</button>
+                                  <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[#0a7a67] cursor-pointer"><Zap size={10}/> Hire</button>
+                                </>
+                              )}
+                              {candidate.hired_status === 'hired' && !candidate.company_rating && (
+                                <button type="button" onClick={() => {setReviewStudent(candidate); setShowReviewModal(true);}} className="text-[9px] font-bold py-1.5 px-3 bg-amber-500 hover:bg-amber-600 text-white shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer"><Star size={10}/> Rate</button>
+                              )}
+                              {candidate.hired_status === 'hired' && candidate.company_rating && (
+                                <div className="flex gap-0.5">{[1,2,3,4,5].map(star => <Star key={star} size={10} fill={star <= candidate.company_rating ? "#D97706" : "none"} className={star <= candidate.company_rating ? "text-amber-500" : "text-slate-300"}/>)}</div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                  /* ===================== GRID VIEW (original) ===================== */
                   <div className="relative flex flex-col bg-white border border-slate-200 rounded-[1.25rem] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group hover:border-[#0f947e]/30">
                     
                     {/* Status Strip (If Any) */}
@@ -543,20 +659,19 @@ const submitInterviewRequest = async () => {
                         </div>
                       </div>
 
-                      {/* 2. Compact Skills List */}
-                      <div className="flex flex-wrap gap-1.5 mb-5 min-h-[40px] content-start">
-                        {candidate.skills?.slice(0, 3).map((skill: string, idx: number) => (
-                          <span key={idx} className="px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[9px] font-bold whitespace-nowrap">
+                     {/* 2. Compact Skills List — single line, fixed height */}
+                      <div className="flex items-center gap-1.5 mb-5 overflow-hidden h-[22px]">
+                        {candidate.skills?.slice(0, 2).map((skill: string, idx: number) => (
+                          <span key={idx} className="px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[9px] font-bold whitespace-nowrap shrink-0">
                             {skill}
                           </span>
                         ))}
-                        {candidate.skills?.length > 3 && (
-                          <span className="px-2 py-0.5 bg-white text-slate-400 rounded border border-slate-100 text-[9px] font-bold">
-                            +{candidate.skills.length - 3}
+                        {candidate.skills?.length > 2 && (
+                          <span className="px-2 py-0.5 bg-white text-slate-400 rounded border border-slate-100 text-[9px] font-bold shrink-0">
+                            +{candidate.skills.length - 2}
                           </span>
                         )}
                       </div>
-
                       {/* 3. Sleek Metrics Grid */}
                       <div className="grid grid-cols-2 gap-2 mb-5">
                          <div className="bg-slate-50 rounded-lg p-2 border border-slate-100 flex justify-between items-center">
@@ -569,7 +684,7 @@ const submitInterviewRequest = async () => {
                          </div>
                          <div className="col-span-2 bg-slate-50 rounded-lg p-2 border border-slate-100 flex justify-between items-center">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><Award size={10} className="inline mr-1 text-amber-500"/> AI Score</span>
-                            <span className="text-sm font-black text-[#0f947e]">{aiScore}<span className="text-[9px] text-slate-400">/30</span></span>
+                           <span className="text-sm font-black text-[#0f947e]">{aiScore}</span>
                          </div>
                       </div>
 
@@ -638,6 +753,7 @@ const submitInterviewRequest = async () => {
 
                     </div>
                   </div>
+               )} {/* end grid/list ternary */}
                 </motion.div>
               );
             })}

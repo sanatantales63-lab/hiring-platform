@@ -211,15 +211,55 @@ export default function AdminDashboard() {
     const link = meetLinks[id];
     if(!link) return alert("Pehle Google Meet ka link daalo!");
     try {
+      const student = interviewRequests.find(r => r.id === id);
+      if (!student) return alert("Student not found!");
+
+      // 🔥 FIX: State pe rely mat karo — Supabase se fresh email fetch karo
+      const { data: freshStudent } = await supabase
+        .from("profiles")
+        .select("email, fullName, interview_date, interview_time, hired_company_id, hired_company_name")
+        .eq("id", id)
+        .single();
+
+      const { data: freshCompany } = await supabase
+        .from("companies")
+        .select("email, name")
+        .eq("id", student.hired_company_id)
+        .single();
+
+      const candidateEmailFinal = freshStudent?.email || student.email || null;
+      const companyEmailFinal = freshCompany?.email || null;
+
+      console.log("📧 Sending emails to — candidate:", candidateEmailFinal, "| company:", companyEmailFinal);
+
       const { error } = await supabase.from("profiles").update({ 
-        hired_status: "shortlisted", // Status update ho gaya "Meet Link Ready" par
+        hired_status: "shortlisted",
         meet_link: link
       }).eq("id", id);
       if (error) throw error;
-      
-      alert("Meet Link sent to Company successfully!");
+
+      // Teen jagah mail bhejo: Admin + Company + Candidate
+      await fetch('/api/send-admin-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: "meet_link_sent",
+          candidateName: freshStudent?.fullName || student.fullName,
+          candidateEmail: candidateEmailFinal,
+          companyName: freshCompany?.name || student.hired_company_name,
+          companyEmail: companyEmailFinal,
+          meetLink: link,
+          interviewDate: freshStudent?.interview_date || student.interview_date,
+          interviewTime: freshStudent?.interview_time || student.interview_time,
+        })
+      });
+
+      alert("Meet Link sent! Emails dispatched to Company, Candidate, and Admin.");
       setInterviewRequests(prev => prev.filter(r => r.id !== id));
-    } catch (error) { alert("Failed to send link."); }
+    } catch (error) { 
+      console.error("sendMeetLink error:", error);
+      alert("Failed to send link."); 
+    }
   };
 
   const approveHire = async (id: string) => {
