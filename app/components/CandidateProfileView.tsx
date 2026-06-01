@@ -300,20 +300,26 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                    )}
                    
                    {/* SENSITIVE INFO - ONLY THIS BLURS FOR COMPANY */}
-                   <div className="relative">
-                      <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
-                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>
-                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
-                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Relocate?</span><span className="text-[var(--foreground)]">{candidate.willingToRelocate || "No"}</span></div>
-                         <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)] flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-[var(--foreground)] tracking-widest uppercase">{panToDisplay}</span></div>
-                      </div>
-                      
-                      {isCompany && (
-                         <div className="absolute inset-0 flex items-center justify-center z-10">
-                            <Lock size={32} className="text-amber-500 drop-shadow-md"/>
-                         </div>
-                      )}
-                   </div>
+                  <div className="relative">
+                     <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
+                        <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Relocate?</span><span className="text-[var(--foreground)]">{candidate.willingToRelocate || "No"}</span></div>
+                        <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)] flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-[var(--foreground)] tracking-widest uppercase">{panToDisplay}</span></div>
+                     </div>
+                     
+                     {isCompany && (
+                        <div className="absolute inset-0 flex items-center justify-center z-10">
+                           <Lock size={32} className="text-amber-500 drop-shadow-md"/>
+                        </div>
+                     )}
+                  </div>
+
+                  {/* 🔥 UNLOCKED FOR COMPANY: Laptop Owner status extracted outside overlay */}
+                  <div className="flex justify-between pt-3 border-t border-[var(--border)]">
+                     <span className="text-[var(--muted-foreground)]">Laptop Owner</span>
+                     <span className="text-[var(--foreground)] font-bold text-teal-600">{candidate.hasLaptop || "No"}</span>
+                  </div>
                 </div>
              </div>
 

@@ -118,11 +118,12 @@ export default function CandidateProfile() {
     addressLine: "", 
     city: "", 
     state: "", 
-    pincode: "", 
+   pincode: "", 
     willingToRelocate: "No",
     panCard: "", 
     bio: "", 
     highestQualification: "", // 🔥 NEW: Track Highest Qualification Level
+    hasLaptop: "No", // 🔥 NEW: Laptop availability tracking logic array
     educations: [{ qualification: "", collegeName: "", passingYear: "", percentage: "", stageCleared: "", attempts: "", mathsIncluded: "", mathsScore: "" }],
     workExperience: [] as { company: string, role: string, duration: string, designation: string, summary: string }[],    achievements: [] as { title: string, description: string, imageURL: string }[], 
     languages: [] as { language: string; proficiency: string }[],
@@ -522,9 +523,9 @@ export default function CandidateProfile() {
         if (!formData.photoURL || formData.photoURL.trim() === "") {
             return alert("🛑 Profile Photo is mandatory! Please click a clear profile photo to proceed.");
         }
-        if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city) {
-            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, and City.");
-        }
+       if (!formData.fullName || !formData.phone || !formData.dob || !formData.gender || !formData.city || !formData.hasLaptop) {
+            return alert("🛑 Please fill all required fields: Name, Phone, DOB, Gender, City, and Laptop Availability.");
+        }
         
         const isValidCity = INDIAN_CITIES.some((c: any) => (c.name || c) === formData.city.trim());
         if (!isValidCity) {
@@ -901,6 +902,14 @@ export default function CandidateProfile() {
                            <datalist id="indian-cities">
                               {INDIAN_CITIES.map((c, idx) => <option key={idx} value={c.name} />)}
                            </datalist>
+                        </div>
+                        <div className="w-full">
+                           <label className="form-label">Do you own a laptop? <span className="text-red-500">*</span></label>
+                           <select value={formData.hasLaptop} onChange={(e)=>setFormData({...formData, hasLaptop: e.target.value})} className="input-field w-full [color-scheme:light]">
+                              <option value="">Select Option</option>
+                              <option value="Yes">Yes, I have a working laptop</option>
+                              <option value="No">No, I do not have a laptop</option>
+                           </select>
                         </div>
                         <div className="w-full md:col-span-2">
                            <label className="form-label text-rose-700">PAN Card <span className="text-red-500">*</span></label>

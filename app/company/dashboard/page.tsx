@@ -42,7 +42,40 @@ export default function CompanyDashboard() {
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  // 🔥 PREMIUM FILTER DRAWER STATES 🔥
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedExps, setSelectedExps] = useState<string[]>([]);
+  const [selectedLocs, setSelectedLocs] = useState<string[]>([]);
+  const [selectedNotices, setSelectedNotices] = useState<string[]>([]);
+  const [selectedQuals, setSelectedQuals] = useState<string[]>([]);
+  // 🔥 Extended Elite Custom Search States Link Layer
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [selectedBehavioral, setSelectedBehavioral] = useState<string[]>([]);
+  const [selectedTechTools, setSelectedTechTools] = useState<string[]>([]);
+  const [selectedWorkModes, setSelectedWorkModes] = useState<string[]>([]);
+  const [selectedRelocation, setSelectedRelocation] = useState<string[]>([]);
+ const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
+  const [selectedLaptops, setSelectedLaptops] = useState<string[]>([]); // 🔥 NEW: Laptop specification selection mapping state array
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Unlocked Datasets direct from student page configuration schema mapping
+  const MASTER_SKILLS_DATA: Record<string, string[]> = {
+    "Financial Reporting & Accounting": ["Accounting & Bookkeeping", "Accounting Standards (AS)", "Accounts Payable Assistance", "Accounts Receivables Assistaance", "Business Combinations Accounting", "Consolidation of Accounts", "Ind AS Accounting", "US GAAP"],
+    "Internal Audit & Risk Assessment": ["AML Investigation Techniques", "Contractual Compliance Testing", "Corporate governance framework assessment", "Digital Forensic Investigation", "Fraud Risk Assessment Models", "Internal Audit", "Internal Control Testing", "IT and Data Analytics", "Litigation Support Reporting", "RCM Prepration", "SOP Preparation & Implementation", "SOX Audit"],
+    "Statutory Audit & Compliances": ["Audit Assistance for Companies", "Audit Documentation", "Audit Observations Correction", "Audit Reports Drafting", "Bank Audit", "Compliance & Legal Verifications", "Concurrent Audit", "Control Testing", "Financial Due Diligence Audit", "Group Audit", "NBFCs Audit", "Physical Verification"],
+    "Direct & International Taxation": ["Cross-Border Structuring", "GAAR", "Income Tax Return Preparation and Filing", "MAT-AMT Calculation", "Permanent Establishment", "Tax Audit", "Tax Structuring Advisory", "Tax Treaty", "TDS-TCS Filling", "Transfer Pricing"],
+    "Indirect Taxation & Transaction Taxes": ["Customs Valuation", "E-Invoicing Compliance", "E-Way Bill", "GST Audit", "GST Reconciliation", "GST Return Filing", "Input Tax Credit Optimisation", "M&A Tax Due Diligence", "Refund Claim Processing"],
+    "Costing & Strategic Management": ["Break-Even Analysis & Optimization", "Job Costing", "Kaizen Costing", "Lean Accounting", "Life-Cycle Costing", "MIS For Cost Analysis", "MIS For Variance Analysis", "Process Costing", "Target Costing"],
+    "Financial Modeling & Valuation": ["Three-Statement Integrated Modeling", "Dynamic Scenario Simulation", "Sensitivity Matrix Design", "DCF Valuation Construction", "Comparable Company Analysis", "Precedent Transaction Analysis", "Leveraged Buyout Modeling", "Project Finance Modeling", "Startup Valuation", "Model Audit"],
+    "Investment & Portfolio Analytics": ["Equity Valuation Frameworks", "Fixed Income Duration Analysis", "Credit Spread Modeling", "Alternative Asset Evaluation", "Hedge Fund Performance", "Portfolio Optimisation (Markowitz)", "CAPM & Multifactor Modeling", "Derivatives Pricing Models"],
+    "Treasury & Liquidity Management": ["Bank Reconcilations", "Treasury operation management", "Working Capital Structuring", "Cash Forecasting Architecture", "Bank Relationship Management", "Foreign Exchange Exposure Hedging", "Interest Rate Swap Structuring", "Debt Issuance Strategy"],
+    "Corporate Law & Practice": ["Company Incorporation", "MCA filings", "MOA/AOA/Deeds drafting", "Compliance Checklist drafting", "Companies Act Compliance", "Board Process Advisory", "SEBI Listing Regulations", "Insider Trading Compliance", "Secretarial Audit Execution", "FEMA Compliance"]
+  };
+
+  const BEHAVIORAL_SKILLS_LIST = ["Leadership", "Team Management", "Communication Skills", "Problem Solving", "Critical Thinking", "Adaptability & Flexibility", "Time Management", "Work Ethic", "Conflict Resolution", "Emotional Intelligence", "Decision Making", "Client Relationship Management", "Strategic Planning"];
+  const TECH_SKILLS_LIST = ["Excel", "Tally Prime", "SAP FICO", "MS Word", "MS PowerPoint", "Power BI", "Tableau", "Oracle ERP", "QuickBooks", "Zoho Books", "SQL", "Python for Finance", "Macros & VBA"];
 
   useEffect(() => {
     let subscription: any;
@@ -268,20 +301,62 @@ const submitInterviewRequest = async () => {
   const uniqueExp = Array.from(new Set(candidates.map(c => c.experience).filter(Boolean)));
   const uniqueNotice = Array.from(new Set(candidates.map(c => c.noticePeriod).filter(Boolean)));
 
-  // 🔥 APPLY ALL FILTERS 🔥
+  // 🔥 PREMIUM ADAPTIVE FILTERING LOGIC — COMPLETE GLOBAL DATA FIELD PARSER ENGINE 🔥
   const filteredCandidates = candidates.filter(c => {
-    const matchesSearch = c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || c.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase()));
+    let matchesSearch = true;
+    if (searchTerm.trim() !== "") {
+      const query = searchTerm.toLowerCase().trim();
+      let qualPrefix = "PR"; 
+      if (c.highestQualification) {
+         const hq = c.highestQualification.toLowerCase();
+         if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qualPrefix = "CA";
+         else if (hq.includes('cma') || hq.includes('cost & management')) qualPrefix = "CM";
+         else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qualPrefix = "CS";
+         else if (hq.includes('acca')) qualPrefix = "AC";
+         else if (hq.includes('mba') || hq.includes('pgdm')) qualPrefix = "MB";
+         else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qualPrefix = "BT";
+         else if (hq.includes('m.com') || hq.includes('mcom')) qualPrefix = "MC";
+         else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qualPrefix = "BC";
+         else if (hq.includes('diploma') || hq.includes('polytechnic')) qualPrefix = "DP";
+         else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qualPrefix = "HS";
+         else qualPrefix = "GD";
+      }
+      const generatedId = c.id ? `RM-${qualPrefix}-${c.id.substring(0, 8).toUpperCase()}` : "";
+      const matchId = generatedId.toLowerCase().includes(query) || (c.id && c.id.toLowerCase().includes(query));
+      const matchName = c.fullName && c.fullName.toLowerCase().includes(query);
+      const matchGlobalSkills = c.skills?.some((s: string) => s.toLowerCase().includes(query));
+      if (!matchId && !matchName && !matchGlobalSkills) matchesSearch = false;
+    }
     
     let matchesType = true;
-    if (filterType === "Permanent") matchesType = c.jobType === "Permanent Role";
-    if (filterType === "Contract") matchesType = c.jobType !== "Permanent Role" || c.openToContractRoles === true;
+    if (selectedTypes.length > 0) {
+      matchesType = selectedTypes.some(t => {
+        if (t === "Permanent") return c.jobType === "Permanent Role";
+        if (t === "Contract") return c.jobType !== "Permanent Role" || c.openToContractRoles === true;
+        return true;
+      });
+    }
 
-    const matchesExp = filterExp ? c.experience === filterExp : true;
-    const matchesLoc = filterLoc ? c.city === filterLoc : true;
-    const matchesNotice = filterNotice ? c.noticePeriod === filterNotice : true;
+    // Direct multi-array value checks matching keys
+    const matchesSkills = selectedSkills.length > 0 ? selectedSkills.every(s => c.skills?.includes(s)) : true;
+    const matchesBehavioral = selectedBehavioral.length > 0 ? selectedBehavioral.every(b => c.behavioralSkills?.includes(b)) : true;
+    const candidateTools = c.technologicalSkills?.map((t: any) => typeof t === 'string' ? t : t.name) || [];
+    const matchesTechTools = selectedTechTools.length > 0 ? selectedTechTools.every(t => candidateTools.includes(t)) : true;
 
-    return matchesSearch && matchesType && matchesExp && matchesLoc && matchesNotice;
+    const matchesExp = selectedExps.length > 0 ? selectedExps.includes(c.experience) : true;
+    const matchesLoc = selectedLocs.length > 0 ? selectedLocs.includes(c.city) : true;
+    const matchesNotice = selectedNotices.length > 0 ? selectedNotices.includes(c.noticePeriod) : true;
+    const matchesQual = selectedQuals.length > 0 ? selectedQuals.includes(c.highestQualification) : true;
+   const matchesWorkMode = selectedWorkModes.length > 0 ? selectedWorkModes.includes(c.workMode) : true;
+    const matchesRelocation = selectedRelocation.length > 0 ? selectedRelocation.includes(c.willingToRelocate) : true;
+    const matchesGender = selectedGenders.length > 0 ? selectedGenders.includes(c.gender) : true;
+    const matchesLaptop = selectedLaptops.length > 0 ? selectedLaptops.includes(c.hasLaptop) : true; // 🔥 NEW: Laptop strict matching validation data rule
+
+    return matchesSearch && matchesType && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesGender && matchesLaptop;
   });
+
+  const uniqueQuals = Array.from(new Set(candidates.map(c => c.highestQualification).filter(Boolean)));
+  const activeFiltersCount = selectedTypes.length + selectedExps.length + selectedLocs.length + selectedNotices.length + selectedQuals.length + selectedSkills.length + selectedBehavioral.length + selectedTechTools.length + selectedWorkModes.length + selectedRelocation.length + selectedGenders.length + selectedLaptops.length;
 
   const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "shortlisted" && c.hired_status !== "hire_requested" && c.hired_status !== "interview_requested");
   const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "shortlisted" || c.hired_status === "hire_requested" || c.hired_status === "interview_requested"));
@@ -448,43 +523,366 @@ const submitInterviewRequest = async () => {
           </div>
         </header>
 
-       {/* 🔥 SMART FILTERS SECTION 🔥 */}
-        <Card className="mb-10 p-6 md:p-8 border border-[var(--border)] bg-[var(--card)] shadow-soft">
-           <div className="relative mb-5">
-             <Search className="absolute left-4 top-4 text-[var(--muted-foreground)]" />
-             <input type="text" placeholder="Search by Name, Skill (e.g. GST, Excel)..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-4 pl-12 pr-4 text-[var(--foreground)] focus:border-[var(--primary)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm placeholder:text-[var(--muted-foreground)] font-medium"/>
-           </div>
-           
-           <div className="flex items-center gap-2 mb-4 text-sm font-extrabold text-[var(--ink-soft)] uppercase tracking-wider">
-              <Filter size={16}/> Advanced Filters
-           </div>
-           
-           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <select value={filterType} onChange={(e)=>setFilterType(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
-                 <option value="">Any Role Type</option>
-                 <option value="Permanent">Permanent Roles</option>
-                 <option value="Contract">Contract / Temp Roles</option>
-              </select>
+       {/* 🔥 FIXED PREMIUM ACTION SEARCH BAR CONTAINER */}
+        <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-slate-200 p-4 rounded-3xl shadow-sm relative z-20">
+          <div className="relative w-full sm:max-w-md flex items-center">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 flex items-center justify-center">
+               <Search size={16} />
+            </div>
+            <input 
+              type="text" 
+              placeholder="Search ID, Name or Target Skills (e.g. GST, Excel)..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+              className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl py-3 pl-12 pr-4 text-xs font-semibold focus:border-[#0f947e] focus:bg-white focus:ring-2 focus:ring-teal-500/10 outline-none transition-all placeholder:text-slate-400"
+            />
+          </div>
+          
+          <button
+            type="button"
+            onClick={() => setIsFilterDrawerOpen(true)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm shrink-0 relative hover:scale-[1.02] duration-200"
+          >
+            <Filter size={14} />
+            <span>Advanced Workspace Filters</span>
+            {activeFiltersCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-[#0f947e] text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-in zoom-in duration-200">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+        </div>
 
-              <select value={filterExp} onChange={(e)=>setFilterExp(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
-                 <option value="">Any Experience</option>
-                 {uniqueExp.map((exp:any, i) => <option key={i} value={exp}>{exp}</option>)}
-              </select>
+       {/* 🔥 ZERO-CLIPPING LUXURY SEARCH DISCOVERY SIDE-OVER HUD FRAMEWORK */}
+        <AnimatePresence>
+          {isFilterDrawerOpen && (
+            <>
+              {/* Dark Glass Matte Backdrop Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => { setIsFilterDrawerOpen(false); setActiveDropdown(null); }}
+                className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50"
+              />
 
-              <select value={filterLoc} onChange={(e)=>setFilterLoc(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
-                 <option value="">Any Location</option>
-                 {uniqueLocations.map((loc:any, i) => <option key={i} value={loc}>{loc}</option>)}
-              </select>
+              {/* Drawer Container Panel — Fully Refactored with Fixed Relative Accenters */}
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 32, stiffness: 260 }}
+                className="fixed right-0 top-0 bottom-0 w-full sm:max-w-2xl bg-white border-l border-slate-200/80 shadow-[0_0_50px_rgba(0,0,0,0.12)] z-50 flex flex-col overflow-hidden"
+              >
+                {/* Header System Layout */}
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 backdrop-blur-md sticky top-0 z-30">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 flex items-center gap-2 tracking-tight">
+                      <Filter size={16} className="text-[#0f947e]" /> Dynamic Sourcing Framework
+                    </h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Toggle criteria parameters below to isolate targeted talent pools</p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => { setIsFilterDrawerOpen(false); setActiveDropdown(null); }}
+                    className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-200 rounded-xl transition-all shadow-sm font-black text-xs h-8 w-8 flex items-center justify-center hover:scale-105"
+                  >
+                    ✕
+                  </button>
+                </div>
 
-              <select value={filterNotice} onChange={(e)=>setFilterNotice(e.target.value)} className="bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm font-bold shadow-sm">
-                 <option value="">Notice Period</option>
-                 {uniqueNotice.map((np:any, i) => <option key={i} value={np}>{np}</option>)}
-              </select>
-           </div>
-        </Card>
+                {/* Filters Option Lists Box Container (No Overflow Issues) */}
+                <div className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-none bg-white pb-32">
+                  
+                  {/* Part 1: Interactive Grid Accordions for Skills & Tools */}
+                  <div className="space-y-4">
+                    
+                    {/* Block A: Technical Subskills Nested List Layer */}
+                    <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl relative z-20">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Technical Sub-Skills Framework</span>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'skills' ? null : 'skills')}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedSkills.length > 0 ? `Attached Sub-Skills Tags (${selectedSkills.length})` : "Browse Skill Architecture..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'skills' ? '▲' : '▼'}</span>
+                      </div>
+                      
+                      {activeDropdown === 'skills' && (
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-inner max-h-60 overflow-y-auto p-3 space-y-3 scrollbar-thin">
+                           {Object.keys(MASTER_SKILLS_DATA).map(category => (
+                             <div key={category} className="space-y-1">
+                               <div className="text-[9px] font-black text-[#0f947e] bg-teal-50/50 px-2 py-1 rounded border border-teal-100 uppercase tracking-wider block mb-1">{category}</div>
+                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                 {MASTER_SKILLS_DATA[category].map(sub => {
+                                   const isSelected = selectedSkills.includes(sub);
+                                   return (
+                                     <div 
+                                       key={sub} 
+                                       onClick={() => setSelectedSkills(prev => isSelected ? prev.filter(x => x !== sub) : [...prev, sub])}
+                                       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-teal-50/40 border-teal-200 text-[#0f947e]' : 'hover:bg-slate-50 border-transparent text-slate-600 font-medium bg-white'}`}
+                                     >
+                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                       <span className="text-[11px] truncate">{sub}</span>
+                                     </div>
+                                   );
+                                 })}
+                               </div>
+                             </div>
+                           ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Block B: Technological Software Stacks Layer */}
+                    <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl relative z-20">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Software Infrastructure</span>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'tech' ? null : 'tech')}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-blue-400/40 transition-colors bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedTechTools.length > 0 ? `Selected Software Tools (${selectedTechTools.length})` : "Map Software Stacks..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'tech' ? '▲' : '▼'}</span>
+                      </div>
+                      
+                      {activeDropdown === 'tech' && (
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-inner max-h-48 overflow-y-auto p-2 grid grid-cols-2 gap-1.5 scrollbar-thin">
+                           {TECH_SKILLS_LIST.map(tool => {
+                             const isSelected = selectedTechTools.includes(tool);
+                             return (
+                               <div 
+                                 key={tool} 
+                                 onClick={() => setSelectedTechTools(prev => isSelected ? prev.filter(x => x !== tool) : [...prev, tool])}
+                                 className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer border ${isSelected ? 'bg-blue-50/50 border-blue-200 text-blue-700' : 'border-transparent text-slate-600 font-medium hover:bg-slate-50 bg-white'}`}
+                               >
+                                 <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                 <span className="text-[11px]">{tool}</span>
+                               </div>
+                             );
+                           })}
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* Part 2: INLINE ACCORDION GRID FOR NOTICE, EXP, LOC (Fixes cramped widths) */}
+                  <div className="space-y-4">
+                    
+                    {/* Notice Timeline Accordion Box */}
+                    <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Notice Timeline</span>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'notice' ? null : 'notice')}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedNotices.length > 0 ? `Selected Timelines (${selectedNotices.length})` : "Configure Notice Availability..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'notice' ? '▲' : '▼'}</span>
+                      </div>
+                      {activeDropdown === 'notice' && (
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl p-2 grid grid-cols-2 gap-2 shadow-inner">
+                          {uniqueNotice.map(notice => {
+                            const isSelected = selectedNotices.includes(notice);
+                            return (
+                              <div key={notice} onClick={() => setSelectedNotices(prev => isSelected ? prev.filter(x => x !== notice) : [...prev, notice])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50/50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                <span className="truncate">{notice}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Experience Horizon Accordion Box */}
+                    <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Experience Horizon</span>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'exp' ? null : 'exp')}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedExps.length > 0 ? `Selected Brackets (${selectedExps.length})` : "Configure Experience Brackets..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'exp' ? '▲' : '▼'}</span>
+                      </div>
+                      {activeDropdown === 'exp' && (
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl p-2 grid grid-cols-2 gap-2 shadow-inner">
+                          {uniqueExp.map(exp => {
+                            const isSelected = selectedExps.includes(exp);
+                            return (
+                              <div key={exp} onClick={() => setSelectedExps(prev => isSelected ? prev.filter(x => x !== exp) : [...prev, exp])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50/50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                <span>{exp}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Geographic Node Accordion Box */}
+                    <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Geographic Node (City)</span>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'loc' ? null : 'loc')}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedLocs.length > 0 ? `Selected Cities (${selectedLocs.length})` : "Filter Locations/Cities..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'loc' ? '▲' : '▼'}</span>
+                      </div>
+                      {activeDropdown === 'loc' && (
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl p-2 max-h-48 overflow-y-auto grid grid-cols-2 gap-2 shadow-inner scrollbar-thin">
+                          {uniqueLocations.map(loc => {
+                            const isSelected = selectedLocs.includes(loc);
+                            return (
+                              <div key={loc} onClick={() => setSelectedLocs(prev => isSelected ? prev.filter(x => x !== loc) : [...prev, loc])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50/50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                <span className="truncate">{loc}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* Part 3: Qualifications credentials spectrum layer dropdown block */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                    <div className={`space-y-1.5 relative ${activeDropdown === 'qual' ? 'z-50' : 'z-10'}`}>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Academic Credentials Spectrum</label>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'qual' ? null : 'qual')}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedQuals.length > 0 ? `Active Qualifications Criteria (${selectedQuals.length})` : "Filter Academic / Degree Levels..."}</span>
+                        <span className="text-slate-400 text-[10px]">▼</span>
+                      </div>
+                      {activeDropdown === 'qual' && (
+                        <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] z-50 max-h-44 overflow-y-auto p-2 space-y-0.5 scrollbar-thin">
+                          {uniqueQuals.map(qual => {
+                            const isSelected = selectedQuals.includes(qual);
+                            return (
+                              <div key={qual} onClick={() => setSelectedQuals(prev => isSelected ? prev.filter(x => x !== qual) : [...prev, qual])} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer text-xs font-bold text-slate-700 bg-white">
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                <span className="truncate">{qual}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 💻 NEW FILTER COMPONENT: Custom Interactive Laptop Availability Overlay Dropdown */}
+                    <div className={`space-y-1.5 relative ${activeDropdown === 'laptop' ? 'z-50' : 'z-10'}`}>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Hardware / Laptop Asset Status</label>
+                      <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'laptop' ? null : 'laptop')}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
+                      >
+                        <span className="truncate text-slate-600 font-semibold">{selectedLaptops.length > 0 ? `Laptop Filters Active (${selectedLaptops.length})` : "Filter Laptop Asset..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'laptop' ? '▲' : '▼'}</span>
+                      </div>
+                      {activeDropdown === 'laptop' && (
+                        <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] z-50 p-2.5 space-y-1">
+                          {[
+                            { value: "Yes", display: "💻 Laptop Available" },
+                            { value: "No", display: "❌ Laptop Not Available" }
+                          ].map(opt => {
+                            const isSelected = selectedLaptops.includes(opt.value);
+                            return (
+                              <div 
+                                key={opt.value} 
+                                onClick={() => setSelectedLaptops(prev => isSelected ? prev.filter(x => x !== opt.value) : [...prev, opt.value])} 
+                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[11px] font-bold text-slate-700 bg-white transition-colors ${isSelected ? 'bg-teal-50/50 text-[#0f947e]' : ''}`}
+                              >
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                <span className="truncate">{opt.display}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Part 4: Behavioral Skills Fits Dashboard Block */}
+                  <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Behavioral Traits Fitment</span>
+                     <div 
+                        onClick={() => setActiveDropdown(activeDropdown === 'behavioral' ? null : 'behavioral')}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:bg-slate-100/40 transition-colors bg-white"
+                     >
+                        <span className="truncate text-slate-600 font-semibold">{selectedBehavioral.length > 0 ? `Selected Behavioral Traits (${selectedBehavioral.length})` : "Select Soft Skills Preference..."}</span>
+                        <span className="text-slate-400 text-[10px]">{activeDropdown === 'behavioral' ? '▲' : '▼'}</span>
+                     </div>
+                     {activeDropdown === 'behavioral' && (
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-inner max-h-44 overflow-y-auto p-2 space-y-0.5 scrollbar-thin">
+                           {BEHAVIORAL_SKILLS_LIST.map(behav => {
+                              const isSelected = selectedBehavioral.includes(behav);
+                              return (
+                                 <div key={behav} onClick={() => setSelectedBehavioral(prev => isSelected ? prev.filter(x => x !== behav) : [...prev, behav])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-teal-600 border-teal-600' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                    <span className="truncate">{behav}</span>
+                                 </div>
+                              );
+                           })}
+                        </div>
+                     )}
+                  </div>
+
+                  {/* Pipeline filters counter block tags mapping logs render dashboard */}
+                  {activeFiltersCount > 0 && (
+                    <div className="pt-4 border-t border-slate-100 space-y-2 relative z-10">
+                      <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pipeline Active Token Tags</div>
+                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-2 bg-slate-50 border border-slate-200 rounded-xl">
+                        {selectedTypes.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedTypes(selectedTypes.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedNotices.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedNotices(selectedNotices.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedExps.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedExps(selectedExps.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedLocs.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedLocs(selectedLocs.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedQuals.map(x => <span key={x} className="bg-indigo-50 border border-indigo-200 text-indigo-700 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 max-w-[150px] truncate">{x} <button type="button" onClick={() => setSelectedQuals(selectedQuals.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedSkills.map(x => <span key={x} className="bg-[#0f947e] text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 max-w-[150px] truncate">{x} <button type="button" onClick={() => setSelectedSkills(selectedSkills.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedTechTools.map(x => <span key={x} className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedTechTools(selectedTechTools.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedBehavioral.map(x => <span key={x} className="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedBehavioral(selectedBehavioral.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedWorkModes.map(x => <span key={x} className="bg-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedWorkModes(selectedWorkModes.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedLaptops.map(x => <span key={x} className="bg-teal-700 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x === 'Yes' ? '💻 Laptop' : '❌ No Laptop'} <button type="button" onClick={() => setSelectedLaptops(selectedLaptops.filter(i=>i!==x))}>✕</button></span>)}
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Footer Controls Block Panel */}
+                <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3 shrink-0 sticky bottom-0 bg-slate-50/90 z-20">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedTypes([]); setSelectedExps([]); setSelectedLocs([]); setSelectedNotices([]); setSelectedQuals([]);
+                      setSelectedSkills([]); setSelectedBehavioral([]); setSelectedTechTools([]); setSelectedWorkModes([]);
+                      setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setActiveDropdown(null);
+                    }}
+                    className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-100 shadow-sm transition-all"
+                  >
+                    Reset All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsFilterDrawerOpen(false); setActiveDropdown(null); }}
+                    className="flex-[1.5] py-2.5 bg-[#0f947e] text-white font-bold rounded-xl text-xs hover:bg-[#0a7a67] shadow-md shadow-[#0f947e]/20 transition-all text-center"
+                  >
+                    Apply Filter ({filteredCandidates.length} Found)
+                  </button>
+                </div>
+
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
       {/* 🚀 CANDIDATES GRID / LIST 🚀 */}
-       <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start" : "flex flex-col gap-3"}>
+     <div 
+        className={viewMode === 'grid' ? "grid gap-5 items-stretch" : "flex flex-col gap-3"}
+        style={viewMode === 'grid' ? { gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' } : undefined}
+      >
           <AnimatePresence>
             {(activeTab === 'assigned' ? assignedList : hiredList).map((candidate, index) => {
               const aiScore = candidate.meta?.totalScore || 0;
@@ -610,7 +1008,7 @@ const submitInterviewRequest = async () => {
                     </div>
                   ) : (
                   /* ===================== GRID VIEW (original) ===================== */
-                  <div className="relative flex flex-col bg-white border border-slate-200 rounded-[1.25rem] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group hover:border-[#0f947e]/30">
+                 <div className="relative flex flex-col bg-white border border-slate-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group hover:border-[#0f947e]/30">
                     
                     {/* Status Strip (If Any) */}
                     {status && (
@@ -781,7 +1179,7 @@ const submitInterviewRequest = async () => {
               </div>
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-900 leading-tight">Schedule Meet</h3>
-                <p className="text-slate-500 font-medium text-xs">for {interviewStudent.fullName}</p>
+                <p className="text-slate-500 font-medium text-xs">for RM-{interviewStudent.id?.substring(0, 6).toUpperCase()}</p>
               </div>
             </div>
             
