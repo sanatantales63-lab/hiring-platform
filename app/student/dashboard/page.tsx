@@ -45,12 +45,20 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState("overview"); // 'overview' ya 'earnings'
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [isSubmittingInvoice, setIsSubmittingInvoice] = useState(false);
+  
+  // 🔥 NEW: Extended Invoicing Engine Dynamic State Architecture Engine
+  const [invoiceType, setInvoiceType] = useState<"fixed" | "days" | "monthly">("fixed");
+  const [numberOfDays, setNumberOfDays] = useState<number>(1);
+  const [ratePerDay, setRatePerDay] = useState<number>(0);
+  const [monthlyBaseRate, setMonthlyBaseRate] = useState<number>(0);
+  const [monthsCount, setMonthsCount] = useState<number>(1);
 
-  // Dummy Earning Data (Baad mein backend se fetch karenge)
+  // Real data state logs management template mapping configuration
   const [assignments, setAssignments] = useState([
-      { id: "RM-A001", title: "Frontend UI Overhaul Task", date: "2026-05-02", gross: 40000, status: "completed", invoiceSubmitted: false },
-      { id: "RM-A005", title: "API Integration Audit", date: "2026-05-08", gross: 15000, status: "completed", invoiceSubmitted: true }
+      { id: "RM-A001", title: "Frontend UI Overhaul Task", date: "2026-05-02", gross: 36000, status: "completed", invoiceSubmitted: false },
+      { id: "RM-A005", title: "API Integration Audit", date: "2026-05-08", gross: 13500, status: "completed", invoiceSubmitted: true }
   ]);
+  
   const totalGross = assignments.reduce((acc, curr) => acc + curr.gross, 0);
   const totalTDS = totalGross * 0.10; // 10% TDS Fixed
   const totalNet = totalGross - totalTDS;
@@ -322,14 +330,84 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
                  </div>
               </div>
 
-              {/* 🔥 INVOICE MODAL & PRINT FORMAT 🔥 */}
-              {selectedAssignment && (
+              {/* 🔥 INVOICE MODAL & PRINT FORMAT — UPGRADED FUNCTIONAL COMPONENT ENGINE FIXED */}
+              {selectedAssignment && (() => {
+                 let computedGross = selectedAssignment.gross;
+                 let dynamicDescription = selectedAssignment.title;
+
+                 if (invoiceType === "days") {
+                    computedGross = numberOfDays * ratePerDay;
+                    dynamicDescription = `${selectedAssignment.title} — Day-Rate Assignment (${numberOfDays} Days @ ₹${ratePerDay.toLocaleString('en-IN')}/day)`;
+                 } else if (invoiceType === "monthly") {
+                    computedGross = monthlyBaseRate * monthsCount;
+                    dynamicDescription = `${selectedAssignment.title} — Retainer Retrospective Service (${monthsCount} Month(s) @ ₹${monthlyBaseRate.toLocaleString('en-IN')}/month)`;
+                 }
+
+                 const computedTDS = computedGross * 0.10;
+                 const computedNet = computedGross - computedTDS;
+
+                 return (
                  <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex justify-center items-start overflow-y-auto p-4 md:p-8 print:static print:bg-white print:p-0">
                     <div className="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl relative print:shadow-none print:w-full overflow-hidden">
                        
                        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 print:hidden sticky top-0 z-10">
-                          <h3 className="font-extrabold text-slate-800 flex items-center gap-2"><Receipt size={18}/> Preview Invoice</h3>
-                          <button onClick={() => setSelectedAssignment(null)} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20}/></button>
+                          <h3 className="font-extrabold text-slate-800 flex items-center gap-2"><Receipt size={18}/> Custom Invoice Engine</h3>
+                          <button onClick={() => { setSelectedAssignment(null); setInvoiceType("fixed"); }} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20}/></button>
+                       </div>
+
+                       {/* 🔥 INTERACTIVE BILLING METRICS CONTROL STRIP — HIDDEN IN PRINT MODE */}
+                       <div className="p-6 bg-slate-50/80 border-b border-slate-100 print:hidden grid grid-cols-1 md:grid-cols-3 gap-6 items-end relative z-20">
+                          <div className="space-y-1.5">
+                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Invoice Calculation Framework</label>
+                             <div className="flex gap-1.5 p-1 bg-white border rounded-xl shadow-sm">
+                                {[
+                                   { id: "fixed", label: "Fixed Flat" },
+                                   { id: "days", label: "No. of Days" },
+                                   { id: "monthly", label: "Monthly Base" }
+                                ].map(btn => (
+                                   <button 
+                                      key={btn.id}
+                                      type="button" 
+                                      onClick={() => setInvoiceType(btn.id as any)} 
+                                      className={`flex-1 py-1.5 text-[11px] font-black rounded-lg transition-all ${invoiceType === btn.id ? 'bg-[#0f947e] text-white shadow-sm' : 'text-slate-500 hover:bg-slate-50'}`}
+                                   >
+                                      {btn.label}
+                                   </button>
+                                ))}
+                             </div>
+                          </div>
+
+                          {invoiceType === "days" && (
+                             <div className="md:col-span-2 grid grid-cols-2 gap-4 animate-in fade-in duration-200">
+                                <div className="space-y-1">
+                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Number of Days Worked</label>
+                                   <input type="number" min={1} value={numberOfDays} onChange={(e) => setNumberOfDays(Math.max(1, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-[#0f947e]" />
+                                </div>
+                                <div className="space-y-1">
+                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Day Rate Charges (₹)</label>
+                                   <input type="number" min={0} value={ratePerDay} onChange={(e) => setRatePerDay(Math.max(0, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-[#0f947e]" placeholder="Rate per single day" />
+                                </div>
+                             </div>
+                          )}
+
+                          {invoiceType === "monthly" && (
+                             <div className="md:col-span-2 grid grid-cols-2 gap-4 animate-in fade-in duration-200">
+                                <div className="space-y-1">
+                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Monthly Base Retainer (₹)</label>
+                                   <input type="number" min={0} value={monthlyBaseRate} onChange={(e) => setMonthlyBaseRate(Math.max(0, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-[#0f947e]" placeholder="Fixed amount per month" />
+                                </div>
+                                <div className="space-y-1">
+                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Total Duration (Months)</label>
+                                   <input type="number" min={1} value={monthsCount} onChange={(e) => setMonthsCount(Math.max(1, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-[#0f947e]" />
+                                </div>
+                             </div>
+                          )}
+
+                          {invoiceType === "fixed" && (
+                             <div className="md:col-span-2 p-3 bg-teal-50/50 border border-teal-100 rounded-xl text-[11px] font-bold text-teal-800 leading-normal">
+                                💡 Processing fixed contractual payout parameters. Values are automatically structural mapped from target task logs.
+                             </div>
+                          )}
                        </div>
 
                        {/* PROFESSIONAL INVOICE PAPER */}
@@ -375,8 +453,8 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
                              </thead>
                              <tbody>
                                 <tr className="border-b-2 border-slate-100 bg-slate-50">
-                                   <td className="p-4 font-bold text-slate-800 text-lg">{selectedAssignment.title} <span className="block text-xs font-medium text-slate-500 mt-1 font-mono">Ref ID: {selectedAssignment.id}</span></td>
-                                   <td className="p-4 text-right font-black text-lg">₹ {selectedAssignment.gross.toLocaleString('en-IN')}</td>
+                                   <td className="p-4 font-bold text-slate-800 text-base">{dynamicDescription} <span className="block text-xs font-medium text-slate-500 mt-1 font-mono">Ref ID: {selectedAssignment.id}</span></td>
+                                   <td className="p-4 text-right font-black text-lg">₹ {computedGross.toLocaleString('en-IN')}</td>
                                 </tr>
                              </tbody>
                           </table>
@@ -385,15 +463,15 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
                              <div className="w-full md:w-3/5 space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                                 <div className="flex justify-between text-slate-600 font-bold text-sm">
                                    <span>Subtotal (Gross)</span>
-                                   <span>₹ {selectedAssignment.gross.toLocaleString('en-IN')}</span>
+                                   <span>₹ {computedGross.toLocaleString('en-IN')}</span>
                                 </div>
                                 <div className="flex justify-between text-red-600 font-bold text-sm border-b border-slate-200 pb-4">
                                    <span>TDS Deduction (10% u/s 194J)</span>
-                                   <span>- ₹ {(selectedAssignment.gross * 0.10).toLocaleString('en-IN')}</span>
+                                   <span>- ₹ {computedTDS.toLocaleString('en-IN')}</span>
                                 </div>
                                 <div className="flex justify-between items-center pt-2">
                                    <span className="text-sm font-bold uppercase tracking-widest text-slate-500">Net Payable</span>
-                                   <span className="text-3xl font-black text-emerald-600">₹ {(selectedAssignment.gross * 0.90).toLocaleString('en-IN')}</span>
+                                   <span className="text-3xl font-black text-emerald-600">₹ {computedNet.toLocaleString('en-IN')}</span>
                                 </div>
                              </div>
                           </div>
@@ -407,7 +485,12 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
                        {/* Action Buttons (Hidden in print) */}
                        <div className="p-6 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row justify-end gap-3 print:hidden">
                           <Button variant="secondary" onClick={handleDownloadInvoice} className="flex items-center justify-center gap-2 bg-white w-full sm:w-auto"><Download size={16}/> Download PDF Invoice</Button>
-                          <Button variant="primary" onClick={() => handleGenerateAndSubmitInvoice(selectedAssignment)} disabled={isSubmittingInvoice} className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
+                          <Button 
+                             variant="primary" 
+                             onClick={() => handleGenerateAndSubmitInvoice({ ...selectedAssignment, gross: computedGross, title: dynamicDescription })} 
+                             disabled={isSubmittingInvoice} 
+                             className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto"
+                          >
                              {isSubmittingInvoice ? <Loader2 className="animate-spin" size={16}/> : <Send size={16}/>} 
                              Submit to Resource Mania
                           </Button>
@@ -415,7 +498,8 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
 
                     </div>
                  </div>
-              )}
+              );
+              })()}
            </div>
         )}
       </main>

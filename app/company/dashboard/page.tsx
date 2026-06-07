@@ -144,14 +144,22 @@ export default function CompanyDashboard() {
   };
 
 const submitInterviewRequest = async () => {
-    if (!interviewDate || !interviewTime) return alert("Please select both Date and Time!");
+    // Collect all slots data object structure layers dynamically mapping nodes
+    const slots = [
+       { date: (document.getElementById("slot1_date") as HTMLInputElement)?.value, time: (document.getElementById("slot1_time") as HTMLInputElement)?.value },
+       { date: (document.getElementById("slot2_date") as HTMLInputElement)?.value, time: (document.getElementById("slot2_time") as HTMLInputElement)?.value },
+       { date: (document.getElementById("slot3_date") as HTMLInputElement)?.value, time: (document.getElementById("slot3_time") as HTMLInputElement)?.value }
+    ].filter(s => s.date && s.time);
+
+    if (slots.length === 0) return alert("🛑 Minimum ek Date aur Time slot bharna mandatory hai!");
+    
     try {
+      // Ensure slots is a valid JSON object/array
       const { error } = await supabase.from("profiles").update({ 
         hired_status: "interview_requested", 
         hired_company_id: companyId,
         hired_company_name: companyName,
-        interview_date: interviewDate,
-        interview_time: interviewTime
+        interview_slots: JSON.stringify(slots) 
       }).eq("id", interviewStudent.id);
       
       if (error) {
@@ -159,7 +167,6 @@ const submitInterviewRequest = async () => {
         throw new Error(error.message);
       }
 
-      // Brevo Mail bhejna Admin ko
       const emailRes = await fetch('/api/send-admin-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -167,7 +174,7 @@ const submitInterviewRequest = async () => {
           type: "interview_request",
           candidateName: interviewStudent.fullName,
           companyName: companyName,
-          extraInfo: `Date: ${interviewDate} | Time: ${interviewTime}`
+          extraInfo: slots.map((s, idx) => `Slot ${idx+1}: ${s.date} @ ${s.time}`).join(" | ")
         })
       });
 
@@ -1183,24 +1190,32 @@ const submitInterviewRequest = async () => {
               </div>
             </div>
             
-            <div className="space-y-4 mb-8">
-              <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Preferred Date</label>
-                <input 
-                  type="date" 
-                  value={interviewDate} 
-                  onChange={(e) => setInterviewDate(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none font-medium shadow-sm"
-                />
+            <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
+              {/* Option Slot 1 */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                <span className="text-[9px] font-black text-[#0f947e] bg-teal-50 px-2 py-0.5 rounded border border-teal-100 uppercase tracking-wider">Option Slot 1</span>
+                <div className="grid grid-cols-2 gap-2">
+                   <input type="date" id="slot1_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                   <input type="time" id="slot1_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                </div>
               </div>
-              <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Preferred Time</label>
-                <input 
-                  type="time" 
-                  value={interviewTime} 
-                  onChange={(e) => setInterviewTime(e.target.value)} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none font-medium shadow-sm"
-                />
+
+              {/* Option Slot 2 */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Option Slot 2</span>
+                <div className="grid grid-cols-2 gap-2">
+                   <input type="date" id="slot2_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                   <input type="time" id="slot2_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                </div>
+              </div>
+
+              {/* Option Slot 3 */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Option Slot 3</span>
+                <div className="grid grid-cols-2 gap-2">
+                   <input type="date" id="slot3_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                   <input type="time" id="slot3_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                </div>
               </div>
             </div>
 

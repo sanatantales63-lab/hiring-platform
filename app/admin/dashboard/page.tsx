@@ -214,10 +214,15 @@ export default function AdminDashboard() {
       const student = interviewRequests.find(r => r.id === id);
       if (!student) return alert("Student not found!");
 
-      // 🔥 FIX: State pe rely mat karo — Supabase se fresh email fetch karo
+      // Fetch selected specific checkbox item from active layout DOM tree nodes
+      const checkedRadio = document.querySelector(`input[name="selected_slot_${id}"]:checked`) as HTMLInputElement;
+      if (!checkedRadio) return alert("🛑 Please select one slot option checkbox to confirm interview timeline!");
+
+      const [selectedDate, selectedTime] = checkedRadio.value.split('|');
+
       const { data: freshStudent } = await supabase
         .from("profiles")
-        .select("email, fullName, interview_date, interview_time, hired_company_id, hired_company_name")
+        .select("email, fullName, hired_company_id, hired_company_name")
         .eq("id", id)
         .single();
 
@@ -230,11 +235,11 @@ export default function AdminDashboard() {
       const candidateEmailFinal = freshStudent?.email || student.email || null;
       const companyEmailFinal = freshCompany?.email || null;
 
-      console.log("📧 Sending emails to — candidate:", candidateEmailFinal, "| company:", companyEmailFinal);
-
       const { error } = await supabase.from("profiles").update({ 
         hired_status: "shortlisted",
-        meet_link: link
+        meet_link: link,
+        interview_date: selectedDate, // Save the finalized slot date directly to core table fields
+        interview_time: selectedTime
       }).eq("id", id);
       if (error) throw error;
 
@@ -604,9 +609,15 @@ export default function AdminDashboard() {
                     <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">{c.name} {c.status === 'approved' && <CheckCircle size={16} className="text-emerald-500"/>}</h3>
                     <p className="text-slate-500 font-medium text-sm mb-3">{c.email}</p>
                     <div className="flex flex-wrap gap-2">
-                       {c.requirements?.map((req:string, k:number) => (
-                           <span key={k} className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-1 rounded border border-indigo-200">{req}</span>
-                       ))}
+                       {Array.isArray(c.requirements) ? (
+                          c.requirements.map((req: string, k: number) => (
+                             <span key={k} className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-1 rounded border border-indigo-200">{req}</span>
+                          ))
+                       ) : typeof c.requirements === 'string' && c.requirements.trim() !== "" ? (
+                          c.requirements.split(',').map((req: string, k: number) => (
+                             <span key={k} className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-1 rounded border border-indigo-200">{req.trim()}</span>
+                          ))
+                       ) : null}
                     </div>
                     <p className="text-[#0f947e] text-xs mt-3 font-bold bg-teal-50 border border-teal-100 inline-block px-3 py-1 rounded-full">
                        Assigned Candidates: {c.allowedStudents?.length || 0}
@@ -664,29 +675,54 @@ export default function AdminDashboard() {
              <div className="border-t border-slate-200 my-4"></div>
 
              {/* 🔥 NAYA MEET LINK REQUESTS SECTION 🔥 */}
-             <div>
-               <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight mb-2 flex items-center gap-2"><Video/> Meet Link Requests</h2>
-               <p className="text-slate-500 font-medium mb-6">Companies requested interviews. Generate a Google Meet link and send it to them below.</p>
-               <div className="space-y-4">
-                 {interviewRequests.map((s) => (
-                    <Card key={s.id} className="bg-indigo-50/50 border-indigo-200 flex flex-col lg:flex-row justify-between items-center gap-4">
-                       <div className="mb-2 lg:mb-0 w-full lg:w-auto">
-                          <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
-                          <p className="text-indigo-700 text-sm mt-1 font-medium">Req by: <strong>{s.hired_company_name}</strong></p>
-                          <p className="text-indigo-600/80 text-xs mt-0.5 font-bold">📅 {s.interview_date} | ⏰ {s.interview_time}</p>
-                       </div>
-                       <div className="flex w-full lg:w-auto gap-2">
-                          <input 
-                            type="text" 
-                            placeholder="Paste Google Meet Link..." 
-                            value={meetLinks[s.id] || ""}
-                            onChange={(e) => setMeetLinks({...meetLinks, [s.id]: e.target.value})}
-                            className="flex-1 lg:w-64 bg-white border border-indigo-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500"
-                          />
-                          <Button variant="primary" onClick={() => sendMeetLink(s.id)} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">Send Link</Button>
-                       </div>
-                    </Card>
-                 ))}
+              <div>
+                <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight mb-2 flex items-center gap-2"><Video/> Meet Link Requests</h2>
+                <p className="text-slate-500 font-medium mb-6">Companies requested interviews. Generate a Google Meet link and send it to them below.</p>
+                <div className="space-y-4">
+                  {interviewRequests.map((s) => (
+                     <Card key={s.id} className="bg-indigo-50/50 border-indigo-200 flex flex-col lg:flex-row justify-between items-center gap-6 p-6">
+                        <div className="mb-2 lg:mb-0 w-full lg:w-auto flex-1">
+                           <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
+                           <p className="text-indigo-700 text-sm mt-1 font-medium">Req by: <strong>{s.hired_company_name}</strong></p>
+                           
+                           {/* 🔥 FIXED: HIGH-END HORIZONTAL FLEX GRID WITH INTEGRATED HIGHLIGHTS */}
+                           <div className="mt-4 space-y-2.5 w-full">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Finalize Interview Option Slot</span>
+                              <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full">
+                                 {Array.isArray(s.interview_slots) && s.interview_slots.length > 0 ? (
+                                    s.interview_slots.map((slot: any, idx: number) => (
+                                       <label key={idx} className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl cursor-pointer select-none transition-all shadow-sm hover:shadow-md group">
+                                          <input type="radio" name={`selected_slot_${s.id}`} value={`${slot.date}|${slot.time}`} defaultChecked={idx === 0} className="w-4 h-4 text-indigo-600 accent-indigo-600 shrink-0" />
+                                          <div className="min-w-0">
+                                             <div className="text-[9px] font-black text-indigo-500 uppercase tracking-wider mb-0.5">Option Slot {idx+1}</div>
+                                             <div className="text-xs font-bold text-slate-800 whitespace-nowrap">📅 {slot.date}  •  ⏰ {slot.time}</div>
+                                          </div>
+                                       </label>
+                                    ))
+                                 ) : (
+                                    <label className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-2xl cursor-pointer shadow-sm">
+                                       <input type="radio" name={`selected_slot_${s.id}`} value={`${s.interview_date}|${s.interview_time}`} defaultChecked className="w-4 h-4 text-indigo-600 accent-indigo-600 shrink-0" />
+                                       <div className="min-w-0">
+                                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Legacy Slot</div>
+                                          <div className="text-xs font-bold text-slate-800 whitespace-nowrap">📅 {s.interview_date}  •  ⏰ {s.interview_time}</div>
+                                       </div>
+                                    </label>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
+                        <div className="flex w-full lg:w-auto gap-2 items-end">
+                           <input 
+                             type="text" 
+                             placeholder="Paste Google Meet Link..." 
+                             value={meetLinks[s.id] || ""}
+                             onChange={(e) => setMeetLinks({...meetLinks, [s.id]: e.target.value})}
+                             className="flex-1 lg:w-64 bg-white border border-indigo-200 rounded-xl px-3 py-3 text-xs font-semibold outline-none focus:border-indigo-500 h-11"
+                           />
+                           <Button variant="primary" onClick={() => sendMeetLink(s.id)} className="bg-indigo-600 hover:bg-indigo-700 shrink-0 h-11 px-5">Confirm & Send</Button>
+                        </div>
+                     </Card>
+                  ))}
                  {interviewRequests.length === 0 && (
                     <div className="text-center p-8 bg-white/60 rounded-2xl border border-slate-200 text-slate-500 font-medium shadow-sm">
                        <p>No pending meet link requests.</p>

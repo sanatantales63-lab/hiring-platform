@@ -121,15 +121,22 @@ export default function CandidatesPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 space-y-3">
-                      {[{ l: "Accountant", v: 96 }, { l: "Taxation", v: 91 }, { l: "Tally", v: 88 }].map((s) => (
-                        <div key={s.l}>S
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="font-semibold text-[var(--foreground)]">{s.l}</span>
-                            <span className="font-bold text-[var(--primary)]">{s.v}%</span>
+                    <div className="mt-6 space-y-4">
+                      {[
+                        { l: "Accountant", v: 96, c: "Core" }, 
+                        { l: "Taxation", v: 91, c: "Domain" }, 
+                        { l: "Tally", v: 88, v2: "Software" }
+                      ].map((s) => (
+                        <div key={s.l}>
+                          <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
+                             <span>{s.c || s.v2} Expertise</span>
+                             <span className="text-[var(--primary)]">{s.v}%</span>
                           </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-[var(--muted)]">
-                            <div className="h-full rounded-full bg-gradient-primary" style={{ width: `${s.v}%` }} />
+                          <div className="flex items-center justify-between text-sm mb-1.5">
+                            <span className="font-bold text-[var(--foreground)]">{s.l}</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-slate-100 border border-slate-200/50">
+                            <div className="h-full rounded-full bg-gradient-primary shadow-sm" style={{ width: `${s.v}%` }} />
                           </div>
                         </div>
                       ))}
