@@ -39,6 +39,16 @@ export default function CompanyDashboard() {
   // 🔥 NAYA: INTERVIEW MODAL STATES 🔥
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [interviewStudent, setInterviewStudent] = useState<any>(null);
+
+  // 🔥 NEW: Instant Direct Hire Custom Confirmation Pop-up states
+  const [showHireConfirmModal, setShowHireConfirmModal] = useState(false);
+  const [hireTargetStudent, setHireTargetStudent] = useState<any>(null);
+
+  // Intercept original request layout and deploy interstitial verification popup alert
+  const triggerHireVerificationPopup = (student: any) => {
+     setHireTargetStudent(student);
+     setShowHireConfirmModal(true);
+  };
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
@@ -987,8 +997,8 @@ const submitInterviewRequest = async () => {
                               <button type="button" onClick={() => openInterviewModal(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-[#0f947e] hover:bg-teal-50 shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
                                 <Video size={10} className="opacity-70"/> Interview
                               </button>
-                              <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
-                                <Zap size={10}/> Hire
+                              <button type="button" onClick={() => triggerHireVerificationPopup(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
+                                 <Zap size={10}/> Hire
                               </button>
                             </>
                           )}
@@ -999,7 +1009,7 @@ const submitInterviewRequest = async () => {
                               {candidate.hired_status === 'shortlisted' && (
                                 <>
                                   <button type="button" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-blue-50 cursor-pointer"><Video size={10}/> Meet</button>
-                                  <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[#0a7a67] cursor-pointer"><Zap size={10}/> Hire</button>
+                                  <button type="button" onClick={() => triggerHireVerificationPopup(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[#0a7a67] cursor-pointer"><Zap size={10}/> Hire</button>
                                 </>
                               )}
                               {candidate.hired_status === 'hired' && !candidate.company_rating && (
@@ -1107,7 +1117,7 @@ const submitInterviewRequest = async () => {
                                 <Video size={12} className="mr-1.5 opacity-70" /> Interview
                               </Button>
                             </div>
-                            <Button variant="primary" onClick={() => requestHire(candidate)} className="w-full text-[11px] py-2 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm shadow-[#0f947e]/20 rounded-lg h-9">
+                            <Button variant="primary" onClick={() => triggerHireVerificationPopup(candidate)} className="w-full text-[11px] py-2 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm shadow-[#0f947e]/20 rounded-lg h-9">
                               <Zap size={12} className="mr-1.5" /> Instant Hire
                             </Button>
                           </>
@@ -1132,9 +1142,9 @@ const submitInterviewRequest = async () => {
                                  <Button variant="secondary" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="flex-[0.8] text-[10px] py-2 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-9 hover:bg-blue-50">
                                    <Video size={12} className="mr-1" /> Join Meet
                                  </Button>
-                                 <Button variant="primary" onClick={() => requestHire(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[#0f947e] text-white shadow-sm shadow-[#0f947e]/20 rounded-lg h-9 hover:bg-[#0a7a67]">
-                                   <Zap size={12} className="mr-1.5" /> Official Hire
-                                 </Button>
+                                <Button variant="primary" onClick={() => triggerHireVerificationPopup(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[#0f947e] text-white shadow-sm shadow-[#0f947e]/20 rounded-lg h-9 hover:bg-[#0a7a67]">
+                                    <Zap size={12} className="mr-1.5" /> Official Hire
+                                  </Button>
                               </div>
                             )}
                             
@@ -1251,6 +1261,81 @@ const submitInterviewRequest = async () => {
             </Card>
          </div>
       )}
+
+      {/* 🔥 HIRE CONFIRM MODAL — Portal-safe, full viewport */}
+      <AnimatePresence>
+         {showHireConfirmModal && hireTargetStudent && (
+            <motion.div
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', backgroundColor: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+            >
+               <motion.div
+                  initial={{ scale: 0.92, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.92, opacity: 0, y: 20 }}
+                  transition={{ type: "spring", damping: 28, stiffness: 320 }}
+                  style={{ position: 'relative', zIndex: 100000 }}
+                  className="max-w-sm w-full bg-white rounded-3xl shadow-2xl overflow-hidden"
+               >
+                  {/* Top accent bar */}
+                  <div className="h-1.5 w-full bg-gradient-to-r from-[#0f947e] via-teal-400 to-[#0f947e]" />
+
+                  <div className="p-7 text-center">
+                     {/* Icon */}
+                     <div className="w-14 h-14 bg-teal-50 border-2 border-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <Zap size={26} className="text-[#0f947e]" />
+                     </div>
+
+                     {/* Title */}
+                     <h3 className="text-xl font-black text-slate-900 mb-1 tracking-tight">Confirm Direct Hire</h3>
+                     <p className="text-[11px] font-bold text-[#0f947e] bg-teal-50 border border-teal-100 rounded-lg px-3 py-1 inline-block mb-4">
+                        RM-{hireTargetStudent.id?.substring(0, 6).toUpperCase()}
+                     </p>
+
+                     {/* Info box */}
+                     <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-5 text-left space-y-2">
+                        <div className="flex items-start gap-2">
+                           <div className="w-1.5 h-1.5 rounded-full bg-[#0f947e] mt-1.5 shrink-0" />
+                           <p className="text-xs text-slate-600 font-medium">Interview loop will be <strong className="text-slate-800">skipped</strong></p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                           <div className="w-1.5 h-1.5 rounded-full bg-[#0f947e] mt-1.5 shrink-0" />
+                           <p className="text-xs text-slate-600 font-medium">Request goes directly to <strong className="text-slate-800">Admin</strong> for contract finalization</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+                           <p className="text-xs text-slate-600 font-medium">This action <strong className="text-slate-800">cannot be undone</strong> once submitted</p>
+                        </div>
+                     </div>
+
+                     {/* Buttons */}
+                     <div className="flex gap-3">
+                        <Button
+                           variant="secondary"
+                           onClick={() => { setShowHireConfirmModal(false); setHireTargetStudent(null); }}
+                           className="flex-1 py-3 border border-slate-200 text-slate-600 rounded-xl"
+                        >
+                           Cancel
+                        </Button>
+                        <Button
+                           variant="primary"
+                           onClick={() => {
+                              setShowHireConfirmModal(false);
+                              requestHire(hireTargetStudent);
+                              setHireTargetStudent(null);
+                           }}
+                           className="flex-[1.4] py-3 bg-[#0f947e] hover:bg-[#0a7a67] text-white rounded-xl shadow-md shadow-[#0f947e]/25"
+                        >
+                           <Zap size={14} className="mr-1.5" /> Confirm Hire
+                        </Button>
+                     </div>
+                  </div>
+               </motion.div>
+            </motion.div>
+         )}
+      </AnimatePresence>
     </div>
   );
 }

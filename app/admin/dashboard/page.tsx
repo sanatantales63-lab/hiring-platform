@@ -210,19 +210,20 @@ export default function AdminDashboard() {
   const sendMeetLink = async (id: string) => {
     const link = meetLinks[id];
     if(!link) return alert("Pehle Google Meet ka link daalo!");
+    
+    // Fetch selected specific checkbox item from active layout DOM tree nodes safely
+    const checkedRadio = document.querySelector(`input[name="selected_slot_${id}"]:checked`) as HTMLInputElement;
+    if (!checkedRadio) return alert("🛑 Please select one slot option checkbox to confirm interview timeline!");
+
+    const [selectedDate, selectedTime] = checkedRadio.value.split('|');
+
     try {
       const student = interviewRequests.find(r => r.id === id);
       if (!student) return alert("Student not found!");
 
-      // Fetch selected specific checkbox item from active layout DOM tree nodes
-      const checkedRadio = document.querySelector(`input[name="selected_slot_${id}"]:checked`) as HTMLInputElement;
-      if (!checkedRadio) return alert("🛑 Please select one slot option checkbox to confirm interview timeline!");
-
-      const [selectedDate, selectedTime] = checkedRadio.value.split('|');
-
       const { data: freshStudent } = await supabase
         .from("profiles")
-        .select("email, fullName, hired_company_id, hired_company_name")
+        .select("email, fullName")
         .eq("id", id)
         .single();
 
@@ -238,12 +239,12 @@ export default function AdminDashboard() {
       const { error } = await supabase.from("profiles").update({ 
         hired_status: "shortlisted",
         meet_link: link,
-        interview_date: selectedDate, // Save the finalized slot date directly to core table fields
+        interview_date: selectedDate, 
         interview_time: selectedTime
       }).eq("id", id);
       if (error) throw error;
 
-      // Teen jagah mail bhejo: Admin + Company + Candidate
+      // Despatch notification alerts across standard endpoints channel lines
       await fetch('/api/send-admin-alert', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -254,8 +255,8 @@ export default function AdminDashboard() {
           companyName: freshCompany?.name || student.hired_company_name,
           companyEmail: companyEmailFinal,
           meetLink: link,
-          interviewDate: freshStudent?.interview_date || student.interview_date,
-          interviewTime: freshStudent?.interview_time || student.interview_time,
+          interviewDate: selectedDate,
+          interviewTime: selectedTime,
         })
       });
 
@@ -277,6 +278,51 @@ export default function AdminDashboard() {
       setStudents(prev => prev.map(s => s.id === id ? {...s, hired_status: "hired", hire_date: currentDate} : s));
       alert("Hire Approved! Profile is now locked.");
     } catch (error) { alert("Failed to approve hire."); }
+  };
+
+  // 🔥 NEW: Reject/Cancel Hire Request Handler to return candidate back to normal talent pool
+  const rejectHireRequest = async (id: string) => {
+    if(!confirm("Are you sure you want to REJECT this hire request? Candidate will return to the available talent pool.")) return;
+    try {
+      const { error } = await supabase.from("profiles").update({ hired_status: "none", hired_company_id: null, hired_company_name: null }).eq("id", id);
+      if (error) throw error;
+      setHireRequests(prev => prev.filter(r => r.id !== id));
+      setStudents(prev => prev.map(s => s.id === id ? {...s, hired_status: "none", hired_company_id: null, hired_company_name: null} : s));
+      alert("Hire request rejected! Candidate returned to pool.");
+    } catch (error) { alert("Failed to reject request."); }
+  };
+
+  // 🔥 NEW: Start payout contract based on original student expectedSalary
+  const startPayoutContract = async (id: string, expectedSalary: string) => {
+     if (!confirm(`Confirm contract payout activation? Real-time accruals will initialize at base rate: ${expectedSalary}/mo.`)) return;
+     try {
+        const currentDate = new Date().toISOString();
+        const { error } = await supabase.from("profiles").update({
+           contract_payout_active: true,
+           contract_payout_start: currentDate
+        }).eq("id", id);
+        if (error) throw error;
+        setStudents(prev => prev.map(s => s.id === id ? { ...s, contract_payout_active: true, contract_payout_start: currentDate } : s));
+        alert("🚀 Contract payout activated successfully!");
+     } catch(err) { alert("Failed to activate payout contract."); }
+  };
+
+  // 🔥 NEW: Unhire logic to terminate contract and return student back to available talent pool
+  const terminateHireAndContract = async (id: string) => {
+     if (!confirm("Are you sure you want to UNHIRE this candidate? Contract will be terminated, payout stopped, and profile returned to the available talent pool.")) return;
+     try {
+        const { error } = await supabase.from("profiles").update({
+           hired_status: "none",
+           hired_company_id: null,
+           hired_company_name: null,
+           contract_payout_active: false,
+           contract_payout_start: null,
+           hire_date: null
+        }).eq("id", id);
+        if (error) throw error;
+        setStudents(prev => prev.map(s => s.id === id ? { ...s, hired_status: "none", hired_company_id: null, hired_company_name: null, contract_payout_active: false, contract_payout_start: null, hire_date: null } : s));
+        alert("Contract terminated successfully! Candidate is now available in the talent pool.");
+     } catch(err) { alert("Failed to terminate contract."); }
   };
 
   const toggleCompanyStatus = async (id: string, status: string) => {
@@ -363,6 +409,10 @@ export default function AdminDashboard() {
           
           <button onClick={() => setActiveTab("companies")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'companies' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <Building2 size={20} /> Companies
+          </button>
+
+          <button onClick={() => setActiveTab("hired_talent")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'hired_talent' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
+             <CheckCircle size={20} /> Hired Talent
           </button>
           
           <button onClick={() => setActiveTab("students")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'students' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
@@ -656,12 +706,15 @@ export default function AdminDashboard() {
                <p className="text-slate-500 font-medium mb-6">Companies requesting to officially hire these candidates. Verify offline, then approve to lock their profiles.</p>
                <div className="space-y-4">
                  {hireRequests.map((s) => (
-                    <Card key={s.id} className="bg-emerald-50/50 border-emerald-200 flex flex-col sm:flex-row justify-between items-center">
-                       <div className="mb-4 sm:mb-0">
+                    <Card key={s.id} className="bg-emerald-50/50 border-emerald-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                       <div className="mb-4 sm:mb-0 flex-1">
                           <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
-                          <p className="text-emerald-700 text-sm mt-1 font-medium">Requested by: <strong>{s.hired_company_name}</strong></p>
+                          <p className="text-emerald-700 text-sm mt-1 font-medium">Requested by: <strong>{s.hired_company_name}</strong> • Base Salary: <span className="text-slate-900 font-bold">{s.expectedSalary || "N/A"}</span></p>
                        </div>
-                       <Button variant="primary" onClick={() => approveHire(s.id)} className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">Approve Hire</Button>
+                       <div className="flex w-full sm:w-auto gap-2 items-center flex-wrap">
+                          <Button variant="danger" onClick={() => rejectHireRequest(s.id)} className="w-full sm:w-auto px-4 py-2 text-xs">Reject Request</Button>
+                          <Button variant="primary" onClick={() => approveHire(s.id)} className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto px-5 py-2 text-xs">Approve Hire</Button>
+                       </div>
                     </Card>
                  ))}
                  {hireRequests.length === 0 && (
@@ -679,50 +732,59 @@ export default function AdminDashboard() {
                 <h2 className="text-3xl font-extrabold text-indigo-600 tracking-tight mb-2 flex items-center gap-2"><Video/> Meet Link Requests</h2>
                 <p className="text-slate-500 font-medium mb-6">Companies requested interviews. Generate a Google Meet link and send it to them below.</p>
                 <div className="space-y-4">
-                  {interviewRequests.map((s) => (
-                     <Card key={s.id} className="bg-indigo-50/50 border-indigo-200 flex flex-col lg:flex-row justify-between items-center gap-6 p-6">
-                        <div className="mb-2 lg:mb-0 w-full lg:w-auto flex-1">
-                           <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
-                           <p className="text-indigo-700 text-sm mt-1 font-medium">Req by: <strong>{s.hired_company_name}</strong></p>
-                           
-                           {/* 🔥 FIXED: HIGH-END HORIZONTAL FLEX GRID WITH INTEGRATED HIGHLIGHTS */}
-                           <div className="mt-4 space-y-2.5 w-full">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Finalize Interview Option Slot</span>
-                              <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full">
-                                 {Array.isArray(s.interview_slots) && s.interview_slots.length > 0 ? (
-                                    s.interview_slots.map((slot: any, idx: number) => (
-                                       <label key={idx} className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl cursor-pointer select-none transition-all shadow-sm hover:shadow-md group">
-                                          <input type="radio" name={`selected_slot_${s.id}`} value={`${slot.date}|${slot.time}`} defaultChecked={idx === 0} className="w-4 h-4 text-indigo-600 accent-indigo-600 shrink-0" />
+                  {interviewRequests.map((s) => {
+                     // Inside loop safe JSON parsing to eliminate type casting breakdown crashes
+                     let parsedSlots = [];
+                     try {
+                        if (s.interview_slots) {
+                           parsedSlots = typeof s.interview_slots === "string" ? JSON.parse(s.interview_slots) : s.interview_slots;
+                        }
+                     } catch (err) { parsedSlots = []; }
+
+                     return (
+                        <Card key={s.id} className="bg-indigo-50/50 border-indigo-200 flex flex-col lg:flex-row justify-between items-center gap-6 p-6">
+                           <div className="mb-2 lg:mb-0 w-full lg:w-auto flex-1">
+                              <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
+                              <p className="text-indigo-700 text-sm mt-1 font-medium">Req by: <strong>{s.hired_company_name}</strong></p>
+                              
+                              <div className="mt-4 space-y-2.5 w-full">
+                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Finalize Interview Option Slot</span>
+                                 <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full">
+                                    {Array.isArray(parsedSlots) && parsedSlots.length > 0 ? (
+                                       parsedSlots.map((slot: any, idx: number) => (
+                                          <label key={idx} className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 hover:border-indigo-400 rounded-2xl cursor-pointer select-none transition-all shadow-sm hover:shadow-md group">
+                                             <input type="radio" name={`selected_slot_${s.id}`} value={`${slot.date}|${slot.time}`} defaultChecked={idx === 0} className="w-4 h-4 text-indigo-600 accent-indigo-600 shrink-0" />
+                                             <div className="min-w-0">
+                                                <div className="text-[9px] font-black text-indigo-500 uppercase tracking-wider mb-0.5">Option Slot {idx+1}</div>
+                                                <div className="text-xs font-bold text-slate-800 whitespace-nowrap">📅 {slot.date}  •  ⏰ {slot.time}</div>
+                                             </div>
+                                          </label>
+                                       ))
+                                    ) : (
+                                       <label className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-2xl cursor-pointer shadow-sm">
+                                          <input type="radio" name={`selected_slot_${s.id}`} value={`${s.interview_date || ""}|${s.interview_time || ""}`} defaultChecked className="w-4 h-4 text-indigo-600 accent-indigo-600 shrink-0" />
                                           <div className="min-w-0">
-                                             <div className="text-[9px] font-black text-indigo-500 uppercase tracking-wider mb-0.5">Option Slot {idx+1}</div>
-                                             <div className="text-xs font-bold text-slate-800 whitespace-nowrap">📅 {slot.date}  •  ⏰ {slot.time}</div>
+                                             <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Legacy Slot</div>
+                                             <div className="text-xs font-bold text-slate-800 whitespace-nowrap">📅 {s.interview_date || "N/A"}  •  ⏰ {s.interview_time || "N/A"}</div>
                                           </div>
                                        </label>
-                                    ))
-                                 ) : (
-                                    <label className="flex-1 min-w-[200px] flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-2xl cursor-pointer shadow-sm">
-                                       <input type="radio" name={`selected_slot_${s.id}`} value={`${s.interview_date}|${s.interview_time}`} defaultChecked className="w-4 h-4 text-indigo-600 accent-indigo-600 shrink-0" />
-                                       <div className="min-w-0">
-                                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Legacy Slot</div>
-                                          <div className="text-xs font-bold text-slate-800 whitespace-nowrap">📅 {s.interview_date}  •  ⏰ {s.interview_time}</div>
-                                       </div>
-                                    </label>
-                                 )}
+                                    )}
+                                 </div>
                               </div>
                            </div>
-                        </div>
-                        <div className="flex w-full lg:w-auto gap-2 items-end">
-                           <input 
-                             type="text" 
-                             placeholder="Paste Google Meet Link..." 
-                             value={meetLinks[s.id] || ""}
-                             onChange={(e) => setMeetLinks({...meetLinks, [s.id]: e.target.value})}
-                             className="flex-1 lg:w-64 bg-white border border-indigo-200 rounded-xl px-3 py-3 text-xs font-semibold outline-none focus:border-indigo-500 h-11"
-                           />
-                           <Button variant="primary" onClick={() => sendMeetLink(s.id)} className="bg-indigo-600 hover:bg-indigo-700 shrink-0 h-11 px-5">Confirm & Send</Button>
-                        </div>
-                     </Card>
-                  ))}
+                           <div className="flex w-full lg:w-auto gap-2 items-end">
+                              <input 
+                                type="text" 
+                                placeholder="Paste Google Meet Link..." 
+                                value={meetLinks[s.id] || ""}
+                                onChange={(e) => setMeetLinks({...meetLinks, [s.id]: e.target.value})}
+                                className="flex-1 lg:w-64 bg-white border border-indigo-200 rounded-xl px-3 py-3 text-xs font-semibold outline-none focus:border-indigo-500 h-11"
+                              />
+                              <Button variant="primary" onClick={() => sendMeetLink(s.id)} className="bg-indigo-600 hover:bg-indigo-700 shrink-0 h-11 px-5">Confirm & Send</Button>
+                           </div>
+                        </Card>
+                     );
+                  })}
                  {interviewRequests.length === 0 && (
                     <div className="text-center p-8 bg-white/60 rounded-2xl border border-slate-200 text-slate-500 font-medium shadow-sm">
                        <p>No pending meet link requests.</p>
@@ -787,6 +849,53 @@ export default function AdminDashboard() {
               </div>
               <h2 className="text-3xl font-extrabold text-slate-900 mb-3">Billing Dashboard</h2>
               <p className="text-slate-500 font-medium max-w-md mx-auto">Payment integration and analytics will be activated once the platform generates its first revenue.</p>
+           </div>
+        )}
+
+        {/* 🔥 NEW COMPONENT: Hired Students Management & Dynamic Payout Layer */}
+        {activeTab === "hired_talent" && (
+           <div className="animate-in fade-in duration-300 grid gap-8">
+              <div>
+                 <h2 className="text-3xl font-extrabold text-[#0f947e] tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hired Talent & Active Contracts</h2>
+                 <p className="text-slate-500 font-medium mb-6">Manage deploy timelines and execute real-time contract payout increments based on candidate's expected base rates.</p>
+                 
+                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
+                    {students.filter(s => s.hired_status === "hired").map((s) => (
+                       <Card key={s.id} className="border border-slate-200 flex flex-col justify-between p-6 bg-white shadow-sm">
+                          <div>
+                             <h3 className="font-extrabold text-xl text-slate-900 mb-1">{s.fullName}</h3>
+                             <p className="text-sm font-semibold text-[#0f947e] mb-4 truncate">Employed at: {s.hired_company_name}</p>
+                             
+                             <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs font-medium text-slate-600">
+                                <div className="flex justify-between"><span>Base Expected Rate:</span><span className="font-bold text-slate-900">{s.expectedSalary || "N/A"}</span></div>
+                                <div className="flex justify-between items-center">
+                                   <span>Payout Ledger:</span>
+                                   <span className={`px-2 py-0.5 text-[9px] font-black uppercase rounded ${s.contract_payout_active ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                                      {s.contract_payout_active ? 'Active Billing' : 'Awaiting Trigger'}
+                                   </span>
+                                </div>
+                                {s.contract_payout_start && (
+                                   <div className="flex justify-between"><span>Billing Activated:</span><span className="font-mono font-bold text-slate-800">{new Date(s.contract_payout_start).toLocaleDateString('en-IN')}</span></div>
+                                )}
+                             </div>
+                          </div>
+                          
+                          <div className="mt-6 flex gap-2 w-full">
+                             <Button variant="danger" onClick={() => terminateHireAndContract(s.id)} className="flex-1 py-2 text-xs">Unhire / Release</Button>
+                             {!s.contract_payout_active && (
+                                <Button variant="primary" onClick={() => startPayoutContract(s.id, s.expectedSalary)} className="flex-1 py-2 text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold border-none">Start Payout</Button>
+                             )}
+                          </div>
+                       </Card>
+                    ))}
+                    
+                    {students.filter(s => s.hired_status === "hired").length === 0 && (
+                       <div className="col-span-full text-center p-8 bg-white/60 rounded-2xl border border-slate-200 text-slate-400 font-bold text-xs">
+                          No hired candidates found. Once you approve a hire request, the student will list here to manage contracts.
+                       </div>
+                    )}
+                 </div>
+              </div>
            </div>
         )}
 
@@ -939,15 +1048,20 @@ export default function AdminDashboard() {
             <span className="text-[10px] font-bold mt-0.5 truncate">Alerts</span>
           </div>
           
-          <div onClick={() => setActiveTab("students")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'students' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
-            <div className={`p-2 rounded-2xl ${activeTab === 'students' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Users size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5 truncate">Talent</span>
-          </div>
+         <div onClick={() => setActiveTab("students")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'students' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeTab === 'students' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Users size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Talent</span>
+          </div>
+
+          <div onClick={() => setActiveTab("hired_talent")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'hired_talent' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
+             <div className={`p-2 rounded-2xl ${activeTab === 'hired_talent' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><CheckCircle size={20} /></div>
+             <span className="text-[10px] font-bold mt-0.5 truncate">Hired</span>
+          </div>
 
           <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
-            <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5 truncate">Firms</span>
-          </div>
+            <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Firms</span>
+          </div>
 
           <div onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex flex-col items-center gap-1 p-2 w-16 cursor-pointer text-slate-400 hover:text-red-500">
             <div className="p-2 rounded-2xl hover:bg-red-50"><LogOut size={20} /></div>

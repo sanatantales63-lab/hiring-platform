@@ -54,15 +54,45 @@ export default function Dashboard() {
   const [monthsCount, setMonthsCount] = useState<number>(1);
 
   // Real data state logs management template mapping configuration
-  const [assignments, setAssignments] = useState([
-      { id: "RM-A001", title: "Frontend UI Overhaul Task", date: "2026-05-02", gross: 36000, status: "completed", invoiceSubmitted: false },
-      { id: "RM-A005", title: "API Integration Audit", date: "2026-05-08", gross: 13500, status: "completed", invoiceSubmitted: true }
-  ]);
+  const [assignments, setAssignments] = useState<any[]>([]);
   
   const totalGross = assignments.reduce((acc, curr) => acc + curr.gross, 0);
   const totalTDS = totalGross * 0.10; // 10% TDS Fixed
   const totalNet = totalGross - totalTDS;
 
+  useEffect(() => {
+    if (!profileData) return;
+    const tempAssignments = [];
+
+    // Calculate real-time payout based on original student expectedSalary
+    if (profileData.contract_payout_active && profileData.contract_payout_start) {
+       const salaryStr = profileData.expectedSalary || "0";
+       const cleanNumericSalary = parseInt(salaryStr.replace(/[^0-9]/g, ""), 10) || 0;
+
+       if (cleanNumericSalary > 0) {
+          const startDate = new Date(profileData.contract_payout_start);
+          const currentDate = new Date();
+          
+          const totalDiffInTime = currentDate.getTime() - startDate.getTime();
+          const computedDays = Math.max(0, Math.floor(totalDiffInTime / (1000 * 60 * 60 * 24)));
+
+          const perDayRate = cleanNumericSalary / 30;
+          const computedGross = Math.round(computedDays * perDayRate);
+
+          if (computedGross > 0) {
+             tempAssignments.push({
+                id: `RM-CON-${profileData.id?.substring(0, 5).toUpperCase()}`,
+                title: `Active Deployment Project — ${profileData.hired_company_name || "Corporate Client"}`,
+                date: new Date(profileData.contract_payout_start).toLocaleDateString('en-IN'),
+                gross: computedGross,
+                status: "completed",
+                invoiceSubmitted: false
+             });
+          }
+       }
+    }
+    setAssignments(tempAssignments);
+  }, [profileData]);
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -304,6 +334,11 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
               <div className="print:hidden">
                  <h3 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-2"><Receipt size={20} className="text-teal-600"/> Assignment History</h3>
                  <div className="space-y-4">
+                    {assignments.length === 0 && (
+                       <div className="p-8 text-center bg-white border border-dashed rounded-2xl text-slate-400 font-semibold text-xs leading-relaxed">
+                          ₹ 0 Active Accruals. Your real-time freelance timeline breakdown logging meters will initialize automatically here once Admin activates your payout contract from the Hired Talent panel.
+                       </div>
+                    )}
                     {assignments.map(assign => (
                        <Card key={assign.id} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border border-slate-200 hover:border-teal-300 transition-colors shadow-sm">
                           <div>
