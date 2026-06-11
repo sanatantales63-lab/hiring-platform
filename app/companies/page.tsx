@@ -114,7 +114,7 @@ export default function CompaniesPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-xs uppercase tracking-wider text-[var(--muted-foreground)] font-bold">Open role</div>
-                        <div className="font-display text-base font-bold text-[var(--foreground)]">Accountant</div>
+                        <div className="font-display text-base font-bold text-[var(--foreground)]">Senior Finance Manager</div>
                       </div>
                       <span className="rounded-full bg-[var(--accent)] px-2.5 py-1 text-[10px] font-semibold text-[var(--primary)]">24 matches</span>
                     </div>
