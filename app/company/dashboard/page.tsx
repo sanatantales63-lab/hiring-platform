@@ -60,6 +60,9 @@ export default function CompanyDashboard() {
   const [selectedLocs, setSelectedLocs] = useState<string[]>([]);
   const [selectedNotices, setSelectedNotices] = useState<string[]>([]);
   const [selectedQuals, setSelectedQuals] = useState<string[]>([]);
+  // 🔥 NEW: State arrays to capture specific Student Profile Career Roles parameters
+  const [selectedProfileJobTypes, setSelectedProfileJobTypes] = useState<string[]>([]);
+  const [selectedContractOpenness, setSelectedContractOpenness] = useState<string[]>([]);
   // 🔥 Extended Elite Custom Search States Link Layer
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedBehavioral, setSelectedBehavioral] = useState<string[]>([]);
@@ -345,13 +348,16 @@ const submitInterviewRequest = async () => {
       if (!matchId && !matchName && !matchGlobalSkills) matchesSearch = false;
     }
     
-    let matchesType = true;
-    if (selectedTypes.length > 0) {
-      matchesType = selectedTypes.some(t => {
-        if (t === "Permanent") return c.jobType === "Permanent Role";
-        if (t === "Contract") return c.jobType !== "Permanent Role" || c.openToContractRoles === true;
-        return true;
-      });
+    // 🔥 UPGRADED: Strict multi-node validator parsing row values matching student table schemas exactly
+    const matchesProfileJobType = selectedProfileJobTypes.length > 0 ? selectedProfileJobTypes.includes(c.jobType) : true;
+    
+    let matchesContractOpenness = true;
+    if (selectedContractOpenness.length > 0) {
+       matchesContractOpenness = selectedContractOpenness.some(opt => {
+          if (opt === "Yes") return c.openToContractRoles === true || (c.jobType && c.jobType.includes("Contract"));
+          if (opt === "No") return c.openToContractRoles === false || c.jobType === "Permanent Role";
+          return true;
+       });
     }
 
     // Direct multi-array value checks matching keys
@@ -369,7 +375,7 @@ const submitInterviewRequest = async () => {
     const matchesGender = selectedGenders.length > 0 ? selectedGenders.includes(c.gender) : true;
     const matchesLaptop = selectedLaptops.length > 0 ? selectedLaptops.includes(c.hasLaptop) : true; // 🔥 NEW: Laptop strict matching validation data rule
 
-    return matchesSearch && matchesType && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesGender && matchesLaptop;
+    return matchesSearch && matchesProfileJobType && matchesContractOpenness && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesGender && matchesLaptop;
   });
 
   const uniqueQuals = Array.from(new Set(candidates.map(c => c.highestQualification).filter(Boolean)));
@@ -611,6 +617,69 @@ const submitInterviewRequest = async () => {
                 {/* Filters Option Lists Box Container (No Overflow Issues) */}
                 <div className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-none bg-white pb-32">
                   
+                  {/* 🔥 NEW COMPONENT BLOCK: Looking For & Smart Tip Contract Openness Dropdowns Layer */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 pb-4">
+                     {/* Column 1: Looking For (Role Type) */}
+                     <div className={`space-y-1.5 relative ${activeDropdown === 'profileJobType' ? 'z-50' : 'z-10'}`}>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Looking For (Role Type)</label>
+                        <div 
+                           onClick={() => setActiveDropdown(activeDropdown === 'profileJobType' ? null : 'profileJobType')}
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
+                        >
+                           <span className="truncate text-slate-600 font-semibold">{selectedProfileJobTypes.length > 0 ? `Selected Payout Roles (${selectedProfileJobTypes.length})` : "Configure Role Targets..."}</span>
+                           <span className="text-slate-400 text-[10px]">{activeDropdown === 'profileJobType' ? '▲' : '▼'}</span>
+                        </div>
+                        {activeDropdown === 'profileJobType' && (
+                           <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] z-50 p-2 space-y-0.5 max-h-48 overflow-y-auto custom-scrollbar">
+                              {[
+                                 "Permanent Role",
+                                 "1-3 Month Contract",
+                                 "3-6 Month Contract",
+                                 "6+ Month Contract",
+                                 "Freelance/Project Basis",
+                                 "Internship"
+                              ].map(roleOpt => {
+                                 const isSelected = selectedProfileJobTypes.includes(roleOpt);
+                                 return (
+                                    <div key={roleOpt} onClick={() => setSelectedProfileJobTypes(prev => isSelected ? prev.filter(x => x !== roleOpt) : [...prev, roleOpt])} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer text-xs font-bold text-slate-700 bg-white">
+                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                       <span className="truncate">{roleOpt}</span>
+                                    </div>
+                                 );
+                              })}
+                           </div>
+                        )}
+                     </div>
+
+                     {/* Column 2: Smart Career Tip (Open to Contracts) */}
+                     <div className={`space-y-1.5 relative ${activeDropdown === 'contractOpenness' ? 'z-50' : 'z-10'}`}>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Open to Contract / Freelance</label>
+                        <div 
+                           onClick={() => setActiveDropdown(activeDropdown === 'contractOpenness' ? null : 'contractOpenness')}
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
+                        >
+                           <span className="truncate text-slate-600 font-semibold">{selectedContractOpenness.length > 0 ? `Selection: ${selectedContractOpenness.join(', ')}` : "Configure Contract Settings..."}</span>
+                           <span className="text-slate-400 text-[10px]">{activeDropdown === 'contractOpenness' ? '▲' : '▼'}</span>
+                        </div>
+                        {activeDropdown === 'contractOpenness' && (
+                           <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] z-50 p-2.5 space-y-1">
+                              {[
+                                 { value: "Yes", display: "✅ Yes, Open to Contract Roles" },
+                                 { value: "No", display: "❌ No, Permanent Mandates Only" }
+                              ].map(opt => {
+                                 const isSelected = selectedContractOpenness.includes(opt.value);
+                                 return (
+                                    <div key={opt.value} onClick={() => setSelectedContractOpenness(prev => isSelected ? prev.filter(x => x !== opt.value) : [...prev, opt.value])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[11px] font-bold text-slate-700 bg-white transition-colors ${isSelected ? 'bg-teal-50/50 text-[#0f947e]' : ''}`}>
+                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                       <span className="truncate">{opt.display}</span>
+                                    </div>
+                                 );
+                              })}
+                           </div>
+                        )}
+                     </div>
+                  </div>
+
                   {/* Part 1: Interactive Grid Accordions for Skills & Tools */}
                   <div className="space-y-4">
                     
@@ -875,7 +944,7 @@ const submitInterviewRequest = async () => {
                     onClick={() => {
                       setSelectedTypes([]); setSelectedExps([]); setSelectedLocs([]); setSelectedNotices([]); setSelectedQuals([]);
                       setSelectedSkills([]); setSelectedBehavioral([]); setSelectedTechTools([]); setSelectedWorkModes([]);
-                      setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setActiveDropdown(null);
+                      setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setSelectedProfileJobTypes([]); setSelectedContractOpenness([]); setActiveDropdown(null);
                     }}
                     className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-100 shadow-sm transition-all"
                   >
