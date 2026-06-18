@@ -1045,14 +1045,10 @@ const submitInterviewRequest = async () => {
                         </div>
 
                         {/* Metrics */}
-                        <div className="flex items-center gap-4 shrink-0">
-                          <div className="text-center">
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Intg</p>
-                            <p className={`text-xs font-black ${isClean ? 'text-emerald-600' : 'text-amber-600'}`}>{integrityScore}%</p>
-                          </div>
+                        <div className="flex items-center gap-4 shrink-0 pr-2">
                           <div className="text-center">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">AI Score</p>
-                           <p className="text-xs font-black text-[#0f947e]">{aiScore}</p>
+                           <p className="text-sm font-black text-[#0f947e]">{aiScore}</p>
                           </div>
                         </div>
 
@@ -1158,16 +1154,12 @@ const submitInterviewRequest = async () => {
                       </div>
                       {/* 3. Sleek Metrics Grid */}
                       <div className="grid grid-cols-2 gap-2 mb-5">
-                         <div className="bg-slate-50 rounded-lg p-2 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><BarChart3 size={10} className="inline mr-1 text-[#0f947e]"/> Acc</span>
+                         <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><BarChart3 size={10} className="inline mr-1 text-[#0f947e]"/> Accuracy</span>
                             <span className="text-xs font-black text-slate-800">95%</span>
                          </div>
-                         <div className={`rounded-lg p-2 border flex justify-between items-center ${isClean ? 'bg-emerald-50/50 border-emerald-100' : 'bg-amber-50/50 border-amber-100'}`}>
-                            <span className={`text-[9px] font-black uppercase tracking-widest ${isClean ? 'text-emerald-600' : 'text-amber-600'}`}><ShieldCheck size={10} className="inline mr-1"/> Intg</span>
-                            <span className={`text-xs font-black ${isClean ? 'text-emerald-700' : 'text-amber-700'}`}>{integrityScore}%</span>
-                         </div>
-                         <div className="col-span-2 bg-slate-50 rounded-lg p-2 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><Award size={10} className="inline mr-1 text-amber-500"/> AI Score</span>
+                         <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><Award size={10} className="inline mr-1 text-amber-500"/> AI Verified Score</span>
                            <span className="text-sm font-black text-[#0f947e]">{aiScore}</span>
                          </div>
                       </div>
