@@ -48,10 +48,24 @@ export default function Dashboard() {
   
   // 🔥 NEW: Extended Invoicing Engine Dynamic State Architecture Engine
   const [invoiceType, setInvoiceType] = useState<"fixed" | "days" | "monthly">("fixed");
-  const [numberOfDays, setNumberOfDays] = useState<number>(1);
   const [ratePerDay, setRatePerDay] = useState<number>(0);
   const [monthlyBaseRate, setMonthlyBaseRate] = useState<number>(0);
   const [monthsCount, setMonthsCount] = useState<number>(1);
+
+  // 🔥 NEW: Calendar date pickers and leaves calculation state hooks
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [leavesCount, setLeavesCount] = useState<number>(0);
+
+  // Automatically calculate functional days dynamically based on inputs
+  let numberOfDays = 0;
+  if (startDate && endDate) {
+     const start = new Date(startDate);
+     const end = new Date(endDate);
+     const diffTime = end.getTime() - start.getTime();
+     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusive day count
+     numberOfDays = Math.max(0, diffDays - leavesCount);
+  }
 
   // Real data state logs management template mapping configuration
   const [assignments, setAssignments] = useState<any[]>([]);
@@ -387,7 +401,7 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
                        
                        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 print:hidden sticky top-0 z-10">
                           <h3 className="font-extrabold text-slate-800 flex items-center gap-2"><Receipt size={18}/> Custom Invoice Engine</h3>
-                          <button onClick={() => { setSelectedAssignment(null); setInvoiceType("fixed"); }} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20}/></button>
+                          <button onClick={() => { setSelectedAssignment(null); setInvoiceType("fixed"); setStartDate(""); setEndDate(""); setLeavesCount(0); }} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X size={20}/></button>
                        </div>
 
                        {/* 🔥 INTERACTIVE BILLING METRICS CONTROL STRIP — HIDDEN IN PRINT MODE */}
@@ -413,14 +427,22 @@ if (!isMounted || loading) return <div className="h-screen bg-transparent flex i
                           </div>
 
                           {invoiceType === "days" && (
-                             <div className="md:col-span-2 grid grid-cols-2 gap-4 animate-in fade-in duration-200">
+                             <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-3 animate-in fade-in duration-200">
                                 <div className="space-y-1">
-                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Number of Days Worked</label>
-                                   <input type="number" min={1} value={numberOfDays} onChange={(e) => setNumberOfDays(Math.max(1, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-[#0f947e]" />
+                                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Start Date</label>
+                                   <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-[11px] font-bold outline-none focus:border-[#0f947e] [color-scheme:light]" />
                                 </div>
                                 <div className="space-y-1">
-                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Day Rate Charges (₹)</label>
-                                   <input type="number" min={0} value={ratePerDay} onChange={(e) => setRatePerDay(Math.max(0, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-bold outline-none focus:border-[#0f947e]" placeholder="Rate per single day" />
+                                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">End Date</label>
+                                   <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-[11px] font-bold outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                                </div>
+                                <div className="space-y-1">
+                                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">No. of Leave</label>
+                                   <input type="number" min={0} value={leavesCount} onChange={(e) => setLeavesCount(Math.max(0, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-[11px] font-bold outline-none focus:border-[#0f947e]" />
+                                </div>
+                                <div className="space-y-1">
+                                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Day Rate (₹)</label>
+                                   <input type="number" min={0} value={ratePerDay} onChange={(e) => setRatePerDay(Math.max(0, parseInt(e.target.value) || 0))} className="w-full bg-white border border-slate-200 rounded-xl p-2 text-[11px] font-bold outline-none focus:border-[#0f947e]" placeholder="Charges/day" />
                                 </div>
                              </div>
                           )}

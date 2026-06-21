@@ -14,6 +14,8 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const [showAllEdu, setShowAllEdu] = useState(false);
   const [showAllWork, setShowAllWork] = useState(false); 
   const [isResetting, setIsResetting] = useState(false);
+  // 🔥 NEW: Track individual work summary expansion index hooks for mobile responsive gestures
+  const [expandedSummaryIndex, setExpandedSummaryIndex] = useState<number | null>(null);
 
   if (!candidate) return null;
 
@@ -248,8 +250,12 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                          </div>
                       </div>
                       {work.summary && (
-                         <p className="text-xs text-[var(--muted-foreground)] mt-1.5 line-clamp-1 hover:line-clamp-none cursor-pointer transition-all w-full" title="Hover to read full summary">
-                            <span className="font-semibold text-[var(--ink-soft)] mr-1">Summary:</span>{work.summary}
+                         <p 
+                            onClick={() => setExpandedSummaryIndex(expandedSummaryIndex === i ? null : i)}
+                            className={`text-xs text-[var(--muted-foreground)] mt-1.5 cursor-pointer transition-all duration-300 w-full select-none ${expandedSummaryIndex === i ? 'line-clamp-none bg-slate-50/50 p-2 rounded-lg border border-slate-100' : 'line-clamp-1 md:line-clamp-none'}`} 
+                            title="Touch or hover to expand description"
+                         >
+                            <span className="font-bold text-[var(--primary)] mr-1.5">Summary [Click to Toggle]:</span>{work.summary}
                          </p>
                       )}
                    </div>

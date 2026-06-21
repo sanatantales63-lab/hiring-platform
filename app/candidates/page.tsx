@@ -92,7 +92,7 @@ export default function CandidatesPage() {
                 <div className="mt-8 flex flex-wrap justify-center lg:justify-start items-center gap-3">
                   {/* YAHAN SE STUDENT LOGIN PAR JAYEGA */}
                   <button onClick={() => router.push('/student/login')} className="inline-flex items-center justify-center gap-2 whitespace-nowrap bg-gradient-primary text-[var(--primary-foreground)] shadow-glow hover:shadow-ring hover:-translate-y-0.5 h-12 rounded-lg px-8 text-base font-semibold transition-all duration-300">
-                    Build my profile <ArrowRight className="h-4 w-4" />
+                    Start Now <ArrowRight className="h-4 w-4" />
                   </button>
                   <Link href="/how-it-works" className="inline-flex items-center justify-center gap-2 whitespace-nowrap border border-[var(--border)] bg-white/50 backdrop-blur-sm text-[var(--foreground)] hover:bg-[var(--accent)] h-12 rounded-lg px-8 text-base font-semibold transition-colors shadow-sm">
                     See how it works
