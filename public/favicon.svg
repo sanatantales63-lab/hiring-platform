@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Rounded blue background box -->
+  <rect width="32" height="32" rx="8" fill="#2563eb"/>
+  <!-- White briefcase icon inside -->
+  <path d="M22 25V9a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v16" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect width="20" height="14" x="6" y="11" rx="2" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

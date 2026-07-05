@@ -9,17 +9,17 @@ import {
 } from "lucide-react";
 
 const CAND = [
-  { icon: UserPlus, t: "Upload Resume & Auto-fill", d: "Upload your resume and our built-in AI parser automatically extracts and auto-fills your profile, skills, and experience details in seconds." },
-  { icon: Brain, t: "Adaptive AI Assessment", d: "Take dynamic, role-specific practical assessments (such as CA, GST, or Tech tests) featuring questions generated in real-time." },
-  { icon: ShieldCheck, t: "AI Proctored Verification", d: "Complete assessments under active AI camera proctoring, screen monitoring, and browser locks to earn verified signed badges." },
-  { icon: Handshake, t: "Direct Match & Placement", d: "Get matched with hiring managers directly, schedule video interviews, or receive quick hire offers straight to your candidate dashboard." },
+  { icon: UserPlus, t: "Create Profile", d: "Set role goals, skill domains, salary band, and work availability." },
+  { icon: Brain, t: "Take AI Assessment", d: "Complete role-focused, adaptive proctored practical skill tests." },
+  { icon: IdCard, t: "Verify Identity & Earn Badges", d: "Receive cryptographically signed credentials and portable trust badges." },
+  { icon: Handshake, t: "Direct Employer Match", d: "Connect directly with hiring managers actively looking for your verified score." },
 ];
 
 const COMP = [
-  { icon: Search, t: "Access Verified Talent Pool", d: "Filter verified candidates instantly by notice period, city location, specific subskills, and practical AI test scores." },
-  { icon: Brain, t: "Review Proctored Rubrics", d: "Inspect complete candidates' scorecards, detailed practical rubrics, video audit logs, and trust verification parameters." },
-  { icon: Building2, t: "Book Google Meet Interviews", d: "Schedule, book interview slots, and generate Google Meet links directly from the recruiter dashboard to meet candidates." },
-  { icon: Handshake, t: "Finalize & Quick Hire", d: "Extend direct quick hire offers (with or without interview) and rate candidate milestones through your integrated pipeline." },
+  { icon: Building2, t: "Define Position Criteria", d: "Select pre-built evaluation rubrics or customize position requirements in minutes." },
+  { icon: Search, t: "Access Verified Talent Pool", d: "Filter candidates by verified score reports, proctor status, and skill depth." },
+  { icon: Brain, t: "Review Proctored Audits", d: "Inspect candidate test analytics, proctor logs, and rubric performance." },
+  { icon: Handshake, t: "Schedule & Hire", d: "Interview top pre-vetted candidates and close roles 80% faster." },
 ];
 
 export default function HowPage() {
@@ -55,7 +55,7 @@ export default function HowPage() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
-              For Companies
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[var(--surface)] text-[var(--primary)]">
               How it Works
@@ -104,7 +104,7 @@ export default function HowPage() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
-              For Companies
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-4 py-2 rounded-lg text-xs font-bold bg-[var(--accent)] text-[var(--primary)]">
               How it Works

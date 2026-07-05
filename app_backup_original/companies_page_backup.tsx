@@ -4,21 +4,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowRight, Award, BadgeCheck, BarChart3, Briefcase, CheckCircle2,
-  Compass, FileBadge, GraduationCap, Rocket, Sparkles, Building2,
-  Twitter, Linkedin, Github, ShieldCheck, Menu, X, Check, Star, ChevronRight, UserCheck
+  ArrowRight, Building2, CheckCircle2, Filter, Gauge, LineChart,
+  Lock, ShieldCheck, Sparkles, Users, Workflow, Briefcase,
+  Twitter, Linkedin, Github, Menu, X, Check, ChevronRight
 } from "lucide-react";
 
-const PERKS = [
-  { icon: BadgeCheck, t: "Verified Skill Badges", d: "Earn signed digital credentials backed by proctored AI assessments that top companies trust instantly." },
-  { icon: Compass, t: "Smart Match Engine", d: "We surface flexible short-term contract gigs and permanent roles matching your verified practical skills and preferences." },
-  { icon: BarChart3, t: "Transparent Rubrics", d: "View detailed score breakdowns to pinpoint exact areas for career growth and skill advancement." },
-  { icon: Rocket, t: "Direct Employer Intros", d: "Bypass resume black holes — get matched directly for project peaks, tax seasons, or core permanent positions." },
-  { icon: Award, t: "Portable Proof Profile", d: "Your achievements belong to you forever. Share your signed badges on LinkedIn, GitHub, or your portfolio." },
-  { icon: GraduationCap, t: "Personalized Upskilling", d: "Receive targeted learning recommendations calibrated to real industry rubrics." },
+const PILLARS = [
+  { icon: Filter, t: "Pre-Vetted Talent Pool", d: "Every candidate carries a signed skill evaluation profile. No more wading through 200 unverified resumes." },
+  { icon: Workflow, t: "Collaborative Pipelines", d: "Share candidate shortlists, test reports, and structured interview rubrics with your entire hiring team." },
+  { icon: Gauge, t: "Time-to-Hire Dashboards", d: "Real-time analytics tracking shortlist velocity, assessment pass rates, and candidate engagement." },
+  { icon: ShieldCheck, t: "Proctoring & Audit Trails", d: "Proctored assessment environment with identity verification and anti-plagiarism checks." },
+  { icon: Lock, t: "Bias-Aware Tooling", d: "Blind reviews, calibrated rubrics, and fairness reports baked directly into the platform." },
+  { icon: LineChart, t: "Seamless ATS Sync", d: "Export verified candidate rubrics directly into your existing ATS recruitment workflow." },
 ];
 
-export default function CandidatesPage() {
+export default function CompaniesPage() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -47,11 +47,11 @@ export default function CandidatesPage() {
             <Link href="/" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               Home
             </Link>
-            <Link href="/candidates" className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[var(--surface)] text-[var(--primary)]">
+            <Link href="/candidates" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               For Candidates
             </Link>
-            <Link href="/companies" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
-              For Companies
+            <Link href="/companies" className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[var(--surface)] text-[var(--primary)]">
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               How it Works
@@ -67,20 +67,20 @@ export default function CandidatesPage() {
               <span>Admin</span>
             </button>
             <button
-              onClick={() => router.push('/student/login')}
+              onClick={() => router.push('/company/login')}
               className="inline-flex items-center gap-2 h-9 px-4.5 rounded-lg text-xs font-bold bg-[var(--primary)] text-white hover:bg-[var(--primary-glow)] shadow-primary transition-all"
             >
-              <span>Candidate Sign In</span>
+              <span>Employer Sign In</span>
               <ArrowRight size={13} />
             </button>
           </div>
 
           <div className="flex md:hidden items-center gap-2">
             <button
-              onClick={() => router.push('/student/login')}
+              onClick={() => router.push('/company/login')}
               className="flex items-center gap-1 h-8 px-3 rounded-lg text-xs font-bold bg-[var(--primary)] text-white shadow-soft"
             >
-              Sign In
+              Employer Login
             </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -96,21 +96,21 @@ export default function CandidatesPage() {
             <Link href="/" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               Home
             </Link>
-            <Link href="/candidates" className="px-4 py-2 rounded-lg text-xs font-bold bg-[var(--accent)] text-[var(--primary)]">
+            <Link href="/candidates" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               For Candidates
             </Link>
-            <Link href="/companies" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
-              For Companies
+            <Link href="/companies" className="px-4 py-2 rounded-lg text-xs font-bold bg-[var(--accent)] text-[var(--primary)]">
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               How it Works
             </Link>
             <div className="pt-2 border-t border-[var(--border)] flex flex-col gap-2">
               <button
-                onClick={() => router.push('/student/login')}
+                onClick={() => router.push('/company/login')}
                 className="w-full flex items-center justify-center gap-2 h-9 rounded-lg text-xs font-bold bg-[var(--primary)] text-white shadow-primary"
               >
-                Candidate Sign In <ArrowRight size={14} />
+                Employer Portal <Building2 size={14} />
               </button>
             </div>
           </div>
@@ -129,70 +129,52 @@ export default function CandidatesPage() {
               
               <div className="lg:col-span-7 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-amber-300 uppercase tracking-wider mb-6">
-                  <UserCheck className="h-3.5 w-3.5 text-amber-400" />
-                  <span>For Candidates</span>
+                  <Building2 className="h-3.5 w-3.5 text-amber-400" />
+                  <span>For Employers & Hiring Teams</span>
                 </div>
 
                 <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12]">
-                  Get high-paying contract projects<br />
+                  Hire verified talent in<br />
                   <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
-                    &amp; permanent roles.
+                    days, not months.
                   </span>
                 </h1>
 
                 <p className="mt-5 max-w-2xl text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
-                  Upload your resume to auto-fill your profile. Complete our unified skill assessment once and unlock access to high-paying short-term contract projects, seasonal gigs, and permanent job opportunities.
+                  Source candidates whose practical skills are already proven through proctored AI tests. Skip 80% of screening time.
                 </p>
 
                 <div className="mt-8 flex flex-wrap justify-center lg:justify-start items-center gap-3.5">
                   <button
-                    onClick={() => router.push('/student/login')}
+                    onClick={() => router.push('/company/login')}
                     className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black h-12 rounded-xl px-8 text-sm hover:brightness-110 shadow-lg transition-all duration-200"
                   >
-                    <span>Start Now</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>Start Hiring Now</span>
+                    <Building2 className="h-4 w-4" />
                   </button>
-
-                  <Link
-                    href="/how-it-works"
-                    className="inline-flex items-center justify-center gap-2.5 border border-white/30 bg-white/10 backdrop-blur-md text-white font-bold h-12 rounded-xl px-7 text-sm hover:bg-white/20 transition-all duration-200"
-                  >
-                    <span>See How It Works</span>
-                  </Link>
                 </div>
               </div>
 
-              {/* Visual Card */}
+              {/* Visual Demo Card */}
               <div className="lg:col-span-5 hidden lg:block">
-                <div className="rounded-3xl p-8 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl space-y-5">
-                  <div className="flex items-center gap-4">
-                    <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white font-black font-display text-xl shadow-primary">
-                      A
-                    </div>
-                    <div>
-                      <h3 className="font-display text-lg font-bold text-white">Aarav Sharma</h3>
-                      <p className="text-xs text-amber-300 font-semibold">Chartered Accountant (CA)</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2.5">
+                <div className="rounded-3xl p-8 bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl space-y-4">
+                  <h3 className="font-display text-base font-bold text-white mb-2">Recruitment Pipeline Preview</h3>
+                  <div className="space-y-3">
                     {[
-                      { name: "Practical Accounting & Taxation", score: "98/100" },
-                      { name: "Tally ERP & Audit Compliance", score: "96/100" },
-                      { name: "Financial Analysis & Excel", score: "94/100" },
-                    ].map((s) => (
-                      <div key={s.name} className="p-3.5 rounded-xl bg-white/10 border border-white/10 flex justify-between items-center text-xs">
-                        <span className="font-semibold text-indigo-100">{s.name}</span>
-                        <span className="font-black text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-md border border-amber-400/30">{s.score}</span>
+                      { candidate: "Aarav S.", role: "Chartered Accountant", status: "Verified (98%)" },
+                      { candidate: "Maria V.", role: "Taxation Specialist", status: "Verified (95%)" },
+                      { candidate: "Jamal O.", role: "B.Com Accountant", status: "Verified (91%)" },
+                    ].map((row) => (
+                      <div key={row.candidate} className="p-3.5 rounded-xl bg-white/10 border border-white/10 flex justify-between items-center text-xs">
+                        <div>
+                          <p className="font-bold text-white">{row.candidate}</p>
+                          <p className="text-[11px] text-indigo-200">{row.role}</p>
+                        </div>
+                        <span className="font-bold text-xs text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-lg border border-amber-400/30">
+                          {row.status}
+                        </span>
                       </div>
                     ))}
-                  </div>
-
-                  <div className="pt-3 border-t border-white/15 flex items-center justify-between text-xs text-indigo-200 font-medium">
-                    <span>Verified Badge Status</span>
-                    <span className="flex items-center gap-1 text-emerald-400 font-bold">
-                      <Check className="h-4 w-4 stroke-[3]" /> Cryptographically Signed
-                    </span>
                   </div>
                 </div>
               </div>
@@ -201,19 +183,19 @@ export default function CandidatesPage() {
           </div>
         </section>
 
-        {/* ── PERKS SECTION ── */}
+        {/* ── PILLARS SECTION ── */}
         <section className="py-20 lg:py-28 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             
             <div className="max-w-3xl mx-auto text-center">
-              <span className="section-label mb-4">Candidate Benefits</span>
+              <span className="section-label mb-4">Enterprise Recruitment</span>
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--foreground)]">
-                Why Job Seekers Choose Resourcemania
+                Built for Hiring Managers Who Value Speed & Precision
               </h2>
             </div>
 
             <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {PERKS.map((p) => (
+              {PILLARS.map((p) => (
                 <div key={p.t} className="rounded-3xl bg-[var(--surface)] border border-[var(--border)] p-8 hover-glow-card flex flex-col justify-between">
                   <div>
                     <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-[var(--primary)] shadow-soft">

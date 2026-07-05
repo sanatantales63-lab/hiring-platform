@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title: "Resourcemania - The Future of Hiring",
   description: "Unlock your career with AI verified profiles.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" }
+    ],
   },
 };
 

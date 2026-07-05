@@ -11,9 +11,9 @@ import {
 
 const PERKS = [
   { icon: BadgeCheck, t: "Verified Skill Badges", d: "Earn signed digital credentials backed by proctored AI assessments that top companies trust instantly." },
-  { icon: Compass, t: "Smart Match Engine", d: "We surface flexible short-term contract gigs and permanent roles matching your verified practical skills and preferences." },
+  { icon: Compass, t: "Smart Match Engine", d: "We surface roles matching your verified practical skills, salary expectations, and work preferences." },
   { icon: BarChart3, t: "Transparent Rubrics", d: "View detailed score breakdowns to pinpoint exact areas for career growth and skill advancement." },
-  { icon: Rocket, t: "Direct Employer Intros", d: "Bypass resume black holes — get matched directly for project peaks, tax seasons, or core permanent positions." },
+  { icon: Rocket, t: "Direct Employer Intros", d: "Bypass resume black holes — hiring managers view your verified score report directly." },
   { icon: Award, t: "Portable Proof Profile", d: "Your achievements belong to you forever. Share your signed badges on LinkedIn, GitHub, or your portfolio." },
   { icon: GraduationCap, t: "Personalized Upskilling", d: "Receive targeted learning recommendations calibrated to real industry rubrics." },
 ];
@@ -51,7 +51,7 @@ export default function CandidatesPage() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
-              For Companies
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               How it Works
@@ -100,7 +100,7 @@ export default function CandidatesPage() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
-              For Companies
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               How it Works
@@ -130,18 +130,18 @@ export default function CandidatesPage() {
               <div className="lg:col-span-7 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-amber-300 uppercase tracking-wider mb-6">
                   <UserCheck className="h-3.5 w-3.5 text-amber-400" />
-                  <span>For Candidates</span>
+                  <span>For Job Seekers</span>
                 </div>
 
                 <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12]">
-                  Get high-paying contract projects<br />
+                  Get hired on what you<br />
                   <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
-                    &amp; permanent roles.
+                    actually build & do.
                   </span>
                 </h1>
 
                 <p className="mt-5 max-w-2xl text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
-                  Upload your resume to auto-fill your profile. Complete our unified skill assessment once and unlock access to high-paying short-term contract projects, seasonal gigs, and permanent job opportunities.
+                  Build your verified profile in 20 minutes. Earn AI-signed skill credentials that hiring managers trust at first glance.
                 </p>
 
                 <div className="mt-8 flex flex-wrap justify-center lg:justify-start items-center gap-3.5">

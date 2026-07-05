@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, MapPin, Briefcase, GraduationCap, 
   Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus, Filter,
-  ShieldCheck, BarChart3, Activity, Award, Video, Zap, FileText, UserCircle
+  ShieldCheck, BarChart3, Activity, Award, Video, Zap, FileText
 } from "lucide-react";
 
 // 🔥 Naye Master Components 🔥
@@ -387,7 +387,7 @@ const submitInterviewRequest = async () => {
      return daysSinceHire >= requiredDays; 
   });
 
-  if (loading) return <div className="h-screen bg-transparent flex items-center justify-center relative z-10"><Loader2 className="animate-spin text-[var(--primary)] w-12 h-12" /></div>;
+  if (loading) return <div className="h-screen bg-transparent flex items-center justify-center relative z-10"><Loader2 className="animate-spin text-[#0f947e] w-12 h-12" /></div>;
 
   // 🔥 BYPASSED: Removed manual admin lock block to allow direct recruiter access right after auth signup loops
   return (
@@ -450,7 +450,7 @@ const submitInterviewRequest = async () => {
         </button>
       </aside>
 
-      <main className="flex-1 p-5 md:p-8 ml-0 md:ml-64 overflow-y-auto min-h-screen pb-24 md:pb-8">
+      <main className="flex-1 p-5 md:p-8 ml-0 md:ml-64 overflow-y-auto min-h-screen">
         
         {/* REVIEW ALERTS */}
         {pendingReviews.length > 0 && (
@@ -611,7 +611,7 @@ const submitInterviewRequest = async () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Looking For (Role Type)</label>
                         <div 
                            onClick={() => setActiveDropdown(activeDropdown === 'profileJobType' ? null : 'profileJobType')}
-                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[var(--primary)]/40 transition-colors bg-white"
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
                         >
                            <span className="truncate text-slate-600 font-semibold">{selectedProfileJobTypes.length > 0 ? `Selected Payout Roles (${selectedProfileJobTypes.length})` : "Configure Role Targets..."}</span>
                            <span className="text-slate-400 text-[10px]">{activeDropdown === 'profileJobType' ? '▲' : '▼'}</span>
@@ -629,7 +629,7 @@ const submitInterviewRequest = async () => {
                                  const isSelected = selectedProfileJobTypes.includes(roleOpt);
                                  return (
                                     <div key={roleOpt} onClick={() => setSelectedProfileJobTypes(prev => isSelected ? prev.filter(x => x !== roleOpt) : [...prev, roleOpt])} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer text-xs font-bold text-slate-700 bg-white">
-                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                        <span className="truncate">{roleOpt}</span>
                                     </div>
                                  );
@@ -643,7 +643,7 @@ const submitInterviewRequest = async () => {
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Open to Contract / Freelance</label>
                         <div 
                            onClick={() => setActiveDropdown(activeDropdown === 'contractOpenness' ? null : 'contractOpenness')}
-                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[var(--primary)]/40 transition-colors bg-white"
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
                         >
                            <span className="truncate text-slate-600 font-semibold">{selectedContractOpenness.length > 0 ? `Selection: ${selectedContractOpenness.join(', ')}` : "Configure Contract Settings..."}</span>
                            <span className="text-slate-400 text-[10px]">{activeDropdown === 'contractOpenness' ? '▲' : '▼'}</span>
@@ -656,8 +656,8 @@ const submitInterviewRequest = async () => {
                               ].map(opt => {
                                  const isSelected = selectedContractOpenness.includes(opt.value);
                                  return (
-                                    <div key={opt.value} onClick={() => setSelectedContractOpenness(prev => isSelected ? prev.filter(x => x !== opt.value) : [...prev, opt.value])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[11px] font-bold text-slate-700 bg-white transition-colors ${isSelected ? 'bg-[var(--accent)] text-[var(--primary)]' : ''}`}>
-                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                    <div key={opt.value} onClick={() => setSelectedContractOpenness(prev => isSelected ? prev.filter(x => x !== opt.value) : [...prev, opt.value])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[11px] font-bold text-slate-700 bg-white transition-colors ${isSelected ? 'bg-teal-50/50 text-[#0f947e]' : ''}`}>
+                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                        <span className="truncate">{opt.display}</span>
                                     </div>
                                  );
@@ -675,7 +675,7 @@ const submitInterviewRequest = async () => {
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Technical Sub-Skills Framework</span>
                       <div 
                         onClick={() => setActiveDropdown(activeDropdown === 'skills' ? null : 'skills')}
-                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[var(--primary)]/40 transition-colors bg-white"
+                        className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
                       >
                         <span className="truncate text-slate-600 font-semibold">{selectedSkills.length > 0 ? `Attached Sub-Skills Tags (${selectedSkills.length})` : "Browse Skill Architecture..."}</span>
                         <span className="text-slate-400 text-[10px]">{activeDropdown === 'skills' ? '▲' : '▼'}</span>
@@ -685,7 +685,7 @@ const submitInterviewRequest = async () => {
                         <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-inner max-h-60 overflow-y-auto p-3 space-y-3 scrollbar-thin">
                            {Object.keys(MASTER_SKILLS_DATA).map(category => (
                              <div key={category} className="space-y-1">
-                               <div className="text-[9px] font-black text-[var(--primary)] bg-[var(--accent)] px-2 py-1 rounded border border-[var(--primary)]/10 uppercase tracking-wider block mb-1">{category}</div>
+                               <div className="text-[9px] font-black text-[#0f947e] bg-teal-50/50 px-2 py-1 rounded border border-teal-100 uppercase tracking-wider block mb-1">{category}</div>
                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                                  {MASTER_SKILLS_DATA[category].map(sub => {
                                    const isSelected = selectedSkills.includes(sub);
@@ -693,9 +693,9 @@ const submitInterviewRequest = async () => {
                                      <div 
                                        key={sub} 
                                        onClick={() => setSelectedSkills(prev => isSelected ? prev.filter(x => x !== sub) : [...prev, sub])}
-                                       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'hover:bg-slate-50 border-transparent text-slate-600 font-medium bg-white'}`}
+                                       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-teal-50/40 border-teal-200 text-[#0f947e]' : 'hover:bg-slate-50 border-transparent text-slate-600 font-medium bg-white'}`}
                                      >
-                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                        <span className="text-[11px] truncate">{sub}</span>
                                      </div>
                                    );
@@ -757,8 +757,8 @@ const submitInterviewRequest = async () => {
                           {uniqueNotice.map(notice => {
                             const isSelected = selectedNotices.includes(notice);
                             return (
-                              <div key={notice} onClick={() => setSelectedNotices(prev => isSelected ? prev.filter(x => x !== notice) : [...prev, notice])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)]' : 'text-slate-700 hover:bg-slate-50'}`}>
-                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                              <div key={notice} onClick={() => setSelectedNotices(prev => isSelected ? prev.filter(x => x !== notice) : [...prev, notice])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50/50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                 <span className="truncate">{notice}</span>
                               </div>
                             );
@@ -782,8 +782,8 @@ const submitInterviewRequest = async () => {
                           {uniqueExp.map(exp => {
                             const isSelected = selectedExps.includes(exp);
                             return (
-                              <div key={exp} onClick={() => setSelectedExps(prev => isSelected ? prev.filter(x => x !== exp) : [...prev, exp])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)]' : 'text-slate-700 hover:bg-slate-50'}`}>
-                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                              <div key={exp} onClick={() => setSelectedExps(prev => isSelected ? prev.filter(x => x !== exp) : [...prev, exp])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50/50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                 <span>{exp}</span>
                               </div>
                             );
@@ -807,8 +807,8 @@ const submitInterviewRequest = async () => {
                           {uniqueLocations.map(loc => {
                             const isSelected = selectedLocs.includes(loc);
                             return (
-                              <div key={loc} onClick={() => setSelectedLocs(prev => isSelected ? prev.filter(x => x !== loc) : [...prev, loc])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)]' : 'text-slate-700 hover:bg-slate-50'}`}>
-                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                              <div key={loc} onClick={() => setSelectedLocs(prev => isSelected ? prev.filter(x => x !== loc) : [...prev, loc])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50/50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                 <span className="truncate">{loc}</span>
                               </div>
                             );
@@ -825,7 +825,7 @@ const submitInterviewRequest = async () => {
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Academic Credentials Spectrum</label>
                       <div 
                         onClick={() => setActiveDropdown(activeDropdown === 'qual' ? null : 'qual')}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[var(--primary)]/40 transition-colors bg-white"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
                       >
                         <span className="truncate text-slate-600 font-semibold">{selectedQuals.length > 0 ? `Active Qualifications Criteria (${selectedQuals.length})` : "Filter Academic / Degree Levels..."}</span>
                         <span className="text-slate-400 text-[10px]">▼</span>
@@ -850,7 +850,7 @@ const submitInterviewRequest = async () => {
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Hardware / Laptop Asset Status</label>
                       <div 
                         onClick={() => setActiveDropdown(activeDropdown === 'laptop' ? null : 'laptop')}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[var(--primary)]/40 transition-colors bg-white"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-xs text-slate-800 flex justify-between items-center cursor-pointer shadow-sm hover:border-[#0f947e]/40 transition-colors bg-white"
                       >
                         <span className="truncate text-slate-600 font-semibold">{selectedLaptops.length > 0 ? `Laptop Filters Active (${selectedLaptops.length})` : "Filter Laptop Asset..."}</span>
                         <span className="text-slate-400 text-[10px]">{activeDropdown === 'laptop' ? '▲' : '▼'}</span>
@@ -866,9 +866,9 @@ const submitInterviewRequest = async () => {
                               <div 
                                 key={opt.value} 
                                 onClick={() => setSelectedLaptops(prev => isSelected ? prev.filter(x => x !== opt.value) : [...prev, opt.value])} 
-                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[11px] font-bold text-slate-700 bg-white transition-colors ${isSelected ? 'bg-[var(--accent)] text-[var(--primary)]' : ''}`}
+                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-[11px] font-bold text-slate-700 bg-white transition-colors ${isSelected ? 'bg-teal-50/50 text-[#0f947e]' : ''}`}
                               >
-                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                 <span className="truncate">{opt.display}</span>
                               </div>
                             );
@@ -893,8 +893,8 @@ const submitInterviewRequest = async () => {
                            {BEHAVIORAL_SKILLS_LIST.map(behav => {
                               const isSelected = selectedBehavioral.includes(behav);
                               return (
-                                 <div key={behav} onClick={() => setSelectedBehavioral(prev => isSelected ? prev.filter(x => x !== behav) : [...prev, behav])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)]' : 'text-slate-700 hover:bg-slate-50'}`}>
-                                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                 <div key={behav} onClick={() => setSelectedBehavioral(prev => isSelected ? prev.filter(x => x !== behav) : [...prev, behav])} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold ${isSelected ? 'bg-teal-50 border border-teal-200 text-[#0f947e]' : 'text-slate-700 hover:bg-slate-50'}`}>
+                                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-teal-600 border-teal-600' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
                                     <span className="truncate">{behav}</span>
                                  </div>
                               );
@@ -908,16 +908,16 @@ const submitInterviewRequest = async () => {
                     <div className="pt-4 border-t border-slate-100 space-y-2 relative z-10">
                       <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pipeline Active Token Tags</div>
                       <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-2 bg-slate-50 border border-slate-200 rounded-xl">
-                        {selectedTypes.map(x => <span key={x} className="bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedTypes(selectedTypes.filter(i=>i!==x))}>✕</button></span>)}
-                        {selectedNotices.map(x => <span key={x} className="bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedNotices(selectedNotices.filter(i=>i!==x))}>✕</button></span>)}
-                        {selectedExps.map(x => <span key={x} className="bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedExps(selectedExps.filter(i=>i!==x))}>✕</button></span>)}
-                        {selectedLocs.map(x => <span key={x} className="bg-[var(--accent)] border border-[var(--primary)]/20 text-[var(--primary)] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedLocs(selectedLocs.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedTypes.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedTypes(selectedTypes.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedNotices.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedNotices(selectedNotices.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedExps.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedExps(selectedExps.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedLocs.map(x => <span key={x} className="bg-teal-50 border border-teal-200 text-[#0f947e] text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedLocs(selectedLocs.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedQuals.map(x => <span key={x} className="bg-indigo-50 border border-indigo-200 text-indigo-700 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 max-w-[150px] truncate">{x} <button type="button" onClick={() => setSelectedQuals(selectedQuals.filter(i=>i!==x))}>✕</button></span>)}
-                        {selectedSkills.map(x => <span key={x} className="bg-[var(--primary)] text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 max-w-[150px] truncate">{x} <button type="button" onClick={() => setSelectedSkills(selectedSkills.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedSkills.map(x => <span key={x} className="bg-[#0f947e] text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 max-w-[150px] truncate">{x} <button type="button" onClick={() => setSelectedSkills(selectedSkills.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedTechTools.map(x => <span key={x} className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedTechTools(selectedTechTools.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedBehavioral.map(x => <span key={x} className="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedBehavioral(selectedBehavioral.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedWorkModes.map(x => <span key={x} className="bg-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedWorkModes(selectedWorkModes.filter(i=>i!==x))}>✕</button></span>)}
-                        {selectedLaptops.map(x => <span key={x} className="bg-[var(--primary)] text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x === 'Yes' ? '💻 Laptop' : '❌ No Laptop'} <button type="button" onClick={() => setSelectedLaptops(selectedLaptops.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedLaptops.map(x => <span key={x} className="bg-teal-700 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x === 'Yes' ? '💻 Laptop' : '❌ No Laptop'} <button type="button" onClick={() => setSelectedLaptops(selectedLaptops.filter(i=>i!==x))}>✕</button></span>)}
                       </div>
                     </div>
                   )}
@@ -1007,16 +1007,16 @@ const submitInterviewRequest = async () => {
 
                           {/* Avatar */}
                           <div className="relative shrink-0">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-sm">RM</div>
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white border border-[var(--primary)]/10 flex items-center justify-center shadow-sm">
-                              <ShieldCheck size={8} className="text-[var(--primary)]" />
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0f947e] to-teal-600 text-white flex items-center justify-center font-black text-sm shadow-sm">RM</div>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white border border-teal-100 flex items-center justify-center shadow-sm">
+                              <ShieldCheck size={8} className="text-[#0f947e]" />
                             </div>
                           </div>
 
                           {/* Identity */}
                           <div className="min-w-0 md:w-44 md:shrink-0">
-                            <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
-                            <p className="text-[10px] font-bold text-[var(--primary)] truncate">{roleTitle}</p>
+                            <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[#0f947e] transition-colors">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
+                            <p className="text-[10px] font-bold text-[#0f947e] truncate">{roleTitle}</p>
                             <div className="flex items-center gap-1 text-[9px] text-slate-500 font-semibold mt-0.5">
                               <MapPin size={8} className="text-slate-400"/> {candidate.city || "Remote"}
                             </div>
@@ -1035,7 +1035,7 @@ const submitInterviewRequest = async () => {
                         <div className="flex items-center gap-4 shrink-0 pr-2">
                           <div className="text-center">
                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">AI Score</p>
-                           <p className="text-sm font-black text-[var(--primary)]">{aiScore}</p>
+                           <p className="text-sm font-black text-[#0f947e]">{aiScore}</p>
                           </div>
                         </div>
 
@@ -1046,10 +1046,10 @@ const submitInterviewRequest = async () => {
                               <button type="button" onClick={() => router.push(`/company/student/${candidate.id}`)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
                                 <FileText size={10} className="opacity-70"/> Profile
                               </button>
-                              <button type="button" onClick={() => openInterviewModal(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-[var(--primary)] hover:bg-[var(--accent)] shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
+                              <button type="button" onClick={() => openInterviewModal(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-slate-200 text-slate-600 hover:text-[#0f947e] hover:bg-teal-50 shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
                                 <Video size={10} className="opacity-70"/> Interview
                               </button>
-                              <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
+                              <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 cursor-pointer">
                                  <Zap size={10}/> Quick Hire (Without Interview)
                               </button>
                             </>
@@ -1061,7 +1061,7 @@ const submitInterviewRequest = async () => {
                               {candidate.hired_status === 'shortlisted' && (
                                 <>
                                   <button type="button" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-blue-50 cursor-pointer"><Video size={10}/> Meet</button>
-                                  <button type="button" onClick={() => triggerHireVerificationPopup(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[var(--primary)] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[var(--primary-glow)] cursor-pointer"><Zap size={10}/> Hire</button>
+                                  <button type="button" onClick={() => triggerHireVerificationPopup(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[#0f947e] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[#0a7a67] cursor-pointer"><Zap size={10}/> Hire</button>
                                 </>
                               )}
                               {candidate.hired_status === 'hired' && !candidate.company_rating && (
@@ -1077,7 +1077,7 @@ const submitInterviewRequest = async () => {
                     </div>
                   ) : (
                   /* ===================== GRID VIEW (original) ===================== */
-                 <div className="relative flex flex-col bg-white border border-slate-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group hover:border-[var(--primary)]/30">
+                 <div className="relative flex flex-col bg-white border border-slate-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group hover:border-[#0f947e]/30">
                     
                     {/* Status Strip (If Any) */}
                     {status && (
@@ -1096,8 +1096,8 @@ const submitInterviewRequest = async () => {
                           onClick={(e) => { e.stopPropagation(); toggleExcelSelection(candidate.id); }}
                           className={`absolute top-3 right-3 z-20 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${
                             selectedForExcel.includes(candidate.id)
-                              ? 'bg-[var(--primary)] border-[var(--primary)] shadow-[var(--primary)]/30'
-                              : 'bg-white/90 border-slate-300 hover:border-[var(--primary)] backdrop-blur-sm'
+                              ? 'bg-[#0f947e] border-[#0f947e] shadow-[#0f947e]/30'
+                              : 'bg-white/90 border-slate-300 hover:border-[#0f947e] backdrop-blur-sm'
                           }`}
                         >
                           {selectedForExcel.includes(candidate.id) && (
@@ -1107,17 +1107,17 @@ const submitInterviewRequest = async () => {
                           )}
                         </div>
                         <div className="relative shrink-0">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-sm shadow-[var(--primary)]/20">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0f947e] to-teal-600 text-white flex items-center justify-center font-black text-lg shadow-sm shadow-[#0f947e]/20">
                             RM
                           </div>
-                          <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-white border border-[var(--primary)]/10 flex items-center justify-center shadow-sm" title="AI Proctored">
-                            <ShieldCheck size={10} className="text-[var(--primary)]" />
+                          <div className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-white border border-teal-100 flex items-center justify-center shadow-sm" title="AI Proctored">
+                            <ShieldCheck size={10} className="text-[#0f947e]" />
                           </div>
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors leading-tight">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
-                          <p className="text-[11px] font-bold text-[var(--primary)] mt-0.5 truncate">{roleTitle}</p>
+                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[#0f947e] transition-colors leading-tight">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
+                          <p className="text-[11px] font-bold text-[#0f947e] mt-0.5 truncate">{roleTitle}</p>
                           <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500 mt-1">
                             <span className="flex items-center gap-1"><MapPin size={10} className="text-slate-400" /> {candidate.city || "Remote"}</span>
                             <span>•</span>
@@ -1142,12 +1142,12 @@ const submitInterviewRequest = async () => {
                       {/* 3. Sleek Metrics Grid */}
                       <div className="grid grid-cols-2 gap-2 mb-5">
                          <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><BarChart3 size={10} className="inline mr-1 text-[var(--primary)]"/> Accuracy</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><BarChart3 size={10} className="inline mr-1 text-[#0f947e]"/> Accuracy</span>
                             <span className="text-xs font-black text-slate-800">95%</span>
                          </div>
                          <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><Award size={10} className="inline mr-1 text-amber-500"/> AI Verified Score</span>
-                           <span className="text-sm font-black text-[var(--primary)]">{aiScore}</span>
+                           <span className="text-sm font-black text-[#0f947e]">{aiScore}</span>
                          </div>
                       </div>
 
@@ -1161,11 +1161,11 @@ const submitInterviewRequest = async () => {
                               <Button variant="secondary" onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 text-[10px] py-2 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-sm rounded-lg h-8">
                                 <FileText size={12} className="mr-1.5 opacity-70" /> Profile
                               </Button>
-                              <Button variant="secondary" onClick={() => openInterviewModal(candidate)} className="flex-1 text-[10px] py-2 bg-white border border-slate-200 text-slate-600 hover:text-[var(--primary)] hover:border-[var(--primary)]/30 hover:bg-[var(--accent)] shadow-sm rounded-lg h-8">
+                              <Button variant="secondary" onClick={() => openInterviewModal(candidate)} className="flex-1 text-[10px] py-2 bg-white border border-slate-200 text-slate-600 hover:text-[#0f947e] hover:border-[#0f947e]/30 hover:bg-teal-50 shadow-sm rounded-lg h-8">
                                 <Video size={12} className="mr-1.5 opacity-70" /> Interview
                               </Button>
                             </div>
-                            <Button variant="primary" onClick={() => requestHire(candidate)} className="w-full text-[11px] py-2 bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9">
+                            <Button variant="primary" onClick={() => requestHire(candidate)} className="w-full text-[11px] py-2 bg-[#0f947e] hover:bg-[#0a7a67] text-white shadow-sm shadow-[#0f947e]/20 rounded-lg h-9">
                               <Zap size={12} className="mr-1.5" /> Quick Hire (Without Interview)
                             </Button>
                           </>
@@ -1190,7 +1190,7 @@ const submitInterviewRequest = async () => {
                                  <Button variant="secondary" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="flex-[0.8] text-[10px] py-2 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-9 hover:bg-blue-50">
                                    <Video size={12} className="mr-1" /> Join Meet
                                  </Button>
-                                <Button variant="primary" onClick={() => triggerHireVerificationPopup(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
+                                <Button variant="primary" onClick={() => triggerHireVerificationPopup(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[#0f947e] text-white shadow-sm shadow-[#0f947e]/20 rounded-lg h-9 hover:bg-[#0a7a67]">
                                     <Zap size={12} className="mr-1.5" /> Official Hire
                                   </Button>
                               </div>
@@ -1239,7 +1239,7 @@ const submitInterviewRequest = async () => {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full p-8 md:p-10 shadow-2xl">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-[var(--accent)] text-[var(--primary)] flex items-center justify-center shadow-inner">
+              <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#0f947e] flex items-center justify-center shadow-inner">
                 <Video size={24}/>
               </div>
               <div>
@@ -1251,10 +1251,10 @@ const submitInterviewRequest = async () => {
             <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
               {/* Option Slot 1 */}
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
-                <span className="text-[9px] font-black text-[var(--primary)] bg-[var(--accent)] px-2 py-0.5 rounded border border-[var(--primary)]/10 uppercase tracking-wider">Option Slot 1</span>
+                <span className="text-[9px] font-black text-[#0f947e] bg-teal-50 px-2 py-0.5 rounded border border-teal-100 uppercase tracking-wider">Option Slot 1</span>
                 <div className="grid grid-cols-2 gap-2">
-                   <input type="date" id="slot1_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
-                   <input type="time" id="slot1_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
+                   <input type="date" id="slot1_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                   <input type="time" id="slot1_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
                 </div>
               </div>
 
@@ -1262,8 +1262,8 @@ const submitInterviewRequest = async () => {
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Option Slot 2</span>
                 <div className="grid grid-cols-2 gap-2">
-                   <input type="date" id="slot2_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
-                   <input type="time" id="slot2_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
+                   <input type="date" id="slot2_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                   <input type="time" id="slot2_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
                 </div>
               </div>
 
@@ -1271,15 +1271,15 @@ const submitInterviewRequest = async () => {
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Option Slot 3</span>
                 <div className="grid grid-cols-2 gap-2">
-                   <input type="date" id="slot3_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
-                   <input type="time" id="slot3_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
+                   <input type="date" id="slot3_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
+                   <input type="time" id="slot3_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#0f947e] [color-scheme:light]" />
                 </div>
               </div>
             </div>
 
             <div className="flex gap-4">
               <Button variant="secondary" onClick={() => setShowInterviewModal(false)} className="flex-1 py-3">Cancel</Button>
-              <Button variant="primary" onClick={submitInterviewRequest} className="flex-[1.5] py-3 bg-[var(--primary)] hover:bg-[var(--primary-glow)] shadow-md shadow-[var(--primary)]/20 text-white">
+              <Button variant="primary" onClick={submitInterviewRequest} className="flex-[1.5] py-3 bg-[#0f947e] hover:bg-[#0a7a67] shadow-md shadow-[#0f947e]/20 text-white">
                 Request Admin
               </Button>
             </div>
@@ -1300,7 +1300,7 @@ const submitInterviewRequest = async () => {
                   ))}
                </div>
 
-               <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write a brief professional feedback (Optional but recommended)..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 placeholder:text-slate-400 focus:border-[var(--primary)] focus:bg-white outline-none min-h-[120px] mb-6 shadow-sm font-medium"/>
+               <textarea value={reviewText} onChange={(e) => setReviewText(e.target.value)} placeholder="Write a brief professional feedback (Optional but recommended)..." className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 placeholder:text-slate-400 focus:border-[#0f947e] focus:bg-white outline-none min-h-[120px] mb-6 shadow-sm font-medium"/>
 
                <div className="flex gap-4">
                   <Button variant="secondary" onClick={() => {setShowReviewModal(false); setRating(0);}} className="flex-1 py-3">Cancel</Button>
@@ -1311,36 +1311,6 @@ const submitInterviewRequest = async () => {
       )}
 
       
-      {/* MOBILE BOTTOM NAVIGATION */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[var(--border)] shadow-[0_-2px_12px_oklch(0.20_0.025_245/0.06)] pb-[env(safe-area-inset-bottom)] z-50 print:hidden">
-        <div className="flex justify-evenly items-center px-2 py-2">
-          
-          <div onClick={() => setActiveTab('assigned')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-20 relative ${activeTab === 'assigned' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}`}>
-            <div className={`p-2 rounded-xl ${activeTab === 'assigned' ? 'bg-[var(--accent)]' : ''}`}><LayoutDashboard size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5">Talent Pool</span>
-          </div>
-
-          <div onClick={() => setActiveTab('hired')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-20 relative ${activeTab === 'hired' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}`}>
-            <div className={`p-2 rounded-xl ${activeTab === 'hired' ? 'bg-[var(--accent)]' : ''}`}><BriefcaseIcon size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5">My Pipeline</span>
-            {pendingReviews.length > 0 && (
-              <span className="absolute top-2 right-4 bg-amber-500 w-2 h-2 rounded-full border border-white" />
-            )}
-          </div>
-
-          <div onClick={() => router.push('/company/profile')} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] cursor-pointer w-20">
-            <div className="p-2 rounded-xl"><UserCircle size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5">Profile</span>
-          </div>
-
-          <div onClick={handleLogout} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] hover:text-[#c53030] cursor-pointer w-20">
-            <div className="p-2 rounded-xl"><LogOut size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5">Logout</span>
-          </div>
-
-        </div>
-      </div>
-
     </div>
   );
 }

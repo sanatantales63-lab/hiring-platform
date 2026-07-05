@@ -302,11 +302,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                       </div>
                    )}
                    
-                   <div className="flex justify-between border-b border-[var(--border)] pb-4 mb-4">
-                      <span className="text-[var(--muted-foreground)]">Gender</span>
-                      <span className="text-[var(--foreground)] capitalize">{candidate.gender || "Not Specified"}</span>
-                   </div>
-                   
                   <div className="relative">
                      <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>

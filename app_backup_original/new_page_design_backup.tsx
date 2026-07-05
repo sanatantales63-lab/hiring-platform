@@ -6,7 +6,8 @@ import Link from "next/link";
 import {
   ArrowRight, BadgeCheck, Brain, Building2, CheckCircle2, ShieldCheck,
   Sparkles, Target, Users, Zap, Briefcase, Twitter, Linkedin, Github,
-  Menu, X, Check, Award, Star
+  Menu, X, Check, Award, ChevronRight, Star, ArrowUpRight, Lock,
+  BarChart3, TrendingUp, Shield, Layers, FileCheck, UserCheck, Layers3
 } from "lucide-react";
 
 const COMPANIES = [
@@ -48,7 +49,7 @@ export default function Home() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
-              For Companies
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               How it Works
@@ -65,10 +66,23 @@ export default function Home() {
               <span>Admin</span>
             </button>
 
+            <button
+              onClick={() => router.push('/student/login')}
+              className="inline-flex items-center gap-2 h-9 px-4.5 rounded-lg text-xs font-bold bg-[var(--primary)] text-white hover:bg-[var(--primary-glow)] shadow-primary transition-all"
+            >
+              <span>Get Started</span>
+              <ArrowRight size={13} />
+            </button>
           </div>
 
           {/* Mobile Hamburger */}
           <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => router.push('/student/login')}
+              className="flex items-center gap-1 h-8 px-3 rounded-lg text-xs font-bold bg-[var(--primary)] text-white shadow-soft"
+            >
+              Sign In
+            </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-1.5 rounded-lg border border-[var(--border)] bg-white text-[var(--foreground)] hover:bg-[var(--surface)]"
@@ -88,7 +102,7 @@ export default function Home() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
-              For Companies
+              For Employers
             </Link>
             <Link href="/how-it-works" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               How it Works
@@ -127,20 +141,22 @@ export default function Home() {
             {/* Top Pill */}
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-amber-300 uppercase tracking-wider mb-6">
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span>The future of hiring</span>
+              <span>Choose Your Path</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12] max-w-5xl mx-auto">
-              Hiring built on <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">proofs</span>, not promises.<br />
-              Hire for short-term projects &amp; permanent roles.
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12] max-w-4xl mx-auto">
+              Welcome to Resourcemania.<br />
+              <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
+                Infinite HR & Hiring Possibilities.
+              </span>
             </h1>
 
-            <p className="mt-5 max-w-3xl mx-auto text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
-              Resourcemania connects verified finance &amp; tech professionals (CAs, Tax Experts, Developers) with companies to handle tax seasons, audits, project peaks, or permanent hiring needs.
+            <p className="mt-5 max-w-2xl mx-auto text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
+              Resourcemania bridges the gap between verified talent and top hiring companies. Select your path below to get started.
             </p>
 
-            {/* 🚀 DUAL PATH HERO CARDS */}
+            {/* 🚀 DUAL PATH HERO CARDS (PATH2HIRE CORE CONCEPT) */}
             <div className="mt-14 grid gap-8 md:grid-cols-2 max-w-5xl mx-auto text-left">
               
               {/* Card 1: Job Seeker */}
@@ -150,27 +166,24 @@ export default function Home() {
               >
                 <div>
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-indigo-600 flex items-center justify-center mb-6 shadow-primary group-hover:scale-110 transition-transform">
-                    <Users className="h-8 w-8 text-white stroke-[2.2]" />
+                    <UserCheck className="h-8 w-8 text-white stroke-[2.2]" />
                   </div>
 
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 font-display">
-                    For Candidates
+                    I am a Job Seeker
                   </h3>
                   
                   <p className="text-base font-bold text-amber-300 mb-4">
-                    Get high-paying contract projects &amp; permanent roles.
+                    Get Vetted Once, Hired Forever.
                   </p>
 
-                  <ul className="mt-4 space-y-2 mb-6 text-indigo-100/90 text-sm">
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Choose flexible contract projects or full-time roles</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Earn verified, portable CA/finance/tech skill badges</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Get matched directly with premium hiring companies</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Skip repeat interview loops with verified scores</li>
-                  </ul>
+                  <p className="text-sm text-indigo-100/90 leading-relaxed mb-6">
+                    Complete our AI Skill Assessment once and become visible to hundreds of top-tier companies. No repeat test loops or resume black holes.
+                  </p>
                 </div>
 
                 <div className="inline-flex items-center gap-2 text-sm font-extrabold text-amber-300 group-hover:text-amber-200 transition-colors">
-                  <span>Build my profile</span>
+                  <span>Start Your Journey</span>
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform" />
                 </div>
               </div>
@@ -186,23 +199,20 @@ export default function Home() {
                   </div>
 
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 font-display">
-                    For Companies
+                    I am an Employer
                   </h3>
                   
                   <p className="text-base font-bold text-amber-300 mb-4">
-                    Deploy verified talent for project peaks, contracts, or permanent roles.
+                    Access Vetted Talent & Automated Hiring.
                   </p>
 
-                  <ul className="mt-4 space-y-2 mb-6 text-indigo-100/90 text-sm">
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Onboard resources instantly for tax season, closing, or audits</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Contract-to-Hire: Try talent on short-term tasks first</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Skip resume screening with verified practical rubrics</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Source top-tier permanent hires with full audit logs</li>
-                  </ul>
+                  <p className="text-sm text-indigo-100/90 leading-relaxed mb-6">
+                    Scale faster with our verified candidate ecosystem. Access pre-screened video profiles, signed test rubrics, and 5-day shortlists.
+                  </p>
                 </div>
 
                 <div className="inline-flex items-center gap-2 text-sm font-extrabold text-amber-300 group-hover:text-amber-200 transition-colors">
-                  <span>Start hiring</span>
+                  <span>Explore Employer Solutions</span>
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform" />
                 </div>
               </div>
@@ -212,10 +222,10 @@ export default function Home() {
             {/* Trust Metrics Strip */}
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               {[
-                { k: "50+", label: "Verified candidates" },
-                { k: "5+", label: "Premium companies" },
-                { k: "5 days", label: "Average shortlist" },
-                { k: "94%", label: "Hiring satisfaction" },
+                { k: "98.4%", label: "Verification Accuracy" },
+                { k: "10,000+", label: "Verified Candidates" },
+                { k: "500+", label: "Hiring Partners" },
+                { k: "80%", label: "Faster Time-to-Hire" },
               ].map((m) => (
                 <div key={m.label} className="p-4 rounded-2xl bg-white/5 backdrop-blur border border-white/10 text-center">
                   <div className="font-display text-2xl font-black text-amber-300">{m.k}</div>
@@ -227,39 +237,53 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── 4. JOB SEEKER DEEP DIVE (CANDIDATE FEATURES IN MODERN LAYOUT) ── */}
+
+        {/* ── 3. TRUSTED COMPANIES MARQUEE ── */}
+        <div className="border-b border-[var(--border)] bg-white py-6">
+          <div className="mx-auto max-w-7xl px-4 text-center">
+            <p className="mb-3 text-[10px] font-extrabold uppercase tracking-widest text-[var(--muted-foreground)]">
+              Trusted by hiring managers and recruitment teams at
+            </p>
+            <div className="overflow-hidden">
+              <div className="flex w-max animate-marquee gap-14 whitespace-nowrap items-center">
+                {[...COMPANIES, ...COMPANIES].map((c, i) => (
+                  <span key={i} className="font-display text-xl font-extrabold tracking-tight text-slate-400 hover:text-[var(--primary)] transition-colors">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        {/* ── 4. JOB SEEKER DEEP DIVE (YOUR LAST FIRST ASSESSMENT) ── */}
         <section className="py-20 lg:py-28 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               
               {/* Left Content */}
               <div>
-                <span className="section-label mb-4">For Candidates</span>
+                <span className="section-label mb-4">For Job Seekers</span>
                 <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[var(--foreground)] leading-tight">
-                  Flexible Projects or Stable Careers.
+                  Your Last First Assessment.
                 </h2>
                 <p className="mt-4 text-base text-[var(--muted-foreground)] leading-relaxed">
-                  Complete our unified skill assessment once and unlock access to high-paying short-term contract projects, seasonal gigs, and permanent job opportunities from verified employers.
+                  Join the Resourcemania Verified Inventory. Complete our unified skill assessment protocol once and become instantly visible to hundreds of active hiring teams. No more repeat interviews or redundant tests.
                 </p>
 
-                <div className="mt-8 p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-4">
+                <div className="mt-8 p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] space-y-3">
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-[var(--primary)] shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-[var(--foreground)]">
-                      <span className="font-bold text-[var(--primary)]">AI Skill Verification:</span> Adaptive assessments that test real-world ability — not memorized trivia. Every score is signed and shareable.
-                    </div>
+                    <p className="text-xs sm:text-sm font-semibold text-[var(--foreground)]">
+                      <span className="font-bold text-[var(--primary)]">One-Time Verification:</span> Earn signed badges in Accounting, Taxation, Finance, or Tech that carry weight with every employer.
+                    </p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-[var(--primary)] shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-[var(--foreground)]">
-                      <span className="font-bold text-[var(--primary)]">Portable Credentials:</span> Candidates own their results. Share a public Resourcemania profile or embed badges anywhere.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-[var(--primary)] shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-[var(--foreground)]">
-                      <span className="font-bold text-[var(--primary)]">Identity & Trust:</span> ID checks, proctoring, and code-attribution prevent fakes. Every profile carries a verifiable trust badge.
-                    </div>
+                    <p className="text-xs sm:text-sm font-semibold text-[var(--foreground)]">
+                      <span className="font-bold text-[var(--primary)]">Direct Employer Matching:</span> Skip resume black holes — recruiters view your verified score report directly.
+                    </p>
                   </div>
                 </div>
 
@@ -315,7 +339,7 @@ export default function Home() {
         </section>
 
 
-        {/* ── 5. EMPLOYER DEEP DIVE (COMPANY FEATURES IN MODERN LAYOUT) ── */}
+        {/* ── 5. EMPLOYER DEEP DIVE (PRE-VETTED WORKFORCE) ── */}
         <section className="py-20 lg:py-28" style={{ background: "var(--surface)" }}>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -350,32 +374,26 @@ export default function Home() {
 
               {/* Right Content */}
               <div>
-                <span className="section-label mb-4">For Companies</span>
+                <span className="section-label mb-4">For Employers</span>
                 <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-[var(--foreground)] leading-tight">
-                  Scale Your Workforce Dynamically.
+                  Engineered Workforce & Automated Infrastructure.
                 </h2>
                 <p className="mt-4 text-base text-[var(--muted-foreground)] leading-relaxed">
-                  Whether you need support for tax filing seasons, audit spikes, high-priority projects, or permanent team expansion, access pre-vetted, proctored talent instantly.
+                  Scale faster with our verified recruitment ecosystem. Access pre-evaluated candidate profiles, proctored test analytics, and structured interview rubrics.
                 </p>
 
-                <div className="mt-8 p-5 rounded-2xl bg-white border border-[var(--border)] space-y-4 shadow-soft">
+                <div className="mt-8 p-5 rounded-2xl bg-white border border-[var(--border)] space-y-3 shadow-soft">
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-[var(--foreground)]">
-                      <span className="font-bold text-[var(--foreground)]">Precision Matching:</span> Match by proven skill, role fit, salary band, and culture signals — not keyword bingo.
-                    </div>
+                    <p className="text-xs sm:text-sm font-semibold text-[var(--foreground)]">
+                      <span className="font-bold text-[var(--foreground)]">80% Faster Time-to-Hire:</span> Skip screening 200+ unverified resumes. Receive shortlist-ready candidate rubrics in 5 days.
+                    </p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-[var(--foreground)]">
-                      <span className="font-bold text-[var(--foreground)]">Hire in Days:</span> Average time-to-shortlist drops from 6 weeks to 5 days. Companies see candidates with proof attached.
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-[var(--foreground)]">
-                      <span className="font-bold text-[var(--foreground)]">Bias-Aware Scoring:</span> Blind evaluation, calibrated rubrics, and audit logs give every applicant a fair, transparent shot.
-                    </div>
+                    <p className="text-xs sm:text-sm font-semibold text-[var(--foreground)]">
+                      <span className="font-bold text-[var(--foreground)]">Proctored Integrity:</span> AI camera checks, browser lock, and code plagiarism audit trails baked in.
+                    </p>
                   </div>
                 </div>
 
@@ -395,36 +413,35 @@ export default function Home() {
         </section>
 
 
-        {/* ── 6. 3-STEP ECOSYSTEM LOOP (ORIGINAL STEPS IN NEW LAYOUT) ── */}
+        {/* ── 6. 3-STEP ECOSYSTEM LOOP ── */}
         <section className="py-20 lg:py-28 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             
             <div className="max-w-3xl mx-auto text-center">
-              <span className="section-label">How it works</span>
+              <span className="section-label">The Ecosystem</span>
               <h2 className="mt-5 font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">
-                From signup to signed offer
+                Three Steps to Hiring Certainty
               </h2>
-              <p className="mt-4 text-base text-[var(--muted-foreground)] leading-relaxed">Three steps. One trusted system. Built for both sides of the table.</p>
             </div>
 
             <div className="mt-16 grid gap-8 lg:grid-cols-3">
               {[
                 {
                   n: "01",
-                  title: "Create your profile",
-                  desc: "Candidates take AI assessments. Companies define roles & rubrics — in minutes.",
+                  title: "Unified AI Assessment",
+                  desc: "Candidates complete role-based adaptive evaluations. Test integrity is proctored and verified.",
                   badge: "Step One"
                 },
                 {
                   n: "02",
-                  title: "Get verified",
-                  desc: "Skills, identity, and experience are validated and signed. No résumé inflation.",
+                  title: "Cryptographic Signed Badge",
+                  desc: "Scores and rubrics are converted into a verified digital credential attached to the profile.",
                   badge: "Step Two"
                 },
                 {
                   n: "03",
-                  title: "Match & meet",
-                  desc: "Our engine surfaces best-fit matches. Schedule, interview, and offer — all in one place.",
+                  title: "Direct Employer Shortlist",
+                  desc: "Hiring managers filter pre-evaluated talent and schedule interviews in days.",
                   badge: "Step Three"
                 },
               ].map((s) => (
@@ -447,37 +464,7 @@ export default function Home() {
         </section>
 
 
-        {/* ── 7. TESTIMONIALS SECTION (Voices from original page) ── */}
-        <section className="py-20 lg:py-28 bg-slate-50 border-t border-[var(--border)]">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl mx-auto text-center">
-              <span className="section-label">Voices</span>
-              <h2 className="mt-5 font-display text-3xl font-bold tracking-tight sm:text-4xl text-[var(--foreground)]">People hire — and get hired — differently here</h2>
-            </div>
-            
-            <div className="mt-14 grid gap-6 lg:grid-cols-3">
-              {[
-                { q: "We cut our screening time by 70%. Every Chartered Accountant and Tax Associate that lands on our desk is already verified and tested on practical rubrics.", n: "Priya Sharma", r: "HR Director, Tax & Advisory Corp" },
-                { q: "I went from sending endless resumes to getting 4 interviews with top audit firms in two weeks. The verified accounting badges speak for themselves.", n: "Devendra Kumar", r: "Senior Tax Consultant & CA Candidate" },
-                { q: "Finally a recruitment platform that understands CA and accounts hiring. Transparent, fast, and pre-screened with genuine practical scores.", n: "Sanjay Mehta", r: "Managing Partner, Mehta & Associates Auditing" },
-              ].map((t, i) => (
-                <figure key={i} className="bg-white rounded-3xl border border-[var(--border)] p-8 shadow-card flex flex-col justify-between hover-glow-card">
-                  <blockquote className="text-base leading-relaxed text-[var(--foreground)] mb-6 font-medium">&ldquo;{t.q}&rdquo;</blockquote>
-                  <figcaption className="flex items-center gap-3 pt-5 border-t border-[var(--border)]">
-                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-[var(--accent)] font-display font-black text-[var(--primary)] text-sm">{t.n.charAt(0)}</div>
-                    <div>
-                      <div className="text-sm font-bold text-[var(--foreground)]">{t.n}</div>
-                      <div className="text-xs text-[var(--muted-foreground)] font-semibold">{t.r}</div>
-                    </div>
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-
-
-        {/* ── 8. HIGH-CONVERTING CTA BANNER ── */}
+        {/* ── 7. HIGH-CONVERTING CTA BANNER ── */}
         <section className="py-20 lg:py-28" style={{ background: "var(--surface)" }}>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--primary)] via-indigo-900 to-slate-950 p-10 sm:p-16 text-white shadow-primary">
@@ -491,7 +478,7 @@ export default function Home() {
                     Ready to hire — or get hired — on proof?
                   </h2>
                   <p className="mt-4 text-base sm:text-lg text-indigo-100/90 max-w-2xl leading-relaxed">
-                    Join thousands building real careers and real teams on Resourcemania.
+                    Join thousands of verified candidates and top companies building transparent, fast, and reliable career pipelines.
                   </p>
                 </div>
 
@@ -508,7 +495,7 @@ export default function Home() {
                     onClick={() => router.push('/company/login')}
                     className="w-full inline-flex items-center justify-center gap-2.5 border border-white/30 bg-white/10 backdrop-blur-md text-white font-black h-12 rounded-xl px-7 text-sm hover:bg-white/20 transition-all"
                   >
-                    <span>For Companies</span>
+                    <span>For Employers</span>
                     <Building2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -538,7 +525,7 @@ export default function Home() {
               </Link>
 
               <p className="max-w-xs text-sm text-[var(--muted-foreground)] leading-relaxed">
-                The future of hiring. AI-verified skills, transparent matching, and zero resume black holes.
+                The modern hiring platform powered by AI skill verification, transparent candidate credentials, and zero resume black holes.
               </p>
 
               <div className="flex items-center gap-2 pt-2">

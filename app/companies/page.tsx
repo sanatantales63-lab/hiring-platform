@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 
 const PILLARS = [
-  { icon: Filter, t: "Pre-Vetted Talent Pool", d: "Every candidate carries a signed skill evaluation profile. No more wading through 200 unverified resumes." },
-  { icon: Workflow, t: "Collaborative Pipelines", d: "Share candidate shortlists, test reports, and structured interview rubrics with your entire hiring team." },
+  { icon: Filter, t: "Pre-Vetted Talent Pool", d: "Every candidate is pre-evaluated and ready to support seasonal audits, tax seasons, or direct full-time roles." },
+  { icon: Workflow, t: "Collaborative Pipelines", d: "Manage short-term contractor contracts and permanent team placements in unified hiring dashboards." },
   { icon: Gauge, t: "Time-to-Hire Dashboards", d: "Real-time analytics tracking shortlist velocity, assessment pass rates, and candidate engagement." },
   { icon: ShieldCheck, t: "Proctoring & Audit Trails", d: "Proctored assessment environment with identity verification and anti-plagiarism checks." },
   { icon: Lock, t: "Bias-Aware Tooling", d: "Blind reviews, calibrated rubrics, and fairness reports baked directly into the platform." },
@@ -51,7 +51,7 @@ export default function CompaniesPage() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[var(--surface)] text-[var(--primary)]">
-              For Employers
+              For Companies
             </Link>
             <Link href="/how-it-works" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               How it Works
@@ -100,7 +100,7 @@ export default function CompaniesPage() {
               For Candidates
             </Link>
             <Link href="/companies" className="px-4 py-2 rounded-lg text-xs font-bold bg-[var(--accent)] text-[var(--primary)]">
-              For Employers
+              For Companies
             </Link>
             <Link href="/how-it-works" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               How it Works
@@ -130,18 +130,18 @@ export default function CompaniesPage() {
               <div className="lg:col-span-7 text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-amber-300 uppercase tracking-wider mb-6">
                   <Building2 className="h-3.5 w-3.5 text-amber-400" />
-                  <span>For Employers & Hiring Teams</span>
+                  <span>For Companies &amp; Hiring Teams</span>
                 </div>
 
                 <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12]">
-                  Hire verified talent in<br />
+                  Deploy verified talent<br />
                   <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">
-                    days, not months.
+                    for project peaks, contracts, short-term assignments, or permanent roles.
                   </span>
                 </h1>
 
                 <p className="mt-5 max-w-2xl text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
-                  Source candidates whose practical skills are already proven through proctored AI tests. Skip 80% of screening time.
+                  Access pre-vetted finance and tech talent ready to onboard. Address seasonal workload peaks (like GST/tax filing seasons, audits) or hire top-tier permanent teams with verified proof.
                 </p>
 
                 <div className="mt-8 flex flex-wrap justify-center lg:justify-start items-center gap-3.5">
