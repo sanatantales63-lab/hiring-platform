@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, Building2, ShieldCheck } from "lucide-react";
+import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-// Master UI Components
+// 🔥 Naye Master Components 🔥
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 
@@ -40,7 +40,7 @@ export default function CompanyLogin() {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Strict Consent Check ONLY for Sign Up
+    // 🛑 Strict Consent Check ONLY for Sign Up 🛑
     if (isSignUp && !agreedToTerms) {
         return alert("🛑 Legal Requirement: Please read and tick the Terms & Conditions box to proceed.");
     }
@@ -72,7 +72,7 @@ export default function CompanyLogin() {
         
         authUserId = authData?.user?.id;
 
-        // Auto-create company row with Legal Proof
+        // 🔥 Auto-create company row with Legal Proof
         if (authUserId) {
             const legalData = await fetchLegalProof();
             await supabase.from('companies').upsert({
@@ -116,91 +116,76 @@ export default function CompanyLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center p-4 sm:p-6 relative font-sans text-white">
+    <div className="min-h-screen bg-[var(--surface)] flex items-center justify-center p-4 relative z-10 font-sans">
       
-      {/* Background Glows */}
-      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
-
-      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md">
         
-        {/* Back link */}
-        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-200/80 hover:text-white mb-6 transition-colors">
-          <ArrowLeft size={14} /> Back to Resourcemania Home
-        </Link>
-
-        <Card className="bg-white/95 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl p-7 sm:p-9 text-[var(--foreground)]">
+        <Card className="bg-white border border-[var(--border)] rounded-xl shadow-modal p-8 md:p-10 w-full">
           
-          {/* Header Icon */}
-          <div className="flex justify-center mb-5">
-            <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-3.5 rounded-2xl text-white shadow-soft">
-               <Building2 className="w-8 h-8 stroke-[2.2]" />
+          <div className="flex justify-center mb-6">
+            <div className="bg-[var(--accent)] border border-[var(--border)] p-3.5 rounded-xl">
+               <Briefcase className="w-9 h-9 text-[var(--primary)]" />
             </div>
           </div>
           
-          <h2 className="text-2xl font-black font-display text-center text-[var(--foreground)] tracking-tight">
-            Employer Portal
-          </h2>
-          <p className="text-[var(--muted-foreground)] text-xs font-medium text-center mt-1 mb-6">
-            {isSignUp ? "Create a recruiter account to access pre-vetted talent." : "Hire top verified talent with proctored score reports."}
+          <h2 className="text-2xl font-bold font-display text-center text-[var(--foreground)] mb-1">Company Portal</h2>
+          <p className="text-[var(--muted-foreground)] text-sm text-center mb-6">
+            {isSignUp ? "Create a recruiter account." : "Hire top 1% talent verified by AI."}
           </p>
 
           <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
-            <div>
-              <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5">Company Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={17} />
-                <input 
-                  type="email" required placeholder="recruiter@company.com" 
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-[var(--border)] rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 outline-none transition-all bg-white"
-                />
-              </div>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={18} />
+              <input 
+                type="email" required placeholder="Company Email" 
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-[var(--border)] rounded-lg py-3 pl-11 pr-4 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all bg-white text-sm"
+              />
             </div>
             
             <div>
-              <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={17} />
+                <Lock className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={18} />
                 <input 
                   type={showPassword ? "text" : "password"} 
-                  required placeholder="Min 6 characters" minLength={6}
+                  required placeholder="Password (Min 6 chars)" minLength={6}
                   value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-[var(--border)] rounded-xl py-3 pl-10 pr-11 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 outline-none transition-all bg-white"
+                  className="w-full border border-[var(--border)] rounded-lg py-3 pl-11 pr-12 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all bg-white text-sm"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 top-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                 >
-                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
               {!isSignUp && (
-                <div className="flex justify-end w-full mt-2">
-                   <Link href="/forgot-password" className="text-xs text-[var(--primary)] font-bold hover:underline">
+                <div className="flex justify-end w-full mt-2 mb-1">
+                   <Link href="/forgot-password" className="text-xs text-[var(--primary)] font-medium hover:underline">
                     Forgot Password?
                    </Link>
                 </div>
               )}
             </div>
 
-            {/* SMART CONDITIONAL CONSENT */}
+            {/* 🔥 SMART CONDITIONAL CONSENT 🔥 */}
             {isSignUp ? (
-              <div className="flex items-start gap-3 mt-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5">
+              <div className="flex items-start gap-3 mt-4 bg-[var(--surface)] border border-[var(--border)] rounded-lg p-3.5">
                  <input 
                     type="checkbox" 
                     id="terms" 
                     checked={agreedToTerms} 
                     onChange={(e) => setAgreedToTerms(e.target.checked)} 
-                    className="mt-0.5 w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
+                    className="mt-1 w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
                  />
-                 <label htmlFor="terms" className="text-[11px] text-[var(--muted-foreground)] font-medium leading-relaxed cursor-pointer select-none">
-                    I agree to be legally bound by Resourcemania&apos;s <Link href="/terms-of-service" className="text-[var(--primary)] font-bold hover:underline" target="_blank">Terms & Conditions</Link>, and authorize secure access logging.
+                 <label htmlFor="terms" className="text-xs text-[var(--muted-foreground)] font-medium leading-relaxed cursor-pointer select-none">
+                    By creating an account, I confirm that I have read, understood, and agree to be legally bound by Resourcemania's <Link href="/terms-of-service" className="text-[var(--primary)] font-semibold hover:underline" target="_blank">Terms & Conditions</Link>, and I authorise Resourcemania to securely store my access logs.
                  </label>
               </div>
             ) : (
-              <div className="mt-3 text-center">
-                 <p className="text-[11px] text-[var(--muted-foreground)] font-medium">
+              <div className="mt-4 text-center">
+                 <p className="text-xs text-[var(--muted-foreground)] font-medium">
                     By logging in, you agree to our <Link href="/terms-of-service" className="text-[var(--primary)] font-bold hover:underline" target="_blank">Terms & Conditions</Link>.
                  </p>
               </div>
@@ -210,16 +195,16 @@ export default function CompanyLogin() {
                type="submit" 
                disabled={loading} 
                variant="primary"
-               className="w-full mt-3 py-3.5 text-sm font-bold shadow-soft rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+               className="w-full mt-2 py-4 text-lg"
             >
-              {loading ? <><Loader2 className="animate-spin" size={18}/> Processing...</> : (isSignUp ? "Create Recruiter Account" : "Sign In to Employer Portal")}
+              {loading ? <><Loader2 className="animate-spin" size={20}/> Processing...</> : (isSignUp ? "Sign Up" : "Login")}
             </Button>
           </form>
 
-          <div className="text-center text-xs font-semibold text-[var(--muted-foreground)] pt-3 border-t border-[var(--border)]">
+          <div className="text-center text-sm font-medium text-[var(--muted-foreground)] mb-2">
             {isSignUp ? "Already have an account?" : "Don't have an account?"} 
-            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[var(--primary)] font-extrabold ml-1.5 hover:underline transition-colors">
-              {isSignUp ? "Sign In here" : "Sign Up now"}
+            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[var(--primary)] font-semibold ml-2 hover:underline transition-colors">
+              {isSignUp ? "Login here" : "Sign Up"}
             </button>
           </div>
         </Card>

@@ -391,97 +391,102 @@ const submitInterviewRequest = async () => {
 
   // 🔥 BYPASSED: Removed manual admin lock block to allow direct recruiter access right after auth signup loops
   return (
-    <div className="min-h-screen bg-transparent text-slate-900 flex relative z-10">
+    <div className="min-h-screen bg-[var(--surface)] text-[var(--foreground)] flex relative z-10">
       
-      {/* 🚀 PREMIUM GLASS SIDEBAR (Clean Design) 🚀 */}
-      <aside className="w-64 bg-white/60 backdrop-blur-xl border-r border-slate-200/50 hidden md:flex flex-col p-6 fixed h-full z-10 shadow-sm">
+      {/* PROFESSIONAL SIDEBAR */}
+      <aside className="w-64 bg-white border-r border-[var(--border)] hidden md:flex flex-col p-5 fixed h-full z-10 shadow-soft">
         
-        {/* Simple Text Header */}
-        <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Recruiter Panel</h2>
+        {/* Logo Header */}
+        <div className="mb-8 px-1">
+          <span className="font-display text-lg font-bold tracking-tight text-[var(--foreground)]">
+            Resource<span className="text-[var(--primary)]">mania</span>
+          </span>
+          <p className="text-xs text-[var(--muted-foreground)] font-medium mt-0.5">Recruiter Panel</p>
+        </div>
         
-        <nav className="space-y-3 flex-1">
+        <nav className="space-y-1 flex-1">
+          {/* Profile */}
+          <div className="pb-4 mb-4 border-b border-[var(--border)]">
+             <div 
+               onClick={() => router.push('/company/profile')} 
+               className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg cursor-pointer text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)] transition-all text-sm font-semibold"
+             >
+                <BriefcaseIcon size={18}/> <span>Profile</span>
+             </div>
+          </div>
+
           {/* Talent Pool Tab */}
           <div 
             onClick={() => setActiveTab('assigned')} 
-            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all font-bold ${
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
               activeTab === 'assigned' 
-                ? 'bg-[#0f947e] text-white shadow-md' 
-                : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' 
+                : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'
             }`}
           >
-             <LayoutDashboard size={20}/> <span>Talent Pool</span>
+             <LayoutDashboard size={18}/> <span>Talent Pool</span>
           </div>
 
           {/* My Pipeline Tab */}
           <div 
             onClick={() => setActiveTab('hired')} 
-            className={`flex items-center justify-between px-4 py-3.5 rounded-xl cursor-pointer transition-all font-bold ${
+            className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
               activeTab === 'hired' 
-                ? 'bg-[#0f947e] text-white shadow-md' 
-                : 'hover:bg-white text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200'
+                ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' 
+                : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'
             }`}
           >
-             <div className="flex items-center gap-3"><BriefcaseIcon size={20}/> <span>My Pipeline</span></div>
-             {pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs font-black px-2 py-0.5 rounded-lg animate-pulse">{pendingReviews.length}</span>}
-          </div>
-
-          {/* My Requirements Tab */}
-          <div className="pt-6 mt-6 border-t border-slate-200/50">
-             <div 
-               onClick={() => router.push('/company/profile')} 
-               className="flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer bg-slate-50 text-slate-600 hover:bg-white hover:text-slate-900 transition-all border border-slate-200 shadow-sm font-bold"
-             >
-                <BriefcaseIcon size={20}/> <span>My Requirements</span>
-             </div>
+             <div className="flex items-center gap-3"><BriefcaseIcon size={18}/> <span>My Pipeline</span></div>
+             {pendingReviews.length > 0 && <span className="bg-[var(--warning-bg)] text-[var(--warning)] text-xs font-bold px-2 py-0.5 rounded-full border border-[var(--warning)]/20">{pendingReviews.length}</span>}
           </div>
         </nav>
 
         {/* Logout Button */}
         <button 
           onClick={handleLogout} 
-          className="flex items-center gap-3 text-slate-500 hover:text-red-500 mt-auto font-bold px-4 py-3 transition-colors"
+          className="flex items-center gap-2.5 text-[var(--muted-foreground)] hover:text-[#c53030] mt-auto text-sm font-semibold px-3.5 py-2.5 rounded-lg hover:bg-[oklch(0.98_0.015_15)] transition-all"
         >
-          <LogOut size={20} /> Logout
+          <LogOut size={18} /> Logout
         </button>
       </aside>
 
-      <main className="flex-1 p-8 md:p-10 ml-0 md:ml-64 overflow-y-auto">
+      <main className="flex-1 p-5 md:p-8 ml-0 md:ml-64 overflow-y-auto min-h-screen">
         
         {/* REVIEW ALERTS */}
         {pendingReviews.length > 0 && (
-           <Card className="mb-8 bg-amber-50/80 border-amber-200 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in shadow-sm">
-              <div className="flex items-center gap-4">
-                 <div className="bg-amber-100 p-3 rounded-xl border border-amber-200"><AlertCircle className="text-amber-600" size={28}/></div>
+           <Card className="mb-6 bg-[var(--warning-bg)] border-[var(--warning)]/30 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                 <div className="bg-white/80 p-2.5 rounded-lg border border-[var(--warning)]/20"><AlertCircle className="text-[var(--warning)]" size={22}/></div>
                  <div>
-                    <h3 className="text-xl font-extrabold text-amber-800">Action Required: Leave a Review!</h3>
-                    <p className="text-amber-700/80 text-sm font-medium">You have candidates who completed their timeline. Please rate their performance.</p>
+                    <h3 className="text-base font-semibold text-[var(--foreground)]">Action Required: Leave a Review</h3>
+                    <p className="text-[var(--muted-foreground)] text-sm">You have candidates who completed their timeline. Please rate their performance.</p>
                  </div>
               </div>
-              <Button variant="primary" onClick={() => setActiveTab('hired')} className="bg-amber-500 hover:bg-amber-600 text-white w-full sm:w-auto">Review Now</Button>
+              <Button variant="secondary" onClick={() => setActiveTab('hired')} className="w-full sm:w-auto text-sm">Review Now</Button>
            </Card>
         )}
 
-        <header className="flex justify-between items-start mb-8 gap-4 flex-wrap">
+        <header className="flex justify-between items-start mb-6 gap-4 flex-wrap">
           <div>
-             <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
-             <p className="text-slate-500 mt-2 font-medium">{activeTab === 'assigned' ? 'Candidates verified by Resourcemania AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
+             <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
+             <p className="text-[var(--muted-foreground)] mt-1 text-sm">{activeTab === 'assigned' ? 'Candidates verified by Resourcemania AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
           </div>
-         <div className="flex items-center gap-3 shrink-0 flex-wrap justify-end">
+         <div className="flex items-center gap-2.5 shrink-0 flex-wrap justify-end">
             {/* Grid / List Toggle */}
-            <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm gap-1">
+            <div className="flex items-center bg-white border border-[var(--border)] rounded-lg p-1 shadow-soft gap-0.5">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'grid' ? 'bg-[#0f947e] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
+                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'grid' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
                 title="Grid View"
               >
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/></svg>
+                <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/></svg>
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'list' ? 'bg-[#0f947e] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
+                className={`p-1.5 rounded-md transition-all duration-200 ${viewMode === 'list' ? 'bg-[var(--primary)] text-white' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
                 title="List View"
               >
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="1.5" width="13" height="2.2" rx="1.1" fill="currentColor"/><rect x="1" y="6.4" width="13" height="2.2" rx="1.1" fill="currentColor"/><rect x="1" y="11.3" width="13" height="2.2" rx="1.1" fill="currentColor"/></svg>
+                <svg width="14" height="14" viewBox="0 0 15 15" fill="none"><rect x="1" y="1.5" width="13" height="2.2" rx="1.1" fill="currentColor"/><rect x="1" y="6.4" width="13" height="2.2" rx="1.1" fill="currentColor"/><rect x="1" y="11.3" width="13" height="2.2" rx="1.1" fill="currentColor"/></svg>
               </button>
             </div>
             {/* Select All / Deselect All */}
@@ -498,10 +503,10 @@ const submitInterviewRequest = async () => {
                         setSelectedForExcel(currentList.map(c => c.id));
                       }
                     }}
-                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${
+                    className={`w-4.5 h-4.5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 ${
                       allSelected
-                        ? 'bg-[#0f947e] border-[#0f947e] shadow-[#0f947e]/30'
-                        : 'bg-white border-slate-300 hover:border-[#0f947e]'
+                        ? 'bg-[var(--primary)] border-[var(--primary)]'
+                        : 'bg-white border-[var(--border)] hover:border-[var(--primary)]'
                     }`}
                   >
                     {allSelected && (
@@ -510,9 +515,9 @@ const submitInterviewRequest = async () => {
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm font-bold text-slate-600 whitespace-nowrap">
-                    {allSelected ? 'Deselect All' : 'Select All'}
-                  </span>
+                   <span className="text-sm font-medium text-slate-600 whitespace-nowrap">
+                     {allSelected ? 'Deselect All' : 'Select All'}
+                   </span>
                 </label>
               );
             })()}
@@ -520,7 +525,7 @@ const submitInterviewRequest = async () => {
             {/* Export Button */}
             <button
               onClick={handleCompanyExportExcel}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all"
+              className="flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-[var(--shadow-primary)] transition-all"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
               {selectedForExcel.length > 0 ? `Export ${selectedForExcel.length} Selected` : 'Export All (.xlsx)'}
@@ -528,30 +533,30 @@ const submitInterviewRequest = async () => {
           </div>
         </header>
 
-       {/* 🔥 FIXED PREMIUM ACTION SEARCH BAR CONTAINER */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-slate-200 p-4 rounded-3xl shadow-sm relative z-20">
+       {/* SEARCH BAR */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between bg-white border border-[var(--border)] p-3.5 rounded-xl shadow-soft relative z-20">
           <div className="relative w-full sm:max-w-md flex items-center">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 flex items-center justify-center">
-               <Search size={16} />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--muted-foreground)] flex items-center justify-center">
+               <Search size={15} />
             </div>
             <input 
               type="text" 
-              placeholder="Search ID, Name or Target Skills (e.g. GST, Excel)..." 
+              placeholder="Search by name, ID or skill (e.g. GST, Excel)..." 
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)} 
-              className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl py-3 pl-12 pr-4 text-xs font-semibold focus:border-[#0f947e] focus:bg-white focus:ring-2 focus:ring-teal-500/10 outline-none transition-all placeholder:text-slate-400"
+              className="w-full bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] rounded-lg py-2.5 pl-10 pr-4 text-sm focus:border-[var(--primary)] focus:bg-white focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all placeholder:text-[var(--muted-foreground)]"
             />
           </div>
           
           <button
             type="button"
             onClick={() => setIsFilterDrawerOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm shrink-0 relative hover:scale-[1.02] duration-200"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[var(--primary-glow)] transition-all shadow-[var(--shadow-primary)] shrink-0 relative"
           >
             <Filter size={14} />
-            <span>Advanced Workspace Filters</span>
+            <span>Advanced Filters</span>
             {activeFiltersCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#0f947e] text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-in zoom-in duration-200">
+              <span className="absolute -top-2 -right-2 bg-white text-[var(--primary)] text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-soft border border-[var(--border)]">
                 {activeFiltersCount}
               </span>
             )}
@@ -577,20 +582,20 @@ const submitInterviewRequest = async () => {
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 32, stiffness: 260 }}
-                className="fixed right-0 top-0 bottom-0 w-full sm:max-w-2xl bg-white border-l border-slate-200/80 shadow-[0_0_50px_rgba(0,0,0,0.12)] z-50 flex flex-col overflow-hidden"
+                className="fixed right-0 top-0 bottom-0 w-full sm:max-w-xl bg-white border-l border-[var(--border)] shadow-modal z-50 flex flex-col overflow-hidden"
               >
-                {/* Header System Layout */}
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 backdrop-blur-md sticky top-0 z-30">
+                {/* Filter Drawer Header */}
+                <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface)] sticky top-0 z-30">
                   <div>
-                    <h3 className="text-base font-black text-slate-900 flex items-center gap-2 tracking-tight">
-                      <Filter size={16} className="text-[#0f947e]" /> Dynamic Sourcing Framework
+                    <h3 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
+                      <Filter size={15} className="text-[var(--primary)]" /> Sourcing Filters
                     </h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Toggle criteria parameters below to isolate targeted talent pools</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-0.5">Select criteria to filter candidates</p>
                   </div>
                   <button 
                     type="button"
                     onClick={() => { setIsFilterDrawerOpen(false); setActiveDropdown(null); }}
-                    className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-200 rounded-xl transition-all shadow-sm font-black text-xs h-8 w-8 flex items-center justify-center hover:scale-105"
+                    className="p-1.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg transition-all h-8 w-8 flex items-center justify-center text-sm"
                   >
                     ✕
                   </button>
@@ -919,8 +924,8 @@ const submitInterviewRequest = async () => {
 
                 </div>
 
-                {/* Footer Controls Block Panel */}
-                <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3 shrink-0 sticky bottom-0 bg-slate-50/90 z-20">
+                {/* Filter Drawer Footer */}
+                <div className="px-5 py-4 border-t border-[var(--border)] bg-[var(--surface)] flex items-center gap-3 shrink-0 sticky bottom-0 z-20">
                   <button
                     type="button"
                     onClick={() => {
@@ -928,16 +933,16 @@ const submitInterviewRequest = async () => {
                       setSelectedSkills([]); setSelectedBehavioral([]); setSelectedTechTools([]); setSelectedWorkModes([]);
                       setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setSelectedProfileJobTypes([]); setSelectedContractOpenness([]); setActiveDropdown(null);
                     }}
-                    className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-100 shadow-sm transition-all"
+                    className="flex-1 py-2.5 bg-white border border-[var(--border)] text-[var(--muted-foreground)] font-semibold rounded-lg text-sm hover:bg-[var(--surface)] transition-all"
                   >
                     Reset All
                   </button>
                   <button
                     type="button"
                     onClick={() => { setIsFilterDrawerOpen(false); setActiveDropdown(null); }}
-                    className="flex-[1.5] py-2.5 bg-[#0f947e] text-white font-bold rounded-xl text-xs hover:bg-[#0a7a67] shadow-md shadow-[#0f947e]/20 transition-all text-center"
+                    className="flex-[1.5] py-2.5 bg-[var(--primary)] text-white font-semibold rounded-lg text-sm hover:bg-[var(--primary-glow)] shadow-[var(--shadow-primary)] transition-all text-center"
                   >
-                    Apply Filter ({filteredCandidates.length} Found)
+                    Apply ({filteredCandidates.length} Found)
                   </button>
                 </div>
 
@@ -977,7 +982,7 @@ const submitInterviewRequest = async () => {
                 >
                   {/* ===================== LIST VIEW ===================== */}
                   {viewMode === 'list' ? (
-                    <div className="relative bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0f947e]/30 overflow-hidden group">
+                    <div className="relative bg-white border border-[var(--border)] rounded-xl shadow-soft hover:shadow-elevated hover:border-[var(--primary)]/25 transition-all duration-200 overflow-hidden group">
                       {status && (
                         <div className={`px-4 py-1 text-[8px] font-black tracking-widest uppercase flex items-center gap-1.5 border-b ${status.cls}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0 opacity-80" />
@@ -993,7 +998,7 @@ const submitInterviewRequest = async () => {
                           {/* Checkbox */}
                           <div
                             onClick={(e) => { e.stopPropagation(); toggleExcelSelection(candidate.id); }}
-                            className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${selectedForExcel.includes(candidate.id) ? 'bg-[#0f947e] border-[#0f947e]' : 'bg-white border-slate-300 hover:border-[#0f947e]'}`}
+                            className={`shrink-0 w-4.5 h-4.5 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedForExcel.includes(candidate.id) ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-white border-[var(--border)] hover:border-[var(--primary)]'}`}
                           >
                             {selectedForExcel.includes(candidate.id) && (
                               <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>

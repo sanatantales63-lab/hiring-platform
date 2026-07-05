@@ -94,23 +94,23 @@ export default function CompanyProfile() {
     }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-[#0f947e]" size={48}/></div>;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-[var(--surface)]"><Loader2 className="animate-spin text-[var(--primary)]" size={48}/></div>;
   
   return (
-    <div className="min-h-screen bg-[#fafafa] p-4 md:p-10 font-sans relative z-10 text-slate-800">
+    <div className="min-h-screen bg-[var(--surface)] p-4 md:p-10 font-sans relative z-10 text-[var(--foreground)]">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Block */}
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
            <div className="flex items-center gap-4">
-              <button onClick={() => router.push('/company/dashboard')} className="p-3 bg-white border border-slate-200/60 rounded-2xl shadow-sm text-slate-600 hover:text-[#0f947e] transition-all hover:scale-105"><ArrowLeft size={22} /></button>
+              <button onClick={() => router.push('/company/dashboard')} className="p-2.5 bg-white border border-[var(--border)] rounded-lg shadow-soft text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-all hover:scale-105"><ArrowLeft size={20} /></button>
               <div>
-                 <h1 className="text-3xl font-black text-slate-900 tracking-tight">{isEditing ? "Configure Corporate Identity" : "Organization Identity"}</h1>
-                 <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-0.5">Verified Profile Console</p>
+                 <h1 className="text-2xl font-bold text-[var(--foreground)] tracking-tight">{isEditing ? "Configure Corporate Identity" : "Organization Identity"}</h1>
+                 <p className="text-[var(--muted-foreground)] text-[10px] font-semibold uppercase tracking-[0.2em] mt-0.5">Verified Profile Console</p>
               </div>
            </div>
            {!isEditing && (
-              <Button variant="secondary" onClick={() => setIsEditing(true)} className="px-6 py-2.5 bg-white text-slate-900 border-slate-200 font-black text-xs tracking-widest shadow-sm rounded-xl"><Edit size={14} /> Edit Identity</Button>
+              <Button variant="secondary" onClick={() => setIsEditing(true)} className="px-6 py-2.5 bg-white text-[var(--foreground)] border border-[var(--border)] font-semibold text-xs tracking-wider shadow-soft rounded-lg flex items-center gap-2"><Edit size={14} /> Edit Identity</Button>
            )}
         </header>
 
@@ -123,133 +123,133 @@ export default function CompanyProfile() {
              
              {/* Left Column: Live Interactive Card Preview */}
              <div className="lg:sticky lg:top-10 space-y-6">
-                <div className="bg-slate-900 rounded-[2.5rem] p-6 text-white shadow-xl relative overflow-hidden border border-slate-800">
-                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#0f947e]/10 rounded-full blur-2xl" />
-                   <span className="text-[9px] bg-white/10 text-white/80 border border-white/10 px-2.5 py-1 rounded-md font-mono font-bold tracking-widest uppercase mb-6 inline-block">Realtime Blueprint</span>
+                <div className="bg-[var(--primary)] rounded-xl p-6 text-white shadow-card relative overflow-hidden border border-[var(--primary)]">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+                   <span className="text-[9px] bg-white/10 text-white/80 border border-white/10 px-2.5 py-1 rounded-md font-mono font-semibold tracking-widest uppercase mb-6 inline-block">Realtime Blueprint</span>
                    
                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                         {formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Building2 className="text-white/20" size={28}/>}
+                      <div className="w-16 h-16 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center overflow-hidden shrink-0">
+                         {formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Building2 className="text-white/40" size={28}/>}
                       </div>
                       <div className="min-w-0">
-                         <h3 className="text-lg font-black text-white truncate leading-tight">{formData.name || "Unnamed Entity"}</h3>
-                         <p className="text-[#0f947e] text-xs font-bold truncate mt-0.5">{formData.industry}</p>
-                         <p className="text-white/40 text-[10px] font-semibold flex items-center gap-1 mt-1"><MapPin size={10}/> {formData.location || "City not configured"}</p>
+                         <h3 className="text-lg font-bold text-white truncate leading-tight">{formData.name || "Unnamed Entity"}</h3>
+                         <p className="text-white/70 text-xs font-semibold truncate mt-0.5">{formData.industry}</p>
+                         <p className="text-white/50 text-[10px] font-semibold flex items-center gap-1 mt-1"><MapPin size={10}/> {formData.location || "City not configured"}</p>
                       </div>
                    </div>
 
-                   <div className="space-y-3 pt-4 border-t border-white/5 text-xs text-white/70">
-                      <div className="flex justify-between"><span className="text-white/30 font-bold">Legal Class</span><span className="font-extrabold text-white">{formData.companyType}</span></div>
-                      <div className="flex justify-between"><span className="text-white/30 font-bold">Workforce Range</span><span className="font-extrabold text-[#0f947e]">{formData.size} Staff</span></div>
-                      <div className="flex justify-between"><span className="text-white/30 font-bold">Contact Node</span><span className="font-extrabold text-white truncate max-w-[150px]">{formData.contact_number || "None"}</span></div>
+                   <div className="space-y-3 pt-4 border-t border-white/10 text-xs text-white/70">
+                      <div className="flex justify-between"><span className="text-white/50 font-semibold">Legal Class</span><span className="font-semibold text-white">{formData.companyType}</span></div>
+                      <div className="flex justify-between"><span className="text-white/50 font-semibold">Workforce Range</span><span className="font-semibold text-white">{formData.size} Staff</span></div>
+                      <div className="flex justify-between"><span className="text-white/50 font-semibold">Contact Node</span><span className="font-semibold text-white truncate max-w-[150px]">{formData.contact_number || "None"}</span></div>
                    </div>
                 </div>
 
                 {/* Brand Logo Upload Action Container */}
-                <div className="bg-white rounded-[2rem] p-6 border border-slate-200/60 shadow-sm flex flex-col items-center justify-center text-center">
-                   <div className="relative group w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden hover:border-[#0f947e] transition-all duration-300 mb-4 cursor-pointer">
-                      {uploading ? <Loader2 className="animate-spin text-[#0f947e]"/> : formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Camera className="text-slate-400 group-hover:text-[#0f947e] transition-colors" size={24}/>}
+                <div className="bg-white rounded-xl p-6 border border-[var(--border)] shadow-soft flex flex-col items-center justify-center text-center">
+                   <div className="relative group w-24 h-24 rounded-xl bg-[var(--surface)] border-2 border-dashed border-[var(--border)] flex items-center justify-center overflow-hidden hover:border-[var(--primary)] transition-all duration-300 mb-4 cursor-pointer">
+                      {uploading ? <Loader2 className="animate-spin text-[var(--primary)]"/> : formData.logoURL ? <img src={formData.logoURL} className="w-full h-full object-cover"/> : <Camera className="text-[var(--muted-foreground)] group-hover:text-[var(--primary)] transition-colors" size={24}/>}
                       <input type="file" accept="image/*" onChange={handleLogoUpload} className="absolute inset-0 opacity-0 cursor-pointer"/>
                    </div>
-                   <h4 className="text-sm font-black text-slate-800">Corporate Emblem</h4>
-                   <p className="text-slate-400 text-[10px] font-bold px-4 mt-1 leading-normal">PNG or JPG (Max 150KB).</p>
+                   <h4 className="text-sm font-semibold text-[var(--foreground)]">Corporate Emblem</h4>
+                   <p className="text-[var(--muted-foreground)] text-[10px] px-4 mt-1 leading-normal">PNG or JPG (Max 150KB).</p>
                 </div>
              </div>
 
              {/* Right Column: High-End Grid Workspace Forms */}
              <div className="lg:col-span-2 space-y-6">
-                <Card className="bg-white border-slate-200/60 p-6 md:p-8 shadow-sm rounded-[2.5rem]">
+                <Card className="bg-white border border-[var(--border)] p-6 md:p-8 shadow-card rounded-xl">
                    
                    {/* Part 1: Core Essentials */}
                    <div className="mb-8">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-6 flex items-center gap-2"><Building2 size={16} className="text-[#0f947e]"/> Core Baseline</h3>
+                      <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wider mb-6 flex items-center gap-2"><Building2 size={16} className="text-[var(--primary)]"/> Core Baseline</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Official Enterprise Name</label>
-                            <input type="text" value={formData.name} onChange={(e)=>setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-inner text-sm" placeholder="e.g. Acme Solutions Private Limited"/>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Official Enterprise Name</label>
+                             <input type="text" value={formData.name} onChange={(e)=>setFormData({...formData, name: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all text-sm" placeholder="e.g. Acme Solutions Private Limited"/>
                          </div>
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Entity Operational Classification</label>
-                            <select value={formData.companyType} onChange={(e)=>setFormData({...formData, companyType: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] outline-none shadow-sm cursor-pointer text-sm">
-                               <option>Private Limited</option><option>Public Limited</option><option>Partnership Firm</option><option>Sole Proprietorship</option><option>LLP</option><option>Recruitment Consultancy</option>
-                            </select>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Entity Operational Classification</label>
+                             <select value={formData.companyType} onChange={(e)=>setFormData({...formData, companyType: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none cursor-pointer text-sm">
+                                <option>Private Limited</option><option>Public Limited</option><option>Partnership Firm</option><option>Sole Proprietorship</option><option>LLP</option><option>Recruitment Consultancy</option>
+                             </select>
                          </div>
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Industry Core Sector</label>
-                            <select value={formData.industry} onChange={(e)=>setFormData({...formData, industry: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] outline-none shadow-sm cursor-pointer text-sm">
-                               <option>Finance & CA Firm</option><option>IT / Software</option><option>Marketing</option><option>Manufacturing</option><option>EdTech</option>
-                            </select>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Industry Core Sector</label>
+                             <select value={formData.industry} onChange={(e)=>setFormData({...formData, industry: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none cursor-pointer text-sm">
+                                <option>Finance & CA Firm</option><option>IT / Software</option><option>Marketing</option><option>Manufacturing</option><option>EdTech</option>
+                             </select>
                          </div>
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Active Headcount Array (Size)</label>
-                            <select value={formData.size} onChange={(e)=>setFormData({...formData, size: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] outline-none shadow-sm cursor-pointer text-sm">
-                               <option>1-10</option><option>11-50</option><option>51-200</option><option>201-500</option><option>500+</option>
-                            </select>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Active Headcount Array (Size)</label>
+                             <select value={formData.size} onChange={(e)=>setFormData({...formData, size: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none cursor-pointer text-sm">
+                                <option>1-10</option><option>11-50</option><option>51-200</option><option>201-500</option><option>500+</option>
+                             </select>
                          </div>
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Core City Node (Location)</label>
-                            <input type="text" value={formData.location} onChange={(e)=>setFormData({...formData, location: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-inner text-sm" placeholder="e.g. Mumbai, Delhi, Jaipur"/>
-                         </div>
-                         <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Founding Anniversary (Year)</label>
-                            <input type="text" value={formData.foundedYear} onChange={(e)=>setFormData({...formData, foundedYear: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-inner text-sm" placeholder="e.g. 2018"/>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Core City Node (Location)</label>
+                             <input type="text" value={formData.location} onChange={(e)=>setFormData({...formData, location: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all text-sm" placeholder="e.g. Mumbai, Delhi, Jaipur"/>
+                          </div>
+                          <div>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Founding Anniversary (Year)</label>
+                             <input type="text" value={formData.foundedYear} onChange={(e)=>setFormData({...formData, foundedYear: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all text-sm" placeholder="e.g. 2018"/>
                          </div>
                       </div>
                    </div>
 
                    {/* Part 2: Point of Contact Node */}
-                   <div className="mb-8 pt-6 border-t border-slate-100">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-6 flex items-center gap-2"><User size={16} className="text-[#0f947e]"/> Verification Hub (Point of Contact)</h3>
+                   <div className="mb-8 pt-6 border-t border-[var(--border)]">
+                      <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wider mb-6 flex items-center gap-2"><User size={16} className="text-[var(--primary)]"/> Verification Hub (Point of Contact)</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Executive Designation</label>
-                            <input type="text" value={formData.designation} onChange={(e)=>setFormData({...formData, designation: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 outline-none focus:border-[#0f947e] focus:bg-white text-sm" placeholder="e.g. HR Director / Founder"/>
-                         </div>
-                         <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Secure Contact Line</label>
-                            <div className="relative">
-                               <Phone className="absolute left-3 top-4 text-slate-400" size={14}/>
-                               <input type="tel" value={formData.contact_number} onChange={(e)=>setFormData({...formData, contact_number: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl py-3.5 pl-10 pr-4 font-bold text-slate-900 outline-none focus:border-[#0f947e] focus:bg-white text-sm" placeholder="+91 9999999999"/>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Executive Designation</label>
+                             <input type="text" value={formData.designation} onChange={(e)=>setFormData({...formData, designation: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 text-sm" placeholder="e.g. HR Director / Founder"/>
+                          </div>
+                          <div>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Secure Contact Line</label>
+                             <div className="relative">
+                                <Phone className="absolute left-3 top-4 text-[var(--muted-foreground)]" size={14}/>
+                                <input type="tel" value={formData.contact_number} onChange={(e)=>setFormData({...formData, contact_number: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg py-3.5 pl-10 pr-4 font-medium text-[var(--foreground)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 text-sm" placeholder="+91 9999999999"/>
                             </div>
                          </div>
                       </div>
                    </div>
 
                    {/* Part 3: Extensive Information fields */}
-                   <div className="mb-8 pt-6 border-t border-slate-100">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-6 flex items-center gap-2"><FileText size={16} className="text-[#0f947e]"/> Deep Insights & Address</h3>
+                   <div className="mb-8 pt-6 border-t border-[var(--border)]">
+                      <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wider mb-6 flex items-center gap-2"><FileText size={16} className="text-[var(--primary)]"/> Deep Insights & Address</h3>
                       <div className="space-y-6">
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Strategic Organization Abstract (About)</label>
-                            <textarea rows={3} value={formData.about} onChange={(e)=>setFormData({...formData, about: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-4 font-bold text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none transition-all shadow-inner text-sm" placeholder="Detail the core values, corporate culture, and technical horizon..."/>
+                            <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Strategic Organization Abstract (About)</label>
+                            <textarea rows={3} value={formData.about} onChange={(e)=>setFormData({...formData, about: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-4 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all text-sm" placeholder="Detail the core values, corporate culture, and technical horizon..."/>
                          </div>
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Geographical Headquarters Endpoint (Full Address)</label>
-                            <input type="text" value={formData.address} onChange={(e)=>setFormData({...formData, address: e.target.value})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-bold text-slate-900 focus:border-[#0f947e] focus:bg-white outline-none text-sm" placeholder="Complete structural physical address"/>
+                            <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">Geographical Headquarters Endpoint (Full Address)</label>
+                            <input type="text" value={formData.address} onChange={(e)=>setFormData({...formData, address: e.target.value})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-medium text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-sm" placeholder="Complete structural physical address"/>
                          </div>
                       </div>
                    </div>
 
                    {/* Part 4: Legal Frameworks */}
-                   <div className="pt-6 border-t border-slate-100 mb-6">
-                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-6 flex items-center gap-2"><Landmark size={16} className="text-[#0f947e]"/> Compliance Architecture</h3>
+                   <div className="pt-6 border-t border-[var(--border)] mb-6">
+                      <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wider mb-6 flex items-center gap-2"><Landmark size={16} className="text-[var(--primary)]"/> Compliance Architecture</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">GSTIN Registration</label>
-                            <input type="text" value={formData.gstin} onChange={(e)=>setFormData({...formData, gstin: e.target.value.toUpperCase()})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-mono font-bold text-slate-900 outline-none focus:border-[#0f947e] focus:bg-white text-sm" placeholder="19AAAAA0000A1Z5"/>
-                         </div>
-                         <div>
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">CIN Number</label>
-                            <input type="text" value={formData.cin} onChange={(e)=>setFormData({...formData, cin: e.target.value.toUpperCase()})} className="w-full bg-slate-50/50 border border-slate-200/80 rounded-xl p-3.5 font-mono font-bold text-slate-900 outline-none focus:border-[#0f947e] focus:bg-white text-sm" placeholder="L12345MH2021PTC000000"/>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">GSTIN Registration</label>
+                             <input type="text" value={formData.gstin} onChange={(e)=>setFormData({...formData, gstin: e.target.value.toUpperCase()})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-mono font-medium text-[var(--foreground)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 text-sm" placeholder="19AAAAA0000A1Z5"/>
+                          </div>
+                          <div>
+                             <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-widest mb-1.5 block">CIN Number</label>
+                             <input type="text" value={formData.cin} onChange={(e)=>setFormData({...formData, cin: e.target.value.toUpperCase()})} className="w-full bg-white border border-[var(--border)] rounded-lg p-3.5 font-mono font-medium text-[var(--foreground)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 text-sm" placeholder="L12345MH2021PTC000000"/>
                          </div>
                       </div>
                    </div>
 
                    {/* Action Buttons */}
-                   <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-4 border-t border-slate-100">
-                      <Button variant="ghost" onClick={() => setIsEditing(false)} className="flex-1 py-3.5 font-black uppercase text-xs tracking-widest text-slate-400 hover:bg-slate-50 rounded-xl">Discard Framework Updates</Button>
-                      <Button onClick={handleSave} className="flex-[2] py-3.5 bg-[#0f947e] hover:bg-[#0a7a67] text-white font-black uppercase text-xs tracking-widest shadow-lg shadow-teal-500/10 rounded-xl flex items-center justify-center gap-2">
-                         <Save size={14}/> Deploy Live Schema Updates
+                   <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-4 border-t border-[var(--border)]">
+                      <Button variant="ghost" onClick={() => setIsEditing(false)} className="flex-1 py-3.5 font-semibold uppercase text-xs tracking-wider text-[var(--muted-foreground)] hover:bg-[var(--surface)] rounded-lg">Discard Updates</Button>
+                      <Button onClick={handleSave} className="flex-[2] py-3.5 bg-[var(--primary)] hover:opacity-90 text-white font-semibold uppercase text-xs tracking-wider shadow-card rounded-lg flex items-center justify-center gap-2">
+                         <Save size={14}/> Save Profile
                       </Button>
                    </div>
 

@@ -3,10 +3,10 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, UserCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-// 🔥 Naye Master Components 🔥
+// Master UI Components
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 
@@ -20,7 +20,7 @@ export default function CandidateLogin() {
   
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  // 🔥 FETCH IP & BROWSER DETAILS FOR LEGAL PROOF 🔥
+  // FETCH IP & BROWSER DETAILS FOR LEGAL PROOF
   const fetchLegalProof = async () => {
     let ip = "Unknown IP";
     try {
@@ -41,7 +41,7 @@ export default function CandidateLogin() {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 🛑 Strict Consent Check ONLY for Sign Up 🛑
+    // Strict Consent Check ONLY for Sign Up
     if (isSignUp && !agreedToTerms) {
         return alert("🛑 Legal Requirement: Please read and tick the Terms & Conditions box to proceed.");
     }
@@ -62,17 +62,17 @@ export default function CandidateLogin() {
       let authUserId = null;
 
       if (isSignUp) {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/student/login?verified=true`,
-          }
-        });
-        if (error) throw error;
-        authUserId = data.user?.id;
-        alert("Success! Please check your email for the confirmation link.");
-      } else {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/student/login?verified=true`,
+          }
+        });
+        if (error) throw error;
+        authUserId = data.user?.id;
+        alert("Success! Please check your email for the confirmation link.");
+      } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -82,7 +82,7 @@ export default function CandidateLogin() {
         router.push("/student/dashboard");
       }
 
-      // 🔥 SAVE LEGAL PROOF TO DATABASE (Only on Sign Up) 🔥
+      // SAVE LEGAL PROOF TO DATABASE (Only on Sign Up)
       if (isSignUp && authUserId) {
          const legalData = await fetchLegalProof();
          await supabase.from("profiles").upsert({ 
@@ -91,7 +91,7 @@ export default function CandidateLogin() {
              ...legalData 
          }, { onConflict: 'id' });
 
-         // 🚀 BREVO ALERT: New Signup
+         // BREVO ALERT: New Signup
          try {
              await fetch('/api/send-admin-alert', {
                  method: 'POST',
@@ -113,76 +113,91 @@ export default function CandidateLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4 relative z-10 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center p-4 sm:p-6 relative font-sans text-white">
       
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md">
+      {/* Background Glows */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[var(--primary)]/15 blur-[120px] rounded-full pointer-events-none" />
+
+      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md relative z-10">
         
-        <Card className="p-8 md:p-12 relative overflow-hidden border-t-4 border-t-[var(--primary)]">
+        {/* Back link */}
+        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-200/80 hover:text-white mb-6 transition-colors">
+          <ArrowLeft size={14} /> Back to Resourcemania Home
+        </Link>
+
+        <Card className="bg-white/95 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl p-7 sm:p-9 text-[var(--foreground)]">
           
-          <div className="flex justify-center mb-6 relative z-10">
-            <div className="bg-[var(--accent)] border border-[var(--border)] p-4 rounded-2xl shadow-sm">
-               <Briefcase className="w-10 h-10 text-[var(--primary)]" />
+          {/* Header Icon */}
+          <div className="flex justify-center mb-5">
+            <div className="bg-gradient-to-br from-[var(--primary)] to-indigo-600 p-3.5 rounded-2xl text-white shadow-primary">
+               <UserCheck className="w-8 h-8 stroke-[2.2]" />
             </div>
           </div>
           
-          <h2 className="text-3xl font-extrabold text-center mb-2 text-[var(--foreground)] relative z-10 font-display">Candidate Portal</h2>
-          <p className="text-[var(--muted-foreground)] font-medium text-center mb-8 relative z-10 text-sm">
-              {isSignUp ? "Create your candidate account." : "Prove your skills. Get hired."}
+          <h2 className="text-2xl font-black font-display text-center text-[var(--foreground)] tracking-tight">
+            Candidate Portal
+          </h2>
+          <p className="text-[var(--muted-foreground)] text-xs font-medium text-center mt-1 mb-6">
+              {isSignUp ? "Create your candidate account to take AI assessments." : "Prove your skills. Get matched with top companies."}
           </p>
 
-          <form onSubmit={handleEmailAuth} className="space-y-4 mb-6 relative z-10">
-            <div className="relative">
-              <Mail className="absolute left-4 top-3.5 text-[var(--muted-foreground)]" size={20} />
-              <input 
-                type="email" required placeholder="Candidate Email" 
-                value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm"
-              />
+          <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+            <div>
+              <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5">Candidate Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={17} />
+                <input 
+                  type="email" required placeholder="name@domain.com" 
+                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-[var(--border)] rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 outline-none transition-all bg-white"
+                />
+              </div>
             </div>
             
             <div>
+              <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-3.5 text-[var(--muted-foreground)]" size={20} />
+                <Lock className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={17} />
                 <input 
                   type={showPassword ? "text" : "password"} 
-                  required placeholder="Password (Min 6 chars)" minLength={6}
+                  required placeholder="Min 6 characters" minLength={6}
                   value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-3 pl-12 pr-12 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm"
+                  className="w-full border border-[var(--border)] rounded-xl py-3 pl-10 pr-11 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 outline-none transition-all bg-white"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  className="absolute right-3.5 top-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
               {!isSignUp && (
-                <div className="flex justify-end w-full mt-2 mb-1">
-                   <Link href="/forgot-password" className="text-xs font-bold text-[var(--primary)] hover:text-[var(--primary-glow)] hover:underline">
+                <div className="flex justify-end w-full mt-2">
+                   <Link href="/forgot-password" className="text-xs text-[var(--primary)] font-bold hover:underline">
                     Forgot Password?
                    </Link>
                 </div>
               )}
             </div>
 
-            {/* 🔥 SMART CONDITIONAL CONSENT 🔥 */}
+            {/* SMART CONDITIONAL CONSENT */}
             {isSignUp ? (
-              <div className="flex items-start gap-3 mt-4 bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] shadow-sm">
+              <div className="flex items-start gap-3 mt-4 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3.5">
                  <input 
                     type="checkbox" 
                     id="terms" 
                     checked={agreedToTerms} 
                     onChange={(e) => setAgreedToTerms(e.target.checked)} 
-                    className="mt-1 w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
+                    className="mt-0.5 w-4 h-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)] cursor-pointer"
                  />
-                 <label htmlFor="terms" className="text-xs text-[var(--ink-soft)] font-medium leading-relaxed cursor-pointer select-none">
-                    By creating an account, I confirm that I agree to be legally bound by Resourcemania's <Link href="/terms-of-service" className="text-[var(--primary)] hover:underline font-bold" target="_blank">Terms & Conditions</Link>, and I authorise Resourcemania to securely store my profile data.
+                 <label htmlFor="terms" className="text-[11px] text-[var(--muted-foreground)] font-medium leading-relaxed cursor-pointer select-none">
+                    I agree to be legally bound by Resourcemania&apos;s <Link href="/terms-of-service" className="text-[var(--primary)] font-bold hover:underline" target="_blank">Terms & Conditions</Link>, and authorize secure storage of my profile data.
                  </label>
               </div>
             ) : (
-              <div className="mt-4 text-center">
-                 <p className="text-xs text-[var(--muted-foreground)] font-medium">
+              <div className="mt-3 text-center">
+                 <p className="text-[11px] text-[var(--muted-foreground)] font-medium">
                     By logging in, you agree to our <Link href="/terms-of-service" className="text-[var(--primary)] font-bold hover:underline" target="_blank">Terms & Conditions</Link>.
                  </p>
               </div>
@@ -192,16 +207,16 @@ export default function CandidateLogin() {
                type="submit" 
                disabled={loading} 
                variant="primary"
-               className="w-full mt-2 py-4 text-lg"
+               className="w-full mt-3 py-3.5 text-sm font-bold shadow-primary rounded-xl"
             >
-              {loading ? <><Loader2 className="animate-spin" size={20}/> Processing...</> : (isSignUp ? "Sign Up" : "Login")}
+              {loading ? <><Loader2 className="animate-spin" size={18}/> Processing...</> : (isSignUp ? "Create Candidate Account" : "Sign In to Candidate Portal")}
             </Button>
           </form>
 
-          <div className="text-center text-sm font-medium text-[var(--muted-foreground)] mb-2 relative z-10">
+          <div className="text-center text-xs font-semibold text-[var(--muted-foreground)] pt-3 border-t border-[var(--border)]">
             {isSignUp ? "Already have an account?" : "Don't have an account?"} 
-            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[var(--primary)] font-extrabold ml-2 hover:underline transition-colors">
-              {isSignUp ? "Login here" : "Sign Up"}
+            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[var(--primary)] font-extrabold ml-1.5 hover:underline transition-colors">
+              {isSignUp ? "Sign In here" : "Sign Up now"}
             </button>
           </div>
         </Card>

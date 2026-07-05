@@ -699,38 +699,38 @@ export default function CandidateProfile() {
   };
 
   const prevStep = () => setCurrentStep(p => Math.max(1, p - 1));
-  
-  // 🔥 SMART SALARY CHECK: Over 30% Hike Warning
-  let showHikeWarning = false;
-  if (formData.currentSalary && formData.expectedSalary) {
-     const currNum = parseInt(formData.currentSalary.replace(/[^0-9]/g, ''), 10);
-     const expNum = parseInt(formData.expectedSalary.replace(/[^0-9]/g, ''), 10);
-     if (!isNaN(currNum) && !isNaN(expNum) && currNum > 0) {
-        if (expNum > currNum * 1.30) {
-           showHikeWarning = true;
-        }
-     }
-  }
-
-  if (loading) {
-      return (
-          <div className="h-screen bg-slate-50 text-slate-900 flex gap-3 items-center justify-center">
-              <Loader2 className="animate-spin text-teal-600" /> Loading...
-          </div>
-      );
+  
+  // 🔥 SMART SALARY CHECK: Over 30% Hike Warning
+  let showHikeWarning = false;
+  if (formData.currentSalary && formData.expectedSalary) {
+     const currNum = parseInt(formData.currentSalary.replace(/[^0-9]/g, ''), 10);
+     const expNum = parseInt(formData.expectedSalary.replace(/[^0-9]/g, ''), 10);
+     if (!isNaN(currNum) && !isNaN(expNum) && currNum > 0) {
+        if (expNum > currNum * 1.30) {
+            showHikeWarning = true;
+        }
+     }
   }
+
+  if (loading) {
+       return (
+           <div className="h-screen bg-[var(--surface)] text-[var(--foreground)] flex gap-3 items-center justify-center">
+               <Loader2 className="animate-spin text-[var(--primary)]" /> Loading...
+           </div>
+       );
+   }
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-6 md:p-12 font-sans relative overflow-hidden">
       <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[var(--primary)]/10 blur-[150px] rounded-full pointer-events-none"></div>
       
- <div className="max-w-4xl mx-auto relative z-10">
+      <div className="max-w-4xl mx-auto relative z-10">
          <div className="flex justify-between items-center mb-10">
             <button 
                 onClick={() => router.push('/student/dashboard')} 
-                className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors font-bold"
+                className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors font-semibold text-sm"
             >
-                <ArrowLeft size={18} /> Dashboard
+                <ArrowLeft size={16} /> Dashboard
             </button>
 
             {!isEditing && (
@@ -742,42 +742,42 @@ export default function CandidateProfile() {
                          setCurrentStep(1); 
                          setIsOnboarding(false); 
                      }} 
-                     className="bg-gradient-primary hover:shadow-ring px-6 py-2.5 rounded-xl text-[var(--primary-foreground)] font-bold flex items-center gap-2 transition-all shadow-glow"
+                     className="px-4 py-2 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white text-xs font-semibold shadow-soft transition-all"
                   >
-                     <Edit size={16}/> Edit Profile
+                     Edit Profile
                   </button>
                </div>
             )}
          </div>
 
-        {!isEditing ?
+         {!isEditing ?
         (
            <CandidateProfileView candidate={formData} role="student" />
         ) : showGatekeeper ?
         (
-           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-3xl mx-auto mt-6">
-              <div className="bg-white border border-slate-200 rounded-[2.5rem] p-10 md:p-14 shadow-2xl relative overflow-hidden text-center">
-                 <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg rotate-3">
-                   <FileText size={40} className="text-white -rotate-3"/>
+           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-2xl mx-auto mt-6">
+              <div className="bg-white border border-[var(--border)] rounded-xl p-8 md:p-10 shadow-modal relative overflow-hidden text-center">
+                 <div className="w-16 h-16 bg-[var(--accent)] border border-[var(--primary)]/20 rounded-xl flex items-center justify-center mx-auto mb-6">
+                    <FileText size={32} className="text-[var(--primary)]"/>
                  </div>
-                 <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Supercharge Your Profile</h1>
-                 <p className="text-slate-600 text-lg leading-relaxed max-w-xl mx-auto mb-10">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
+                 <h1 className="text-2xl font-bold text-[var(--foreground)] mb-2 tracking-tight">Supercharge Your Profile</h1>
+                 <p className="text-[var(--muted-foreground)] text-sm leading-relaxed max-w-md mx-auto mb-8 font-medium">Let our AI read your resume and auto-fill your details. Accept the terms below to securely process your document.</p>
               
-                <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-xl mx-auto bg-[var(--surface)] border-2 rounded-2xl p-6 mb-8 transition-all flex items-start gap-5 ${consentGiven ? 'border-[var(--primary)] shadow-md bg-[var(--primary)]/5' : 'border-[var(--border)] hover:border-[var(--primary)]/50'}`}>
-                    <div className={`w-7 h-7 border-2 rounded-lg flex items-center justify-center shrink-0 ${consentGiven ? 'bg-gradient-primary border-transparent' : 'border-[var(--border)] bg-[var(--background)]'}`}>
-                        <Check size={18} className={`text-[var(--primary-foreground)] transition-opacity ${consentGiven ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3}/>
+                <div onClick={() => setConsentGiven(!consentGiven)} className={`cursor-pointer max-w-md mx-auto bg-[var(--surface)] border rounded-lg p-4 mb-6 transition-all flex items-start gap-4 ${consentGiven ? 'border-[var(--primary)] bg-[var(--accent)]/30' : 'border-[var(--border)] hover:border-[var(--primary)]/40'}`}>
+                    <div className={`w-5 h-5 border rounded flex items-center justify-center shrink-0 ${consentGiven ? 'bg-[var(--primary)] border-transparent' : 'border-[var(--border)] bg-white'}`}>
+                        <Check size={14} className={`text-[var(--primary-foreground)] transition-opacity ${consentGiven ? 'opacity-100' : 'opacity-0'}`} strokeWidth={3}/>
                     </div>
                     <div className="text-left">
-                       <p className={`font-bold text-lg mb-1 ${consentGiven ? 'text-[var(--primary)]' : 'text-[var(--foreground)]'}`}>I agree to the Data Privacy Terms</p>
-                       <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">I consent to the secure processing of my resume data by AI.</p>
+                       <p className={`font-semibold text-sm mb-0.5 ${consentGiven ? 'text-[var(--primary)]' : 'text-[var(--foreground)]'}`}>I agree to the Data Privacy Terms</p>
+                       <p className="text-xs text-[var(--muted-foreground)] leading-normal">I consent to the secure processing of my resume data by AI.</p>
                     </div>
                  </div>
 
-                 <div className="flex flex-col sm:flex-row gap-5 max-w-xl mx-auto">
+                 <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                     <div className="flex-1 relative group" onClick={() => { if(!consentGiven) alert("🛑 Action Blocked: Please tick the 'I agree' box above.");}}>
                        <input type="file" accept=".pdf,.docx,.txt" onChange={handleResumeUpload} disabled={!consentGiven} className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"/>
-                       <div className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-bold transition-all ${consentGiven ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow hover:shadow-ring hover:-translate-y-1' : 'bg-[var(--surface)] text-[var(--muted-foreground)] border border-[var(--border)]'}`}>
-                           {uploading ? <Loader2 size={22} className="animate-spin"/> : <Sparkles size={22}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
+                       <div className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm transition-all ${consentGiven ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary-glow)] shadow-[var(--shadow-primary)]' : 'bg-[var(--surface)] text-[var(--muted-foreground)] border border-[var(--border)]'}`}>
+                           {uploading ? <Loader2 size={16} className="animate-spin"/> : <Sparkles size={16}/>} {uploading ? "Analyzing..." : "Auto-fill with AI"}
                        </div>
                     </div>
                     <button 
@@ -787,7 +787,7 @@ export default function CandidateProfile() {
                                 setCurrentStep(1); 
                             } else alert("Please accept terms."); 
                         }} 
-                        className={`flex-1 py-4 rounded-xl font-bold border transition-all ${consentGiven ? 'border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:bg-[var(--accent)] hover:-translate-y-1' : 'border-[var(--border)] text-[var(--muted-foreground)] cursor-not-allowed opacity-50'}`}
+                        className={`flex-1 py-3 rounded-lg font-semibold text-sm border transition-all ${consentGiven ? 'border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:bg-[var(--accent)]' : 'border-[var(--border)] text-[var(--muted-foreground)] cursor-not-allowed opacity-50'}`}
                     >
                         Skip & Fill Manually
                     </button>
@@ -795,16 +795,16 @@ export default function CandidateProfile() {
               </div>
            </motion.div>
         ) : (
-          <div className="bg-[var(--card)] border border-[var(--border)] p-8 md:p-12 rounded-[2.5rem] shadow-elevated">
-            <div className="mb-12">
-               <div className="flex justify-between text-sm md:text-base font-bold mb-4">
-                  <span className={currentStep >= 1 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>1. Personal</span>
-                  <span className={currentStep >= 2 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>2. Education</span>
-                  <span className={currentStep >= 3 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>3. Preferences</span>
-                  {isOnboarding && <span className={currentStep >= 4 ? "text-[var(--primary)]" : "text-[var(--muted-foreground)] hidden md:inline"}>4. Unlock Profile</span>}
+          <div className="bg-white border border-[var(--border)] p-6 md:p-10 rounded-xl shadow-card">
+            <div className="mb-10">
+               <div className="flex justify-between text-xs sm:text-sm font-semibold mb-3">
+                  <span className={currentStep >= 1 ? "text-[var(--primary)] font-bold" : "text-[var(--muted-foreground)]"}>1. Personal</span>
+                  <span className={currentStep >= 2 ? "text-[var(--primary)] font-bold" : "text-[var(--muted-foreground)]"}>2. Education</span>
+                  <span className={currentStep >= 3 ? "text-[var(--primary)] font-bold" : "text-[var(--muted-foreground)]"}>3. Preferences</span>
+                  {isOnboarding && <span className={currentStep >= 4 ? "text-[var(--primary)] font-bold" : "text-[var(--muted-foreground)] hidden md:inline"}>4. Unlock Profile</span>}
                </div>
-               <div className="h-2 bg-[var(--surface)] border border-[var(--border)] rounded-full overflow-hidden flex">
-                  <div className="h-full bg-gradient-primary transition-all duration-500" style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
+               <div className="h-1.5 bg-[var(--surface)] border border-[var(--border)] rounded-full overflow-hidden flex">
+                  <div className="h-full bg-[var(--primary)] transition-all duration-500" style={{ width: `${(currentStep / (isOnboarding ? 4 : 3)) * 100}%` }}></div>
                </div>
             </div>
 
@@ -812,84 +812,83 @@ export default function CandidateProfile() {
                <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
                
                {currentStep === 1 && (
-                  <div className="space-y-8">
-                     <h2 className="text-3xl font-extrabold text-slate-900 mb-6">Personal Details</h2>
+                  <div className="space-y-6">
+                     <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">Personal Details</h2>
                      
-                     <div className="md:col-span-2 bg-slate-50 border border-slate-200 p-6 rounded-2xl">
-                       <label className="form-label flex items-center gap-2">
-                           <Sparkles size={16} className="text-teal-500"/> AI Generated Professional Bio
+                     <div className="md:col-span-2 bg-[var(--surface)] border border-[var(--border)] p-5 rounded-xl">
+                       <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block flex items-center gap-2">
+                            <Sparkles size={14} className="text-[var(--primary)]"/> AI Generated Professional Bio
                        </label>
                        <textarea 
                            value={formData.bio || ""} 
                            onChange={(e)=>setFormData({...formData, bio: e.target.value})} 
-                           className="input-field min-h-[80px]"
+                           className="w-full border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all min-h-[80px]"
                        />
                      </div>
 
-                     <div className="flex items-center gap-8 mb-8">
-                        <div onClick={startCamera} className="relative w-24 h-24 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center overflow-hidden shadow-sm group cursor-pointer hover:border-teal-500 transition-colors">
-                           {uploading ? <Loader2 className="animate-spin text-teal-600"/> : 
-                              formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
-                                 <Camera size={32} className="text-slate-400 group-hover:text-teal-600"/>
+                     <div className="flex items-center gap-6 mb-6">
+                        <div onClick={startCamera} className="relative w-20 h-20 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center overflow-hidden shadow-soft group cursor-pointer hover:border-[var(--primary)]/50 transition-colors">
+                           {uploading ? <Loader2 className="animate-spin text-[var(--primary)]"/> : 
+                               formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
+                                  <Camera size={26} className="text-[var(--muted-foreground)] group-hover:text-[var(--primary)]"/>
                            }
-                           <div className="absolute inset-0 bg-white/80 hidden group-hover:flex flex-col items-center justify-center text-center p-2 backdrop-blur-sm">
-                              <Camera size={20} className="text-slate-900 mb-1"/>
-                              <span className="text-[10px] text-slate-900 font-bold leading-tight">Live Capture</span>
+                           <div className="absolute inset-0 bg-white/90 hidden group-hover:flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-sm">
+                              <Camera size={16} className="text-[var(--foreground)] mb-0.5"/>
+                              <span className="text-[9px] text-[var(--foreground)] font-bold leading-tight">Live Capture</span>
                            </div>
                         </div>
                         <div>
-                           <p className="font-bold text-xl text-slate-900">Profile Photo <span className="text-red-500">*</span></p>
-                           <p className="text-sm text-slate-500">Click to capture a professional photo</p>
+                           <p className="font-semibold text-base text-[var(--foreground)]">Profile Photo <span className="text-[#c53030]">*</span></p>
+                           <p className="text-xs text-[var(--muted-foreground)] font-medium">Click to capture a professional photo</p>
                         </div>
                      </div>
 
                      <AnimatePresence>
                         {showCamera && (
-                           <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
-                              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white border border-slate-200 p-6 rounded-3xl max-w-md w-full shadow-2xl">
-                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2"><ScanFace className="text-teal-500"/> Capture Profile Picture</h3>
-                                    <button onClick={stopCamera} className="text-slate-400 hover:text-red-500"><X size={24}/></button>
+                           <div className="fixed inset-0 z-50 bg-[var(--foreground)]/40 flex items-center justify-center p-4 backdrop-blur-sm">
+                              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white border border-[var(--border)] p-6 rounded-xl max-w-md w-full shadow-modal">
+                                 <div className="flex justify-between items-center mb-3">
+                                    <h3 className="text-base font-bold text-[var(--foreground)] flex items-center gap-2"><ScanFace className="text-[var(--primary)]"/> Capture Profile Picture</h3>
+                                    <button onClick={stopCamera} className="text-[var(--muted-foreground)] hover:text-[#c53030]"><X size={20}/></button>
                                  </div>
                                  
-                                 <p className="text-sm text-slate-500 text-center mb-4">Please look straight into the camera to capture a clear photo.</p>
+                                 <p className="text-xs text-[var(--muted-foreground)] text-center mb-4">Please look straight into the camera to capture a clear photo.</p>
 
-                                 <div className="relative w-full aspect-square bg-slate-900 rounded-2xl overflow-hidden mb-6 border-2 border-slate-200">
+                                 <div className="relative w-full aspect-square bg-slate-900 rounded-lg overflow-hidden mb-5 border border-[var(--border)]">
                                     <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100"></video>
                                     <canvas ref={canvasRef} className="hidden"></canvas>
-                                    <div className="absolute inset-0 border-[3px] border-dashed border-teal-500/50 rounded-full m-8 pointer-events-none"></div>
+                                    <div className="absolute inset-0 border-2 border-dashed border-[var(--primary)]/35 rounded-full m-6 pointer-events-none"></div>
                                  </div>
-                                 <button onClick={capturePhoto} disabled={uploading || !aiModelsLoaded} className="w-full bg-[#0f947e] hover:bg-[#0c7a68] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
-                                    {!aiModelsLoaded ? <><Loader2 className="animate-spin"/> Loading AI Models...</> : uploading ? <><Loader2 className="animate-spin"/> Capturing...</> : <><Camera/> Capture Photo</>}
+                                 <button onClick={capturePhoto} disabled={uploading || !aiModelsLoaded} className="w-full bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-[var(--shadow-primary)]">
+                                    {!aiModelsLoaded ? <><Loader2 className="animate-spin" size={16}/> Loading AI Models...</> : uploading ? <><Loader2 className="animate-spin" size={16}/> Capturing...</> : <><Camera size={16}/> Capture Photo</>}
                                  </button>
                               </motion.div>
                            </div>
                         )}
                      </AnimatePresence>
 
-                    {/* 🔥 FIX: Restored the proper 2-column grid layout so it doesn't stretch weirdly */}
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
                         <div className="w-full">
-                           <label className="form-label">Full Name <span className="text-red-500">*</span></label>
-                           <input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="input-field w-full"/>
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Full Name <span className="text-[#c53030]">*</span></label>
+                           <input type="text" value={formData.fullName} onChange={(e)=>setFormData({...formData, fullName: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all"/>
                         </div>
                         <div className="w-full">
-                           <label className="form-label">Phone Number <span className="text-red-500">*</span></label>
-                           <input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="input-field w-full" placeholder="e.g. 9876543210"/>
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Phone Number <span className="text-[#c53030]">*</span></label>
+                           <input type="text" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="e.g. 9876543210"/>
                         </div>
                         <div className="w-full">
-                           <label className="form-label flex items-center gap-2 text-emerald-700">
-                               <MessageCircle size={16} className="text-emerald-500"/> WhatsApp Number
+                           <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1 block flex items-center gap-1.5">
+                               <MessageCircle size={14}/> WhatsApp Number
                            </label>
-                           <input type="text" value={formData.whatsappNumber || ""} onChange={(e)=>setFormData({...formData, whatsappNumber: e.target.value})} className="input-field border-emerald-200 focus:border-emerald-500 bg-emerald-50 focus:bg-white w-full" placeholder="e.g. 9876543210" maxLength={10}/>
+                           <input type="text" value={formData.whatsappNumber || ""} onChange={(e)=>setFormData({...formData, whatsappNumber: e.target.value})} className="w-full border border-[var(--primary)]/20 focus:border-[var(--primary)] bg-[var(--accent)]/30 focus:bg-white rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="e.g. 9876543210" maxLength={10}/>
                         </div>
                         <div className="w-full">
-                           <label className="form-label">Date of Birth <span className="text-red-500">*</span> <span className="text-slate-400 text-xs">(Min. 18)</span></label>
-                           <input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="input-field w-full [color-scheme:light]"/>
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Date of Birth <span className="text-[#c53030]">*</span> <span className="text-[var(--muted-foreground)] text-2xs lowercase font-normal">(Min. 18)</span></label>
+                           <input type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]"/>
                         </div>
                         <div className="w-full">
-                           <label className="form-label">Gender <span className="text-red-500">*</span></label>
-                           <select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="input-field w-full [color-scheme:light]">
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Gender <span className="text-[#c53030]">*</span></label>
+                           <select value={formData.gender} onChange={(e)=>setFormData({...formData, gender: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
                               <option value="">Select</option>
                               <option>Male</option>
                               <option>Female</option>
@@ -897,54 +896,54 @@ export default function CandidateProfile() {
                            </select>
                         </div>
                         <div className="w-full">
-                           <label className="form-label">City <span className="text-red-500">*</span></label>
-                           <input type="text" list="indian-cities" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="input-field w-full" placeholder="Type to search your city..."/>
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">City <span className="text-[#c53030]">*</span></label>
+                           <input type="text" list="indian-cities" value={formData.city} onChange={(e)=>setFormData({...formData, city: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="Type to search your city..."/>
                            <datalist id="indian-cities">
                               {INDIAN_CITIES.map((c, idx) => <option key={idx} value={c.name} />)}
                            </datalist>
                         </div>
                         <div className="w-full">
-                           <label className="form-label">Do you own a laptop? <span className="text-red-500">*</span></label>
-                           <select value={formData.hasLaptop} onChange={(e)=>setFormData({...formData, hasLaptop: e.target.value})} className="input-field w-full [color-scheme:light]">
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Do you own a laptop? <span className="text-[#c53030]">*</span></label>
+                           <select value={formData.hasLaptop} onChange={(e)=>setFormData({...formData, hasLaptop: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
                               <option value="">Select Option</option>
                               <option value="Yes">Yes, I have a working laptop</option>
                               <option value="No">No, I do not have a laptop</option>
                            </select>
                         </div>
                         <div className="w-full md:col-span-2">
-                           <label className="form-label text-rose-700">PAN Card <span className="text-red-500">*</span></label>
-                           <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="input-field uppercase font-mono tracking-widest border-rose-200 bg-rose-50 focus:border-rose-500 focus:bg-white w-full md:w-1/2" maxLength={10} placeholder="ABCDE1234F"/>
+                           <label className="text-xs font-semibold text-[oklch(0.55_0.15_30)] uppercase tracking-wider mb-1 block">PAN Card <span className="text-[#c53030]">*</span></label>
+                           <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="w-full md:w-1/2 border border-[oklch(0.85_0.02_30)] bg-[oklch(0.97_0.005_30)] focus:bg-white uppercase font-mono tracking-widest rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" maxLength={10} placeholder="ABCDE1234F"/>
                         </div>
                      </div>
 
-                     <div className="grid md:grid-cols-2 gap-6 pt-6 border-t border-slate-200">
-                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                            <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-                               <TrendingUp className="text-teal-600" size={20}/> Core Strengths <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                     <div className="grid md:grid-cols-2 gap-5 pt-5 border-t border-[var(--border)]">
+                          <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)]">
+                             <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
+                                <TrendingUp className="text-[var(--primary)]" size={16}/> Core Strengths <span className="text-[var(--muted-foreground)] font-normal text-3xs lowercase">(Press Enter)</span>
+                              </label>
+                             <div className="flex flex-wrap gap-1.5 mb-3">
+                                {formData.strengths.map((str, i) => (
+                                   <span key={i} className="flex items-center gap-1 bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-2.5 py-1 rounded-md text-xs font-medium">
+                                      {str} <X size={13} className="cursor-pointer hover:text-[var(--primary-glow)]" onClick={() => removeStr(str)}/>
+                                   </span>
+                                ))}
+                             </div>
+                             <input type="text" value={strInput} onChange={(e) => setStrInput(e.target.value)} onKeyDown={handleAddStr} className="w-full bg-transparent border-b border-[var(--border)] pb-1.5 outline-none text-[var(--foreground)] text-sm focus:border-[var(--primary)] transition-colors" placeholder="e.g. Analytical Thinking..."/>
+                          </div>
+                          <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)]">
+                             <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
+                                <TrendingDown className="text-[oklch(0.55_0.15_30)]" size={16}/> Areas of Improvement <span className="text-[var(--muted-foreground)] font-normal text-3xs lowercase">(Press Enter)</span>
                              </label>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                               {formData.strengths.map((str, i) => (
-                                  <span key={i} className="flex items-center gap-1 bg-teal-50 text-teal-700 border border-teal-200 px-3 py-1.5 rounded-lg text-xs font-bold">
-                                     {str} <X size={14} className="cursor-pointer hover:text-teal-900" onClick={() => removeStr(str)}/>
-                                  </span>
-                               ))}
-                            </div>
-                            <input type="text" value={strInput} onChange={(e) => setStrInput(e.target.value)} onKeyDown={handleAddStr} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-teal-500" placeholder="e.g. Analytical Thinking..."/>
-                         </div>
-                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                            <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-                               <TrendingDown className="text-red-500" size={20}/> Areas of Improvement <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
-                            </label>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                               {formData.weaknesses.map((wk, i) => (
-                                  <span key={i} className="flex items-center gap-1 bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold">
-                                     {wk} <X size={14} className="cursor-pointer hover:text-red-800" onClick={() => removeWeak(wk)}/>
-                                  </span>
-                               ))}
-                            </div>
-                            <input type="text" value={weakInput} onChange={(e) => setWeakInput(e.target.value)} onKeyDown={handleAddWeak} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-red-500" placeholder="e.g. Over-detail oriented..."/>
-                         </div>
-                     </div>
+                             <div className="flex flex-wrap gap-1.5 mb-3">
+                                {formData.weaknesses.map((wk, i) => (
+                                   <span key={i} className="flex items-center gap-1 bg-[oklch(0.97_0.015_15)] text-[oklch(0.52_0.16_20)] border border-[oklch(0.88_0.02_15)] px-2.5 py-1 rounded-md text-xs font-medium">
+                                      {wk} <X size={13} className="cursor-pointer hover:text-red-900" onClick={() => removeWeak(wk)}/>
+                                   </span>
+                                ))}
+                             </div>
+                             <input type="text" value={weakInput} onChange={(e) => setWeakInput(e.target.value)} onKeyDown={handleAddWeak} className="w-full bg-transparent border-b border-[var(--border)] pb-1.5 outline-none text-[var(--foreground)] text-sm focus:border-[var(--primary)] transition-colors" placeholder="e.g. Over-detail oriented..."/>
+                          </div>
+                      </div>
 
                   </div>
                )}
@@ -953,182 +952,138 @@ export default function CandidateProfile() {
                   <div className="space-y-12">
                      <div>
                         <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-slate-900">Education <span className="text-red-500 text-lg">*</span></h2>
-                           <button onClick={addEducation} className="text-sm font-bold text-teal-600 hover:text-teal-700 flex items-center gap-2 bg-teal-50 px-4 py-2 rounded-xl transition-colors">
+                           <h2 className="text-xl font-bold text-[var(--foreground)]">Education <span className="text-[#c53030]">*</span></h2>
+                           <button onClick={addEducation} className="text-sm font-bold text-[var(--primary)] hover:text-[var(--primary-glow)] flex items-center gap-2 bg-[var(--accent)]/50 px-4 py-2 rounded-xl transition-colors">
                               <Plus size={18}/> Add More
                            </button>
                         </div>
                         
-                        {/* 🔥 NEW: Highest Qualification Dropdown */}
-                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm mb-6">
-                            <label className="form-label flex items-center gap-2 text-indigo-700">
-                                <GraduationCap size={18}/> Highest Qualification Level <span className="text-red-500">*</span>
-                            </label>
-                            <p className="text-xs text-slate-500 mb-3 font-medium">This will help our AI tailor the assessment difficulty specifically for your profile level.</p>
-                            <input 
-                                type="text" 
-                                list="highest-qual-list" 
-                                value={formData.highestQualification} 
-                                onChange={(e)=>setFormData({...formData, highestQualification: e.target.value})} 
-                                className="input-field bg-white border-indigo-200 focus:border-indigo-500" 
-                                placeholder="Select or type your highest qualification level..."
-                            />
-                            <datalist id="highest-qual-list">
-                                <option value="Chartered Accountant (CA) - Qualified" />
-                                <option value="CA Finalist (Group 1 Cleared)" />
-                                <option value="CA Finalist (Group 2 Cleared)" />
-                                <option value="CA Intermediate - Cleared" />
-                                <option value="Cost & Management Accountant (CMA) - Qualified" />
-                                <option value="CMA Finalist" />
-                                <option value="CMA Intermediate" />
-                                <option value="Company Secretary (CS) - Qualified" />
-                                <option value="CS Professional" />
-                                <option value="CS Executive" />
-                                <option value="ACCA - Qualified / Affiliate" />
-                                <option value="Master of Business Administration (MBA)" />
-                                <option value="Post Graduate Diploma in Management (PGDM)" />
-                                <option value="Master of Commerce (M.Com)" />
-                                <option value="Bachelor of Commerce (B.Com)" />
-                                <option value="Bachelor of Business Administration (BBA)" />
-                                <option value="Bachelor of Technology (B.Tech / B.E.)" />
-                                <option value="Bachelor of Arts / Science (B.A. / B.Sc)" />
-                                <option value="Diploma / Polytechnic" />
-                                <option value="High School (12th / PUC)" />
+                         <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] mb-5">
+                             <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-2 block flex items-center gap-2">
+                                 <GraduationCap size={16}/> Highest Qualification Level <span className="text-[#c53030]">*</span>
+                             </label>
+                             <p className="text-xs text-[var(--muted-foreground)] mb-3 font-medium">This will help our AI tailor the assessment difficulty specifically for your profile level.</p>
+                             <input 
+                                 type="text" 
+                                 list="highest-qual-list" 
+                                 value={formData.highestQualification} 
+                                 onChange={(e)=>setFormData({...formData, highestQualification: e.target.value})} 
+                                 className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" 
+                                 placeholder="Select or type your highest qualification level..."
+                             />
+                             <datalist id="highest-qual-list">
+                                 <option value="Chartered Accountant (CA) - Qualified" />
+                                 <option value="CA Finalist (Group 1 Cleared)" />
+                                 <option value="CA Finalist (Group 2 Cleared)" />
+                                 <option value="CA Intermediate - Cleared" />
+                                 <option value="Cost & Management Accountant (CMA) - Qualified" />
+                                 <option value="CMA Finalist" />
+                                 <option value="CMA Intermediate" />
+                                 <option value="Company Secretary (CS) - Qualified" />
+                                 <option value="CS Professional" />
+                                 <option value="CS Executive" />
+                                 <option value="ACCA - Qualified / Affiliate" />
+                                 <option value="Master of Business Administration (MBA)" />
+                                 <option value="Post Graduate Diploma in Management (PGDM)" />
+                                 <option value="Master of Commerce (M.Com)" />
+                                 <option value="Bachelor of Commerce (B.Com)" />
+                                 <option value="Bachelor of Business Administration (BBA)" />
+                                 <option value="Bachelor of Technology (B.Tech / B.E.)" />
+                                 <option value="Bachelor of Arts / Science (B.A. / B.Sc)" />
+                                 <option value="Diploma / Polytechnic" />
+                                 <option value="High School (12th / PUC)" />
+                             </datalist>
+                         </div>
+
+                         <div className="space-y-4">
+                            {formData.educations.map((edu, index) => {
+                               const qualText = (edu.qualification || '').toLowerCase();
+                               const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test(qualText);
+                               
+                               return (
+                               <div key={index} className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] relative">
+                                  {formData.educations.length > 1 && (
+                                     <button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-[var(--muted-foreground)] hover:text-[#c53030] p-1.5 transition-colors">
+                                        <X size={16}/>
+                                     </button>
+                                  )}
+                                  <div className="grid md:grid-cols-2 gap-5 mt-2">
+                                     <div className={isSchoolLevel ? "md:col-span-1" : "md:col-span-2"}>
+                                        <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Qualification <span className="text-[#c53030]">*</span></label>
+                                        <input type="text" list="qualifications-list" value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all"/>
+                                     </div>
+                                     
+                                     {isSchoolLevel && (
+                                        <div className="flex gap-4">
+                                           <div className="flex-1">
+                                              <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1 block">Maths Included? <span className="text-[var(--muted-foreground)] text-3xs lowercase font-normal">(Optional)</span></label>
+                                              <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all">
+                                                 <option value="">Select</option>
+                                                 <option value="Yes">Yes</option>
+                                                 <option value="No">No</option>
+                                               </select>
+                                           </div>
+                                           {edu.mathsIncluded === 'Yes' && (
+                                               <div className="flex-1">
+                                                  <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1 block">Maths Score (%) <span className="text-[#c53030]">*</span></label>
+                                                  <input type="text" value={edu.mathsScore || ""} onChange={(e)=>updateEducation(index, 'mathsScore', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="e.g. 85"/>
+                                               </div>
+                                           )}
+                                        </div>
+                                     )}
+
+                                     {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
+                                        <div className="grid grid-cols-2 gap-4 md:col-span-2">
+                                           <div>
+                                              <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1 block">Stage Cleared <span className="text-[#c53030]">*</span></label>
+                                              <select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all">
+                                                 <option value="">Select</option>
+                                                 <option>Group 1</option>
+                                                 <option>Group 2</option>
+                                                 <option>Both Groups</option>
+                                                 <option>Cleared</option>
+                                               </select>
+                                           </div>
+                                           <div>
+                                              <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-1 block">Attempts <span className="text-[#c53030]">*</span></label>
+                                              <input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all"/>
+                                           </div>
+                                        </div>
+                                     )}
+                                     <div className="md:col-span-2">
+                                        <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">College / Institution <span className="text-[#c53030]">*</span></label>
+                                        <input type="text" value={edu.collegeName} onChange={(e)=>updateEducation(index, 'collegeName', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all"/>
+                                     </div>
+                                     <div>
+                                        <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Passing Year <span className="text-[#c53030]">*</span></label>
+                                        <input type="text" value={edu.passingYear} onChange={(e)=>updateEducation(index, 'passingYear', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all"/>
+                                     </div>
+                                     <div>
+                                        <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Total Score (%)</label>
+                                        <input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="e.g. 75"/>
+                                     </div>
+                                  </div>
+                               </div>
+                            )})}
+                            <datalist id="qualifications-list">
+                               {QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}
                             </datalist>
-                        </div>
-
-                        <div className="space-y-6">
-                           {formData.educations.map((edu, index) => {
-                              const qualText = (edu.qualification || '').toLowerCase();
-                              const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test(qualText);
-                              
-                              return (
-                              <div key={index} className="bg-slate-50 p-6 rounded-3xl border border-slate-200 relative shadow-sm">
-                                 {formData.educations.length > 1 && (
-                                    <button onClick={() => removeEducation(index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500 p-2">
-                                       <X size={18}/>
-                                    </button>
-                                 )}
-                                 <div className="grid md:grid-cols-2 gap-6 mt-2">
-                                    <div className={isSchoolLevel ? "md:col-span-1" : "md:col-span-2"}>
-                                       <label className="form-label">Qualification <span className="text-red-500">*</span></label>
-                                       <input type="text" list="qualifications-list" value={edu.qualification} onChange={(e)=>updateEducation(index, 'qualification', e.target.value)} className="input-field"/>
-                                    </div>
-                                    
-                                    {isSchoolLevel && (
-                                       <div className="flex gap-4">
-                                          <div className="flex-1">
-                                             <label className="form-label text-teal-600">Maths Included? <span className="text-slate-400 text-xs">(Optional)</span></label>
-                                             <select value={edu.mathsIncluded || ""} onChange={(e)=>updateEducation(index, 'mathsIncluded', e.target.value)} className="input-field border-teal-200 bg-teal-50">
-                                                <option value="">Select</option>
-                                                <option value="Yes">Yes</option>
-                                                <option value="No">No</option>
-                                              </select>
-                                          </div>
-                                          {edu.mathsIncluded === 'Yes' && (
-                                              <div className="flex-1">
-                                                 <label className="form-label text-teal-600">Maths Score (%) <span className="text-red-500">*</span></label>
-                                                 <input type="text" value={edu.mathsScore || ""} onChange={(e)=>updateEducation(index, 'mathsScore', e.target.value)} className="input-field border-teal-200 bg-teal-50" placeholder="e.g. 85"/>
-                                              </div>
-                                          )}
-                                       </div>
-                                    )}
-
-                                    {['CA', 'CMA', 'CS', 'ACCA'].some(keyword => (edu.qualification || '').includes(keyword)) && (
-                                       <div className="grid grid-cols-2 gap-4 md:col-span-2">
-                                          <div>
-                                             <label className="form-label text-amber-600">Stage Cleared <span className="text-red-500">*</span></label>
-                                             <select value={edu.stageCleared} onChange={(e)=>updateEducation(index, 'stageCleared', e.target.value)} className="input-field border-amber-200 bg-amber-50">
-                                                <option value="">Select</option>
-                                                <option>Group 1</option>
-                                                <option>Group 2</option>
-                                                <option>Both Groups</option>
-                                                <option>Cleared</option>
-                                              </select>
-                                          </div>
-                                          <div>
-                                             <label className="form-label text-rose-500">Attempts <span className="text-red-500">*</span></label>
-                                             <input type="text" value={edu.attempts || ""} onChange={(e)=>updateEducation(index, 'attempts', e.target.value)} className="input-field border-rose-200 bg-rose-50"/>
-                                          </div>
-                                       </div>
-                                    )}
-                                    <div className="md:col-span-2">
-                                       <label className="form-label">College / Institution <span className="text-red-500">*</span></label>
-                                       <input type="text" value={edu.collegeName} onChange={(e)=>updateEducation(index, 'collegeName', e.target.value)} className="input-field"/>
-                                    </div>
-                                    <div>
-                                       <label className="form-label">Passing Year <span className="text-red-500">*</span></label>
-                                       <input type="text" value={edu.passingYear} onChange={(e)=>updateEducation(index, 'passingYear', e.target.value)} className="input-field"/>
-                                    </div>
-                                    <div>
-                                       <label className="form-label">Total Score (%)</label>
-                                       <input type="text" value={edu.percentage} onChange={(e)=>updateEducation(index, 'percentage', e.target.value)} className="input-field" placeholder="e.g. 75"/>
-                                    </div>
-                                 </div>
-                              </div>
-                           )})}
-                           <datalist id="qualifications-list">
-                              {QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}
-                           </datalist>
-                        </div>
-                     </div>
-
-                     <div className="pt-8 border-t border-slate-200">
-                        
-                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-6 flex items-start gap-3 shadow-sm">
-                           <Sparkles className="text-amber-500 shrink-0 mt-0.5" size={20}/>
-                           <div>
-                              <p className="text-slate-900 font-bold text-sm">Pro Tip for Hiring 💡</p>
-                              <p className="text-slate-700 text-xs mt-1">Candidates who select <strong className="text-teal-600">more than 5 sub-skills</strong> see a <strong className="text-teal-600">60% increase</strong> in their hiring and interview shortlisting rate. Select all the skills you actually know!</p>
-                           </div>
-                        </div>
-
-                        <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-2xl font-extrabold text-slate-900">Technical Skills & Expertise <span className="text-red-500 text-lg">*</span></h2>
-                           <span className="bg-slate-100 text-teal-600 px-3 py-1 rounded-lg text-xs font-bold border border-slate-200">
-                              {formData.skills.length} / 10 Selected
-                           </span>
-                        </div>
-                        <p className="text-slate-600 text-sm mb-6">Select <strong className="text-slate-900">Minimum 1 and Maximum 10</strong> sub-skills. Your assessment test will be strictly generated based on these selections.</p>
-                        
-                        {formData.skills.length > 0 && (
-                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-[var(--surface)] rounded-2xl border border-[var(--border)] border-dashed">
-                              {formData.skills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-gradient-primary text-[var(--primary-foreground)] px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
-                                    {skill} <X size={16} className="cursor-pointer hover:text-[var(--background)]/70 transition-colors" onClick={() => toggleSkill(skill)}/>
-                                 </span>
-                              ))}
-                           </div>
-                        )}
-                        
-                        <div className="border border-[var(--border)] rounded-2xl overflow-hidden bg-[var(--surface)] flex flex-col md:flex-row shadow-sm">
-                           <div className="md:w-1/3 bg-[var(--background)] border-r border-[var(--border)] p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
-                              {(Object.keys(MASTER_SKILLS_DATA) as Array<keyof typeof MASTER_SKILLS_DATA>).map((mainSkill) => (
-                                 <button 
-                                    key={mainSkill} 
-                                    onClick={() => setActiveSkillTab(mainSkill)} 
-                                    className={`w-full text-left px-4 py-3 mb-2 text-sm font-bold rounded-xl transition-all ${activeSkillTab === mainSkill ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-sm' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}
-                                 >
-                                    {mainSkill}
-                                 </button>
-                              ))}
-                           </div>
-                           <div className="md:w-2/3 p-6 max-h-[350px] overflow-y-auto custom-scrollbar bg-[var(--card)]">
-                              <h4 className="text-[var(--foreground)] font-bold mb-4 flex items-center gap-2 border-b border-[var(--border)] pb-2">
+                           <div className="md:w-2/3 p-5 max-h-[350px] overflow-y-auto custom-scrollbar bg-white rounded-xl border border-[var(--border)]">
+                              <h4 className="text-[var(--foreground)] font-semibold text-sm mb-4 flex items-center gap-1.5 border-b border-[var(--border)] pb-2">
                                  Select Sub-Skills for <span className="text-[var(--primary)]">{activeSkillTab}</span>
                               </h4>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                  {(MASTER_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
                                     const isSelected = formData.skills.includes(subSkill);
                                     return (
                                        <button 
                                           key={subSkill} 
                                           onClick={() => toggleSkill(subSkill)} 
-                                          className={`text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${isSelected ? 'bg-[var(--accent)]/50 border-[var(--primary)] text-[var(--foreground)] shadow-sm' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/50'} flex items-center justify-between group`}
+                                          className={`text-left px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${isSelected ? 'bg-[var(--accent)]/50 border-[var(--primary)] text-[var(--foreground)]' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/50'} flex items-center justify-between group`}
                                        >
                                           <span className="truncate pr-2">{subSkill}</span>
-                                          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-[var(--background)] border-[var(--border)] group-hover:border-[var(--primary)]/50'}`}>
-                                             {isSelected && <Check size={14} className="text-[var(--primary-foreground)]" />}
+                                          <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-white border-[var(--border)] group-hover:border-[var(--primary)]/50'}`}>
+                                             {isSelected && <Check size={11} className="text-white" />}
                                           </div>
                                        </button>
                                     );
@@ -1138,36 +1093,36 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     <div className="pt-8 border-t border-slate-200">
-                        <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2"><Users className="text-indigo-500"/> Behavioral & Soft Skills <span className="text-red-500 text-lg">*</span></h2>
-                           <span className="bg-slate-100 text-indigo-600 px-3 py-1 rounded-lg text-xs font-bold border border-slate-200">
+                     <div className="pt-8 border-t border-[var(--border)]">
+                        <div className="flex justify-between items-center mb-4">
+                           <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-1.5"><Users className="text-[var(--primary)]" size={18}/> Behavioral & Soft Skills <span className="text-[#c53030] text-sm">*</span></h2>
+                           <span className="bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-2.5 py-1 rounded-md text-xs font-semibold">
                               {formData.behavioralSkills.length} / 5 Selected
                            </span>
                         </div>
-                        <p className="text-slate-600 text-sm mb-6">Select <strong className="text-slate-900">Minimum 1 and Maximum 5</strong> behavioral traits. You can choose from the list or type your own.</p>
+                        <p className="text-xs text-[var(--muted-foreground)] mb-4">Select <strong className="text-[var(--foreground)]">Minimum 1 and Maximum 5</strong> behavioral traits. You can choose from the list or type your own.</p>
                         
                         {formData.behavioralSkills.length > 0 && (
-                           <div className="flex flex-wrap gap-2 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                           <div className="flex flex-wrap gap-1.5 mb-5 p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] border-dashed">
                               {formData.behavioralSkills.map(skill => (
-                                 <span key={skill} className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md">
-                                    {skill} <X size={16} className="cursor-pointer hover:text-indigo-200" onClick={() => removeBehavioralSkill(skill)}/>
+                                 <span key={skill} className="flex items-center gap-1.5 bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-3 py-1.5 rounded-lg text-sm font-semibold">
+                                    {skill} <X size={14} className="cursor-pointer hover:text-[var(--primary-glow)]" onClick={() => removeBehavioralSkill(skill)}/>
                                  </span>
                               ))}
                            </div>
                         )}
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
-                               <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-                                  <Plus className="text-indigo-500" size={20}/> Add Custom Skill <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                        <div className="grid md:grid-cols-2 gap-5">
+                            <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)]">
+                               <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
+                                  <Plus className="text-[var(--primary)]" size={16}/> Add Custom Skill <span className="text-[var(--muted-foreground)] font-normal text-3xs lowercase">(Press Enter)</span>
                                </label>
-                               <input type="text" value={behavInput} onChange={(e) => setBehavInput(e.target.value)} onKeyDown={handleAddBehavioralSkill} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-indigo-500" placeholder="e.g. Public Speaking, Negotiation..."/>
+                               <input type="text" value={behavInput} onChange={(e) => setBehavInput(e.target.value)} onKeyDown={handleAddBehavioralSkill} className="w-full bg-transparent border-b border-[var(--border)] pb-1.5 outline-none text-[var(--foreground)] text-sm focus:border-[var(--primary)] transition-colors" placeholder="e.g. Public Speaking, Negotiation..."/>
                             </div>
 
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                               <label className="text-slate-900 font-bold mb-4 block">Quick Suggestions</label>
-                               <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                            <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-soft">
+                               <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block">Quick Suggestions</label>
+                               <div className="flex flex-wrap gap-1.5 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
                                   {BEHAVIORAL_SKILLS_LIST.map((bSkill: string) => {
                                      const isSelected = formData.behavioralSkills.includes(bSkill);
                                      return (
@@ -1180,9 +1135,9 @@ export default function CandidateProfile() {
                                                }
                                                setFormData(prev => ({...prev, behavioralSkills: isSelected ? prev.behavioralSkills.filter(item => item !== bSkill) : [...prev.behavioralSkills, bSkill]}));
                                            }} 
-                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}`}
+                                           className={`px-2.5 py-1.5 rounded-md text-2xs font-semibold transition-all border flex items-center gap-1 ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/40 text-[var(--primary)]' : 'bg-white border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/30'}`}
                                         >
-                                           {isSelected && <Check size={12} className="text-indigo-600" />}
+                                           {isSelected && <Check size={11} className="text-[var(--primary)]" />}
                                            {bSkill}
                                         </button>
                                      );
@@ -1192,58 +1147,57 @@ export default function CandidateProfile() {
                         </div>
                      </div>
 
-                     {/* 🔥 TECHNOLOGICAL SKILLS SECTION WITH LEVEL DROPDOWN 🔥 */}
-                     <div className="pt-8 border-t border-slate-200">
-                        <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2"><Monitor className="text-blue-500"/> Technological Tools & Software <span className="text-slate-500 text-sm font-medium ml-2">(Optional)</span></h2>
-                           <span className="bg-slate-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold border border-slate-200">
+                     <div className="pt-8 border-t border-[var(--border)]">
+                        <div className="flex justify-between items-center mb-4">
+                           <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-1.5"><Monitor className="text-[var(--primary)]" size={18}/> Technological Tools & Software <span className="text-[var(--muted-foreground)] text-xs font-normal ml-1">(Optional)</span></h2>
+                           <span className="bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-2.5 py-1 rounded-md text-xs font-semibold">
                               {formData.technologicalSkills.length} / 8 Selected
                            </span>
                         </div>
-                        <p className="text-slate-600 text-sm mb-6">Select tools you are proficient in (Max 8) and set your level. <strong className="text-slate-900">Note: Our AI will ask 5 questions per selected software tool with NO negative marking.</strong></p>
+                        <p className="text-xs text-[var(--muted-foreground)] mb-4">Select tools you are proficient in (Max 8) and set your level. <strong className="text-[var(--foreground)]">Note: Our AI will ask 5 questions per selected software tool with NO negative marking.</strong></p>
                         
                         {formData.technologicalSkills.length > 0 && (
-                           <div className="flex flex-col gap-3 mb-6 p-5 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                           <div className="flex flex-col gap-2.5 mb-5 p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] border-dashed">
                               {formData.technologicalSkills.map(skill => (
-                                 <div key={skill.name} className="flex items-center gap-3 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl w-fit shadow-sm">
-                                    <span className="text-blue-900 text-sm font-bold">{skill.name}</span>
-                                    <div className="flex items-center gap-2 ml-2 border-l border-blue-200 pl-3">
+                                 <div key={skill.name} className="flex items-center gap-2.5 bg-[var(--accent)] border border-[var(--primary)]/25 px-3 py-2 rounded-lg w-fit">
+                                    <span className="text-[var(--primary)] text-sm font-semibold">{skill.name}</span>
+                                    <div className="flex items-center gap-2.5 ml-2 border-l border-[var(--border)] pl-3">
                                         <select 
                                             value={skill.level} 
                                             onChange={(e) => updateTechSkillLevel(skill.name, e.target.value)}
-                                            className="bg-white text-blue-700 text-xs font-bold px-2 py-1.5 rounded-lg border border-blue-200 outline-none cursor-pointer hover:bg-blue-50 transition-colors"
+                                            className="bg-white text-[var(--primary)] text-xs font-semibold px-2 py-1.5 rounded-md border border-[var(--primary)]/20 outline-none cursor-pointer hover:bg-[var(--surface)] transition-colors"
                                         >
                                             <option value="Beginner">Beginner Level</option>
                                             <option value="Intermediate">Intermediate Level</option>
                                             <option value="Advanced">Advanced Level</option>
                                         </select>
-                                        <X size={18} className="cursor-pointer text-blue-400 hover:text-red-500 ml-1 transition-colors" onClick={() => removeTechSkill(skill.name)}/>
+                                        <X size={15} className="cursor-pointer text-[var(--muted-foreground)] hover:text-[#c53030] ml-1 transition-colors" onClick={() => removeTechSkill(skill.name)}/>
                                     </div>
                                  </div>
                                ))}
                            </div>
                         )}
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm">
-                               <label className="text-slate-900 font-bold mb-4 flex items-center gap-2">
-                                  <Plus className="text-blue-500" size={20}/> Add Custom Tool <span className="text-slate-500 font-normal text-xs ml-2">(Press Enter)</span>
+                        <div className="grid md:grid-cols-2 gap-5">
+                             <div className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)]">
+                               <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block flex items-center gap-1.5">
+                                  <Plus className="text-[var(--primary)]" size={16}/> Add Custom Tool <span className="text-[var(--muted-foreground)] font-normal text-3xs lowercase">(Press Enter)</span>
                                </label>
-                               <input type="text" value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={handleAddTechSkill} className="w-full bg-transparent border-b-2 border-slate-300 pb-2 outline-none text-slate-900 text-sm focus:border-blue-500" placeholder="e.g. Jira, Xero, Tally ERP 9..."/>
+                               <input type="text" value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={handleAddTechSkill} className="w-full bg-transparent border-b border-[var(--border)] pb-1.5 outline-none text-[var(--foreground)] text-sm focus:border-[var(--primary)] transition-colors" placeholder="e.g. Jira, Xero, Tally ERP 9..."/>
                             </div>
 
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                               <label className="text-slate-900 font-bold mb-4 block">Most Demanded Tools</label>
-                               <div className="flex flex-wrap gap-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                            <div className="bg-white p-5 rounded-xl border border-[var(--border)] shadow-soft">
+                               <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block">Most Demanded Tools</label>
+                               <div className="flex flex-wrap gap-1.5 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
                                   {TECH_SKILLS_LIST.map((tSkill: string) => {
                                      const isSelected = formData.technologicalSkills.some(s => s.name === tSkill);
                                      return (
                                         <button 
                                            key={tSkill} 
                                            onClick={() => toggleTechSkill(tSkill)} 
-                                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${isSelected ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'}`}
+                                           className={`px-2.5 py-1.5 rounded-md text-2xs font-semibold transition-all border flex items-center gap-1 ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/40 text-[var(--primary)]' : 'bg-white border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/30'}`}
                                         >
-                                           {isSelected && <Check size={12} className="text-blue-600" />}
+                                           {isSelected && <Check size={11} className="text-[var(--primary)]" />}
                                            {tSkill}
                                         </button>
                                      );
@@ -1259,21 +1213,21 @@ export default function CandidateProfile() {
                {currentStep === 3 && (
                   <div className="space-y-12">
                      <div>
- <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-slate-900">Past Work Experience</h2>
-                           <button onClick={addWorkExp} className="text-sm font-bold text-teal-600 hover:text-teal-700 flex items-center gap-2 bg-teal-50 px-4 py-2 rounded-xl transition-colors">
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-3xl font-extrabold text-indigo-950">Past Work Experience</h2>
+                           <button onClick={addWorkExp} className="text-sm font-bold text-indigo-700 hover:text-indigo-800 flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-xl border border-indigo-100 transition-colors">
                                <Plus size={18}/> Add Company
                            </button>
                         </div>
                         
                         <div className="space-y-6">
                            {formData.workExperience.map((work, index) => (
-                              <div key={index} className="bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-200 relative shadow-sm">
+                              <div key={index} className="bg-white p-6 md:p-8 rounded-3xl border-2 border-indigo-50 relative shadow-sm hover:border-indigo-100 transition-all">
                                  
                                  {/* Perfectly aligned Delete Button */}
                                  <button 
                                     onClick={() => removeWorkExp(index)} 
-                                    className="absolute top-5 right-5 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full shadow-sm transition-all z-10 flex items-center justify-center"
+                                    className="absolute top-5 right-5 bg-indigo-50 text-indigo-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-all z-10 flex items-center justify-center"
                                     title="Remove Experience"
                                  >
                                     <X size={18}/>
@@ -1282,16 +1236,16 @@ export default function CandidateProfile() {
                                  {/* 2-Column Professional Grid */}
                                  <div className="grid md:grid-cols-2 gap-6 mt-2">
                                     <div>
-                                       <label className="form-label">Company Name</label>
-                                       <input type="text" value={work.company} onChange={(e)=>updateWorkExp(index, 'company', e.target.value)} className="input-field" placeholder="e.g. TCS"/>
+                                       <label className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2 block">Company Name</label>
+                                       <input type="text" value={work.company} onChange={(e)=>updateWorkExp(index, 'company', e.target.value)} className="w-full border-2 border-indigo-100 rounded-xl px-4 py-3 text-sm text-indigo-950 focus:border-indigo-500 outline-none transition-all" placeholder="e.g. TCS"/>
                                     </div>
                                     <div>
-                                       <label className="form-label">Job Role / Position</label>
-                                       <input type="text" value={work.role} onChange={(e)=>updateWorkExp(index, 'role', e.target.value)} className="input-field" placeholder="e.g. Audit Exec"/>
+                                       <label className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2 block">Job Role / Position</label>
+                                       <input type="text" value={work.role} onChange={(e)=>updateWorkExp(index, 'role', e.target.value)} className="w-full border-2 border-indigo-100 rounded-xl px-4 py-3 text-sm text-indigo-950 focus:border-indigo-500 outline-none transition-all" placeholder="e.g. Audit Exec"/>
                                     </div>
                                     <div>
-                                       <label className="form-label">Designation Level</label>
-                                       <select value={work.designation || ""} onChange={(e)=>updateWorkExp(index, 'designation', e.target.value)} className="input-field [color-scheme:light]">
+                                       <label className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2 block">Designation Level</label>
+                                       <select value={work.designation || ""} onChange={(e)=>updateWorkExp(index, 'designation', e.target.value)} className="w-full border-2 border-indigo-100 rounded-xl px-4 py-3 text-sm text-indigo-950 focus:border-indigo-500 outline-none transition-all [color-scheme:light]">
                                           <option value="">Select Level</option>
                                           <option>Intern / Trainee</option>
                                           <option>Associate / Executive</option>
@@ -1302,223 +1256,223 @@ export default function CandidateProfile() {
                                        </select>
                                     </div>
                                     <div>
-                                       <label className="form-label">Duration</label>
-                                       <input type="text" value={work.duration} onChange={(e)=>updateWorkExp(index, 'duration', e.target.value)} className="input-field" placeholder="e.g. 2021 - 2023"/>
+                                       <label className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2 block">Duration</label>
+                                       <input type="text" value={work.duration} onChange={(e)=>updateWorkExp(index, 'duration', e.target.value)} className="w-full border-2 border-indigo-100 rounded-xl px-4 py-3 text-sm text-indigo-950 focus:border-indigo-500 outline-none transition-all" placeholder="e.g. 2021 - 2023"/>
                                     </div>
                                     <div className="md:col-span-2">
-                                       <label className="form-label">Work Summary <span className="text-slate-400 text-xs font-normal ml-1">(Auto-filled by AI)</span></label>
-                                       <textarea value={work.summary || ""} onChange={(e)=>updateWorkExp(index, 'summary', e.target.value)} className="input-field min-h-[100px] resize-y" placeholder="Brief summary of tasks handled..."/>
+                                       <label className="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2 block">Work Summary <span className="text-indigo-400 font-normal ml-1">(Auto-filled by AI)</span></label>
+                                       <textarea value={work.summary || ""} onChange={(e)=>updateWorkExp(index, 'summary', e.target.value)} className="w-full border-2 border-indigo-100 rounded-xl p-4 text-sm text-indigo-950 focus:border-indigo-500 outline-none transition-all min-h-[100px] resize-y" placeholder="Brief summary of tasks handled..."/>
                                     </div>
                                  </div>
                               </div>
                            ))}
-                           {formData.workExperience.length === 0 && <p className="text-slate-500 text-sm font-medium pl-2">No past experience added. AI will auto-fill if found on resume.</p>}
+                           {formData.workExperience.length === 0 && <p className="text-indigo-400 text-sm font-medium pl-2">No past experience added. AI will auto-fill if found on resume.</p>}
                         </div>
-                     </div>
+                     </div>
 
-                     <div className="pt-8 border-t border-slate-200">
-                        <div className="flex justify-between items-center mb-6">
-                           <h2 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2"><Award className="text-amber-500"/> Achievements & Certifications</h2>
-                           <button onClick={addAchievement} className="text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 border border-amber-100 px-4 py-2 rounded-xl transition-colors">
-                              <Plus size={18} className="inline"/> Add Achievement
+                     <div className="pt-8 border-t border-indigo-100">
+                        <div className="flex justify-between items-center mb-6">
+                           <h2 className="text-3xl font-extrabold text-indigo-950 flex items-center gap-3"><Award className="text-indigo-500"/> Achievements & Certifications</h2>
+                           <button onClick={addAchievement} className="text-sm font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-4 py-2 rounded-xl transition-colors">
+                              <Plus size={18} className="inline mr-1"/> Add Achievement
                            </button>
                         </div>
                         <div className="space-y-4">
                            {formData.achievements.map((ach, index) => (
-                              <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-200 relative shadow-sm">
-                                 <button onClick={() => removeAchievement(index)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500">
-                                    <X size={18}/>
-                                  </button>
-                                 <div className="grid md:grid-cols-2 gap-4 mt-2">
+                              <div key={index} className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] relative">
+                                 <button onClick={() => removeAchievement(index)} className="absolute top-4 right-4 text-[var(--muted-foreground)] hover:text-[#c53030] p-1.5 transition-colors">
+                                    <X size={16}/>
+                                 </button>
+                                 <div className="grid md:grid-cols-2 gap-5 mt-2">
                                     <div className="md:col-span-2">
-                                       <label className="form-label">Achievement / Certificate Title</label>
-                                       <input type="text" value={ach.title} onChange={(e)=>updateAchievement(index, 'title', e.target.value)} className="input-field" placeholder="e.g. Employee of the Month, NCFM Certified..."/>
+                                       <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Achievement / Certificate Title</label>
+                                       <input type="text" value={ach.title} onChange={(e)=>updateAchievement(index, 'title', e.target.value)} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="e.g. Employee of the Month, NCFM Certified..."/>
                                     </div>
                                     <div className="md:col-span-2">
-                                       <label className="form-label">Short Description</label>
-                                       <textarea value={ach.description} onChange={(e)=>updateAchievement(index, 'description', e.target.value)} className="input-field min-h-[60px]" placeholder="e.g. Awarded for generating maximum revenue..."/>
+                                       <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Short Description</label>
+                                       <textarea value={ach.description} onChange={(e)=>updateAchievement(index, 'description', e.target.value)} className="w-full border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all min-h-[60px]" placeholder="e.g. Awarded for generating maximum revenue..."/>
                                     </div>
                                     <div className="md:col-span-2">
-                                       <label className="form-label text-slate-500">Upload Certificate/Photo <span className="text-xs ml-1">(Optional)</span></label>
-                                       <div className="flex items-center gap-4">
+                                       <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Upload Certificate/Photo <span className="text-2xs font-normal lowercase ml-1">(Optional)</span></label>
+                                       <div className="flex items-center gap-4 mt-1">
                                           {ach.imageURL && (
-                                              <img src={ach.imageURL} alt="Achievement" className="w-16 h-16 object-cover rounded-xl border border-slate-200 shadow-sm"/>
+                                              <img src={ach.imageURL} alt="Achievement" className="w-14 h-14 object-cover rounded-lg border border-[var(--border)] shadow-soft"/>
                                           )}
                                           <div className="relative">
                                              <input type="file" accept="image/*" onChange={(e) => handleAchievementImageUpload(index, e)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
-                                             <div className="bg-white hover:bg-slate-100 text-teal-600 text-sm font-bold px-4 py-2.5 rounded-xl border border-slate-200 flex items-center gap-2 transition-colors shadow-sm">
-                                                  <ImagePlus size={16}/> {ach.imageURL ? "Change Image" : "Upload Image"}
+                                             <div className="bg-white hover:bg-[var(--surface)] text-[var(--primary)] text-xs font-semibold px-3 py-2 rounded-lg border border-[var(--border)] flex items-center gap-2 transition-colors shadow-soft">
+                                                  <ImagePlus size={14}/> {ach.imageURL ? "Change Image" : "Upload Image"}
                                              </div>
                                           </div>
                                        </div>
                                     </div>
                                  </div>
-                               </div>
-                           ))}
-                           {formData.achievements.length === 0 && <p className="text-slate-500 text-sm font-medium">Stand out by adding your awards or extra certifications.</p>}
-                        </div>
-                     </div>
-
-                     <div className="pt-8 border-t border-slate-200">
-                        <h2 className="text-3xl font-extrabold text-slate-900 mb-8">Work & Salary Preferences</h2>
-                        <div className="grid md:grid-cols-2 gap-8">
-                           <div>
-                              <label className="form-label">Total Experience <span className="text-red-500">*</span></label>
-                              <select value={formData.experience} onChange={(e)=>setFormData({...formData, experience: e.target.value})} className="input-field [color-scheme:light]">
-                                 <option>Fresher</option>
-                                 <option>0-1 Years</option>
-                                 <option>1-3 Years</option>
-                                 <option>3-5 Years</option>
-                                 <option>5+ Years</option>
-                              </select>
-                           </div>
-                           <div>
-                              <label className="form-label">Notice Period <span className="text-red-500">*</span></label>
-                              <select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="input-field [color-scheme:light]">
-                                 <option>Immediate Joiner</option>
-                                 <option>15 Days</option>
-                                 <option>1 Month</option>
-                                 <option>2 Months</option>
-                              </select>
-                           </div>
-                           
-                           {formData.experience !== "Fresher" && (
-                              <div>
-                                 <label className="form-label">Monthly Current Salary</label>
-                                 <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="input-field" placeholder="e.g. ₹30,000"/>
                               </div>
-                           )}
-                          <div>
-                              <label className="form-label flex items-center gap-2">Monthly Expected Salary <span className="text-red-500">*</span></label>
-                              <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className={`input-field bg-teal-50 ${showHikeWarning ? 'border-amber-400 focus:border-amber-500' : 'border-teal-200'}`} placeholder="e.g. ₹40,000"/>
-                              <AnimatePresence>
-                                 {showHikeWarning && (
-                                    <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="overflow-hidden">
-                                       <p className="text-xs text-amber-700 mt-2 font-bold flex items-center gap-1 bg-amber-50 p-2 rounded-lg border border-amber-200 shadow-sm">
-                                          <AlertTriangle size={14} className="shrink-0"/> Asking for &gt;30% hike may slow down your hiring process.
-                                       </p>
-                                    </motion.div>
-                                 )}
-                              </AnimatePresence>
-                           </div>
-
-                           <div className="md:col-span-2">
-                              <label className="form-label text-indigo-600">Looking For (Role Type) <span className="text-red-500">*</span></label>
-                              <select 
-                                 value={formData.jobType} 
-                                 onChange={(e)=>{
-                                     const val = e.target.value;
-                                     setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
-                                 }} 
-                                 className="input-field border-indigo-200 bg-indigo-50 [color-scheme:light] mb-4"
-                              >
-                                 <option value="Permanent Role">Permanent Role</option>
-                                 <option value="1-3 Month Contract">1-3 Month Contract</option>
-                                 <option value="3-6 Month Contract">3-6 Month Contract</option>
-                                 <option value="6+ Month Contract">6+ Month Contract</option>
-                                 <option value="Freelance/Project Basis">Freelance/Project Basis</option>
-                                 <option value="Internship">Internship</option>
-                               </select>
-                              
-                              {formData.jobType === "Permanent Role" && (
-                                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-[var(--surface)] border border-[var(--border)] p-5 rounded-2xl flex flex-col md:flex-row items-start gap-4 shadow-sm">
-                                    <div className="bg-[var(--background)] p-3 rounded-xl shrink-0 mt-1 border border-[var(--border)] shadow-sm">
-                                       <Briefcase className="text-[var(--primary)]" size={28}/>
-                                    </div>
-                                    <div className="w-full">
-                                       <h4 className="text-[var(--foreground)] font-extrabold mb-2 text-lg">Smart Career Tip 💡</h4>
-                                       <p className="text-[var(--muted-foreground)] text-sm mb-4 leading-relaxed font-medium">
-                                          Top companies on Resourcemania often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-[var(--destructive)] text-xs ml-1">*Required</span>
-                                       </p>
-                                       
-                                       <div className="flex flex-col sm:flex-row gap-4 mt-2">
-                                          <button 
-                                             type="button"
-                                             onClick={() => setFormData({...formData, openToContractRoles: "Yes"})}
-                                             className={`flex-1 py-3.5 rounded-xl font-bold border transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "Yes" ? 'bg-gradient-primary border-[var(--primary)] text-[var(--primary-foreground)] shadow-glow' : 'bg-[var(--background)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--foreground)]'}`}
-                                          >
-                                             {formData.openToContractRoles === "Yes" && <Check size={18} strokeWidth={3}/>} Yes, I'm open to it
-                                          </button>
-                                          
-                                          <button 
-                                             type="button"
-                                             onClick={() => setFormData({...formData, openToContractRoles: "No"})}
-                                             className={`flex-1 py-3.5 rounded-xl font-bold border transition-all flex items-center justify-center gap-2 ${formData.openToContractRoles === "No" ? 'bg-[var(--destructive)]/10 border-[var(--destructive)] text-[var(--destructive)] shadow-sm' : 'bg-[var(--background)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--destructive)] hover:bg-[var(--destructive)]/5 hover:text-[var(--destructive)]'}`}
-                                          >
-                                             {formData.openToContractRoles === "No" && <X size={18} strokeWidth={3}/>} No, only permanent
-                                          </button>
-                                       </div>
-                                    </div>
-                                 </motion.div>
-                              )}
-                           </div>
-
-                           <div>
-                              <label className="form-label">Work Mode</label>
-                              <select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="input-field [color-scheme:light]">
-                                 <option>On-site</option>
-                                 <option>Hybrid</option>
-                                 <option>Remote</option>
-                              </select>
-                           </div>
-                           <div>
-                              <label className="form-label">Willing to Relocate?</label>
-                              <select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="input-field [color-scheme:light]">
-                                 <option>No</option>
-                                 <option>Yes</option>
-                              </select>
-                           </div>
-
-                           <div className="md:col-span-2 bg-slate-50 p-8 rounded-3xl border border-slate-200 mt-4 shadow-sm">
-                              <label className="text-slate-900 font-bold mb-4 block text-base">Preferred Work Locations <span className="text-slate-500 font-normal text-sm ml-2">(Type city & press Enter)</span></label>
-                              <div className="flex flex-wrap gap-3 mb-4">
-                                 {formData.preferredLocations.map((loc, i) => (
-                                    <span key={i} className="flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold shadow-sm">
-                                       {loc} <X size={16} className="cursor-pointer text-blue-400 hover:text-red-500" onClick={() => removeLocation(loc)}/>
-                                    </span>
-                                 ))}
-                               </div>
-                             <input type="text" list="indian-cities" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b-2 border-slate-300 pb-3 outline-none text-slate-900 text-base font-bold placeholder:text-slate-400 placeholder:font-medium focus:border-teal-500" placeholder="Type city and press Enter..."/>
-                           </div>
+                           ))}
+                           {formData.achievements.length === 0 && <p className="text-xs text-[var(--muted-foreground)] pl-2 font-medium">Stand out by adding your awards or extra certifications.</p>}
                         </div>
                      </div>
+
+                     <div className="pt-6 border-t border-[var(--border)]">
+                         <h2 className="text-xl font-bold text-[var(--foreground)] mb-6">Work & Salary Preferences</h2>
+                         <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Total Experience <span className="text-[#c53030]">*</span></label>
+                               <select value={formData.experience} onChange={(e)=>setFormData({...formData, experience: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
+                                  <option>Fresher</option>
+                                  <option>0-1 Years</option>
+                                  <option>1-3 Years</option>
+                                  <option>3-5 Years</option>
+                                  <option>5+ Years</option>
+                               </select>
+                            </div>
+                            <div>
+                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Notice Period <span className="text-[#c53030]">*</span></label>
+                               <select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
+                                  <option>Immediate Joiner</option>
+                                  <option>15 Days</option>
+                                  <option>1 Month</option>
+                                  <option>2 Months</option>
+                               </select>
+                            </div>
+                            
+                            {formData.experience !== "Fresher" && (
+                               <div>
+                                  <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Monthly Current Salary</label>
+                                  <input type="text" value={formData.currentSalary || ""} onChange={(e)=>setFormData({...formData, currentSalary: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" placeholder="e.g. ₹30,000"/>
+                               </div>
+                            )}
+                           <div>
+                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Monthly Expected Salary <span className="text-[#c53030]">*</span></label>
+                               <input type="text" value={formData.expectedSalary || ""} onChange={(e)=>setFormData({...formData, expectedSalary: e.target.value})} className={`w-full border rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all bg-[var(--accent)]/30 ${showHikeWarning ? 'border-amber-400' : 'border-[var(--primary)]/20'}`} placeholder="e.g. ₹40,000"/>
+                               <AnimatePresence>
+                                  {showHikeWarning && (
+                                     <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} exit={{opacity:0, height:0}} className="overflow-hidden">
+                                        <p className="text-xs text-[oklch(0.40_0.10_70)] mt-2 font-semibold flex items-center gap-1 bg-[oklch(0.98_0.02_70)] p-2 rounded-lg border border-[oklch(0.85_0.05_70)] shadow-soft">
+                                           <AlertTriangle size={14} className="shrink-0"/> Asking for &gt;30% hike may slow down your hiring process.
+                                        </p>
+                                     </motion.div>
+                                  )}
+                               </AnimatePresence>
+                            </div>
+ 
+                            <div className="md:col-span-2">
+                               <label className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-2 block">Looking For (Role Type) <span className="text-[#c53030]">*</span></label>
+                               <select 
+                                  value={formData.jobType} 
+                                  onChange={(e)=>{
+                                      const val = e.target.value;
+                                      setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
+                                  }} 
+                                  className="w-full border border-[var(--primary)]/25 bg-[var(--accent)]/30 rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light] mb-4"
+                               >
+                                  <option value="Permanent Role">Permanent Role</option>
+                                  <option value="1-3 Month Contract">1-3 Month Contract</option>
+                                  <option value="3-6 Month Contract">3-6 Month Contract</option>
+                                  <option value="6+ Month Contract">6+ Month Contract</option>
+                                  <option value="Freelance/Project Basis">Freelance/Project Basis</option>
+                                  <option value="Internship">Internship</option>
+                                </select>
+                               
+                               {formData.jobType === "Permanent Role" && (
+                                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bg-[var(--surface)] border border-[var(--border)] p-4 rounded-xl flex flex-col md:flex-row items-start gap-4 shadow-soft">
+                                     <div className="bg-white p-2.5 rounded-lg shrink-0 mt-0.5 border border-[var(--border)] shadow-soft">
+                                        <Briefcase className="text-[var(--primary)]" size={24}/>
+                                     </div>
+                                     <div className="w-full">
+                                        <h4 className="text-[var(--foreground)] font-bold mb-1.5 text-base">Smart Career Tip 💡</h4>
+                                        <p className="text-[var(--muted-foreground)] text-xs mb-3 leading-relaxed font-medium">
+                                           Top companies on Resourcemania often hire for high-paying, short-term contract projects (ranging from 1 to 12 months). Would you like to be considered for these while you hunt for a permanent role? <span className="text-[#c53030] text-xs ml-1">*Required</span>
+                                        </p>
+                                        
+                                        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                                           <button 
+                                              type="button"
+                                              onClick={() => setFormData({...formData, openToContractRoles: "Yes"})}
+                                              className={`flex-1 py-2.5 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1.5 ${formData.openToContractRoles === "Yes" ? 'bg-[var(--primary)] border-[var(--primary)] text-white shadow-[var(--shadow-primary)]' : 'bg-white border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--foreground)]'}`}
+                                           >
+                                              {formData.openToContractRoles === "Yes" && <Check size={14} strokeWidth={3}/>} Yes, I'm open to it
+                                           </button>
+                                           
+                                           <button 
+                                              type="button"
+                                              onClick={() => setFormData({...formData, openToContractRoles: "No"})}
+                                              className={`flex-1 py-2.5 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1.5 ${formData.openToContractRoles === "No" ? 'bg-[oklch(0.97_0.015_15)] border-[oklch(0.85_0.02_15)] text-[#c53030] shadow-soft' : 'bg-white border-[var(--border)] text-[var(--muted-foreground)] hover:border-[#c53030] hover:bg-[oklch(0.98_0.015_15)] hover:text-[#c53030]'}`}
+                                           >
+                                              {formData.openToContractRoles === "No" && <X size={14} strokeWidth={3}/>} No, only permanent
+                                           </button>
+                                        </div>
+                                     </div>
+                                  </motion.div>
+                               )}
+                            </div>
+ 
+                            <div>
+                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Work Mode</label>
+                               <select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
+                                  <option>On-site</option>
+                                  <option>Hybrid</option>
+                                  <option>Remote</option>
+                               </select>
+                            </div>
+                            <div>
+                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Willing to Relocate?</label>
+                               <select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
+                                  <option>No</option>
+                                  <option>Yes</option>
+                               </select>
+                            </div>
+ 
+                            <div className="md:col-span-2 bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] mt-4 shadow-soft">
+                               <label className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3 block">Preferred Work Locations <span className="text-[var(--muted-foreground)] font-normal text-3xs lowercase ml-1">(Type city & press Enter)</span></label>
+                               <div className="flex flex-wrap gap-2 mb-3">
+                                  {formData.preferredLocations.map((loc, i) => (
+                                     <span key={i} className="flex items-center gap-1.5 bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-3 py-1.5 rounded-lg text-sm font-semibold">
+                                        {loc} <X size={14} className="cursor-pointer text-[var(--muted-foreground)] hover:text-[#c53030]" onClick={() => removeLocation(loc)}/>
+                                     </span>
+                                  ))}
+                                </div>
+                              <input type="text" list="indian-cities" value={locInput} onChange={(e) => setLocInput(e.target.value)} onKeyDown={handleAddLocation} className="w-full bg-transparent border-b border-[var(--border)] pb-2 outline-none text-[var(--foreground)] text-sm focus:border-[var(--primary)] transition-colors" placeholder="Type city and press Enter..."/>
+                            </div>
+                         </div>
+                      </div>
                   </div>
                )}
 
                {currentStep === 4 && isOnboarding && (
-                 <div className="space-y-8 text-center py-6">
-                     <div className="w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-amber-200 shadow-md">
-                        <ShieldAlert size={48} className="text-amber-500" />
+                 <div className="space-y-6 text-center py-4">
+                     <div className="w-16 h-16 bg-[var(--accent)] border border-[var(--primary)]/20 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-soft">
+                        <ShieldAlert size={36} className="text-[var(--primary)]" />
                      </div>
-                     <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                        Profile Saved, but <span className="text-amber-500">HIDDEN</span> 🔒
+                     <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2 tracking-tight">
+                        Profile Saved, but <span className="text-[var(--primary)]">HIDDEN</span> 🔒
                       </h2>
-                     <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+                     <p className="text-[var(--muted-foreground)] text-sm max-w-md mx-auto mb-8 font-medium leading-relaxed">
                         To maintain trust, companies can only see profiles that have passed the AI Skill Assessment. Unlock your profile now to get hired.
                      </p>
                      
-                     <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
-                        <div className="bg-white p-8 rounded-[2rem] border border-slate-200 hover:border-teal-500 transition-all text-left flex flex-col shadow-lg">
-                           <h3 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-3">
-                              <PlayCircle className="text-teal-500" size={28}/> Practice First
+                     <div className="grid md:grid-cols-2 gap-5 max-w-2xl mx-auto mb-6">
+                        <div className="bg-white p-5 rounded-xl border border-[var(--border)] hover:border-[var(--primary)]/30 flex flex-col shadow-soft text-left">
+                           <h3 className="text-base font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
+                              <PlayCircle className="text-[var(--primary)]" size={20}/> Practice First
                            </h3>
-                           <p className="text-slate-500 text-sm mb-8 flex-1 font-medium">Take a quick dummy test to understand how tracking works.</p>
-                           <button onClick={() => router.push('/student/demo-test?returnTo=profile')} className="w-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 py-4 rounded-xl font-bold transition-all shadow-sm text-lg">
+                           <p className="text-[var(--muted-foreground)] text-xs mb-6 flex-1">Take a quick dummy test to understand how tracking works.</p>
+                           <button onClick={() => router.push('/student/demo-test?returnTo=profile')} className="w-full bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--accent)] text-[var(--foreground)] py-2.5 rounded-lg text-sm font-semibold transition-all shadow-soft">
                               Take Demo Test
                            </button>
                         </div>
-                        <div className="bg-teal-50 p-8 rounded-[2rem] border border-teal-200 hover:border-teal-400 transition-all text-left shadow-xl relative overflow-hidden flex flex-col">
-                           <div className="absolute top-0 right-0 bg-teal-500 text-white text-xs font-black tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md">REQUIRED</div>
-                           <h3 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-3">
-                              <Target className="text-teal-600" size={28}/> Final Assessment
+                        <div className="bg-[var(--accent)] p-5 rounded-xl border border-[var(--primary)]/25 hover:border-[var(--primary)]/45 transition-all text-left shadow-soft relative overflow-hidden flex flex-col">
+                           <div className="absolute top-0 right-0 bg-[var(--primary)] text-white text-2xs font-semibold tracking-widest px-3 py-1 rounded-bl-lg shadow-soft">REQUIRED</div>
+                           <h3 className="text-base font-bold text-[var(--foreground)] mb-2 flex items-center gap-2">
+                              <Target className="text-[var(--primary)]" size={20}/> Final Assessment
                            </h3>
-                           <p className="text-teal-800/70 font-medium text-sm mb-8 flex-1">Ensure you are in a quiet room.</p>
-                           <button onClick={() => router.push('/student/test')} className="w-full bg-[#0f947e] hover:bg-[#0c7a68] text-white py-4 rounded-xl font-bold shadow-lg shadow-teal-500/30 transition-all text-lg flex justify-center items-center gap-2">
-                              Start AI Test Now <ChevronRight size={20}/>
+                           <p className="text-[var(--muted-foreground)] text-xs mb-6 flex-1">Ensure you are in a quiet room.</p>
+                           <button onClick={() => router.push('/student/test')} className="w-full bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white py-2.5 rounded-lg text-sm font-semibold transition-all shadow-soft flex justify-center items-center gap-2">
+                              Start AI Test Now <ChevronRight size={16}/>
                            </button>
                         </div>
                       </div>
-                     <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-slate-500 hover:text-slate-900 font-bold underline underline-offset-4 transition-colors">
+                     <button onClick={() => { setIsEditing(false); router.push('/student/dashboard'); }} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold text-xs underline underline-offset-4 transition-colors">
                         Save as draft & take test later
                      </button>
                   </div>
@@ -1527,26 +1481,26 @@ export default function CandidateProfile() {
             </AnimatePresence>
 
             {currentStep < 4 && (
-               <div className="flex justify-between mt-12 pt-8 border-t border-[var(--border)]">
+               <div className="flex justify-between mt-10 pt-6 border-t border-[var(--border)]">
                   {currentStep > 1 ? (
-                     <button onClick={prevStep} className="px-8 py-4 rounded-xl bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] font-bold flex items-center gap-3 text-[var(--muted-foreground)] transition-all shadow-sm">
-                        <ChevronLeft size={20}/> Back
+                     <button onClick={prevStep} className="px-5 py-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] font-semibold flex items-center gap-2 text-xs text-[var(--muted-foreground)] transition-all shadow-soft">
+                        <ChevronLeft size={16}/> Back
                      </button>
                   ) : <div></div>}
                   
                   {currentStep < 3 ? (
-                     <button onClick={validateAndProceed} className="px-10 py-4 rounded-xl bg-gradient-primary hover:shadow-ring font-bold flex items-center gap-3 text-[var(--primary-foreground)] shadow-glow text-lg transition-all">
-                        Next <ChevronRight size={20}/>
+                     <button onClick={validateAndProceed} className="px-6 py-2.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-glow)] font-semibold flex items-center gap-2 text-white shadow-[var(--shadow-primary)] text-xs transition-all">
+                        Next <ChevronRight size={16}/>
                      </button>
                   ) : (
                      isOnboarding ?
                      (
-                        <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-primary hover:shadow-ring font-bold flex items-center gap-3 text-[var(--primary-foreground)] shadow-glow text-lg transition-all">
-                           {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={20}/></>}
+                        <button onClick={() => saveProfileData(4)} disabled={savingData} className="px-6 py-2.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-glow)] font-semibold flex items-center gap-2 text-white shadow-[var(--shadow-primary)] text-xs transition-all">
+                           {savingData ? <><Loader2 className="animate-spin" size={16}/> Saving...</> : <>Save & Next: Assessment <ChevronRight size={16}/></>}
                         </button>
                      ) : (
-                        <button onClick={() => saveProfileData()} disabled={savingData} className="px-10 py-4 rounded-xl bg-gradient-primary hover:shadow-ring font-bold flex items-center gap-3 text-[var(--primary-foreground)] shadow-glow text-lg transition-all">
-                           {savingData ? <><Loader2 className="animate-spin" size={20}/> Saving...</> : <><Save size={20}/> Save Changes</>}
+                        <button onClick={() => saveProfileData()} disabled={savingData} className="px-6 py-2.5 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary-glow)] font-semibold flex items-center gap-2 text-white shadow-[var(--shadow-primary)] text-xs transition-all">
+                           {savingData ? <><Loader2 className="animate-spin" size={16}/> Saving...</> : <><Save size={16}/> Save Changes</>}
                         </button>
                      )
                   )}

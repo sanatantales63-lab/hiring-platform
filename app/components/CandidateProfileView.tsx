@@ -115,66 +115,64 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
     <div suppressHydrationWarning className="space-y-8 animate-in fade-in duration-500">
       
       {/* HEADER CARD */}
-      <div className="bg-[var(--card)]/90 backdrop-blur-xl border border-[var(--border)] p-8 md:p-12 rounded-[2.5rem] shadow-elevated flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary)]/10 rounded-full blur-[80px]"></div>
+      <div className="bg-[var(--card)] border border-[var(--border)] p-8 md:p-12 rounded-xl shadow-card flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[oklch(0.55_0.18_255)] opacity-100 rounded-xl" />
         
-        <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-[2rem] bg-[var(--surface)] border-4 border-[var(--background)] flex items-center justify-center overflow-hidden shadow-lg shrink-0">
-            {candidate.photoURL && !isCompany ? <img src={candidate.photoURL} className="w-full h-full object-cover"/> : <User size={64} className="text-[var(--muted-foreground)]"/>}
+        <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-xl bg-white/20 border-4 border-white/40 flex items-center justify-center overflow-hidden shadow-lg shrink-0">
+            {candidate.photoURL && !isCompany ? <img src={candidate.photoURL} className="w-full h-full object-cover"/> : <User size={64} className="text-white/70"/>}
         </div>
         
         <div className="relative z-10 text-center md:text-left flex-1 mt-2">
-          {/* 🔥 FIX: Changed 'md:justify-between' to simple flex with gap, taaki photo aur text paas-paas rahein */}
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between w-full">
              <div className="flex-1">
-               <h2 className="font-display text-4xl md:text-5xl font-extrabold text-[var(--foreground)] mb-2 tracking-tight">
+               <h2 className="font-display text-4xl md:text-5xl font-extrabold text-white mb-2 tracking-tight">
   {isCompany ? displayId : (candidate.fullName || "Name Not Set")}
 </h2>
-                <p className="text-[var(--primary)] font-bold tracking-wider uppercase text-sm mb-6 bg-[var(--primary)]/10 inline-block px-4 py-1.5 rounded-xl border border-[var(--primary)]/20">
+                <p className="text-white font-bold tracking-wider uppercase text-sm mb-6 bg-white/20 inline-block px-4 py-1.5 rounded-lg border border-white/30">
                    {smartTitle}
                 </p>
              </div>
 
              {(isAdmin || isCompany) && (
-                <div className="text-right bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] shadow-sm min-w-[180px] shrink-0 mt-4 md:mt-0">
+                <div className="text-right bg-white/20 backdrop-blur-sm p-5 rounded-xl border border-white/30 shadow-sm min-w-[180px] shrink-0 mt-4 md:mt-0">
                    {isDisqualified ? (
-                       <div className="text-2xl font-extrabold text-[var(--destructive)] flex items-center gap-2 justify-end mb-1"><ShieldAlert size={24}/> Banned</div>
+                       <div className="text-2xl font-extrabold text-white flex items-center gap-2 justify-end mb-1"><ShieldAlert size={24}/> Banned</div>
                    ) : (
-                       <div className="font-display text-4xl font-extrabold text-[var(--primary)] mb-1">{metaObj.totalScore !== undefined ? `${metaObj.totalScore}` : "N/A"}</div>
+                       <div className="font-display text-4xl font-extrabold text-white mb-1">{metaObj.totalScore !== undefined ? `${metaObj.totalScore}` : "N/A"}</div>
                    )}
-                   <p className="text-[var(--muted-foreground)] text-xs font-bold uppercase tracking-wide">AI Verified Score</p>
+                   <p className="text-white/80 text-xs font-bold uppercase tracking-wide">AI Verified Score</p>
                 </div>
              )}
           </div>
           
-         {/* 🔥 FIX: Grouped beautifully into two aligned rows to look premium */}
           <div className={`flex flex-col items-center md:items-start gap-3 mt-4 ${isCompany ? 'blur-[4px] select-none opacity-50' : ''}`}>
              <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold">
-                <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><MapPin size={16} className="text-blue-500"/> {candidate.city || "City"}</span>
-                <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><Phone size={16} className="text-[var(--primary)]"/> {phoneToDisplay}</span>
+                <span className="flex items-center gap-2 text-white bg-white/20 px-4 py-2 rounded-lg border border-white/30 shadow-sm"><MapPin size={16} className="text-white/80"/> {candidate.city || "City"}</span>
+                <span className="flex items-center gap-2 text-white bg-white/20 px-4 py-2 rounded-lg border border-white/30 shadow-sm"><Phone size={16} className="text-white/80"/> {phoneToDisplay}</span>
              </div>
              <div className="flex flex-wrap justify-center md:justify-start gap-3 text-sm font-bold">
                 {candidate.whatsappNumber && (
-                   <span className="flex items-center gap-2 text-emerald-800 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 shadow-sm"><MessageCircle size={16} className="text-emerald-500"/> {whatsappToDisplay}</span>
+                   <span className="flex items-center gap-2 text-white bg-white/20 px-4 py-2 rounded-lg border border-white/30 shadow-sm"><MessageCircle size={16} className="text-white/80"/> {whatsappToDisplay}</span>
                 )}
-                <span className="flex items-center gap-2 text-[var(--foreground)] bg-[var(--surface)] px-4 py-2 rounded-xl border border-[var(--border)] shadow-sm"><Mail size={16} className="text-amber-500"/> {emailToDisplay}</span>
+                <span className="flex items-center gap-2 text-white bg-white/20 px-4 py-2 rounded-lg border border-white/30 shadow-sm"><Mail size={16} className="text-white/80"/> {emailToDisplay}</span>
              </div>
           </div>
 
           {isCompany && (
-             <div className="mt-4 inline-flex bg-[var(--card)] px-5 py-2 rounded-xl border border-amber-300 text-amber-600 text-xs font-bold items-center gap-2 shadow-md">
+             <div className="mt-4 inline-flex bg-amber-50/90 px-5 py-2 rounded-lg border border-amber-300 text-amber-700 text-xs font-bold items-center gap-2 shadow-md">
                 <Lock size={16}/> CONTACT INFO LOCKED BY ADMIN
              </div>
           )}
 
           {/* ADMIN ONLY: RESUME & REPORT BUTTONS DIRECTLY IN PROFILE */}
           {isAdmin && (
-             <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6 pt-5 border-t border-[var(--border)]">
+             <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6 pt-5 border-t border-white/30">
                 {candidate.resumeURL ? (
-                    <a href={candidate.resumeURL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[var(--foreground)] hover:bg-[var(--foreground)]/90 text-[var(--background)] px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm">
+                    <a href={candidate.resumeURL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm border border-white/30">
                         <FileText size={16} /> View Resume
                     </a>
                 ) : (
-                    <button disabled className="flex items-center gap-2 bg-[var(--surface)] text-[var(--muted-foreground)] px-5 py-2.5 rounded-xl text-sm font-semibold cursor-not-allowed border border-[var(--border)]">
+                    <button disabled className="flex items-center gap-2 bg-white/10 text-white/60 px-5 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed border border-white/20">
                         <FileText size={16} /> No Resume Uploaded
                     </button>
                 )}
@@ -182,7 +180,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 {(candidate.examAccess === 'completed' || metaObj.totalScore !== undefined) ? (
                     <DownloadReportButton candidate={candidate} buttonStyle="admin" />
                 ) : (
-                    <button disabled className="flex items-center gap-2 bg-[var(--surface)] text-[var(--muted-foreground)] px-5 py-2.5 rounded-xl text-sm font-semibold cursor-not-allowed border border-[var(--border)]">
+                    <button disabled className="flex items-center gap-2 bg-white/10 text-white/60 px-5 py-2.5 rounded-lg text-sm font-semibold cursor-not-allowed border border-white/20">
                         Test Not Completed
                     </button>
                 )}
@@ -192,10 +190,10 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
       </div>
 
       {showReview && (
-         <div className="bg-amber-50 border border-amber-200 p-8 rounded-[2rem] shadow-md relative overflow-hidden">
+         <div className="bg-amber-50 border border-amber-200 p-8 rounded-xl shadow-soft relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none"><Star size={100}/></div>
             <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start">
-               <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0"><Briefcase className="text-amber-600" size={32}/></div>
+               <div className="w-16 h-16 bg-amber-100 rounded-xl flex items-center justify-center shrink-0"><Briefcase className="text-amber-600" size={32}/></div>
                <div>
                   <h3 className="font-display text-xl font-extrabold text-amber-900 mb-1 flex items-center gap-2">Verified Corporate Experience <CheckCircle className="text-[var(--primary)]" size={18}/></h3>
                   <p className="text-amber-700/80 mb-3 font-medium">Hired by <strong className="text-amber-900">{candidate.hired_company_name}</strong> through Resourcemania</p>
@@ -210,18 +208,18 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
       {/* 🔥 NEW: Highest Qualification Badge displayed prominently above Bio */}
       {candidate.highestQualification && (
-         <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-center gap-3 shadow-sm">
-            <div className="bg-indigo-100 p-2 rounded-lg"><GraduationCap size={20} className="text-indigo-600"/></div>
+         <div className="bg-[var(--accent)] border border-[var(--primary)]/20 p-4 rounded-xl flex items-center gap-3 shadow-soft">
+            <div className="bg-white p-2 rounded-lg border border-[var(--border)]"><GraduationCap size={20} className="text-[var(--primary)]"/></div>
             <div>
-               <p className="text-[10px] uppercase tracking-widest font-black text-indigo-500 mb-0.5">Highest Qualification Level</p>
-               <p className="font-bold text-indigo-900 text-sm">{candidate.highestQualification}</p>
+               <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--primary)] mb-0.5">Highest Qualification Level</p>
+               <p className="font-bold text-[var(--foreground)] text-sm">{candidate.highestQualification}</p>
             </div>
          </div>
       )}
 
       {candidate.bio && (
-         <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-primary"></div>
+         <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-[var(--primary)]"></div>
             <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-2"><Sparkles className="text-[var(--primary)]" size={20}/> Professional Summary</h3>
             <p className="text-[var(--muted-foreground)] leading-relaxed text-base md:text-lg italic font-medium">"{candidate.bio}"</p>
          </div>
@@ -229,7 +227,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
       {/* PAST WORK EXPERIENCE */}
       {workExpList.length > 0 && (
-          <div className="bg-[var(--card)] border border-[var(--border)] p-6 md:p-8 rounded-[2rem] shadow-soft mb-8">
+          <div className="bg-[var(--card)] border border-[var(--border)] p-6 md:p-8 rounded-xl shadow-soft mb-8">
              <h3 className="font-display text-xl md:text-2xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-3"><Building className="text-[var(--primary)]"/> Past Work Experience</h3>
              <div className="flex flex-col">
                 {displayedWorkExp.map((work:any, i:number) => (
@@ -252,7 +250,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                       {work.summary && (
                          <p 
                             onClick={() => setExpandedSummaryIndex(expandedSummaryIndex === i ? null : i)}
-                            className={`text-xs text-[var(--muted-foreground)] mt-1.5 cursor-pointer transition-all duration-300 w-full select-none ${expandedSummaryIndex === i ? 'line-clamp-none bg-slate-50/50 p-2 rounded-lg border border-slate-100' : 'line-clamp-1 md:line-clamp-none'}`} 
+                            className={`text-xs text-[var(--muted-foreground)] mt-1.5 cursor-pointer transition-all duration-300 w-full select-none ${expandedSummaryIndex === i ? 'line-clamp-none bg-[var(--surface)] p-2 rounded-lg border border-[var(--border)]' : 'line-clamp-1 md:line-clamp-none'}`} 
                             title="Touch or hover to expand description"
                          >
                             <span className="font-bold text-[var(--primary)] mr-1.5">Summary [Click to Toggle]:</span>{work.summary}
@@ -272,32 +270,31 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
       <div className="grid md:grid-cols-3 gap-8">
          <div className="md:col-span-1 space-y-8">
-             <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
-                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Briefcase className="text-[var(--primary)]"/> Career & Salary</h3>
-                <div className="space-y-4 text-sm font-bold text-[var(--ink-soft)]">
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Total Exp.</span><span className="text-[var(--foreground)] bg-[var(--surface)] px-3 py-1 rounded-lg border border-[var(--border)] shadow-sm">{candidate.experience}</span></div>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Notice Period</span><span className="text-[var(--foreground)]">{candidate.noticePeriod || "N/A"}</span></div>
-                   <div className="flex justify-between border-b border-[var(--border)] pb-3 items-center">
+             <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
+                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Briefcase className="text-[var(--primary)]"/> Career & Salary</h3>
+                <div className="space-y-4 text-sm font-bold text-[var(--ink-soft)]">
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Total Exp.</span><span className="text-[var(--foreground)] bg-[var(--surface)] px-3 py-1 rounded-lg border border-[var(--border)] shadow-sm">{candidate.experience}</span></div>
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Notice Period</span><span className="text-[var(--foreground)]">{candidate.noticePeriod || "N/A"}</span></div>
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3 items-center">
                       <span className="text-[var(--muted-foreground)]">Expected Salary</span>
                       <div className="text-right">
                          <span className="text-[var(--primary)] font-extrabold text-lg">{displayExpectedSalary}</span>
                          {adminBumpedSalary && (
-                            <div className="text-[10px] text-amber-700 mt-1 font-extrabold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                            <div className="text-[10px] text-[oklch(0.40_0.10_70)] mt-1 font-semibold bg-[oklch(0.98_0.02_70)] px-2 py-0.5 rounded border border-[oklch(0.85_0.05_70)] shadow-soft">
                                Company Sees: {adminBumpedSalary}
                             </div>
                          )}
                       </div>
                    </div>
-                   {candidate.currentSalary && !isCompany && <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Current Salary</span><span className="text-[var(--foreground)]">{candidate.currentSalary}</span></div>}
-                   <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)]">Open to Contract</span><span className={candidate.openToContractRoles ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
-                </div>
-             </div>
+                   {candidate.currentSalary && !isCompany && <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Current Salary</span><span className="text-[var(--foreground)]">{candidate.currentSalary}</span></div>}
+                   <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)]">Open to Contract</span><span className={candidate.openToContractRoles ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"}>{candidate.openToContractRoles ? "Yes" : "No"}</span></div>
+                </div>
+             </div>
 
-             <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
+             <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
                 <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><User className="text-[var(--primary)]"/> Personal Details</h3>
                 
                 <div className="space-y-4 text-sm font-bold text-[var(--ink-soft)]">
-                   {/* 🔥 ID ALWAYS VISIBLE 🔥 */}
                    {candidate.id && (
                       <div className="flex justify-between border-b border-[var(--border)] pb-4 mb-4">
                          <span className="text-[var(--muted-foreground)]">Profile ID</span>
@@ -305,7 +302,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                       </div>
                    )}
                    
-                   {/* SENSITIVE INFO - ONLY THIS BLURS FOR COMPANY */}
                   <div className="relative">
                      <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>
@@ -321,16 +317,15 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                      )}
                   </div>
 
-                  {/* 🔥 UNLOCKED FOR COMPANY: Laptop Owner status extracted outside overlay */}
                   <div className="flex justify-between pt-3 border-t border-[var(--border)]">
                      <span className="text-[var(--muted-foreground)]">Laptop Owner</span>
-                     <span className="text-[var(--foreground)] font-bold text-teal-600">{candidate.hasLaptop || "No"}</span>
+                     <span className="text-[var(--primary)] font-bold">{candidate.hasLaptop || "No"}</span>
                   </div>
                 </div>
              </div>
 
              {candidate.languages && candidate.languages.length > 0 && (
-                <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
+                <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
                    <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Globe className="text-[var(--primary)]"/> Languages Known</h3>
                    <div className="flex flex-wrap gap-3">
                       {candidate.languages.map((lang: any, idx: number) => (
@@ -346,17 +341,17 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
           
          <div className="md:col-span-2 space-y-8">
             {/* EDUCATION SECTION */}
-            <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
+            <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
                <h3 className="font-display text-2xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><GraduationCap className="text-[var(--primary)]"/> Education & Certifications</h3>
                <div className="space-y-4">
                    {displayedEducations.map((edu:any, i:number) => {
                       const isSchoolLevel = /(10th|12th|class 10|class 12|high school|secondary|intermediate|puc|matric|board|ssc|hsc|cbse|icse|\b10\b|\b12\b|^10$|^12$|x|xii)/i.test((edu.qualification || '').toLowerCase());
                       return (
-                      <div key={i} className="bg-[var(--surface)] p-5 rounded-2xl border border-[var(--border)] flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-[var(--primary)]/30 transition-colors shadow-sm">
+                      <div key={i} className="bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)] flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-[var(--primary)]/30 transition-colors shadow-sm">
                          <div>
                             <p className="font-bold text-lg text-[var(--foreground)] flex items-center gap-2 flex-wrap">
                                {edu.qualification} 
-                               {edu.stageCleared && <span className="text-[10px] bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
+                               {edu.stageCleared && <span className="text-[10px] bg-[oklch(0.98_0.02_70)] text-[oklch(0.40_0.10_70)] border border-[oklch(0.85_0.05_70)] px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
                                {isSchoolLevel && edu.mathsIncluded && edu.mathsIncluded !== "" && (
                                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${edu.mathsIncluded === 'Yes' ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20' : 'bg-[var(--destructive)]/10 text-[var(--destructive)] border-[var(--destructive)]/20'}`}>
                                       Maths: {edu.mathsIncluded} {edu.mathsIncluded === 'Yes' && edu.mathsScore ? `(${edu.mathsScore}%)` : ''}
@@ -380,17 +375,17 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
             {/* ACHIEVEMENTS SECTION */}
             {candidate.achievements && candidate.achievements.length > 0 && (
-                <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
+                <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
                     <h3 className="font-display text-2xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Award className="text-amber-500"/> Achievements & Certifications</h3>
                     <div className="grid md:grid-cols-2 gap-4">
                         {candidate.achievements.map((ach: any, i: number) => (
-                            <div key={i} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 flex gap-4 hover:border-[var(--primary)]/30 transition-colors items-start shadow-sm">
+                            <div key={i} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex gap-4 hover:border-[var(--primary)]/30 transition-colors items-start shadow-sm">
                                 {ach.imageURL ? (
                                     <a href={ach.imageURL} target="_blank" rel="noreferrer" className="shrink-0">
-                                        <img src={ach.imageURL} alt="Achievement" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-xl border border-[var(--border)] shadow-sm hover:opacity-80 transition-opacity cursor-pointer"/>
+                                        <img src={ach.imageURL} alt="Achievement" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg border border-[var(--border)] shadow-sm hover:opacity-80 transition-opacity cursor-pointer"/>
                                     </a>
                                 ) : (
-                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-50/50 rounded-xl flex items-center justify-center shrink-0 border border-amber-100 shadow-sm">
+                                    <div className="w-12 h-12 md:w-16 md:h-16 bg-[var(--surface)] rounded-lg flex items-center justify-center shrink-0 border border-[var(--border)] shadow-soft">
                                         <Award size={24} className="text-amber-500"/>
                                     </div>
                                 )}
@@ -404,7 +399,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 </div>
             )}
 
-            <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-[2rem] shadow-soft">
+            <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Sparkles className="text-[var(--primary)]"/> Technical Skills & Expertise</h3>
                {candidateSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
@@ -416,11 +411,11 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                
                {/* BEHAVIORAL SKILLS */}
                <div className="mt-8 pt-8 border-t border-[var(--border)]">
-                   <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-3"><Users className="text-indigo-500"/> Behavioral & Soft Skills</h3>
+                   <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-3"><Users className="text-[var(--primary)]"/> Behavioral & Soft Skills</h3>
                    {candidateBehavioralSkills.length > 0 ? (
                       <div className="flex flex-wrap gap-2.5">
                          {candidateBehavioralSkills.map((skill:string, i:number) => (
-                            <span key={i} className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-sm font-bold border border-indigo-200 hover:bg-indigo-100 transition-all shadow-sm">{skill}</span>
+                            <span key={i} className="bg-[var(--accent)] text-[var(--primary)] px-4 py-2 rounded-xl text-sm font-semibold border border-[var(--primary)]/20 hover:bg-[var(--primary)]/15 transition-all shadow-soft">{skill}</span>
                          ))}
                       </div>
                    ) : <span className="text-[var(--muted-foreground)] font-medium text-sm italic">No behavioral skills selected.</span>}
@@ -428,15 +423,15 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
                {/* TECHNOLOGICAL SKILLS */}
                <div className="mt-8 pt-8 border-t border-[var(--border)]">
-                   <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-3"><Monitor className="text-blue-500"/> Technological Tools & Software</h3>
+                   <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-3"><Monitor className="text-[var(--primary)]"/> Technological Tools & Software</h3>
                    {candidateTechnologicalSkills.length > 0 ? (
                       <div className="flex flex-wrap gap-2.5">
                          {candidateTechnologicalSkills.map((skill:any, i:number) => {
                             const skillName = typeof skill === 'string' ? skill : skill.name;
                             const skillLevel = typeof skill === 'object' && skill.level ? skill.level : 'Beginner';
                             return (
-                               <span key={i} className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-bold border border-blue-200 hover:bg-blue-100 transition-all shadow-sm">
-                                   {skillName} <span className="text-[10px] text-blue-500 ml-1 uppercase tracking-wider">({skillLevel})</span>
+                               <span key={i} className="bg-[var(--accent)] text-[var(--primary)] px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--primary)]/20 hover:bg-[var(--primary)]/15 transition-all shadow-soft">
+                                   {skillName} <span className="text-[9px] text-[var(--primary)]/80 ml-1 uppercase tracking-wider">({skillLevel})</span>
                                </span>
                             );
                          })}
@@ -470,8 +465,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
 
       {/* THE AI ASSESSMENT REPORT */}
       {metaObj.skillScores && Object.keys(metaObj.skillScores).length > 0 && (
-         <div className="bg-[var(--card)] border border-[var(--border)] p-8 md:p-10 rounded-[2.5rem] shadow-elevated mt-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary)]/10 rounded-full blur-[80px]"></div>
+         <div className="bg-[var(--card)] border border-[var(--border)] p-8 md:p-10 rounded-xl shadow-card mt-8 relative overflow-hidden">
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 border-b border-[var(--border)] pb-6">
                <div>
@@ -502,7 +496,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                         </button>
                      )}
                   </div>
-                  <div className="bg-gradient-primary p-4 rounded-xl flex flex-col justify-center text-center px-8 shadow-glow text-[var(--primary-foreground)]">
+                  <div className="bg-[var(--primary)] p-4 rounded-xl flex flex-col justify-center text-center px-8 shadow-[var(--shadow-primary)] text-white">
                      <p className="text-[10px] opacity-90 uppercase font-black tracking-widest mb-1">Total Score</p>
                      <p className="font-display text-4xl font-extrabold leading-none">{metaObj.totalScore}</p>
                   </div>
@@ -510,7 +504,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
             </div>
 
             {metaObj.ai_detailed_report && (
-               <div className="bg-[var(--primary)]/5 p-6 rounded-2xl border-l-4 border-[var(--primary)] mb-8 relative z-10 text-[var(--ink-soft)] text-sm md:text-base font-medium leading-relaxed space-y-4 shadow-sm">
+               <div className="bg-[var(--accent)] p-6 rounded-xl border-l-4 border-[var(--primary)] mb-8 relative z-10 text-[var(--ink-soft)] text-sm md:text-base font-medium leading-relaxed space-y-4 shadow-sm">
                   <p className="font-bold text-[var(--foreground)] mb-2 flex items-center gap-2"><Sparkles className="text-[var(--primary)]" size={18}/> AI Review</p>
                  {metaObj.ai_detailed_report.split('\n').map((para:string, index:number) => (
          <p key={index} className="text-justify">
@@ -531,20 +525,20 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                   const techSkillNames = candidateTechnologicalSkills.map((s:any) => typeof s === 'string' ? s : s.name);
                   const isTechSkill = techSkillNames.includes(skillName);
 
-                  const colorClass = isPsycho ? 'bg-indigo-500' : isTechSkill ? 'bg-blue-500' : (percentage >= 80 ? 'bg-[var(--primary)]' : percentage >= 50 ? 'bg-amber-500' : 'bg-[var(--destructive)]');
-                  const textClass = isPsycho ? 'text-indigo-600' : isTechSkill ? 'text-blue-600' : (percentage >= 80 ? 'text-[var(--primary)]' : percentage >= 50 ? 'text-amber-600' : 'text-[var(--destructive)]');
-                  const borderClass = isPsycho ? 'border-indigo-200 bg-indigo-50' : isTechSkill ? 'border-blue-200 bg-blue-50' : 'border-[var(--border)] bg-[var(--surface)]';
+                  const colorClass = 'bg-[var(--primary)]';
+                  const textClass = 'text-[var(--primary)]';
+                  const borderClass = 'border-[var(--border)] bg-[var(--surface)]';
 
                  return (
-                     <div key={skillName} className={`p-5 rounded-2xl border shadow-sm ${borderClass}`}>
+                     <div key={skillName} className={`p-5 rounded-xl border shadow-soft ${borderClass}`}>
                         <div className="flex justify-between items-start mb-4">
                            <div className="flex flex-col gap-1.5 pr-3">
-                               <span className={`font-bold text-sm leading-tight ${isPsycho ? 'text-indigo-800' : isTechSkill ? 'text-blue-800' : 'text-[var(--foreground)]'}`}>
+                               <span className="font-bold text-sm leading-tight text-[var(--foreground)]">
                                    {isPsycho ? "🧠 Behavioral & Culture Fit" : isTechSkill ? `💻 ${skillName}` : skillName}
                                </span>
                                {/* 🔥 SMART UI TRICK: Explain why it's > 6 without touching Test Engine 🔥 */}
                                {data.total > 6 && (
-                                   <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md w-max shadow-sm">
+                                   <span className="text-[10px] font-bold text-[var(--primary)] bg-[var(--accent)] border border-[var(--primary)]/20 px-2 py-0.5 rounded-md w-max shadow-soft">
                                       ✨ Includes Bonus Round
                                    </span>
                                )}

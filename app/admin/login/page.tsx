@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Loader2, Lock, Mail } from "lucide-react";
+import { ShieldCheck, Loader2, Lock, Mail, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase"; 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-// 🔥 Apne naye Master Components import kar liye 🔥
+// Master UI Components
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 
@@ -26,7 +27,7 @@ export default function AdminLogin() {
 
       if (error) throw error;
       
-      // Login hone ke baad direct Owner Panel pe bhejega
+      // Redirect to Admin Owner Panel
       window.location.href = '/admin/dashboard';
       
     } catch (error: any) {
@@ -35,55 +36,71 @@ export default function AdminLogin() {
     }
   };
 
- return (
-    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md"
-      >
-        <Card className="p-8 md:p-12 relative overflow-hidden border-t-4 border-t-[var(--destructive)]">
-          
-          <div className="absolute top-[-20%] left-[-20%] w-64 h-64 bg-[var(--destructive)]/10 rounded-full blur-[60px] pointer-events-none" />
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 sm:p-6 relative font-sans text-white">
+      
+      {/* Red Ambient Glow for Admin Security Portal */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-rose-600/10 blur-[130px] rounded-full pointer-events-none" />
 
-          <div className="flex justify-center mb-8 relative z-10">
-            <div className="bg-[var(--destructive)]/10 border border-[var(--destructive)]/20 p-4 rounded-2xl shadow-sm">
-              <ShieldCheck className="w-10 h-10 text-[var(--destructive)]" />
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md relative z-10"
+      >
+        {/* Back link */}
+        <Link href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white mb-6 transition-colors">
+          <ArrowLeft size={14} /> Back to Resourcemania Home
+        </Link>
+
+        <Card className="bg-white/95 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl p-7 sm:p-9 text-[var(--foreground)] border-t-4 border-t-rose-600">
+          
+          <div className="flex justify-center mb-5">
+            <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-2xl text-rose-600 shadow-soft">
+              <ShieldCheck className="w-8 h-8 stroke-[2.2]" />
             </div>
           </div>
-          <h2 className="text-3xl font-extrabold text-center mb-2 text-[var(--foreground)] relative z-10 font-display">Owner Portal</h2>
-          <p className="text-[var(--muted-foreground)] font-medium text-center mb-8 relative z-10 text-sm">Secure access to admin controls.</p>
 
-          <form onSubmit={handleEmailLogin} className="space-y-4 mb-6 relative z-10">
-            <div className="relative">
-              <Mail className="absolute left-4 top-3.5 text-[var(--muted-foreground)]" size={20} />
-              <input 
-                type="email" required placeholder="Admin Email" 
-                value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--destructive)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm"
-              />
+          <h2 className="text-2xl font-black font-display text-center text-[var(--foreground)] tracking-tight">
+            Owner Portal
+          </h2>
+          <p className="text-[var(--muted-foreground)] text-xs font-medium text-center mt-1 mb-6">
+            Restricted security access to platform controls.
+          </p>
+
+          <form onSubmit={handleEmailLogin} className="space-y-4 mb-2">
+            <div>
+              <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5">Admin Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={17} />
+                <input 
+                  type="email" required placeholder="admin@resourcemania.com" 
+                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-[var(--border)] rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-rose-600 focus:ring-2 focus:ring-rose-600/15 outline-none transition-all bg-white"
+                />
+              </div>
             </div>
             
-            <div className="relative">
-              <Lock className="absolute left-4 top-3.5 text-[var(--muted-foreground)]" size={20} />
-              <input 
-                type="password" required placeholder="Admin Password"
-                value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[var(--input)]/50 border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--destructive)] focus:bg-[var(--surface)] outline-none transition-all shadow-sm"
-              />
+            <div>
+              <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3.5 text-[var(--muted-foreground)]" size={17} />
+                <input 
+                  type="password" required placeholder="••••••••••••"
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-[var(--border)] rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-rose-600 focus:ring-2 focus:ring-rose-600/15 outline-none transition-all bg-white"
+                />
+              </div>
             </div>
 
-            {/* Naya Master Button Component */}
             <Button
               type="submit"
-              variant="danger"
               disabled={loading}
-              className="w-full mt-6 py-4 text-lg"
+              className="w-full mt-4 py-3.5 text-sm font-bold shadow-soft rounded-xl bg-rose-600 hover:bg-rose-700 text-white"
             >
               {loading ? (
-                <><Loader2 className="animate-spin" size={20}/> Authenticating...</>
+                <><Loader2 className="animate-spin" size={18}/> Authenticating...</>
               ) : (
-                <><Lock size={20}/> Secure Login</>
+                <><Lock size={16}/> Secure Authenticate</>
               )}
             </Button>
           </form>
