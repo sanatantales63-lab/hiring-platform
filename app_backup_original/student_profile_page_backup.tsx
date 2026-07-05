@@ -1068,76 +1068,30 @@ export default function CandidateProfile() {
                             <datalist id="qualifications-list">
                                {QUALIFICATIONS_LIST.map(q => <option key={q} value={q} />)}
                             </datalist>
-                          </div>
-                          </div>
-
-                          {/* Technical Sub-Skills Section */}
-                          <div className="pt-8 border-t border-[var(--border)]">
-                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-bold text-[var(--foreground)] flex items-center gap-1.5">
-                                   <Award className="text-[var(--primary)]" size={18}/> Technical Sub-Skills <span className="text-[#c53030] text-sm">*</span>
-                                </h2>
-                                <span className="bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-2.5 py-1 rounded-md text-xs font-semibold">
-                                   {formData.skills.length} / 10 Selected
-                                </span>
-                             </div>
-                             <p className="text-xs text-[var(--muted-foreground)] mb-4">
-                                Select <strong className="text-[var(--foreground)]">Minimum 1 and Maximum 10</strong> sub-skills. Your assessment test will be strictly generated based on these selections.
-                             </p>
-
-                             {formData.skills.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mb-5 p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)] border-dashed">
-                                   {formData.skills.map(skill => (
-                                      <span key={skill} className="flex items-center gap-1.5 bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-3 py-1.5 rounded-lg text-sm font-semibold">
-                                         {skill} <X size={14} className="cursor-pointer hover:text-[var(--primary-glow)]" onClick={() => toggleSkill(skill)}/>
-                                      </span>
-                                   ))}
-                                </div>
-                             )}
-
-                             <div className="border border-[var(--border)] rounded-2xl overflow-hidden bg-[var(--surface)] flex flex-col md:flex-row shadow-soft">
-                                {/* Left Categories Column */}
-                                <div className="md:w-1/3 bg-white border-r border-[var(--border)] p-3 max-h-[350px] overflow-y-auto custom-scrollbar">
-                                   {(Object.keys(MASTER_SKILLS_DATA) as Array<keyof typeof MASTER_SKILLS_DATA>).map((mainSkill) => (
-                                      <button 
-                                         key={mainSkill} 
-                                         onClick={() => setActiveSkillTab(mainSkill)} 
-                                         className={`w-full text-left px-3 py-2.5 mb-1.5 text-xs font-bold rounded-lg transition-all border ${
-                                            activeSkillTab === mainSkill 
-                                            ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-sm' 
-                                            : 'bg-white border-transparent text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'
-                                         }`}
-                                      >
-                                         {mainSkill}
-                                      </button>
-                                   ))}
-                                </div>
-
-                                {/* Right Sub-skills Column */}
-                                <div className="md:w-2/3 p-5 max-h-[350px] overflow-y-auto custom-scrollbar bg-white">
-                                   <h4 className="text-[var(--foreground)] font-semibold text-sm mb-4 flex items-center gap-1.5 border-b border-[var(--border)] pb-2">
-                                      Select Sub-Skills for <span className="text-[var(--primary)]">{activeSkillTab}</span>
-                                   </h4>
-                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                                      {(MASTER_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
-                                         const isSelected = formData.skills.includes(subSkill);
-                                         return (
-                                            <button 
-                                               key={subSkill} 
-                                               onClick={() => toggleSkill(subSkill)} 
-                                               className={`text-left px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${isSelected ? 'bg-[var(--accent)]/50 border-[var(--primary)] text-[var(--foreground)]' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/50'} flex items-center justify-between group`}
-                                            >
-                                               <span className="truncate pr-2">{subSkill}</span>
-                                               <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-white border-[var(--border)] group-hover:border-[var(--primary)]/50'}`}>
-                                                  {isSelected && <Check size={11} className="text-white" />}
-                                               </div>
-                                            </button>
-                                         );
-                                      })}
-                                   </div>
-                                 </div>
+                           <div className="md:w-2/3 p-5 max-h-[350px] overflow-y-auto custom-scrollbar bg-white rounded-xl border border-[var(--border)]">
+                              <h4 className="text-[var(--foreground)] font-semibold text-sm mb-4 flex items-center gap-1.5 border-b border-[var(--border)] pb-2">
+                                 Select Sub-Skills for <span className="text-[var(--primary)]">{activeSkillTab}</span>
+                              </h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                 {(MASTER_SKILLS_DATA[activeSkillTab] || []).map((subSkill: string) => {
+                                    const isSelected = formData.skills.includes(subSkill);
+                                    return (
+                                       <button 
+                                          key={subSkill} 
+                                          onClick={() => toggleSkill(subSkill)} 
+                                          className={`text-left px-3 py-2 rounded-lg text-xs font-semibold transition-all border ${isSelected ? 'bg-[var(--accent)]/50 border-[var(--primary)] text-[var(--foreground)]' : 'bg-[var(--surface)] border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/50'} flex items-center justify-between group`}
+                                       >
+                                          <span className="truncate pr-2">{subSkill}</span>
+                                          <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-white border-[var(--border)] group-hover:border-[var(--primary)]/50'}`}>
+                                             {isSelected && <Check size={11} className="text-white" />}
+                                          </div>
+                                       </button>
+                                    );
+                                 })}
                               </div>
                            </div>
+                        </div>
+                     </div>
 
                      <div className="pt-8 border-t border-[var(--border)]">
                         <div className="flex justify-between items-center mb-4">
