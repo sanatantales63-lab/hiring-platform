@@ -10,10 +10,11 @@ export async function POST(req: Request) {
         "gs" + "k_cBHz4Yii5ILi9venQVA8WGdyb3FYxbXd7bIuWl6akFJy5nqaO67x"
     ];
 
-    const body = await req.json();
+   const body = await req.json();
     const qualifications = body.qualifications || "General Aptitude & Accounting";
     const missingSkillsMap = body.missingSkillsMap || [];
     const existingQuestions = body.existingQuestions || ""; 
+    const assessmentType = body.assessmentType || "Core";
 
     const qualString = Array.isArray(qualifications) ? qualifications.join(", ") : qualifications;
 
@@ -47,8 +48,14 @@ export async function POST(req: Request) {
     2. ALL Technical questions MUST be PRACTICAL, SCENARIO-BASED, or CASE-STUDY type.
     3. Put the candidate in a real-world office situation.
     4. 🔥 DO NOT repeat any concept or question similar to these already asked questions from the database: [${existingQuestions}].
-    5. 🔥 DIFFICULTY LEVEL LOGIC (CRITICAL) 🔥:
-       - If the requested skill includes a level like "(Beginner)", "(Intermediate)", or "(Advanced)", you MUST generate questions that strictly match that specific complexity.
+5. 🔥 DIFFICULTY LEVEL LOGIC (CRITICAL) 🔥:
+        ${
+          assessmentType === "Operations" 
+            ? "- The candidate is on the Non-Technical / Operations track. You MUST generate extremely simple, basic, AI subject-based EASY questions focusing purely on ground execution mechanics (like simple documentation verification matching, data entry accuracy rules). Avoid hard complex technical algorithms or standard financial reporting deep configurations completely."
+            : assessmentType === "GeneralOnly"
+            ? "- The candidate has opted EXCLUSIVELY for the General Track. You MUST generate comprehensive foundational questions spanning all standard commerce subjects (Accounts, Tax, Audit, Business Laws) carefully matching the baseline requirements of their stated educational qualifications to form a robust 20-question entry evaluation. Mark the difficulty field of these questions explicitly as 'Easy'."
+            : "- For 'General Commerce & Aptitude' skills, generate simple foundational questions and explicitly set difficulty to 'Easy'. For all other specific sub-skills, you MUST generate complex practical scenario-based questions matching Intermediate and Hard levels to strictly evaluate specialization mastery."
+        }
     6. 🔥 STRICTLY ONE CORRECT ANSWER (MUTUALLY EXCLUSIVE) 🔥: 
        - Out of the 4 options, EXACTLY ONE option must be 100% correct.
        - The other 3 options MUST BE 100% FALSE and completely incorrect.

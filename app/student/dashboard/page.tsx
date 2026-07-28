@@ -118,7 +118,13 @@ export default function Dashboard() {
 
         if (data) {
           setProfileData(data);
-          if (data.fullName && data.phone && data.skills && data.skills.length > 0 && data.educations && data.experience) {
+          
+          // 🔥 FIX: Non-Technical (Operations) aur General Track ko bhi complete profile consider karega
+          const hasSkills = (Array.isArray(data.skills) && data.skills.length > 0) || 
+                            (Array.isArray(data.operationsSkills) && data.operationsSkills.length > 0) || 
+                            !!data.selectsGeneralTrack;
+
+          if (data.fullName && data.phone && hasSkills && data.educations && data.experience) {
              setProfileComplete(true);
           }
           if (data.examAccess) setExamStatus(data.examAccess);

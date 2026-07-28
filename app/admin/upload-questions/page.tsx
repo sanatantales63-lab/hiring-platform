@@ -61,7 +61,7 @@ export default function UploadQuestions() {
         onClick={() => router.push('/admin/dashboard')} 
         className="mb-8 pl-0 hover:bg-transparent"
       >
-        <div className="bg-white border border-slate-200 p-2 rounded-xl shadow-sm text-slate-600 hover:text-[#0f947e] transition-colors">
+        <div className="bg-white border border-slate-200 p-2 rounded-xl shadow-sm text-slate-600 hover:text-[var(--primary)] transition-colors">
           <ArrowLeft size={20} />
         </div>
         <span className="font-bold text-slate-700">Back to Owner Panel</span>
@@ -84,7 +84,7 @@ export default function UploadQuestions() {
             </p>
           </div>
 
-          <div className="border-2 border-dashed border-slate-300 rounded-[2rem] p-12 hover:border-[#0f947e] hover:bg-teal-50/50 transition-all relative group cursor-pointer bg-slate-50/50">
+          <div className="border-2 border-dashed border-slate-300 rounded-[2rem] p-12 hover:border-[var(--primary)] hover:bg-[var(--accent)]/50 transition-all relative group cursor-pointer bg-slate-50/50">
             <input 
               type="file" 
               accept=".json" 
@@ -95,10 +95,10 @@ export default function UploadQuestions() {
             />
             <div className="flex flex-col items-center">
               {loading ? (
-                <Loader2 size={56} className="text-[#0f947e] mb-6 animate-spin" />
+                <Loader2 size={56} className="text-[var(--primary)] mb-6 animate-spin" />
               ) : (
-                <div className="w-20 h-20 bg-white border border-slate-200 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-teal-200 transition-transform shadow-sm">
-                   <Upload size={32} className="text-slate-400 group-hover:text-[#0f947e] transition-colors" />
+                <div className="w-20 h-20 bg-white border border-slate-200 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-[var(--primary)]/20 transition-transform shadow-sm">
+                   <Upload size={32} className="text-slate-400 group-hover:text-[var(--primary)] transition-colors" />
                 </div>
               )}
               <h2 className="text-2xl font-extrabold text-slate-900 mb-2">

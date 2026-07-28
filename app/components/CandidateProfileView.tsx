@@ -70,6 +70,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const extraWorkCount = workExpList.length > 2 ? workExpList.length - 2 : 0;
   
   const candidateSkills = Array.isArray(candidate.skills) ? candidate.skills.filter((s:any) => typeof s === 'string') : [];
+  const candidateOperationsSkills = Array.isArray(candidate.operationsSkills) ? candidate.operationsSkills.filter((s:any) => typeof s === 'string') : [];
   const candidateBehavioralSkills = Array.isArray(candidate.behavioralSkills) ? candidate.behavioralSkills.filter((s:any) => typeof s === 'string') : [];
   const candidateTechnologicalSkills = Array.isArray(candidate.technologicalSkills) ? candidate.technologicalSkills : [];
   const candidateStrengths = Array.isArray(candidate.strengths) ? candidate.strengths : [];
@@ -404,7 +405,23 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 </div>
             )}
 
-            <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
+           <div className="bg-[var(--card)] border border-[var(--border)] p-8 rounded-xl shadow-soft">
+               {/* Non-Technical / Operations Roles Display */}
+               {candidateOperationsSkills.length > 0 && (
+                  <div className="mb-8 pb-8 border-b border-[var(--border)]">
+                     <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-4 flex items-center gap-3">
+                        <ShieldAlert className="text-amber-600" size={20}/> Non-Technical / Operations Roles
+                     </h3>
+                     <div className="flex flex-wrap gap-2.5">
+                        {candidateOperationsSkills.map((opSkill:string, i:number) => (
+                           <span key={i} className="bg-amber-100 text-amber-900 px-4 py-2 rounded-xl text-sm font-bold border border-amber-300 shadow-sm">
+                              {opSkill}
+                           </span>
+                        ))}
+                     </div>
+                  </div>
+               )}
+
                <h3 className="font-display text-xl font-bold text-[var(--foreground)] mb-6 flex items-center gap-3"><Sparkles className="text-[var(--primary)]"/> Technical Skills & Expertise</h3>
                {candidateSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
@@ -412,7 +429,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                         <span key={i} className="bg-[var(--primary)]/10 text-[var(--primary)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--primary)]/20 hover:bg-[var(--primary)]/20 transition-all shadow-sm">{skill}</span>
                      ))}
                   </div>
-               ) : <span className="text-[var(--muted-foreground)] font-medium text-sm italic">No skills selected yet.</span>}
+               ) : <span className="text-[var(--muted-foreground)] font-medium text-sm italic">{candidateOperationsSkills.length > 0 ? "Non-Technical Track Selected (No Advanced Specialisations)." : "No skills selected yet."}</span>}
                
                {/* BEHAVIORAL SKILLS */}
                <div className="mt-8 pt-8 border-t border-[var(--border)]">

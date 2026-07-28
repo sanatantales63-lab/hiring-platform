@@ -690,11 +690,18 @@ export default function LiveTestPage() {
          return;
       }
 
-      const coreSkills = Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
-      const techSkillsObjects = Array.isArray(profileSnap?.technologicalSkills) ? profileSnap.technologicalSkills : [];
+      const isOperationsTrack = Array.isArray(profileSnap?.operationsSkills) && profileSnap.operationsSkills.length > 0;
+      const selectsGeneral = !isOperationsTrack && !!profileSnap?.selectsGeneralTrack;
+      const coreSkills = !isOperationsTrack && Array.isArray(profileSnap?.skills) ? profileSnap.skills.filter((s:any) => typeof s === 'string') : [];
+      const techSkillsObjects = !isOperationsTrack && Array.isArray(profileSnap?.technologicalSkills) ? profileSnap.technologicalSkills : [];
       const techSkills = techSkillsObjects.map((s:any) => typeof s === 'string' ? s : s.name).filter(Boolean);
       
-      const testableSkills = [...coreSkills, ...techSkills];
+      let testableSkills = isOperationsTrack ? profileSnap.operationsSkills : [...coreSkills, ...techSkills];
+      const isGeneralOnly = selectsGeneral && testableSkills.length === 0;
+      
+      if (selectsGeneral) {
+          testableSkills = ["General Commerce & Aptitude", ...testableSkills];
+      }
       
       if (testableSkills.length === 0) {
           alert("Test engine couldn't find any skills in your profile! Please add core skills or tech skills.");
@@ -710,16 +717,38 @@ export default function LiveTestPage() {
         
         for (const skill of testableSkills) {
             const exactSkill = skill.trim();
+            const isCurrentGeneral = exactSkill === "General Commerce & Aptitude";
+            const targetCount = isCurrentGeneral ? (isGeneralOnly ? 20 : 7) : 7;
             
-            const { data: skillQs } = await supabase
-                .from("question_bank")
-                .select("*")
-                .ilike("skill", exactSkill); 
+            let skillQs: any[] | null = null;
+            if (isCurrentGeneral) {
+                // 🔥 Excel ke saare 324 Easy questions fetch karega General Foundation ke liye
+                const { data } = await supabase
+                    .from("question_bank")
+                    .select("*")
+                    .ilike("difficulty", "easy");
+                skillQs = data;
+            } else {
+                const { data } = await supabase
+                    .from("question_bank")
+                    .select("*")
+                    .ilike("skill", exactSkill);
+                skillQs = data;
+            }
             
             let dbFetchedCount = 0;
 
             if (skillQs && skillQs.length > 0) {
-                const processedQs = skillQs.map(q => {
+                let filteredQs = skillQs;
+               if (!isOperationsTrack) {
+                    if (isCurrentGeneral) {
+                        filteredQs = skillQs.filter((q: any) => normalizeText(q.difficulty) === "easy");
+                    } else {
+                        filteredQs = skillQs.filter((q: any) => normalizeText(q.difficulty) === "intermediate" || normalizeText(q.difficulty) === "hard");
+                    }
+                }
+                
+                const processedQs = filteredQs.map(q => {
                     let opts = q.options;
                     if (opts.length === 4 && !opts.some((o:string) => isDontKnowOption(o))) {
                         opts = [...opts, "I Don't Know"];
@@ -727,20 +756,20 @@ export default function LiveTestPage() {
                     return { ...q, options: opts, category: "Technical", skill: exactSkill }; 
                 });
 
-               const randomizedQs = processedQs.sort(() => 0.5 - Math.random());
-                const toAdd = randomizedQs.slice(0, 6); // Changed to 6
+                const randomizedQs = processedQs.sort(() => 0.5 - Math.random());
+                const toAdd = randomizedQs.slice(0, targetCount);
                 dbFetchedCount = toAdd.length;
 
                 finalQuestions = [...finalQuestions, ...toAdd];
-                backupQuestions = [...backupQuestions, ...randomizedQs.slice(6)];
+                backupQuestions = [...backupQuestions, ...randomizedQs.slice(targetCount)];
             }
 
-            const missing = 6 - dbFetchedCount; // Changed to 6
+            const missing = targetCount - dbFetchedCount;
             scopeInfo.push({
                 skillName: exactSkill,
                 dbCount: dbFetchedCount,
                 aiCount: missing,
-                total: 6 // Changed to 6
+                total: targetCount
             });
             
             if (missing > 0) {
@@ -848,8 +877,14 @@ export default function LiveTestPage() {
        const aiInstruction = "IMPORTANT FOR AI: Ensure each generated question has EXACTLY ONE correct answer among the 4 options. Do not make options ambiguous.";
         const payloadString = safeEdu ? `Education: ${safeEdu}, Skills: ${safeSkills}. ${aiInstruction}` : `Skills: ${safeSkills}. ${aiInstruction}`;
 
-        const existingQsTextLower = questions.map(q => normalizeText(q.question));
+       const existingQsTextLower = questions.map(q => normalizeText(q.question));
         const existingQsText = questions.map(q => q.question).join(" | ");
+
+        const isOps = Array.isArray(studentProfile?.operationsSkills) && studentProfile.operationsSkills.length > 0;
+        const selectsGen = !isOps && !!studentProfile?.selectsGeneralTrack;
+        const coreSk = !isOps && Array.isArray(studentProfile?.skills) ? studentProfile.skills : [];
+        const techSk = !isOps && Array.isArray(studentProfile?.technologicalSkills) ? studentProfile.technologicalSkills : [];
+        const isGeneralOnly = selectsGen && coreSk.length === 0 && techSk.length === 0;
 
         const aiResponse = await fetch('/api/generate-ai-questions', {
             method: 'POST',
@@ -857,7 +892,8 @@ export default function LiveTestPage() {
             body: JSON.stringify({ 
                 qualifications: payloadString,
                 missingSkillsMap: shortfallData,
-                existingQuestions: existingQsText
+                existingQuestions: existingQsText,
+                assessmentType: isOps ? "Operations" : (isGeneralOnly ? "GeneralOnly" : "Standard")
             })
         });
         
@@ -915,27 +951,25 @@ export default function LiveTestPage() {
                     
                     let combinedSkillQs = [...dbQs, ...aiQs];
 
-                    // 3. ZIDDI LOGIC: Agar DB + AI milakar bhi 6 se kam hain, toh hum padding karenge (auto-fill)
-                    while (combinedSkillQs.length < 6) {
+                    // 3. ZIDDI LOGIC: Agar DB + AI milakar bhi scope.total se kam hain, toh hum padding karenge (auto-fill)
+                    while (combinedSkillQs.length < scope.total) {
                         if (combinedSkillQs.length > 0) {
-                            // Smart Fallback: Usi skill ka koi ek question utha kar usko slightly variant bana do
                             const fallbackQ = combinedSkillQs[Math.floor(Math.random() * combinedSkillQs.length)];
                             combinedSkillQs.push({ ...fallbackQ, question: fallbackQ.question + " (Scenario Variant)" });
                         } else {
-                            // Emergency Fallback: Agar AI ne ek bhi question nahi diya is skill ka
                             combinedSkillQs.push({
                                 question: `Assess the correct professional approach regarding ${scope.skillName}.`,
                                 options: ["Follow standard protocols", "Ignore guidelines", "Ask a colleague to do it", "Skip the task", "I Don't Know"],
                                 correct_answer: "Follow standard protocols",
                                 skill: scope.skillName,
                                 category: reqSkill.includes("behavioral") ? "Psychometric" : "Technical",
-                                difficulty: "Beginner"
+                                difficulty: reqSkill.includes("general") ? "Easy" : "Intermediate"
                             });
                         }
                     }
 
-                    // 4. Strict Cut: Agar galti se 6 se zyada ho gaye toh theek 6 par kaat do
-                    finalGuaranteedQs.push(...combinedSkillQs.slice(0, 6));
+                    // 4. Strict Cut: Agar galti se scope.total se zyada ho gaye toh use limits par kaat do
+                    finalGuaranteedQs.push(...combinedSkillQs.slice(0, scope.total));
                 });
 
                 // Ab har haal mein exact (Total Skills * 6) questions hi milenge!

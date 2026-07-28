@@ -159,7 +159,9 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
     const profileImage = candidate?.photoURL || candidate?.avatar || null;
     const educations = Array.isArray(candidate?.educations) ? candidate.educations : [];
     const experience = Array.isArray(candidate?.workExperience) ? candidate.workExperience : [];
-    const skills = Array.isArray(candidate?.skills) ? candidate.skills : [];
+    const skills = Array.isArray(candidate?.skills) && candidate.skills.length > 0 
+      ? candidate.skills 
+      : Array.isArray(candidate?.operationsSkills) ? candidate.operationsSkills : [];
     const behavioralSkills = Array.isArray(candidate?.behavioralSkills) ? candidate.behavioralSkills : [];
     const technologicalSkills = Array.isArray(candidate?.technologicalSkills) ? candidate.technologicalSkills : [];
     const achievements = Array.isArray(candidate?.achievements) ? candidate.achievements : [];

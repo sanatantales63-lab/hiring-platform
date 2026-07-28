@@ -133,7 +133,7 @@ export default function Home() {
             {/* Main Headline */}
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.12] max-w-5xl mx-auto">
               Hiring built on <span className="bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400 bg-clip-text text-transparent">proofs</span>, not promises.<br />
-              Hire for short-term projects &amp; permanent roles.
+              Hire for short-term projects &amp; permanent job on companies payroll.
             </h1>
 
             <p className="mt-5 max-w-3xl mx-auto text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">

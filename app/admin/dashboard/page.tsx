@@ -400,11 +400,23 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 flex font-sans relative">
      <aside className="w-64 bg-[var(--background)]/80 backdrop-blur-xl border-r border-[var(--border)] p-6 hidden md:flex flex-col fixed h-full z-10 shadow-soft">
-        <h2 className="font-display text-2xl font-black text-[var(--foreground)] mb-10 tracking-tight">Owner Panel</h2>
+        <div className="flex items-center gap-2.5 group mb-10">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--primary)] text-white shadow-primary">
+            <ShieldCheck className="h-4.5 w-4.5 stroke-[2.2]" />
+          </span>
+          <div className="flex flex-col">
+            <span className="font-display text-base font-black tracking-tight text-[var(--foreground)] leading-none">
+              Resource<span className="text-[var(--primary)]">mania</span>
+            </span>
+            <span className="text-[9px] font-extrabold tracking-widest uppercase text-[var(--primary)] mt-0.5">
+              Owner Panel
+            </span>
+          </div>
+        </div>
         <nav className="space-y-3 flex-1">
-          <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-[var(--destructive)] text-[var(--destructive-foreground)] shadow-md' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
+          <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <div className="flex items-center gap-3"><Bell size={20} /> Alerts</div>
-            {totalAlerts > 0 && <span className="bg-[var(--background)] text-[var(--destructive)] text-xs font-black px-2 py-1 rounded-lg animate-pulse">{totalAlerts}</span>}
+            {totalAlerts > 0 && <span className={`text-xs font-black px-2 py-0.5 rounded-full animate-pulse ${activeTab === 'requests' ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>{totalAlerts}</span>}
           </button>
           
           <button onClick={() => setActiveTab("companies")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'companies' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
@@ -429,7 +441,7 @@ export default function AdminDashboard() {
             </Button>
           </div>
        </nav>
-        <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex items-center gap-3 text-[var(--muted-foreground)] mt-auto hover:text-[var(--destructive)] font-bold transition-colors px-4">
+        <button onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex items-center gap-3 text-[var(--muted-foreground)] mt-auto hover:text-rose-600 font-bold transition-colors px-4">
           <LogOut size={20} /> Exit Admin
         </button>
       </aside>
@@ -457,7 +469,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="bg-white/80 backdrop-blur-md border border-slate-200 px-5 py-2 rounded-xl text-center shadow-sm">
                    <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Found</p>
-                   <p className="text-3xl font-black text-[#0f947e]">{filteredMainStudents.length}</p>
+                    <p className="text-3xl font-black text-[var(--primary)]">{filteredMainStudents.length}</p>
                 </div>
              </div>
 
@@ -465,9 +477,9 @@ export default function AdminDashboard() {
                 <div className="relative mb-6 flex gap-3">
                    <div className="relative flex-1 group">
                       <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                         {isAILoading ? <Loader2 className="text-teal-500 animate-spin" size={24}/> : <Sparkles className="text-teal-500 group-focus-within:text-teal-600 transition-colors" size={24}/>}
+                         {isAILoading ? <Loader2 className="text-[var(--primary)] animate-spin" size={24}/> : <Sparkles className="text-[var(--primary)] group-focus-within:text-[var(--primary-glow)] transition-colors" size={24}/>}
                       </div>
-                      <input type="text" value={aiSearchQuery} onChange={(e) => setAiSearchQuery(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter') handleAISearch(); }} placeholder="Ask AI: 'Show me Hired CA in Kolkata with score 15+'..." className="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-2xl py-4 pl-14 pr-6 text-lg placeholder:text-slate-400 focus:border-teal-500 focus:bg-white transition-all outline-none shadow-sm" disabled={isAILoading} />
+                      <input type="text" value={aiSearchQuery} onChange={(e) => setAiSearchQuery(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter') handleAISearch(); }} placeholder="Ask AI: 'Show me Hired CA in Kolkata with score 15+'..." className="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-2xl py-4 pl-14 pr-6 text-lg placeholder:text-slate-400 focus:border-[var(--primary)] focus:bg-white focus:ring-2 focus:ring-[var(--primary)]/10 transition-all outline-none shadow-sm" disabled={isAILoading} />
                    </div>
                    <Button variant="primary" onClick={handleAISearch} disabled={isAILoading} className="px-8 min-w-[120px]">
                        {isAILoading ? "Thinking..." : "Search"}
@@ -475,24 +487,24 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                   <select value={advStatus} onChange={(e)=>setAdvStatus(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-teal-500 outline-none text-slate-700 shadow-sm">
+                   <select value={advStatus} onChange={(e)=>setAdvStatus(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
                       <option value="">🟢 All Status</option>
                       <option value="none">✨ Available Talent</option>
                       <option value="hired">💼 Hired / Locked</option>
                    </select>
-                   <select value={advCity} onChange={(e)=>setAdvCity(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-teal-500 outline-none text-slate-700 shadow-sm">
+                   <select value={advCity} onChange={(e)=>setAdvCity(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
                       <option value="">🗺️ Any City</option>
                       {uniqueCities.map((city:any, i) => <option key={i} value={city}>{city}</option>)}
                    </select>
-                   <select value={advQual} onChange={(e)=>setAdvQual(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-teal-500 outline-none text-slate-700 shadow-sm">
+                   <select value={advQual} onChange={(e)=>setAdvQual(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
                       <option value="">🎓 Any Qualification</option>
                       {uniqueQuals.map((q:any, i) => <option key={i} value={q}>{q}</option>)}
                    </select>
-                   <select value={advExp} onChange={(e)=>setAdvExp(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-teal-500 outline-none text-slate-700 shadow-sm">
+                   <select value={advExp} onChange={(e)=>setAdvExp(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
                       <option value="">💼 Any Experience</option>
                       {uniqueExps.map((e:any, i) => <option key={i} value={e}>{e}</option>)}
                    </select>
-                   <select value={advMinScore} onChange={(e)=>setAdvMinScore(e.target.value ? Number(e.target.value) : "")} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-teal-500 outline-none text-slate-700 shadow-sm">
+<select value={advMinScore} onChange={(e)=>setAdvMinScore(e.target.value ? Number(e.target.value) : "")} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
                       <option value="">🎯 Minimum Score</option>
                       <option value="5">Score 5+</option>
                       <option value="10">Score 10+</option>
@@ -504,7 +516,7 @@ export default function AdminDashboard() {
                 {aiSkills.length > 0 && (
                   <div className="mt-4 flex items-center gap-2">
                      <span className="text-xs text-slate-500 font-bold uppercase">AI Filters Active:</span>
-                     {aiSkills.map((sk, i) => <span key={i} className="bg-teal-50 text-teal-700 border border-teal-200 px-2 py-1 rounded-md text-xs font-bold">{sk}</span>)}
+                     {aiSkills.map((sk, i) => <span key={i} className="bg-[var(--accent)] text-[var(--primary)] border border-[oklch(0.46_0.20_264_/_0.15)] px-2 py-1 rounded-md text-xs font-bold">{sk}</span>)}
                      <button onClick={() => { setAiSkills([]); setAiSearchQuery(""); }} className="text-xs text-red-500 hover:text-red-600 ml-2 font-bold">Clear</button>
                   </div>
                 )}
@@ -514,7 +526,7 @@ export default function AdminDashboard() {
                {filteredMainStudents.map(s => {
                  const score = s.meta?.totalScore || 0;
                  const isDisqualified = s.examAccess === 'disqualified';
-                 const scoreColorClass = score >= 15 ? 'text-teal-700 bg-teal-50 border-teal-200' : score > 5 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-red-700 bg-red-50 border-red-200';
+                 const scoreColorClass = score >= 15 ? 'text-[var(--success)] bg-[var(--success-bg)] border-[oklch(0.55_0.14_155_/_0.20)]' : score > 5 ? 'text-[var(--warning)] bg-[var(--warning-bg)] border-[oklch(0.62_0.14_65_/_0.20)]' : 'text-rose-600 bg-rose-50 border-rose-250';
                  
                  // 🔥 Admin Talent Pool Professional ID 🔥
                  let qualPrefix = "PR"; 
@@ -535,37 +547,37 @@ export default function AdminDashboard() {
                  const displayId = s.id ? `RM-${qualPrefix}-${s.id.substring(0, 8).toUpperCase()}` : "N/A";
 
                  return (
-                   <div key={s.id} className={`relative flex flex-col bg-white/80 backdrop-blur-md border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 shadow-sm hover:shadow-lg h-full ${selectedForExcel.includes(s.id) ? 'border-emerald-400 shadow-emerald-500/10' : isDisqualified ? 'border-red-200 opacity-70' : 'border-slate-200 hover:border-teal-300'}`}>
-                     
-                     {/* 🔥 EXCEL CHECKBOX 🔥 */}
-                     <div className="absolute top-5 right-5 z-10">
-                         <input 
-                             type="checkbox" 
-                             checked={selectedForExcel.includes(s.id)}
-                             onChange={() => toggleExcelSelection(s.id)}
-                             className="w-5 h-5 cursor-pointer accent-emerald-600 rounded border-slate-300"
-                         />
-                     </div>
+                    <div key={s.id} className={`relative flex flex-col bg-white/80 backdrop-blur-md border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 shadow-sm hover:shadow-lg h-full ${selectedForExcel.includes(s.id) ? 'border-emerald-400 shadow-emerald-500/10' : isDisqualified ? 'border-red-200 opacity-70' : 'border-slate-200 hover:border-[var(--primary)]/40 hover:shadow-md'}`}>
+                      
+                      {/* 🔥 EXCEL CHECKBOX 🔥 */}
+                      <div className="absolute top-5 right-5 z-10">
+                          <input 
+                              type="checkbox" 
+                              checked={selectedForExcel.includes(s.id)}
+                              onChange={() => toggleExcelSelection(s.id)}
+                              className="w-5 h-5 cursor-pointer accent-[var(--primary)] rounded border-slate-300 animate-in zoom-in-50 duration-200"
+                          />
+                      </div>
 
-                     <div className="flex justify-between items-start mb-4 mt-2">
-                        <div className="flex-1 pr-10">
-                           <h3 className="text-xl font-extrabold text-slate-900 flex flex-wrap items-center gap-2 mb-1.5">
-                              <span className="truncate max-w-[150px] xl:max-w-[180px]">{s.fullName}</span>
-                              <span className="text-[10px] text-teal-600 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-mono font-bold">{displayId}</span>
-                              {isDisqualified && <span className="text-[9px] bg-red-100 text-red-600 border border-red-200 px-2 py-0.5 rounded-full uppercase font-black tracking-wider">Banned</span>}
-                           </h3>
-                           <p className="text-slate-500 text-sm font-medium flex items-center gap-1.5"><MapPin size={14} className="text-blue-500"/> {s.city || "Location not set"}</p>
-                           
-                           {s.hired_status === 'hired' && (
-                              <p className="text-[10px] text-emerald-700 font-bold mt-2 flex items-center gap-1 bg-emerald-50 inline-flex px-2 py-1 rounded-md border border-emerald-200">
-                                 <CheckCircle size={12}/> HIRED BY {s.hired_company_name?.toUpperCase() || "COMPANY"}
-                              </p>
-                           )}
-                           {s.hired_status === 'shortlisted' && (
-                              <p className="text-[10px] text-blue-700 font-bold mt-2 flex items-center gap-1 bg-blue-50 inline-flex px-2 py-1 rounded-md border border-blue-200">
-                                 <UserPlus size={12}/> SHORTLISTED
-                              </p>
-                           )}
+                      <div className="flex justify-between items-start mb-4 mt-2">
+                         <div className="flex-1 pr-10">
+                            <h3 className="text-xl font-extrabold text-slate-900 flex flex-wrap items-center gap-2 mb-1.5">
+                               <span className="truncate max-w-[150px] xl:max-w-[180px]">{s.fullName}</span>
+                               <span className="text-[10px] text-[var(--primary)] bg-[var(--accent)] px-2 py-0.5 rounded border border-[oklch(0.46_0.20_264_/_0.15)] font-mono font-bold">{displayId}</span>
+                               {isDisqualified && <span className="text-[9px] bg-red-100 text-red-600 border border-red-200 px-2 py-0.5 rounded-full uppercase font-black tracking-wider">Banned</span>}
+                            </h3>
+                            <p className="text-slate-500 text-sm font-medium flex items-center gap-1.5"><MapPin size={14} className="text-[var(--primary)]/70"/> {s.city || "Location not set"}</p>
+                            
+                            {s.hired_status === 'hired' && (
+                               <p className="text-[10px] text-[var(--success)] font-bold mt-2 flex items-center gap-1 bg-[var(--success-bg)] inline-flex px-2 py-1 rounded-md border border-[oklch(0.55_0.14_155_/_0.20)]">
+                                  <CheckCircle size={12}/> HIRED BY {s.hired_company_name?.toUpperCase() || "COMPANY"}
+                               </p>
+                            )}
+                            {s.hired_status === 'shortlisted' && (
+                               <p className="text-[10px] text-[var(--primary)] font-bold mt-2 flex items-center gap-1 bg-[var(--accent)] inline-flex px-2 py-1 rounded-md border border-[oklch(0.46_0.20_264_/_0.15)]">
+                                  <UserPlus size={12}/> SHORTLISTED
+                               </p>
+                            )}
                         </div>
                         
                         <div className="shrink-0">
@@ -621,7 +633,7 @@ export default function AdminDashboard() {
                                   navigator.clipboard.writeText(profileLink);
                                   alert(`Public Link Copied for ${s.fullName}!`);
                               }} 
-                              className="p-3 bg-white border border-slate-200 text-teal-600 rounded-xl hover:bg-teal-50 transition-colors shadow-sm shrink-0"
+                              className="p-3 bg-white border border-slate-200 text-[var(--primary)] rounded-xl hover:bg-[var(--accent)] transition-colors shadow-sm shrink-0 font-bold"
                               title="Copy Public Link"
                            >
                               <Globe size={18} />
@@ -669,7 +681,7 @@ export default function AdminDashboard() {
                           ))
                        ) : null}
                     </div>
-                    <p className="text-[#0f947e] text-xs mt-3 font-bold bg-teal-50 border border-teal-100 inline-block px-3 py-1 rounded-full">
+                    <p className="text-[var(--primary)] text-xs mt-3 font-bold bg-[var(--accent)] border border-[oklch(0.46_0.20_264_/_0.15)] inline-block px-3 py-1 rounded-full">
                        Assigned Candidates: {c.allowedStudents?.length || 0}
                     </p>
                   </div>
@@ -687,7 +699,7 @@ export default function AdminDashboard() {
                     <Button 
                        variant={c.status === 'pending' ? "primary" : "danger"} 
                        onClick={() => toggleCompanyStatus(c.id, c.status)} 
-                       className={`flex-1 md:flex-none py-2.5 text-sm ${c.status === 'pending' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                       className="flex-1 md:flex-none py-2.5 text-sm"
                     >
                       {c.status === 'pending' ? "Approve" : "Revoke"}
                     </Button>
@@ -702,18 +714,18 @@ export default function AdminDashboard() {
         {activeTab === "requests" && (
            <div className="animate-in fade-in duration-300 grid gap-8">
              <div>
-               <h2 className="text-3xl font-extrabold text-emerald-600 tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hire Requests</h2>
+               <h2 className="text-3xl font-extrabold text-[var(--success)] tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hire Requests</h2>
                <p className="text-slate-500 font-medium mb-6">Companies requesting to officially hire these candidates. Verify offline, then approve to lock their profiles.</p>
                <div className="space-y-4">
                  {hireRequests.map((s) => (
-                    <Card key={s.id} className="bg-emerald-50/50 border-emerald-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <Card key={s.id} className="bg-[var(--success-bg)] border-[oklch(0.55_0.14_155_/_0.20)] flex flex-col sm:flex-row justify-between items-center gap-4">
                        <div className="mb-4 sm:mb-0 flex-1">
                           <h3 className="font-extrabold text-xl text-slate-900">{s.fullName}</h3>
-                          <p className="text-emerald-700 text-sm mt-1 font-medium">Requested by: <strong>{s.hired_company_name}</strong> • Base Salary: <span className="text-slate-900 font-bold">{s.expectedSalary || "N/A"}</span></p>
+                          <p className="text-[var(--success)] text-sm mt-1 font-medium">Requested by: <strong>{s.hired_company_name}</strong> • Base Salary: <span className="text-slate-900 font-bold">{s.expectedSalary || "N/A"}</span></p>
                        </div>
                        <div className="flex w-full sm:w-auto gap-2 items-center flex-wrap">
                           <Button variant="danger" onClick={() => rejectHireRequest(s.id)} className="w-full sm:w-auto px-4 py-2 text-xs">Reject Request</Button>
-                          <Button variant="primary" onClick={() => approveHire(s.id)} className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto px-5 py-2 text-xs">Approve Hire</Button>
+                          <Button variant="primary" onClick={() => approveHire(s.id)} className="w-full sm:w-auto px-5 py-2 text-xs bg-[oklch(0.55_0.14_155)] hover:bg-[oklch(0.50_0.14_155)] text-white border-none shadow-[0_4px_14px_oklch(0.55_0.14_155_/_0.20)]">Approve Hire</Button>
                        </div>
                     </Card>
                  ))}
@@ -844,8 +856,8 @@ export default function AdminDashboard() {
 
         {activeTab === "billing" && (
            <div className="animate-in fade-in duration-300 flex flex-col items-center justify-center h-[60vh] text-center">
-              <div className="w-24 h-24 bg-teal-50 border border-teal-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                 <CreditCard size={40} className="text-[#0f947e]"/>
+              <div className="w-24 h-24 bg-[var(--accent)] border border-[oklch(0.46_0.20_264_/_0.15)] rounded-full flex items-center justify-center mb-6 shadow-sm">
+                 <CreditCard size={40} className="text-[var(--primary)]"/>
               </div>
               <h2 className="text-3xl font-extrabold text-slate-900 mb-3">Billing Dashboard</h2>
               <p className="text-slate-500 font-medium max-w-md mx-auto">Payment integration and analytics will be activated once the platform generates its first revenue.</p>
@@ -856,7 +868,7 @@ export default function AdminDashboard() {
         {activeTab === "hired_talent" && (
            <div className="animate-in fade-in duration-300 grid gap-8">
               <div>
-                 <h2 className="text-3xl font-extrabold text-[#0f947e] tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hired Talent & Active Contracts</h2>
+                 <h2 className="text-3xl font-extrabold text-[var(--primary)] tracking-tight mb-2 flex items-center gap-2"><CheckCircle/> Hired Talent & Active Contracts</h2>
                  <p className="text-slate-500 font-medium mb-6">Manage deploy timelines and execute real-time contract payout increments based on candidate's expected base rates.</p>
                  
                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
@@ -864,13 +876,13 @@ export default function AdminDashboard() {
                        <Card key={s.id} className="border border-slate-200 flex flex-col justify-between p-6 bg-white shadow-sm">
                           <div>
                              <h3 className="font-extrabold text-xl text-slate-900 mb-1">{s.fullName}</h3>
-                             <p className="text-sm font-semibold text-[#0f947e] mb-4 truncate">Employed at: {s.hired_company_name}</p>
+                             <p className="text-sm font-semibold text-[var(--primary)] mb-4 truncate">Employed at: {s.hired_company_name}</p>
                              
                              <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs font-medium text-slate-600">
                                 <div className="flex justify-between"><span>Base Expected Rate:</span><span className="font-bold text-slate-900">{s.expectedSalary || "N/A"}</span></div>
                                 <div className="flex justify-between items-center">
                                    <span>Payout Ledger:</span>
-                                   <span className={`px-2 py-0.5 text-[9px] font-black uppercase rounded ${s.contract_payout_active ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                                   <span className={`px-2 py-0.5 text-[9px] font-black uppercase rounded ${s.contract_payout_active ? 'bg-[var(--success-bg)] text-[var(--success)] border border-[oklch(0.55_0.14_155_/_0.20)]' : 'bg-amber-100 text-amber-800'}`}>
                                       {s.contract_payout_active ? 'Active Billing' : 'Awaiting Trigger'}
                                    </span>
                                 </div>
@@ -883,7 +895,7 @@ export default function AdminDashboard() {
                           <div className="mt-6 flex gap-2 w-full">
                              <Button variant="danger" onClick={() => terminateHireAndContract(s.id)} className="flex-1 py-2 text-xs">Unhire / Release</Button>
                              {!s.contract_payout_active && (
-                                <Button variant="primary" onClick={() => startPayoutContract(s.id, s.expectedSalary)} className="flex-1 py-2 text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold border-none">Start Payout</Button>
+                                <Button variant="primary" onClick={() => startPayoutContract(s.id, s.expectedSalary)} className="flex-1 py-2 text-xs">Start Payout</Button>
                              )}
                           </div>
                        </Card>
@@ -906,7 +918,7 @@ export default function AdminDashboard() {
          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] overflow-y-auto p-4 md:p-8 animate-in zoom-in-95 duration-200 custom-scrollbar">
             <div className="max-w-5xl mx-auto relative mt-4 md:mt-10 mb-10">
                <div className="sticky top-0 z-50 mb-8 flex justify-between items-center bg-white/90 backdrop-blur-xl p-4 rounded-2xl border border-slate-200 shadow-lg">
-                  <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2"><User size={20} className="text-[#0f947e]"/> Detailed Report</h3>
+                  <h3 className="text-xl font-extrabold text-slate-900 flex items-center gap-2"><User size={20} className="text-[var(--primary)]"/> Detailed Report</h3>
                   <Button variant="danger" onClick={() => setViewingStudent(null)} className="py-2 text-sm shadow-none">
                      <X size={18}/> Close Profile
                   </Button>
@@ -943,7 +955,7 @@ export default function AdminDashboard() {
                    <div className="flex justify-between items-start mb-6">
                       <div>
                          <h3 className="text-2xl font-extrabold text-slate-900">Assign Talent</h3>
-                         <p className="text-slate-500 font-medium text-sm">Select candidates for <span className="text-[#0f947e] font-bold">{selectedCompany.name}</span></p>
+                         <p className="text-slate-500 font-medium text-sm">Select candidates for <span className="text-[var(--primary)] font-bold">{selectedCompany.name}</span></p>
                       </div>
                       <button onClick={() => setShowAccessModal(false)} className="bg-white border border-slate-200 p-2 rounded-full hover:bg-slate-100 transition-colors shadow-sm"><X size={20} className="text-slate-600"/></button>
                    </div>
@@ -951,13 +963,13 @@ export default function AdminDashboard() {
                    <div className="flex flex-col md:flex-row gap-3">
                       <div className="relative flex-1">
                          <Search className="absolute left-3 top-3 text-slate-400" size={18}/>
-                         <input type="text" placeholder="Search by name or skill..." value={modalSearch} onChange={(e) => setModalSearch(e.target.value)} className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-teal-500 outline-none transition-colors shadow-sm text-slate-900 placeholder:text-slate-400" />
+                         <input type="text" placeholder="Search by name or skill..." value={modalSearch} onChange={(e) => setModalSearch(e.target.value)} className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all shadow-sm text-slate-900 placeholder:text-slate-400" />
                       </div>
-                      <select value={filterCityModal} onChange={(e)=>setFilterCityModal(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:border-teal-500 outline-none w-full md:w-36 text-slate-700 shadow-sm font-medium">
+                      <select value={filterCityModal} onChange={(e)=>setFilterCityModal(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none w-full md:w-36 text-slate-700 shadow-sm font-medium transition-all">
                          <option value="">All Cities</option>
                          {uniqueCities.map((city:any, i) => <option key={i} value={city}>{city}</option>)}
                       </select>
-                      <select value={filterQualModal} onChange={(e)=>setFilterQualModal(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:border-teal-500 outline-none w-full md:w-48 text-slate-700 shadow-sm font-medium">
+                      <select value={filterQualModal} onChange={(e)=>setFilterQualModal(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none w-full md:w-48 text-slate-700 shadow-sm font-medium transition-all">
                          <option value="">All Degrees</option>
                          {uniqueQuals.map((q:any, i) => <option key={i} value={q}>{q}</option>)}
                       </select>
@@ -972,9 +984,9 @@ export default function AdminDashboard() {
                       const warnings = s.meta?.warningsCount || 0;
                       const isDisqualified = s.examAccess === 'disqualified';
                       return (
-                        <div key={s.id} className={`border rounded-2xl transition-all duration-200 shadow-sm bg-white ${isSelected ? 'border-[#0f947e] shadow-teal-500/10' : isDisqualified ? 'border-red-200 opacity-70 bg-red-50/50' : 'border-slate-200 hover:border-teal-300'}`}>
+                        <div key={s.id} className={`border rounded-2xl transition-all duration-200 shadow-sm bg-white ${isSelected ? 'border-[var(--primary)] shadow-[var(--shadow-primary)]/10' : isDisqualified ? 'border-red-200 opacity-70 bg-red-50/50' : 'border-slate-200 hover:border-[var(--primary)]/40'}`}>
                            <div className="flex items-center p-5 gap-5 cursor-pointer" onClick={(e) => { if((e.target as HTMLElement).closest('button')) return; toggleAssignment(s.id); }}>
-                              <div className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? 'bg-[#0f947e] border-[#0f947e]' : 'border-slate-300 hover:border-[#0f947e]'}`}>
+                              <div className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-colors shrink-0 ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 hover:border-[var(--primary)]'}`}>
                                  {isSelected && <CheckCircle size={16} className="text-white"/>}
                               </div>
                               <div className="flex-1">
@@ -990,7 +1002,7 @@ export default function AdminDashboard() {
                                           <AlertTriangle size={12}/> {warnings}
                                          </span>
                                       )}
-                                      <span className={`text-sm font-bold px-2.5 py-1 rounded-lg border ${isDisqualified ? 'bg-red-50 text-red-600 border-red-200' : score >= 15 ? 'bg-teal-50 text-teal-700 border-teal-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                                      <span className={`text-sm font-bold px-2.5 py-1 rounded-lg border ${isDisqualified ? 'bg-red-50 text-red-600 border-red-200' : score >= 15 ? 'text-[var(--success)] bg-[var(--success-bg)] border-[oklch(0.55_0.14_155_/_0.20)]' : 'text-[var(--warning)] bg-[var(--warning-bg)] border-[oklch(0.62_0.14_65_/_0.20)]'}`}>
                                         Score: {score}
                                       </span>
                                     </div>
@@ -1034,45 +1046,45 @@ export default function AdminDashboard() {
                    <Button variant="primary" onClick={() => setShowAccessModal(false)}>Done Assigning</Button>
                 </div>
              </div>
-          </div>
-        )}
+          </div>
+        )}
 
-      {/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-2xl border-t border-slate-200/50 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
-        <div className="flex justify-evenly items-center px-1 py-2">
-          <div onClick={() => setActiveTab("requests")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'requests' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
-            <div className={`relative p-2 rounded-2xl ${activeTab === 'requests' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}>
+      {/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-2xl border-t border-slate-200/50 pb-[env(safe-area-inset-bottom)] z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+        <div className="flex justify-evenly items-center px-1 py-2">
+          <div onClick={() => setActiveTab("requests")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'requests' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+             <div className={`relative p-2 rounded-2xl ${activeTab === 'requests' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}>
                <Bell size={20} />
-               {totalAlerts > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>}
+               {totalAlerts > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full"></span>}
             </div>
-            <span className="text-[10px] font-bold mt-0.5 truncate">Alerts</span>
-          </div>
-          
-         <div onClick={() => setActiveTab("students")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'students' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
-            <div className={`p-2 rounded-2xl ${activeTab === 'students' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Users size={20} /></div>
+             <span className="text-[10px] font-bold mt-0.5 truncate">Alerts</span>
+           </div>
+           
+          <div onClick={() => setActiveTab("students")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'students' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeTab === 'students' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><Users size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5 truncate">Talent</span>
           </div>
 
-          <div onClick={() => setActiveTab("hired_talent")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'hired_talent' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
-             <div className={`p-2 rounded-2xl ${activeTab === 'hired_talent' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><CheckCircle size={20} /></div>
+          <div onClick={() => setActiveTab("hired_talent")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'hired_talent' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+             <div className={`p-2 rounded-2xl ${activeTab === 'hired_talent' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><CheckCircle size={20} /></div>
              <span className="text-[10px] font-bold mt-0.5 truncate">Hired</span>
           </div>
 
-          <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[#0f947e]' : 'text-slate-400 hover:text-slate-900'}`}>
-            <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-teal-50' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
+          <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5 truncate">Firms</span>
           </div>
 
           <div onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex flex-col items-center gap-1 p-2 w-16 cursor-pointer text-slate-400 hover:text-red-500">
-            <div className="p-2 rounded-2xl hover:bg-red-50"><LogOut size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5 truncate">Exit</span>
-          </div>
-        </div>
-      </div>
+            <div className="p-2 rounded-2xl hover:bg-red-50"><LogOut size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Exit</span>
+          </div>
+        </div>
+      </div>
 
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
