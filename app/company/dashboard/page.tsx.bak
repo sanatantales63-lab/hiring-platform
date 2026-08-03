@@ -71,7 +71,6 @@ export default function CompanyDashboard() {
   const [selectedRelocation, setSelectedRelocation] = useState<string[]>([]);
  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedLaptops, setSelectedLaptops] = useState<string[]>([]); // 🔥 NEW: Laptop specification selection mapping state array
-  const [selectedAgeRanges, setSelectedAgeRanges] = useState<string[]>([]); // 🔥 NEW: Age range filter state
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   // Unlocked Datasets direct from student page configuration schema mapping
@@ -205,24 +204,7 @@ const submitInterviewRequest = async () => {
   const shortlistCandidate = async (student: any) => {};
 
   const requestHire = async (student: any) => {
-    // Build unique ID same way as card display
-    let qp = "PR";
-    if (student.highestQualification) {
-      const hq = student.highestQualification.toLowerCase();
-      if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qp = "CA";
-      else if (hq.includes('cma') || hq.includes('cost & management')) qp = "CM";
-      else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qp = "CS";
-      else if (hq.includes('acca')) qp = "AC";
-      else if (hq.includes('mba') || hq.includes('pgdm')) qp = "MB";
-      else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qp = "BT";
-      else if (hq.includes('m.com') || hq.includes('mcom')) qp = "MC";
-      else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qp = "BC";
-      else if (hq.includes('diploma') || hq.includes('polytechnic')) qp = "DP";
-      else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qp = "HS";
-      else qp = "GD";
-    }
-    const studentUniqueId = student.id ? `RM-${qp}-${student.id.substring(0, 8).toUpperCase()}` : "N/A";
-    if(!confirm(`Send official Hire request for ${studentUniqueId}? Admin will verify and finalize this offline.`)) return;
+    if(!confirm(`Send official Hire request for ${student.fullName}? Admin will verify and finalize this offline.`)) return;
     try {
       const { error } = await supabase.from("profiles").update({ 
         hired_status: "hire_requested",
@@ -387,32 +369,13 @@ const submitInterviewRequest = async () => {
    const matchesWorkMode = selectedWorkModes.length > 0 ? selectedWorkModes.includes(c.workMode) : true;
     const matchesRelocation = selectedRelocation.length > 0 ? selectedRelocation.includes(c.willingToRelocate) : true;
     const matchesGender = selectedGenders.length > 0 ? selectedGenders.includes(c.gender) : true;
-    const matchesLaptop = selectedLaptops.length > 0 ? selectedLaptops.includes(c.hasLaptop) : true;
+    const matchesLaptop = selectedLaptops.length > 0 ? selectedLaptops.includes(c.hasLaptop) : true; // 🔥 NEW: Laptop strict matching validation data rule
 
-    // 🔥 NEW: Age filter — calculate from dob field
-    let matchesAge = true;
-    if (selectedAgeRanges.length > 0 && c.dob) {
-      const birthYear = new Date(c.dob).getFullYear();
-      const currentYear = new Date().getFullYear();
-      const age = currentYear - birthYear;
-      matchesAge = selectedAgeRanges.some(range => {
-        if (range === "Under 22") return age < 22;
-        if (range === "22–25") return age >= 22 && age <= 25;
-        if (range === "26–30") return age >= 26 && age <= 30;
-        if (range === "31–35") return age >= 31 && age <= 35;
-        if (range === "36–40") return age >= 36 && age <= 40;
-        if (range === "Above 40") return age > 40;
-        return true;
-      });
-    } else if (selectedAgeRanges.length > 0) {
-      matchesAge = true; // If no DOB, don't exclude
-    }
-
-    return matchesSearch && matchesProfileJobType && matchesContractOpenness && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesGender && matchesLaptop && matchesAge;
+    return matchesSearch && matchesProfileJobType && matchesContractOpenness && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesGender && matchesLaptop;
   });
 
   const uniqueQuals = Array.from(new Set(candidates.map(c => c.highestQualification).filter(Boolean)));
-  const activeFiltersCount = selectedTypes.length + selectedExps.length + selectedLocs.length + selectedNotices.length + selectedQuals.length + selectedSkills.length + selectedBehavioral.length + selectedTechTools.length + selectedWorkModes.length + selectedRelocation.length + selectedGenders.length + selectedLaptops.length + selectedAgeRanges.length;
+  const activeFiltersCount = selectedTypes.length + selectedExps.length + selectedLocs.length + selectedNotices.length + selectedQuals.length + selectedSkills.length + selectedBehavioral.length + selectedTechTools.length + selectedWorkModes.length + selectedRelocation.length + selectedGenders.length + selectedLaptops.length;
 
   const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "shortlisted" && c.hired_status !== "hire_requested" && c.hired_status !== "interview_requested");
   const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "shortlisted" || c.hired_status === "hire_requested" || c.hired_status === "interview_requested"));
@@ -947,27 +910,6 @@ const submitInterviewRequest = async () => {
                      )}
                   </div>
 
-
-                  {/* 🔥 NEW: Age Range Filter Block */}
-                  <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Age Range</span>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      {["Under 22", "22–25", "26–30", "31–35", "36–40", "Above 40"].map(range => {
-                        const isSelected = selectedAgeRanges.includes(range);
-                        return (
-                          <div
-                            key={range}
-                            onClick={() => setSelectedAgeRanges(prev => isSelected ? prev.filter(x => x !== range) : [...prev, range])}
-                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'bg-white border-transparent text-slate-700 hover:bg-slate-100'}`}
-                          >
-                            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
-                            <span>{range} yrs</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
                   {/* Pipeline filters counter block tags mapping logs render dashboard */}
                   {activeFiltersCount > 0 && (
                     <div className="pt-4 border-t border-slate-100 space-y-2 relative z-10">
@@ -983,7 +925,6 @@ const submitInterviewRequest = async () => {
                         {selectedBehavioral.map(x => <span key={x} className="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedBehavioral(selectedBehavioral.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedWorkModes.map(x => <span key={x} className="bg-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedWorkModes(selectedWorkModes.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedLaptops.map(x => <span key={x} className="bg-[var(--primary)] text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x === 'Yes' ? '💻 Laptop' : '❌ No Laptop'} <button type="button" onClick={() => setSelectedLaptops(selectedLaptops.filter(i=>i!==x))}>✕</button></span>)}
-                        {selectedAgeRanges.map(x => <span key={x} className="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">📅 {x} yrs <button type="button" onClick={() => setSelectedAgeRanges(selectedAgeRanges.filter(i=>i!==x))}>✕</button></span>)}
                       </div>
                     </div>
                   )}
@@ -997,7 +938,7 @@ const submitInterviewRequest = async () => {
                     onClick={() => {
                       setSelectedTypes([]); setSelectedExps([]); setSelectedLocs([]); setSelectedNotices([]); setSelectedQuals([]);
                       setSelectedSkills([]); setSelectedBehavioral([]); setSelectedTechTools([]); setSelectedWorkModes([]);
-                      setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setSelectedProfileJobTypes([]); setSelectedContractOpenness([]); setSelectedAgeRanges([]); setActiveDropdown(null);
+                      setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setSelectedProfileJobTypes([]); setSelectedContractOpenness([]); setActiveDropdown(null);
                     }}
                     className="flex-1 py-2.5 bg-white border border-[var(--border)] text-[var(--muted-foreground)] font-semibold rounded-lg text-sm hover:bg-[var(--surface)] transition-all"
                   >
@@ -1081,7 +1022,7 @@ const submitInterviewRequest = async () => {
 
                           {/* Identity */}
                           <div className="min-w-0 md:w-44 md:shrink-0">
-                             <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors">{(() => { let qp="PR"; if(candidate.highestQualification){const hq=candidate.highestQualification.toLowerCase(); if(hq.includes('ca ')||hq.includes('ca-')||hq==='ca'||hq.includes('chartered accountant'))qp="CA"; else if(hq.includes('cma')||hq.includes('cost & management'))qp="CM"; else if(hq.includes('cs ')||hq.includes('cs-')||hq==='cs'||hq.includes('company secretary'))qp="CS"; else if(hq.includes('acca'))qp="AC"; else if(hq.includes('mba')||hq.includes('pgdm'))qp="MB"; else if(hq.includes('b.tech')||hq.includes('btech')||hq.includes('b.e.'))qp="BT"; else if(hq.includes('m.com')||hq.includes('mcom'))qp="MC"; else if(hq.includes('b.com')||hq.includes('bcom')||hq.includes('bba'))qp="BC"; else if(hq.includes('diploma')||hq.includes('polytechnic'))qp="DP"; else if(hq.includes('high school')||hq.includes('12th')||hq.includes('puc'))qp="HS"; else qp="GD";} return candidate.id?`RM-${qp}-${candidate.id.toUpperCase()}`:'N/A';})()}</h3>
+                            <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
                             <p className="text-[10px] font-bold text-[var(--primary)] truncate">{roleTitle}</p>
                             <div className="flex items-center gap-1 text-[9px] text-slate-500 font-semibold mt-0.5">
                               <MapPin size={8} className="text-slate-400"/> {candidate.city || "Remote"}
@@ -1182,10 +1123,12 @@ const submitInterviewRequest = async () => {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors leading-tight">{(() => { let qp="PR"; if(candidate.highestQualification){const hq=candidate.highestQualification.toLowerCase(); if(hq.includes('ca ')||hq.includes('ca-')||hq==='ca'||hq.includes('chartered accountant'))qp="CA"; else if(hq.includes('cma')||hq.includes('cost & management'))qp="CM"; else if(hq.includes('cs ')||hq.includes('cs-')||hq==='cs'||hq.includes('company secretary'))qp="CS"; else if(hq.includes('acca'))qp="AC"; else if(hq.includes('mba')||hq.includes('pgdm'))qp="MB"; else if(hq.includes('b.tech')||hq.includes('btech')||hq.includes('b.e.'))qp="BT"; else if(hq.includes('m.com')||hq.includes('mcom'))qp="MC"; else if(hq.includes('b.com')||hq.includes('bcom')||hq.includes('bba'))qp="BC"; else if(hq.includes('diploma')||hq.includes('polytechnic'))qp="DP"; else if(hq.includes('high school')||hq.includes('12th')||hq.includes('puc'))qp="HS"; else qp="GD";} return candidate.id?`RM-${qp}-${candidate.id.substring(0,8).toUpperCase()}`:'N/A';})()}</h3>
+                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors leading-tight">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
                           <p className="text-[11px] font-bold text-[var(--primary)] mt-0.5 truncate">{roleTitle}</p>
                           <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500 mt-1">
                             <span className="flex items-center gap-1"><MapPin size={10} className="text-slate-400" /> {candidate.city || "Remote"}</span>
+                            <span>•</span>
+                            <span>RM-{candidate.id?.substring(0, 4).toUpperCase()}</span>
                           </div>
                         </div>
                       </div>
@@ -1205,22 +1148,13 @@ const submitInterviewRequest = async () => {
                       </div>
                       {/* 3. Sleek Metrics Grid */}
                       <div className="grid grid-cols-2 gap-2 mb-5">
-                         {/* Age */}
-                         <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center col-span-1">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Age</span>
-                            <span className="text-xs font-black text-slate-800">
-                              {candidate.dob ? `${new Date().getFullYear() - new Date(candidate.dob).getFullYear()} yrs` : "N/A"}
-                            </span>
-                         </div>
-                         {/* Experience */}
-                         <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center col-span-1">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Exp.</span>
-                            <span className="text-xs font-black text-slate-800">{candidate.experience || "N/A"}</span>
-                         </div>
-                         {/* Notice Period */}
                          <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Notice Period</span>
-                            <span className="text-xs font-black text-slate-800">{candidate.noticePeriod || "N/A"}</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><BarChart3 size={10} className="inline mr-1 text-[var(--primary)]"/> Accuracy</span>
+                            <span className="text-xs font-black text-slate-800">95%</span>
+                         </div>
+                         <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><Award size={10} className="inline mr-1 text-amber-500"/> AI Verified Score</span>
+                           <span className="text-sm font-black text-[var(--primary)]">{aiScore}</span>
                          </div>
                       </div>
 

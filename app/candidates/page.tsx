@@ -59,13 +59,7 @@ export default function CandidatesPage() {
           </nav>
 
           <div className="hidden items-center gap-2.5 md:flex">
-            <button
-              onClick={() => router.push('/admin/login')}
-              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-white text-[var(--foreground)] hover:bg-[var(--surface)] hover:border-[var(--primary)]/40 transition-all shadow-soft"
-            >
-              <ShieldCheck size={14} className="text-[var(--primary)]" />
-              <span>Admin</span>
-            </button>
+            
             <button
               onClick={() => router.push('/student/login')}
               className="inline-flex items-center gap-2 h-9 px-4.5 rounded-lg text-xs font-bold bg-[var(--primary)] text-white hover:bg-[var(--primary-glow)] shadow-primary transition-all"

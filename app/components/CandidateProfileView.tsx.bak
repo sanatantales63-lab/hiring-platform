@@ -134,7 +134,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                 </p>
              </div>
 
-             {isAdmin && (
+             {(isAdmin || isCompany) && (
                 <div className="text-right bg-white/20 backdrop-blur-sm p-5 rounded-xl border border-white/30 shadow-sm min-w-[180px] shrink-0 mt-4 md:mt-0">
                    {isDisqualified ? (
                        <div className="text-2xl font-extrabold text-white flex items-center gap-2 justify-end mb-1"><ShieldAlert size={24}/> Banned</div>
@@ -307,19 +307,6 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                       <span className="text-[var(--muted-foreground)]">Gender</span>
                       <span className="text-[var(--foreground)] capitalize">{candidate.gender || "Not Specified"}</span>
                    </div>
-
-                   {/* Age — calculated from DOB, visible to company too */}
-                   {candidate.dob && (() => {
-                     const birthYear = new Date(candidate.dob).getFullYear();
-                     const currentYear = new Date().getFullYear();
-                     const age = currentYear - birthYear;
-                     return (
-                       <div className="flex justify-between border-b border-[var(--border)] pb-4 mb-4">
-                         <span className="text-[var(--muted-foreground)]">Age</span>
-                         <span className="text-[var(--foreground)] font-bold">{age} yrs</span>
-                       </div>
-                     );
-                   })()}
                    
                   <div className="relative">
                      <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>

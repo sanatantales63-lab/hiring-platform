@@ -48,12 +48,6 @@ export default function AdminDashboard() {
   const [advExp, setAdvExp] = useState("");
   const [advMinScore, setAdvMinScore] = useState<number | "">("");
   const [advStatus, setAdvStatus] = useState("");
-  const [advNotice, setAdvNotice] = useState("");
-  const [advGender, setAdvGender] = useState("");
-  const [advWorkMode, setAdvWorkMode] = useState("");
-  const [advAgeRange, setAdvAgeRange] = useState("");
-  const [advTextSearch, setAdvTextSearch] = useState("");
-  const [advSkillSearch, setAdvSkillSearch] = useState("");
   const [aiSkills, setAiSkills] = useState<string[]>([]);
   const [viewingStudent, setViewingStudent] = useState<any>(null);
   const [viewingCompany, setViewingCompany] = useState<any>(null);
@@ -340,10 +334,9 @@ export default function AdminDashboard() {
     } catch (error) { alert("Error updating status"); }
   };
 
-  const uniqueCities = Array.from(new Set(students.map(s => s.city).filter(Boolean))).sort();
-  const uniqueQuals = Array.from(new Set(students.map(s => s.highestQualification).filter(Boolean))).sort();
+  const uniqueCities = Array.from(new Set(students.map(s => s.city).filter(Boolean)));
+  const uniqueQuals = Array.from(new Set(students.map(s => s.qualification).filter(Boolean)));
   const uniqueExps = Array.from(new Set(students.map(s => s.experience).filter(Boolean)));
-  const uniqueNotices = Array.from(new Set(students.map(s => s.noticePeriod).filter(Boolean)));
   
   const filteredStudentsForModal = students.filter(s => {
     const matchSearch = s.fullName?.toLowerCase().includes(modalSearch.toLowerCase()) || s.skills?.some((sk: string) => sk.toLowerCase().includes(modalSearch.toLowerCase()));
@@ -356,7 +349,6 @@ export default function AdminDashboard() {
     if (!aiSearchQuery.trim()) {
       setAdvCity(""); setAdvQual("");
       setAdvExp(""); setAdvMinScore(""); setAdvStatus(""); setAiSkills([]);
-      setAdvNotice(""); setAdvGender(""); setAdvWorkMode(""); setAdvAgeRange(""); setAdvSkillSearch("");
       return;
     }
     setIsAILoading(true);
@@ -382,62 +374,15 @@ export default function AdminDashboard() {
     let match = true;
     const sScore = s.meta?.totalScore || 0;
     
-    // Name / Unique ID search
-    if (advTextSearch.trim()) {
-      const q = advTextSearch.toLowerCase().trim();
-      // Build the unique ID for this candidate same way as card
-      let qp = "PR";
-      if (s.highestQualification) {
-        const hq = s.highestQualification.toLowerCase();
-        if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qp = "CA";
-        else if (hq.includes('cma') || hq.includes('cost & management')) qp = "CM";
-        else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qp = "CS";
-        else if (hq.includes('acca')) qp = "AC";
-        else if (hq.includes('mba') || hq.includes('pgdm')) qp = "MB";
-        else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qp = "BT";
-        else if (hq.includes('m.com') || hq.includes('mcom')) qp = "MC";
-        else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qp = "BC";
-        else if (hq.includes('diploma') || hq.includes('polytechnic')) qp = "DP";
-        else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qp = "HS";
-        else qp = "GD";
-      }
-      const uniqueId = s.id ? `rm-${qp}-${s.id.substring(0, 8)}`.toLowerCase() : "";
-      const rawId = s.id?.toLowerCase() || "";
-      const name = s.fullName?.toLowerCase() || "";
-      if (!name.includes(q) && !uniqueId.includes(q) && !rawId.includes(q)) match = false;
-    }
-
     if (advCity && s.city?.toLowerCase() !== advCity.toLowerCase()) match = false;
-    if (advQual && !s.highestQualification?.toLowerCase().includes(advQual.toLowerCase())) match = false;
+    if (advQual && !s.qualification?.toLowerCase().includes(advQual.toLowerCase())) match = false;
     if (advExp && s.experience !== advExp) match = false;
     if (advMinScore !== "" && sScore < Number(advMinScore)) match = false;
-    if (advNotice && s.noticePeriod !== advNotice) match = false;
-    if (advGender && s.gender?.toLowerCase() !== advGender.toLowerCase()) match = false;
-    if (advWorkMode && s.workMode !== advWorkMode) match = false;
-
-    // Age Range filter from DOB
-    if (advAgeRange && s.dob) {
-      const age = new Date().getFullYear() - new Date(s.dob).getFullYear();
-      if (advAgeRange === "under22" && age >= 22) match = false;
-      else if (advAgeRange === "22-25" && (age < 22 || age > 25)) match = false;
-      else if (advAgeRange === "26-30" && (age < 26 || age > 30)) match = false;
-      else if (advAgeRange === "31-35" && (age < 31 || age > 35)) match = false;
-      else if (advAgeRange === "above35" && age <= 35) match = false;
-    }
-
-    // Skill search (manual text)
-    if (advSkillSearch.trim()) {
-      const q = advSkillSearch.toLowerCase().trim();
-      const hasSkill = s.skills?.some((sk: string) => sk.toLowerCase().includes(q));
-      if (!hasSkill) match = false;
-    }
     
     if (advStatus) {
        if (advStatus === "none" && (s.hired_status === "hired" || s.hired_status === "disputed" || s.hired_status === "pending" || s.hired_status === "hire_requested" || s.hired_status === "shortlisted")) match = false;
        else if (advStatus === "hired" && s.hired_status !== "hired") match = false;
        else if (advStatus === "disputed" && s.hired_status !== "disputed") match = false;
-       else if (advStatus === "exam_pending" && s.examAccess !== "pending") match = false;
-       else if (advStatus === "completed" && s.examAccess !== "completed") match = false;
     }
 
     if (aiSkills.length > 0) {
@@ -447,12 +392,6 @@ export default function AdminDashboard() {
     }
     return match;
   });
-
-  const resetAllFilters = () => {
-    setAdvCity(""); setAdvQual(""); setAdvExp(""); setAdvMinScore(""); setAdvStatus("");
-    setAdvNotice(""); setAdvGender(""); setAdvWorkMode(""); setAdvAgeRange(""); setAdvSkillSearch("");
-    setAdvTextSearch(""); setAiSkills([]); setAiSearchQuery("");
-  };
 
   if (loading) return <div className="min-h-screen bg-transparent text-slate-900 flex items-center justify-center font-bold text-xl tracking-widest animate-pulse">VERIFYING ADMIN...</div>;
   
@@ -535,147 +474,53 @@ export default function AdminDashboard() {
              </div>
 
              <Card className="mb-10">
-                 {/* AI Search Bar */}
-                 <div className="relative mb-5 flex gap-3">
-                    <div className="relative flex-1 group">
-                       <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                          {isAILoading ? <Loader2 className="text-[var(--primary)] animate-spin" size={24}/> : <Sparkles className="text-[var(--primary)] group-focus-within:text-[var(--primary-glow)] transition-colors" size={24}/>}
-                       </div>
-                       <input type="text" value={aiSearchQuery} onChange={(e) => setAiSearchQuery(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter') handleAISearch(); }} placeholder="Ask AI: 'Show me Hired CA in Kolkata with score 15+'..." className="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-2xl py-4 pl-14 pr-6 text-lg placeholder:text-slate-400 focus:border-[var(--primary)] focus:bg-white focus:ring-2 focus:ring-[var(--primary)]/10 transition-all outline-none shadow-sm" disabled={isAILoading} />
-                    </div>
-                    <Button variant="primary" onClick={handleAISearch} disabled={isAILoading} className="px-8 min-w-[120px]">
-                        {isAILoading ? "Thinking..." : "Search"}
-                    </Button>
-                 </div>
-
-                 {/* Manual Filters Grid */}
-                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-
-                    {/* Status */}
-                    <select value={advStatus} onChange={(e) => setAdvStatus(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">🟢 All Status</option>
-                       <option value="none">✨ Available</option>
-                       <option value="hired">💼 Hired</option>
-                       <option value="exam_pending">⏳ Exam Pending</option>
-                       <option value="completed">✅ Test Done</option>
-                    </select>
-
-                    {/* City */}
-                    <select value={advCity} onChange={(e) => setAdvCity(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">🗺️ Any City</option>
-                       {uniqueCities.map((city: any, i) => <option key={i} value={city}>{city}</option>)}
-                    </select>
-
-                    {/* Qualification */}
-                    <select value={advQual} onChange={(e) => setAdvQual(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">🎓 Any Qualification</option>
-                       {uniqueQuals.map((q: any, i) => <option key={i} value={q}>{q}</option>)}
-                    </select>
-
-                    {/* Experience */}
-                    <select value={advExp} onChange={(e) => setAdvExp(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">💼 Any Experience</option>
-                       {uniqueExps.map((e: any, i) => <option key={i} value={e}>{e}</option>)}
-                    </select>
-
-                    {/* Notice Period */}
-                    <select value={advNotice} onChange={(e) => setAdvNotice(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">⏰ Any Notice Period</option>
-                       {uniqueNotices.map((n: any, i) => <option key={i} value={n}>{n}</option>)}
-                    </select>
-
-                    {/* Gender */}
-                    <select value={advGender} onChange={(e) => setAdvGender(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">👤 Any Gender</option>
-                       <option value="male">Male</option>
-                       <option value="female">Female</option>
-                       <option value="other">Other</option>
-                    </select>
-
-                    {/* Work Mode */}
-                    <select value={advWorkMode} onChange={(e) => setAdvWorkMode(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">🏢 Any Work Mode</option>
-                       <option value="On-site">On-site</option>
-                       <option value="Remote">Remote</option>
-                       <option value="Hybrid">Hybrid</option>
-                    </select>
-
-                    {/* Age Range */}
-                    <select value={advAgeRange} onChange={(e) => setAdvAgeRange(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">📅 Any Age</option>
-                       <option value="under22">Under 22 yrs</option>
-                       <option value="22-25">22 – 25 yrs</option>
-                       <option value="26-30">26 – 30 yrs</option>
-                       <option value="31-35">31 – 35 yrs</option>
-                       <option value="above35">Above 35 yrs</option>
-                    </select>
-
-                    {/* Min AI Score */}
-                    <select value={advMinScore} onChange={(e) => setAdvMinScore(e.target.value ? Number(e.target.value) : "")} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
-                       <option value="">🎯 Min AI Score</option>
-                       <option value="5">Score 5+</option>
-                       <option value="10">Score 10+</option>
-                       <option value="15">Score 15+</option>
-                       <option value="20">Score 20+</option>
-                       <option value="30">Score 30+</option>
-                       <option value="40">Score 40+</option>
-                       <option value="50">Score 50+</option>
-                    </select>
-
-                     {/* Unique ID / Name Search */}
-                     <div className="col-span-2 md:col-span-1 relative">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        <input
-                          type="text"
-                          value={advTextSearch}
-                          onChange={(e) => setAdvTextSearch(e.target.value)}
-                          placeholder="Search by Name or Unique ID..."
-                          className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-9 pr-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all"
-                        />
-                     </div>
-
-                     {/* Skill Search */}
-                     <div className="col-span-2 md:col-span-2 relative">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                        <input
-                          type="text"
-                          value={advSkillSearch}
-                          onChange={(e) => setAdvSkillSearch(e.target.value)}
-                          placeholder="Filter by skill keyword (e.g. GST, Tally, Excel)..."
-                          className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-9 pr-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all"
-                        />
-                     </div>
-
-                    {/* Reset Button */}
-                    <button
-                      onClick={resetAllFilters}
-                      className="col-span-1 bg-slate-100 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-500 hover:text-rose-600 rounded-xl py-2.5 px-3 font-bold text-sm transition-all flex items-center justify-center gap-2"
-                    >
-                      <X size={14} /> Reset All
-                    </button>
-
-                 </div>
-
-                 {/* Active Filter Tags */}
-                 {(advTextSearch || advCity || advQual || advExp || advStatus || advNotice || advGender || advWorkMode || advAgeRange || advMinScore !== "" || advSkillSearch || aiSkills.length > 0) && (
-                   <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
-                     <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Active:</span>
-                     {advTextSearch && <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🔍 "{advTextSearch}" <button onClick={() => setAdvTextSearch("")} className="ml-1">✕</button></span>}
-                     {advStatus && <span className="bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">Status: {advStatus} <button onClick={() => setAdvStatus("")} className="ml-1">✕</button></span>}
-                     {advCity && <span className="bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">📍 {advCity} <button onClick={() => setAdvCity("")} className="ml-1">✕</button></span>}
-                     {advQual && <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🎓 {advQual} <button onClick={() => setAdvQual("")} className="ml-1">✕</button></span>}
-                     {advExp && <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">💼 {advExp} <button onClick={() => setAdvExp("")} className="ml-1">✕</button></span>}
-                     {advNotice && <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">⏰ {advNotice} <button onClick={() => setAdvNotice("")} className="ml-1">✕</button></span>}
-                     {advGender && <span className="bg-pink-50 text-pink-700 border border-pink-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">👤 {advGender} <button onClick={() => setAdvGender("")} className="ml-1">✕</button></span>}
-                     {advWorkMode && <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🏢 {advWorkMode} <button onClick={() => setAdvWorkMode("")} className="ml-1">✕</button></span>}
-                     {advAgeRange && <span className="bg-orange-50 text-orange-700 border border-orange-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">📅 Age: {advAgeRange} <button onClick={() => setAdvAgeRange("")} className="ml-1">✕</button></span>}
-                     {advMinScore !== "" && <span className="bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🎯 Score {advMinScore}+ <button onClick={() => setAdvMinScore("")} className="ml-1">✕</button></span>}
-                     {advSkillSearch && <span className="bg-teal-50 text-teal-700 border border-teal-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🔧 {advSkillSearch} <button onClick={() => setAdvSkillSearch("")} className="ml-1">✕</button></span>}
-                     {aiSkills.map((sk, i) => <span key={i} className="bg-[var(--primary)] text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">AI: {sk} <button onClick={() => setAiSkills(aiSkills.filter((x, j) => j !== i))} className="ml-1">✕</button></span>)}
+                <div className="relative mb-6 flex gap-3">
+                   <div className="relative flex-1 group">
+                      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                         {isAILoading ? <Loader2 className="text-[var(--primary)] animate-spin" size={24}/> : <Sparkles className="text-[var(--primary)] group-focus-within:text-[var(--primary-glow)] transition-colors" size={24}/>}
+                      </div>
+                      <input type="text" value={aiSearchQuery} onChange={(e) => setAiSearchQuery(e.target.value)} onKeyDown={(e) => { if(e.key === 'Enter') handleAISearch(); }} placeholder="Ask AI: 'Show me Hired CA in Kolkata with score 15+'..." className="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-2xl py-4 pl-14 pr-6 text-lg placeholder:text-slate-400 focus:border-[var(--primary)] focus:bg-white focus:ring-2 focus:ring-[var(--primary)]/10 transition-all outline-none shadow-sm" disabled={isAILoading} />
                    </div>
-                 )}
+                   <Button variant="primary" onClick={handleAISearch} disabled={isAILoading} className="px-8 min-w-[120px]">
+                       {isAILoading ? "Thinking..." : "Search"}
+                   </Button>
+                </div>
 
-              </Card>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                   <select value={advStatus} onChange={(e)=>setAdvStatus(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
+                      <option value="">🟢 All Status</option>
+                      <option value="none">✨ Available Talent</option>
+                      <option value="hired">💼 Hired / Locked</option>
+                   </select>
+                   <select value={advCity} onChange={(e)=>setAdvCity(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
+                      <option value="">🗺️ Any City</option>
+                      {uniqueCities.map((city:any, i) => <option key={i} value={city}>{city}</option>)}
+                   </select>
+                   <select value={advQual} onChange={(e)=>setAdvQual(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
+                      <option value="">🎓 Any Qualification</option>
+                      {uniqueQuals.map((q:any, i) => <option key={i} value={q}>{q}</option>)}
+                   </select>
+                   <select value={advExp} onChange={(e)=>setAdvExp(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
+                      <option value="">💼 Any Experience</option>
+                      {uniqueExps.map((e:any, i) => <option key={i} value={e}>{e}</option>)}
+                   </select>
+<select value={advMinScore} onChange={(e)=>setAdvMinScore(e.target.value ? Number(e.target.value) : "")} className="bg-white border border-slate-200 rounded-xl py-3 px-4 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
+                      <option value="">🎯 Minimum Score</option>
+                      <option value="5">Score 5+</option>
+                      <option value="10">Score 10+</option>
+                      <option value="15">Score 15+</option>
+                      <option value="20">Score 20+</option>
+                   </select>
+                </div>
+
+                {aiSkills.length > 0 && (
+                  <div className="mt-4 flex items-center gap-2">
+                     <span className="text-xs text-slate-500 font-bold uppercase">AI Filters Active:</span>
+                     {aiSkills.map((sk, i) => <span key={i} className="bg-[var(--accent)] text-[var(--primary)] border border-[oklch(0.46_0.20_264_/_0.15)] px-2 py-1 rounded-md text-xs font-bold">{sk}</span>)}
+                     <button onClick={() => { setAiSkills([]); setAiSearchQuery(""); }} className="text-xs text-red-500 hover:text-red-600 ml-2 font-bold">Clear</button>
+                  </div>
+                )}
+             </Card>
              
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                {filteredMainStudents.map(s => {

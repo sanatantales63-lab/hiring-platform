@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase"; 
 import { motion } from "framer-motion";
 import { 
-  LayoutDashboard, UserCircle, LogOut, 
+  LayoutDashboard, UserCircle, LogOut, Briefcase,
   ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, ArrowRight, Globe,
   IndianRupee, Receipt, Download, Send, FileText, X
 } from "lucide-react";
@@ -216,7 +216,19 @@ if (!isMounted || loading) return <div className="h-screen bg-[var(--surface)] f
 
       {/* PREMIUM GLASS SIDEBAR */}
       <aside className="w-64 bg-white border-r border-[var(--border)] hidden md:flex flex-col p-5 fixed h-full z-10 shadow-soft print:hidden">
-        <h2 className="font-display text-base font-bold text-[var(--foreground)] mb-8">Resource<span className="text-[var(--primary)]">mania</span></h2>
+        <div className="flex items-center gap-2.5 mb-8">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--primary)] text-white shadow-primary shrink-0">
+            <Briefcase className="h-4 w-4" strokeWidth={2.2} />
+          </span>
+          <div className="flex flex-col">
+            <span className="font-display text-lg font-black tracking-tight text-[var(--foreground)] leading-none">
+              Resource<span className="text-[var(--primary)]">mania</span>
+            </span>
+            <span className="text-[9px] font-extrabold tracking-widest uppercase text-[var(--primary)] mt-0.5">
+              Verified Talent Platform
+            </span>
+          </div>
+        </div>
         <nav className="space-y-1 flex-1">
           <div onClick={() => setActiveView('overview')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'overview' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><LayoutDashboard size={20}/> <span>Dashboard</span></div>
           <div onClick={() => setActiveView('earnings')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'earnings' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><IndianRupee size={20}/> <span>Earnings & Invoices</span></div>
