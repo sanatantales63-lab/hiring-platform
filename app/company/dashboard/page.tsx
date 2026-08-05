@@ -52,7 +52,7 @@ export default function CompanyDashboard() {
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   // 🔥 PREMIUM FILTER DRAWER STATES 🔥
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -423,6 +423,66 @@ const submitInterviewRequest = async () => {
      const requiredDays = c.jobType === '3-Month Contract' ? 90 : 60; 
      return daysSinceHire >= requiredDays; 
   });
+
+  // 🔥 Normalize qualification display name — handles all variants consistently
+  const normalizeQualification = (raw: string | undefined | null): string => {
+    if (!raw) return "Not Specified";
+    const q = raw.trim();
+    const ql = q.toLowerCase();
+
+    // ── Chartered Accountant (CA) ──
+    // Final / Qualified / just "CA" or full name → canonical
+    if (
+      (ql.includes('ca') || ql.includes('chartered accountant')) &&
+      !ql.includes('intermediate') && !ql.includes('inter') &&
+      !ql.includes('foundation') && !ql.includes('ipcc') && !ql.includes('ipce') &&
+      !ql.includes('cma') && !ql.includes('cost') && !ql.includes('acca')
+    ) return "Chartered Accountant (CA)";
+
+    // CA stages — keep as-is label but normalise text
+    if (ql.includes('ca') && (ql.includes('intermediate') || ql.includes('inter') || ql.includes('ipcc') || ql.includes('ipce'))) return "CA Intermediate";
+    if (ql.includes('ca') && (ql.includes('foundation') || ql.includes('cpt'))) return "CA Foundation";
+
+    // ── Cost & Management Accountant (CMA) ──
+    if (ql.includes('cma') && !ql.includes('intermediate') && !ql.includes('inter') && !ql.includes('foundation')) return "Cost & Management Accountant (CMA)";
+    if (ql.includes('cma') && (ql.includes('intermediate') || ql.includes('inter'))) return "CMA Intermediate";
+    if (ql.includes('cma') && ql.includes('foundation')) return "CMA Foundation";
+
+    // ── Company Secretary (CS) ──
+    if ((ql.includes('cs') || ql.includes('company secretary')) && !ql.includes('executive') && !ql.includes('foundation') && !ql.includes('acca')) return "Company Secretary (CS)";
+    if ((ql.includes('cs') || ql.includes('company secretary')) && ql.includes('executive')) return "CS Executive";
+    if ((ql.includes('cs') || ql.includes('company secretary')) && ql.includes('foundation')) return "CS Foundation";
+
+    // ── ACCA ──
+    if (ql.includes('acca')) return "ACCA";
+
+    // ── MBA / PGDM ──
+    if (ql.includes('mba') || ql.includes('pgdm')) return q; // keep as typed (MBA Finance etc)
+
+    // ── M.Com ──
+    if (ql.includes('m.com') || ql.includes('mcom')) return "Master of Commerce (M.Com)";
+
+    // ── B.Com ──
+    if (ql.includes('b.com') || ql.includes('bcom')) return "Bachelor of Commerce (B.Com)";
+
+    // ── BBA ──
+    if (ql.includes('bba')) return "Bachelor of Business Administration (BBA)";
+
+    // ── B.Tech / BE ──
+    if (ql.includes('b.tech') || ql.includes('btech') || ql.includes('b.e.')) return "Bachelor of Technology (B.Tech)";
+
+    // ── Diploma ──
+    if (ql.includes('diploma') || ql.includes('polytechnic')) return "Diploma";
+
+    // ── 12th / High School ──
+    if (ql.includes('12th') || ql.includes('hsc') || ql.includes('puc') || ql.includes('higher secondary') || ql.includes('intermediate') && !ql.includes('ca') && !ql.includes('cma') && !ql.includes('cs')) return "12th / Higher Secondary";
+
+    // ── 10th ──
+    if (ql.includes('10th') || ql.includes('ssc') || ql.includes('matriculation')) return "10th / Secondary";
+
+    // Default — return as-is
+    return q;
+  };
 
   if (loading) return <div className="h-screen bg-transparent flex items-center justify-center relative z-10"><Loader2 className="animate-spin text-[var(--primary)] w-12 h-12" /></div>;
 
@@ -1018,7 +1078,7 @@ const submitInterviewRequest = async () => {
         </AnimatePresence>
 
       {/* 🚀 CANDIDATES GRID / LIST 🚀 */}
-     <div 
+     <div 
         className={viewMode === 'grid' ? "grid gap-5 items-stretch" : "flex flex-col gap-3"}
         style={viewMode === 'grid' ? { gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' } : undefined}
       >
@@ -1028,7 +1088,7 @@ const submitInterviewRequest = async () => {
               const warnings = candidate.meta?.warningsCount || 0;
               const integrityScore = Math.max(0, 100 - warnings * 20);
               const isClean = integrityScore === 100;
-              const roleTitle = candidate.highestQualification || candidate.qualification || "Professional";
+              const roleTitle = normalizeQualification(candidate.highestQualification || candidate.educations?.[0]?.qualification || candidate.qualification);
 
              const statusMap: Record<string, { label: string; cls: string }> = {
                 interview_requested: { label: "Awaiting Meet Link",              cls: "bg-blue-50 text-blue-700 border-blue-200" },
@@ -1097,13 +1157,7 @@ const submitInterviewRequest = async () => {
                           {candidate.skills?.length > 4 && <span className="px-2 py-0.5 bg-white text-slate-400 rounded border border-slate-100 text-[8px] font-bold">+{candidate.skills.length - 4}</span>}
                         </div>
 
-                        {/* Metrics */}
-                        <div className="flex items-center gap-4 shrink-0 pr-2">
-                          <div className="text-center">
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">AI Score</p>
-                           <p className="text-sm font-black text-[var(--primary)]">{aiScore}</p>
-                          </div>
-                        </div>
+
 
                         {/* Actions */}
                         <div className="flex items-center gap-2 shrink-0 flex-wrap">
@@ -1127,7 +1181,7 @@ const submitInterviewRequest = async () => {
                               {candidate.hired_status === 'shortlisted' && (
                                 <>
                                   <button type="button" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-blue-50 cursor-pointer"><Video size={10}/> Meet</button>
-                                  <button type="button" onClick={() => triggerHireVerificationPopup(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[var(--primary)] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[var(--primary-glow)] cursor-pointer"><Zap size={10}/> Hire</button>
+                                  <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[var(--primary)] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[var(--primary-glow)] cursor-pointer"><Zap size={10}/> Hire</button>
                                 </>
                               )}
                               {candidate.hired_status === 'hired' && !candidate.company_rating && (
@@ -1217,10 +1271,10 @@ const submitInterviewRequest = async () => {
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Exp.</span>
                             <span className="text-xs font-black text-slate-800">{candidate.experience || "N/A"}</span>
                          </div>
-                         {/* Notice Period */}
+                         {/* Gender */}
                          <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Notice Period</span>
-                            <span className="text-xs font-black text-slate-800">{candidate.noticePeriod || "N/A"}</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Gender</span>
+                            <span className="text-xs font-black text-slate-800">{candidate.gender || "N/A"}</span>
                          </div>
                       </div>
 
@@ -1260,10 +1314,10 @@ const submitInterviewRequest = async () => {
                             {/* 🔥 GOOGLE MEET READY STATE 🔥 */}
                             {candidate.hired_status === 'shortlisted' && (
                               <div className="flex gap-2">
-                                 <Button variant="secondary" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="flex-[0.8] text-[10px] py-2 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-9 hover:bg-blue-50">
-                                   <Video size={12} className="mr-1" /> Join Meet
+                                 <Button variant="primary" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
+                                    <Video size={12} className="mr-1" /> Join Meet
                                  </Button>
-                                <Button variant="primary" onClick={() => triggerHireVerificationPopup(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
+                                <Button variant="primary" onClick={() => requestHire(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
                                     <Zap size={12} className="mr-1.5" /> Official Hire
                                   </Button>
                               </div>

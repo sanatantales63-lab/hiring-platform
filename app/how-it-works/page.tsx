@@ -63,7 +63,7 @@ export default function HowPage() {
           </nav>
 
           <div className="hidden items-center gap-2.5 md:flex">
-            
+          
             <button
               onClick={() => router.push('/student/login')}
               className="inline-flex items-center gap-2 h-9 px-4.5 rounded-lg text-xs font-bold bg-[var(--primary)] text-white hover:bg-[var(--primary-glow)] shadow-primary transition-all"
