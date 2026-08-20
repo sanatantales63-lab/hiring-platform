@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { generateCandidateId } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { 
   User, Users, Building2, CreditCard, LogOut, Upload, Bell, 
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
   const [advNotice, setAdvNotice] = useState("");
   const [advGender, setAdvGender] = useState("");
   const [advWorkMode, setAdvWorkMode] = useState("");
+  const [advTravel, setAdvTravel] = useState("");
   const [advAgeRange, setAdvAgeRange] = useState("");
   const [advTextSearch, setAdvTextSearch] = useState("");
   const [advSkillSearch, setAdvSkillSearch] = useState("");
@@ -84,6 +86,7 @@ export default function AdminDashboard() {
               "Expected Salary": s.expectedSalary || "N/A",
               "Rating": s.company_rating || "N/A",
               "Relocate": s.willingToRelocate || "N/A",
+              "Travel Preference": s.travelPreference || "N/A",
               "Contract Ready": s.openToContractRoles ? "Yes" : "No"
           };
 
@@ -120,6 +123,7 @@ export default function AdminDashboard() {
           { wch: 15 }, // Exp Salary
           { wch: 10 }, // Rating
           { wch: 12 }, // Relocate
+          { wch: 28 }, // Travel Preference
           { wch: 15 }, // Contract
           { wch: 80 }  // Assessed Skills (Bahut lamba rakha taaki sab ek line me aaye)
       ];
@@ -385,23 +389,8 @@ export default function AdminDashboard() {
     // Name / Unique ID search
     if (advTextSearch.trim()) {
       const q = advTextSearch.toLowerCase().trim();
-      // Build the unique ID for this candidate same way as card
-      let qp = "PR";
-      if (s.highestQualification) {
-        const hq = s.highestQualification.toLowerCase();
-        if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qp = "CA";
-        else if (hq.includes('cma') || hq.includes('cost & management')) qp = "CM";
-        else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qp = "CS";
-        else if (hq.includes('acca')) qp = "AC";
-        else if (hq.includes('mba') || hq.includes('pgdm')) qp = "MB";
-        else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qp = "BT";
-        else if (hq.includes('m.com') || hq.includes('mcom')) qp = "MC";
-        else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qp = "BC";
-        else if (hq.includes('diploma') || hq.includes('polytechnic')) qp = "DP";
-        else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qp = "HS";
-        else qp = "GD";
-      }
-      const uniqueId = s.id ? `rm-${qp}-${s.id.substring(0, 8)}`.toLowerCase() : "";
+      // Build the unique ID using centralized function
+      const uniqueId = generateCandidateId(s).toLowerCase();
       const rawId = s.id?.toLowerCase() || "";
       const name = s.fullName?.toLowerCase() || "";
       if (!name.includes(q) && !uniqueId.includes(q) && !rawId.includes(q)) match = false;
@@ -414,6 +403,7 @@ export default function AdminDashboard() {
     if (advNotice && s.noticePeriod !== advNotice) match = false;
     if (advGender && s.gender?.toLowerCase() !== advGender.toLowerCase()) match = false;
     if (advWorkMode && s.workMode !== advWorkMode) match = false;
+    if (advTravel && s.travelPreference !== advTravel) match = false;
 
     // Age Range filter from DOB
     if (advAgeRange && s.dob) {
@@ -450,7 +440,7 @@ export default function AdminDashboard() {
 
   const resetAllFilters = () => {
     setAdvCity(""); setAdvQual(""); setAdvExp(""); setAdvMinScore(""); setAdvStatus("");
-    setAdvNotice(""); setAdvGender(""); setAdvWorkMode(""); setAdvAgeRange(""); setAdvSkillSearch("");
+    setAdvNotice(""); setAdvGender(""); setAdvWorkMode(""); setAdvTravel(""); setAdvAgeRange(""); setAdvSkillSearch("");
     setAdvTextSearch(""); setAiSkills([]); setAiSearchQuery("");
   };
 
@@ -600,6 +590,15 @@ export default function AdminDashboard() {
                        <option value="Hybrid">Hybrid</option>
                     </select>
 
+                    {/* Traveling Preference */}
+                    <select value={advTravel} onChange={(e) => setAdvTravel(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
+                       <option value="">✈️ Any Travel Preference</option>
+                       <option value="No / Minimal Travel (Work from Base Office Only)">No / Minimal Travel</option>
+                       <option value="Occasional Travel (Up to 5–7 Days / Month)">Occasional (Up to 5-7 Days)</option>
+                       <option value="Moderate Travel (15+ Days / Month)">Moderate (15+ Days)</option>
+                       <option value="Open to Frequent Travel (No Restrictions)">Open to Frequent Travel</option>
+                    </select>
+
                     {/* Age Range */}
                     <select value={advAgeRange} onChange={(e) => setAdvAgeRange(e.target.value)} className="bg-white border border-slate-200 rounded-xl py-2.5 px-3 font-medium text-sm focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none text-slate-700 shadow-sm transition-all">
                        <option value="">📅 Any Age</option>
@@ -657,7 +656,7 @@ export default function AdminDashboard() {
                  </div>
 
                  {/* Active Filter Tags */}
-                 {(advTextSearch || advCity || advQual || advExp || advStatus || advNotice || advGender || advWorkMode || advAgeRange || advMinScore !== "" || advSkillSearch || aiSkills.length > 0) && (
+                 {(advTextSearch || advCity || advQual || advExp || advStatus || advNotice || advGender || advWorkMode || advTravel || advAgeRange || advMinScore !== "" || advSkillSearch || aiSkills.length > 0) && (
                    <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Active:</span>
                      {advTextSearch && <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🔍 "{advTextSearch}" <button onClick={() => setAdvTextSearch("")} className="ml-1">✕</button></span>}
@@ -668,6 +667,7 @@ export default function AdminDashboard() {
                      {advNotice && <span className="bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">⏰ {advNotice} <button onClick={() => setAdvNotice("")} className="ml-1">✕</button></span>}
                      {advGender && <span className="bg-pink-50 text-pink-700 border border-pink-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">👤 {advGender} <button onClick={() => setAdvGender("")} className="ml-1">✕</button></span>}
                      {advWorkMode && <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🏢 {advWorkMode} <button onClick={() => setAdvWorkMode("")} className="ml-1">✕</button></span>}
+                     {advTravel && <span className="bg-sky-50 text-sky-700 border border-sky-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">✈️ {advTravel} <button onClick={() => setAdvTravel("")} className="ml-1">✕</button></span>}
                      {advAgeRange && <span className="bg-orange-50 text-orange-700 border border-orange-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">📅 Age: {advAgeRange} <button onClick={() => setAdvAgeRange("")} className="ml-1">✕</button></span>}
                      {advMinScore !== "" && <span className="bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🎯 Score {advMinScore}+ <button onClick={() => setAdvMinScore("")} className="ml-1">✕</button></span>}
                      {advSkillSearch && <span className="bg-teal-50 text-teal-700 border border-teal-200 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">🔧 {advSkillSearch} <button onClick={() => setAdvSkillSearch("")} className="ml-1">✕</button></span>}
@@ -683,23 +683,8 @@ export default function AdminDashboard() {
                  const isDisqualified = s.examAccess === 'disqualified';
                  const scoreColorClass = score >= 15 ? 'text-[var(--success)] bg-[var(--success-bg)] border-[oklch(0.55_0.14_155_/_0.20)]' : score > 5 ? 'text-[var(--warning)] bg-[var(--warning-bg)] border-[oklch(0.62_0.14_65_/_0.20)]' : 'text-rose-600 bg-rose-50 border-rose-250';
                  
-                 // 🔥 Admin Talent Pool Professional ID 🔥
-                 let qualPrefix = "PR"; 
-                 if (s.highestQualification) {
-                     const hq = s.highestQualification.toLowerCase();
-                     if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qualPrefix = "CA";
-                     else if (hq.includes('cma') || hq.includes('cost & management')) qualPrefix = "CM";
-                     else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qualPrefix = "CS";
-                     else if (hq.includes('acca')) qualPrefix = "AC";
-                     else if (hq.includes('mba') || hq.includes('pgdm')) qualPrefix = "MB";
-                     else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qualPrefix = "BT";
-                     else if (hq.includes('m.com') || hq.includes('mcom')) qualPrefix = "MC";
-                     else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qualPrefix = "BC";
-                     else if (hq.includes('diploma') || hq.includes('polytechnic')) qualPrefix = "DP";
-                     else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qualPrefix = "HS";
-                     else qualPrefix = "GD";
-                 }
-                 const displayId = s.id ? `RM-${qualPrefix}-${s.id.substring(0, 8).toUpperCase()}` : "N/A";
+                 // 🔥 Admin Talent Pool Professional ID — centralized in lib/utils.ts
+                 const displayId = generateCandidateId(s);
 
                  return (
                     <div key={s.id} className={`relative flex flex-col bg-white/80 backdrop-blur-md border rounded-[1.5rem] p-6 transition-all hover:-translate-y-1 shadow-sm hover:shadow-lg h-full ${selectedForExcel.includes(s.id) ? 'border-emerald-400 shadow-emerald-500/10' : isDisqualified ? 'border-red-200 opacity-70' : 'border-slate-200 hover:border-[var(--primary)]/40 hover:shadow-md'}`}>

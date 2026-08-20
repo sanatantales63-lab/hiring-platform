@@ -101,6 +101,7 @@ export default function CandidateProfile() {
   const [savingData, setSavingData] = useState(false); 
   const [currentStep, setCurrentStep] = useState(1);
   const [userEmail, setUserEmail] = useState("");
+  const [customNoticeDays, setCustomNoticeDays] = useState(""); // 🔥 Custom notice period input
   
   const [showCamera, setShowCamera] = useState(false);
   const [aiModelsLoaded, setAiModelsLoaded] = useState(false);
@@ -120,6 +121,7 @@ export default function CandidateProfile() {
     state: "", 
    pincode: "", 
     willingToRelocate: "No",
+    travelPreference: "No / Minimal Travel (Work from Base Office Only)",
     panCard: "", 
     bio: "", 
     highestQualification: "", // 🔥 NEW: Track Highest Qualification Level
@@ -196,6 +198,7 @@ export default function CandidateProfile() {
             whatsappNumber: data.whatsappNumber || "",
             currentSalary: data.currentSalary || "", 
             expectedSalary: data.expectedSalary || "",
+            travelPreference: data.travelPreference || "No / Minimal Travel (Work from Base Office Only)",
             jobType: data.jobType || "Permanent Role",
             openToContractRoles: data.openToContractRoles === true ? "Yes" : (data.openToContractRoles === false ? "No" : ""),
             highestQualification: data.highestQualification || "", // 🔥 NEW: Pre-fill from DB
@@ -213,6 +216,12 @@ export default function CandidateProfile() {
             weaknesses: Array.isArray(data.weaknesses) ? data.weaknesses : []
           });
 
+          // 🔥 Agar saved noticePeriod fixed options mein nahi hai toh custom hai
+          const fixedOptions = ["Immediate Joiner", "15 Days", "1 Month", "2 Months"];
+          if (data.noticePeriod && !fixedOptions.includes(data.noticePeriod)) {
+            const numMatch = data.noticePeriod.replace(/\D/g, "");
+            if (numMatch) setCustomNoticeDays(numMatch);
+          }
           const urlParams = new URLSearchParams(window.location.search);
           if (urlParams.get('step') === '4') {
              setIsEditing(true); 
@@ -548,12 +557,11 @@ export default function CandidateProfile() {
                 return alert("🛑 You must be at least 18 years old to register on this platform.");
             }
         }
-        if (!formData.panCard || formData.panCard.trim() === "") {
-            return alert("🛑 PAN Card is mandatory to verify your identity.");
-        }
-        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panCard.toUpperCase())) {
-            return alert("🛑 Invalid PAN Card format! It should be like ABCDE1234F.");
-        }
+        if (formData.panCard && formData.panCard.trim() !== "") {
+            if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.panCard.toUpperCase().trim())) {
+                return alert("🛑 Invalid PAN Card format! It should be like ABCDE1234F.");
+            }
+        }
         if (formData.whatsappNumber && !/^[0-9]{10}$/.test(formData.whatsappNumber.trim())) {
             return alert("🛑 Invalid WhatsApp Number! Must be exactly 10 digits.");
         }
@@ -915,8 +923,8 @@ export default function CandidateProfile() {
                            </select>
                         </div>
                         <div className="w-full md:col-span-2">
-                           <label className="text-xs font-semibold text-[oklch(0.55_0.15_30)] uppercase tracking-wider mb-1 block">PAN Card <span className="text-[#c53030]">*</span></label>
-                           <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="w-full md:w-1/2 border border-[oklch(0.85_0.02_30)] bg-[oklch(0.97_0.005_30)] focus:bg-white uppercase font-mono tracking-widest rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" maxLength={10} placeholder="ABCDE1234F"/>
+                           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">PAN Card <span className="text-2xs font-normal lowercase ml-1">(Optional)</span></label>
+                           <input type="text" value={formData.panCard || ""} onChange={(e)=>setFormData({...formData, panCard: e.target.value.toUpperCase()})} className="w-full md:w-1/2 border border-[var(--border)] bg-white focus:bg-white uppercase font-mono tracking-widest rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all" maxLength={10} placeholder="ABCDE1234F (Optional)"/>
                         </div>
                      </div>
 
@@ -1532,15 +1540,47 @@ export default function CandidateProfile() {
                                   <option>5+ Years</option>
                                </select>
                             </div>
-                            <div>
-                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Notice Period <span className="text-[#c53030]">*</span></label>
-                               <select value={formData.noticePeriod} onChange={(e)=>setFormData({...formData, noticePeriod: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
-                                  <option>Immediate Joiner</option>
-                                  <option>15 Days</option>
-                                  <option>1 Month</option>
-                                  <option>2 Months</option>
-                               </select>
-                            </div>
+                             <div>
+                                <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Notice Period <span className="text-[#c53030]">*</span></label>
+                                <select
+                                  value={["Immediate Joiner","15 Days","1 Month","2 Months"].includes(formData.noticePeriod) ? formData.noticePeriod : "Custom"}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    if (val === "Custom") {
+                                      setCustomNoticeDays("");
+                                      setFormData({...formData, noticePeriod: ""});
+                                    } else {
+                                      setCustomNoticeDays("");
+                                      setFormData({...formData, noticePeriod: val});
+                                    }
+                                  }}
+                                  className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]"
+                                >
+                                   <option>Immediate Joiner</option>
+                                   <option>15 Days</option>
+                                   <option>1 Month</option>
+                                   <option>2 Months</option>
+                                   <option value="Custom">Custom (Enter Days)</option>
+                                </select>
+                                {!["Immediate Joiner","15 Days","1 Month","2 Months"].includes(formData.noticePeriod) && (
+                                  <div className="mt-2 flex items-center gap-2">
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="365"
+                                      placeholder="Enter days e.g. 20"
+                                      value={customNoticeDays}
+                                      onChange={(e) => {
+                                        const days = e.target.value.replace(/\D/g, "");
+                                        setCustomNoticeDays(days);
+                                        if (days) setFormData({...formData, noticePeriod: `${days} Days`});
+                                      }}
+                                      className="w-full border border-[var(--primary)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all"
+                                    />
+                                    <span className="text-sm font-semibold text-[var(--muted-foreground)] whitespace-nowrap">Days</span>
+                                  </div>
+                                )}
+                             </div>
                             
                             {formData.experience !== "Fresher" && (
                                <div>
@@ -1568,11 +1608,12 @@ export default function CandidateProfile() {
                                   value={formData.jobType} 
                                   onChange={(e)=>{
                                       const val = e.target.value;
-                                      setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : formData.openToContractRoles});
+                                      setFormData({...formData, jobType: val, openToContractRoles: val === "Permanent Role" ? "" : (val === "Open to Both (Permanent & Contractual)" ? "Yes" : formData.openToContractRoles)});
                                   }} 
                                   className="w-full border border-[var(--primary)]/25 bg-[var(--accent)]/30 rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light] mb-4"
                                >
                                   <option value="Permanent Role">Permanent Role</option>
+                                  <option value="Open to Both (Permanent & Contractual)">Open to Both (Permanent & Contractual)</option>
                                   <option value="1-3 Month Contract">1-3 Month Contract</option>
                                   <option value="3-6 Month Contract">3-6 Month Contract</option>
                                   <option value="6+ Month Contract">6+ Month Contract</option>
@@ -1618,7 +1659,7 @@ export default function CandidateProfile() {
                                <select value={formData.workMode} onChange={(e)=>setFormData({...formData, workMode: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
                                   <option>On-site</option>
                                   <option>Hybrid</option>
-                                  <option>Remote</option>
+                                  <option>Work From Home</option>
                                </select>
                             </div>
                             <div>
@@ -1626,6 +1667,15 @@ export default function CandidateProfile() {
                                <select value={formData.willingToRelocate} onChange={(e)=>setFormData({...formData, willingToRelocate: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
                                   <option>No</option>
                                   <option>Yes</option>
+                               </select>
+                            </div>
+                            <div className="md:col-span-2">
+                               <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1 block">Traveling Preference</label>
+                               <select value={formData.travelPreference || "No / Minimal Travel (Work from Base Office Only)"} onChange={(e)=>setFormData({...formData, travelPreference: e.target.value})} className="w-full border border-[var(--border)] rounded-lg px-3.5 py-2.5 text-sm text-[var(--foreground)] bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none transition-all [color-scheme:light]">
+                                  <option value="No / Minimal Travel (Work from Base Office Only)">No / Minimal Travel (Work from Base Office Only)</option>
+                                  <option value="Occasional Travel (Up to 5–7 Days / Month)">Occasional Travel (Up to 5–7 Days / Month)</option>
+                                  <option value="Moderate Travel (15+ Days / Month)">Moderate Travel (15+ Days / Month)</option>
+                                  <option value="Open to Frequent Travel (No Restrictions)">Open to Frequent Travel (No Restrictions)</option>
                                </select>
                             </div>
  

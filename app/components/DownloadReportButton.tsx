@@ -4,6 +4,7 @@ import html2canvas from "html2canvas-pro"; // 🔥 FIX: Using PRO version for ok
 import jsPDF from "jspdf";
 import { Download, Loader2 } from "lucide-react";
 import Button from "@/app/components/ui/Button";
+import { generateCandidateId } from "@/lib/utils";
 
 export default function DownloadReportButton({ candidate, buttonStyle = "default" }: { candidate: any, buttonStyle?: "default" | "admin" }) {
     const [isDownloading, setIsDownloading] = useState(false);
@@ -167,7 +168,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
     const achievements = Array.isArray(candidate?.achievements) ? candidate.achievements : [];
     
     const reportDate = new Date(meta.lastAttempt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    const refID = candidate?.id?.substring(0,8).toUpperCase() || "N/A";
+    const refID = generateCandidateId(candidate);
     const aiParagraphs = aiReport.split('\n').filter((p: string) => p.trim() !== '');
 
     return (
@@ -339,7 +340,7 @@ export default function DownloadReportButton({ candidate, buttonStyle = "default
                                 {/* 🔥 NO BOX! CLEAN TEXT WITH LINE 🔥 */}
                                 <div className="ai-badge">✦ AI Verified Profile</div>
                                 <div>Date: {reportDate}</div>
-                                <div>Ref: TX-{refID}</div>
+                                <div>Ref: {refID}</div>
                             </div>
                         </div>
 

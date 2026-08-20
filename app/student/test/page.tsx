@@ -11,6 +11,7 @@ import {
 // 🔥 Naye Master Components 🔥
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
+import DownloadReportButton from "@/app/components/DownloadReportButton";
 
 // 🔥 BULLETPROOF HELPER FUNCTIONS 🔥
 const normalizeText = (str: string) => (str || "").toLowerCase().trim();
@@ -809,7 +810,7 @@ export default function LiveTestPage() {
   }, [router, stopProctoring]);
 
   useEffect(() => {
-    if (loading || !testStarted || isSubmitted || isTerminated || showBonusPopup || generatingAIQuestions) return;
+    if (loading || !testStarted || isSubmitted || isTerminated || showBonusPopup || generatingAIQuestions || timeLeft === 0) return;
     const timer = setInterval(() => { 
         setTimeLeft((prev) => { 
             if (prev <= 1) { submitTest(); return 0; } 
@@ -818,7 +819,7 @@ export default function LiveTestPage() {
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [loading, testStarted, isSubmitted, isTerminated, showBonusPopup, generatingAIQuestions, submitTest]);
+  }, [loading, testStarted, isSubmitted, isTerminated, showBonusPopup, generatingAIQuestions, timeLeft, submitTest]);
 
   const handleVisibilityChange = useCallback(() => { 
       if (document.hidden && testStarted && !isSubmitted && !isTerminated) triggerWarning('tab'); 
@@ -1222,7 +1223,10 @@ export default function LiveTestPage() {
                </div>
             </div>
          </Card>
-         <Button variant="primary" onClick={() => window.location.href = '/student/dashboard'} className="px-8 py-3 mb-10 shadow-teal-500/20">Back to Dashboard</Button>
+         <div className="flex flex-col sm:flex-row gap-4 mb-10 w-full max-w-2xl">
+            <DownloadReportButton candidate={studentProfile} />
+            <Button variant="secondary" onClick={() => window.location.href = '/student/dashboard'} className="flex-1 px-8 py-3">Back to Dashboard</Button>
+         </div>
       </div>
     );
   }

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { generateCandidateId } from "@/lib/utils";
 import { 
   User, MapPin, Briefcase, Phone, Mail, GraduationCap, Globe, Sparkles, 
   Lock, ShieldAlert, FileText, CreditCard, ChevronDown, ChevronUp, Target, AlertTriangle, Star, CheckCircle, RefreshCcw, Mic, Video, Monitor, Building, TrendingUp, TrendingDown, Award, Users, MessageCircle
@@ -29,38 +30,23 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const panToDisplay = isCompany ? "XXXXX1234X" : (candidate.panCard || "Not Provided");
   const dobToDisplay = isCompany ? "XX/XX/XXXX" : (candidate.dob || "Not Provided");
 
- let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
-  const topEdu = candidate.educations?.[0];
-  if (topEdu && topEdu.qualification) {
-     const q = topEdu.qualification.toLowerCase();
-     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) smartTitle = 'Chartered Accountant (CA)';
-     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) smartTitle = 'Cost & Management Accountant (CMA)';
-     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) smartTitle = 'Company Secretary (CS)';
-     else if (q.includes('acca')) smartTitle = 'ACCA Professional';
-     else if (q.includes('mba')) smartTitle = 'MBA Professional';
-     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
-     else smartTitle = topEdu.qualification;
-  }
+  let smartTitle = candidate.educations?.[0]?.qualification || candidate.qualification || "Candidate";
+  const topEdu = candidate.educations?.[0];
+  if (topEdu && topEdu.qualification) {
+     const q = topEdu.qualification.toLowerCase();
+     if (/\bca\b/.test(q) || q.includes('ca-') || q.includes('chartered accountant')) smartTitle = 'Chartered Accountant (CA)';
+     else if (/\bcma\b/.test(q) || q.includes('cma-') || q.includes('cost & management')) smartTitle = 'Cost & Management Accountant (CMA)';
+     else if (/\bcs\b/.test(q) || q.includes('cs-') || q.includes('company secretary')) smartTitle = 'Company Secretary (CS)';
+     else if (q.includes('acca')) smartTitle = 'ACCA Professional';
+     else if (q.includes('mba')) smartTitle = 'MBA Professional';
+     else if (q.includes('b.com') || q.includes('bcom') || q.includes('bachelor of commerce')) smartTitle = 'Commerce Graduate (B.Com)';
+     else smartTitle = topEdu.qualification;
+  }
 
-  // 🔥 DYNAMIC PROFESSIONAL ID LOGIC 🔥
-  let qualPrefix = "PR"; 
-  if (candidate.highestQualification) {
-      const hq = candidate.highestQualification.toLowerCase();
-      if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qualPrefix = "CA";
-      else if (hq.includes('cma') || hq.includes('cost & management')) qualPrefix = "CM";
-      else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qualPrefix = "CS";
-      else if (hq.includes('acca')) qualPrefix = "AC";
-      else if (hq.includes('mba') || hq.includes('pgdm')) qualPrefix = "MB";
-      else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qualPrefix = "BT";
-      else if (hq.includes('m.com') || hq.includes('mcom')) qualPrefix = "MC";
-      else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qualPrefix = "BC";
-      else if (hq.includes('diploma') || hq.includes('polytechnic')) qualPrefix = "DP";
-      else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qualPrefix = "HS";
-      else qualPrefix = "GD"; // General Graduate
-  }
-  const displayId = candidate.id ? `RM-${qualPrefix}-${candidate.id.substring(0, 8).toUpperCase()}` : "N/A";
+  // 🔥 DYNAMIC PROFESSIONAL ID — centralized in lib/utils.ts
+  const displayId = generateCandidateId(candidate);
 
-  const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
+  const educationsList = Array.isArray(candidate.educations) ? candidate.educations : [];
   const workExpList = Array.isArray(candidate.workExperience) ? candidate.workExperience : [];
   
   const displayedEducations = showAllEdu ? educationsList : educationsList.slice(0, 3);
@@ -320,11 +306,22 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                        </div>
                      );
                    })()}
+
+                   {/* Work Mode — always visible to company */}
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3">
+                      <span className="text-[var(--muted-foreground)]">Work Mode</span>
+                      <span className="text-[var(--foreground)] font-bold">{candidate.workMode || "On-site"}</span>
+                   </div>
+
+                   {/* Traveling Preference */}
+                   <div className="flex justify-between border-b border-[var(--border)] pb-3">
+                      <span className="text-[var(--muted-foreground)]">Travel Pref.</span>
+                      <span className="text-[var(--foreground)] font-bold text-xs text-right max-w-[180px]">{candidate.travelPreference || "No / Minimal Travel"}</span>
+                   </div>
                    
                   <div className="relative">
                      <div className={`space-y-4 ${isCompany ? 'blur-[4px] opacity-40 select-none' : ''}`}>
                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">DOB</span><span className="text-[var(--foreground)]">{dobToDisplay}</span></div>
-                        <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Work Mode</span><span className="text-[var(--foreground)]">{candidate.workMode || "On-site"}</span></div>
                         <div className="flex justify-between border-b border-[var(--border)] pb-3"><span className="text-[var(--muted-foreground)]">Relocate?</span><span className="text-[var(--foreground)]">{candidate.willingToRelocate || "No"}</span></div>
                         <div className="flex justify-between pb-1"><span className="text-[var(--muted-foreground)] flex items-center gap-1"><CreditCard size={14}/> PAN</span><span className="text-[var(--foreground)] tracking-widest uppercase">{panToDisplay}</span></div>
                      </div>

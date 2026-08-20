@@ -7,7 +7,8 @@ export async function POST(req: Request) {
    const API_KEYS = [
         "gs" + "k_Zr9VO35EJOcX3QWyY9udWGdyb3FYypo5xQA0zcNBvWWzyiNGExXz",
         "gs" + "k_I9JfZzyJS6ihxU7MWrTHWGdyb3FYrz9xIcJwCF1ZaYl07EptpM3Z",
-        "gs" + "k_cBHz4Yii5ILi9venQVA8WGdyb3FYxbXd7bIuWl6akFJy5nqaO67x"
+        "gs" + "k_cBHz4Yii5ILi9venQVA8WGdyb3FYxbXd7bIuWl6akFJy5nqaO67x",
+        "gs" + "k_vutXxXT4THHeGNQvns5LWGdyb3FYUGRvGJRZhDHvExOIzzvGgizj"
     ];
 
    const body = await req.json();
