@@ -137,7 +137,7 @@ export default function Home() {
             </h1>
 
             <p className="mt-5 max-w-3xl mx-auto text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
-              Resourcemania connects verified finance &amp; tech professionals (CAs, Tax Experts, Developers) with companies to handle tax seasons, audits, project peaks, or permanent hiring needs.
+              Resourcemania connects verified finance &amp; professionals (CAs, Tax Experts, Developers) with companies to handle tax seasons, audits, project peaks, or permanent hiring needs.
             </p>
 
             {/* 🚀 DUAL PATH HERO CARDS */}

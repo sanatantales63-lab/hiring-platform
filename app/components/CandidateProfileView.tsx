@@ -102,7 +102,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
     <div suppressHydrationWarning className="space-y-8 animate-in fade-in duration-500">
       
       {/* HEADER CARD */}
-      <div className="bg-[var(--card)] border border-[var(--border)] p-8 md:p-12 rounded-xl shadow-card flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+      <div className="bg-[var(--card)] border border-[var(--border)] p-6 md:p-8 rounded-xl shadow-card flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] to-[oklch(0.55_0.18_255)] opacity-100 rounded-xl" />
         
         <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-xl bg-white/20 border-4 border-white/40 flex items-center justify-center overflow-hidden shadow-lg shrink-0">
