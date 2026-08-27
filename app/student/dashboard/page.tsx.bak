@@ -6,10 +6,9 @@ import { motion } from "framer-motion";
 import { 
   LayoutDashboard, UserCircle, LogOut, Briefcase,
   ShieldCheck, CheckCircle, Clock, Lock, PlayCircle, Loader2, AlertTriangle, PartyPopper, ArrowRight, Globe,
-  IndianRupee, Receipt, Download, Send, FileText, X, HelpCircle
+  IndianRupee, Receipt, Download, Send, FileText, X
 } from "lucide-react";
 import DownloadReportButton from "@/app/components/DownloadReportButton";
-import SupportDeskView from "@/app/components/SupportDeskView";
 
 // 🔥 Naye Master Components Import kar liye 🔥
 import Card from "@/app/components/ui/Card";
@@ -233,7 +232,6 @@ if (!isMounted || loading) return <div className="h-screen bg-[var(--surface)] f
         <nav className="space-y-1 flex-1">
           <div onClick={() => setActiveView('overview')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'overview' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><LayoutDashboard size={20}/> <span>Dashboard</span></div>
           <div onClick={() => setActiveView('earnings')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'earnings' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><IndianRupee size={20}/> <span>Earnings & Invoices</span></div>
-          <div onClick={() => setActiveView('support')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'support' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><HelpCircle size={20}/> <span>Help & Support</span></div>
           <div onClick={() => router.push('/student/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)] transition-all font-semibold"><UserCircle size={20}/> <span>My Profile</span></div>
         </nav>
         <Button variant="ghost" onClick={handleLogout} className="mt-auto justify-start px-4 text-[var(--muted-foreground)] hover:text-[#c53030] hover:bg-[oklch(0.98_0.015_15)]"><LogOut size={20} /> Logout</Button>
@@ -579,32 +577,21 @@ if (!isMounted || loading) return <div className="h-screen bg-[var(--surface)] f
               })()}
            </div>
         )}
-
-        {/* 🔥 VIEW 3: HELP & SUPPORT DESK 🔥 */}
-        {activeView === 'support' && (
-           <div className="animate-in fade-in duration-300 print:hidden">
-              <SupportDeskView userType="candidate" user={user} profileData={profileData} />
-           </div>
-        )}
       </main>
 
       {/* 📱 PREMIUM MOBILE BOTTOM NAVIGATION */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[var(--border)] shadow-[0_-2px_12px_oklch(0.20_0.025_245/0.06)] pb-[env(safe-area-inset-bottom)] z-50 print:hidden">
         <div className="flex justify-evenly items-center px-2 py-2">
-          <div onClick={() => setActiveView('overview')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 ${activeView === 'overview' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
-            <div className={`p-2 rounded-xl ${activeView === 'overview' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><LayoutDashboard size={20} /></div>
+          <div onClick={() => setActiveView('overview')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-20 ${activeView === 'overview' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
+            <div className={`p-2 rounded-xl ${activeView === 'overview' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><LayoutDashboard size={22} /></div>
             <span className="text-[10px] font-bold mt-0.5">Overview</span>
           </div>
-          <div onClick={() => setActiveView('earnings')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 ${activeView === 'earnings' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
-            <div className={`p-2 rounded-xl ${activeView === 'earnings' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><IndianRupee size={20} /></div>
+          <div onClick={() => setActiveView('earnings')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-20 ${activeView === 'earnings' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
+            <div className={`p-2 rounded-xl ${activeView === 'earnings' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><IndianRupee size={22} /></div>
             <span className="text-[10px] font-bold mt-0.5">Earnings</span>
           </div>
-          <div onClick={() => setActiveView('support')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 ${activeView === 'support' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
-            <div className={`p-2 rounded-xl ${activeView === 'support' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><HelpCircle size={20} /></div>
-            <span className="text-[10px] font-bold mt-0.5">Support</span>
-          </div>
-          <div onClick={() => router.push('/student/profile')} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer w-16">
-            <div className="p-2 rounded-xl hover:bg-[var(--surface)]"><UserCircle size={20} /></div>
+          <div onClick={() => router.push('/student/profile')} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer w-20">
+            <div className="p-2 rounded-xl hover:bg-[var(--surface)]"><UserCircle size={22} /></div>
             <span className="text-[10px] font-bold mt-0.5">Profile</span>
           </div>
         </div>

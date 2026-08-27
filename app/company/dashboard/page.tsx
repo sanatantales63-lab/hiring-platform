@@ -7,12 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, MapPin, Briefcase, GraduationCap, 
   Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus, Filter,
-  ShieldCheck, BarChart3, Activity, Award, Video, Zap, FileText, UserCircle, ChevronDown
+  ShieldCheck, BarChart3, Activity, Award, Video, Zap, FileText, UserCircle, ChevronDown, HelpCircle
 } from "lucide-react";
 
 // 🔥 Naye Master Components 🔥
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
+import SupportDeskView from "@/app/components/SupportDeskView";
 import * as XLSX from 'xlsx';
 
 // 🔥 Custom Two-Column Time Picker with 15-Minute Intervals 🔥
@@ -663,6 +664,18 @@ const submitInterviewRequest = async () => {
              <div className="flex items-center gap-3"><BriefcaseIcon size={18}/> <span>My Pipeline</span></div>
              {pendingReviews.length > 0 && <span className="bg-[var(--warning-bg)] text-[var(--warning)] text-xs font-bold px-2 py-0.5 rounded-full border border-[var(--warning)]/20">{pendingReviews.length}</span>}
           </div>
+
+          {/* Help & Support Tab */}
+          <div 
+            onClick={() => setActiveTab('support')} 
+            className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
+              activeTab === 'support' 
+                ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' 
+                : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'
+            }`}
+          >
+             <div className="flex items-center gap-3"><HelpCircle size={18}/> <span>Help & Support</span></div>
+          </div>
         </nav>
 
         {/* Logout Button */}
@@ -690,7 +703,11 @@ const submitInterviewRequest = async () => {
            </Card>
         )}
 
-        <header className="flex justify-between items-start mb-6 gap-4 flex-wrap">
+        {activeTab === 'support' ? (
+           <SupportDeskView userType="company" user={{ id: companyId, email: companyName }} profileData={{ fullName: companyName }} />
+        ) : (
+          <>
+            <header className="flex justify-between items-start mb-6 gap-4 flex-wrap">
           <div>
              <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">{activeTab === 'assigned' ? 'Assigned Talent' : 'My Pipeline & Hires'}</h1>
              <p className="text-[var(--muted-foreground)] mt-1 text-sm">{activeTab === 'assigned' ? 'Candidates verified by Resourcemania AI matching your needs.' : 'Manage your shortlisted candidates and team.'}</p>
@@ -1591,7 +1608,9 @@ const submitInterviewRequest = async () => {
               <h3 className="text-xl font-extrabold text-slate-900 mb-2">No candidates found</h3>
               <p className="text-slate-500 font-medium">Try clearing or changing your filters.</p>
               <Button variant="secondary" onClick={()=>{setSearchTerm(""); setFilterType(""); setFilterExp(""); setFilterLoc(""); setFilterNotice("");}} className="mt-6 mx-auto px-6">Clear All Filters</Button>
-           </div>
+            </div>
+        )}
+          </>
         )}
       </main>
 
@@ -1689,12 +1708,17 @@ const submitInterviewRequest = async () => {
             )}
           </div>
 
-          <div onClick={() => router.push('/company/profile')} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] cursor-pointer w-20">
+          <div onClick={() => setActiveTab('support')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 relative ${activeTab === 'support' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}`}>
+            <div className={`p-2 rounded-xl ${activeTab === 'support' ? 'bg-[var(--accent)]' : ''}`}><HelpCircle size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Support</span>
+          </div>
+
+          <div onClick={() => router.push('/company/profile')} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] cursor-pointer w-16">
             <div className="p-2 rounded-xl"><UserCircle size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5">Profile</span>
           </div>
 
-          <div onClick={handleLogout} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] hover:text-[#c53030] cursor-pointer w-20">
+          <div onClick={handleLogout} className="flex flex-col items-center gap-1 p-2 text-[var(--muted-foreground)] hover:text-[#c53030] cursor-pointer w-16">
             <div className="p-2 rounded-xl"><LogOut size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5">Logout</span>
           </div>

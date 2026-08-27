@@ -1,18 +1,141 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
+import { generateCandidateId } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, MapPin, Briefcase, GraduationCap, 
   Lock, Loader2, LayoutDashboard, LogOut, Briefcase as BriefcaseIcon, Star, AlertCircle, CheckCircle, Clock, UserPlus, Filter,
-  ShieldCheck, BarChart3, Activity, Award, Video, Zap, FileText, UserCircle
+  ShieldCheck, BarChart3, Activity, Award, Video, Zap, FileText, UserCircle, ChevronDown
 } from "lucide-react";
 
 // 🔥 Naye Master Components 🔥
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 import * as XLSX from 'xlsx';
+
+// 🔥 Custom Two-Column Time Picker with 15-Minute Intervals 🔥
+function TimePicker15({ 
+  id, 
+  value, 
+  onChange 
+}: { 
+  id: string; 
+  value: string; 
+  onChange: (val: string) => void; 
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [hVal, mVal] = value ? value.split(":") : ["", ""];
+
+  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
+  const minutes = ["00", "15", "30", "45"];
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const handleSelectHour = (h: string) => {
+    const currentM = mVal || "00";
+    onChange(`${h}:${currentM}`);
+  };
+
+  const handleSelectMinute = (m: string) => {
+    const currentH = hVal || "10";
+    onChange(`${currentH}:${m}`);
+  };
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <input type="hidden" id={id} value={value} />
+      
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 flex items-center justify-between outline-none focus:border-[var(--primary)] hover:border-slate-300 transition-all text-left"
+      >
+        <span className={value ? "text-slate-800 font-bold" : "text-slate-400 font-medium"}>
+          {value || "--:--"}
+        </span>
+        <Clock size={15} className="text-slate-400 shrink-0 ml-1" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full mt-1.5 left-0 right-0 z-50 bg-white border border-slate-200 rounded-2xl shadow-2xl p-2.5 min-w-[150px]">
+          <div className="grid grid-cols-2 gap-1 px-1 pb-1.5 mb-1.5 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">
+            <span>Hour</span>
+            <span>Min</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5">
+            {/* Hours Column */}
+            <div className="max-h-40 overflow-y-auto space-y-1 pr-0.5 scrollbar-thin">
+              {hours.map((h) => {
+                const isSelected = hVal === h;
+                return (
+                  <button
+                    key={h}
+                    type="button"
+                    onClick={() => handleSelectHour(h)}
+                    className={`w-full py-1.5 text-center text-xs rounded-lg transition-all font-bold ${
+                      isSelected
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {h}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Minutes Column (00, 15, 30, 45) */}
+            <div className="max-h-40 overflow-y-auto space-y-1 pr-0.5 scrollbar-thin">
+              {minutes.map((m) => {
+                const isSelected = mVal === m;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => handleSelectMinute(m)}
+                    className={`w-full py-1.5 text-center text-xs rounded-lg transition-all font-bold ${
+                      isSelected
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-2 pt-1.5 border-t border-slate-100 flex justify-between items-center px-1">
+            <span className="text-[10px] font-bold text-slate-500">{value ? `${value}` : "Pick time"}</span>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="text-[11px] font-extrabold text-[var(--primary)] hover:underline px-1 py-0.5"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function CompanyDashboard() {
   const router = useRouter();
@@ -39,6 +162,9 @@ export default function CompanyDashboard() {
   // 🔥 NAYA: INTERVIEW MODAL STATES 🔥
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [interviewStudent, setInterviewStudent] = useState<any>(null);
+  const [slot1Time, setSlot1Time] = useState("");
+  const [slot2Time, setSlot2Time] = useState("");
+  const [slot3Time, setSlot3Time] = useState("");
 
   // 🔥 NEW: Instant Direct Hire Custom Confirmation Pop-up states
   const [showHireConfirmModal, setShowHireConfirmModal] = useState(false);
@@ -52,7 +178,7 @@ export default function CompanyDashboard() {
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [selectedForExcel, setSelectedForExcel] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   // 🔥 PREMIUM FILTER DRAWER STATES 🔥
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -69,9 +195,12 @@ export default function CompanyDashboard() {
   const [selectedTechTools, setSelectedTechTools] = useState<string[]>([]);
   const [selectedWorkModes, setSelectedWorkModes] = useState<string[]>([]);
   const [selectedRelocation, setSelectedRelocation] = useState<string[]>([]);
+  const [selectedTravelPrefs, setSelectedTravelPrefs] = useState<string[]>([]);
  const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedLaptops, setSelectedLaptops] = useState<string[]>([]); // 🔥 NEW: Laptop specification selection mapping state array
+  const [selectedAgeRanges, setSelectedAgeRanges] = useState<string[]>([]); // 🔥 NEW: Age range filter state
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [expandedSkillCategory, setExpandedSkillCategory] = useState<string | null>(null);
 
   // Unlocked Datasets direct from student page configuration schema mapping
   const MASTER_SKILLS_DATA: Record<string, string[]> = {
@@ -89,6 +218,10 @@ export default function CompanyDashboard() {
 
   const BEHAVIORAL_SKILLS_LIST = ["Leadership", "Team Management", "Communication Skills", "Problem Solving", "Critical Thinking", "Adaptability & Flexibility", "Time Management", "Work Ethic", "Conflict Resolution", "Emotional Intelligence", "Decision Making", "Client Relationship Management", "Strategic Planning"];
   const TECH_SKILLS_LIST = ["Excel", "Tally Prime", "SAP FICO", "MS Word", "MS PowerPoint", "Power BI", "Tableau", "Oracle ERP", "QuickBooks", "Zoho Books", "SQL", "Python for Finance", "Macros & VBA"];
+
+  // 🔥 CANDIDATE ID — centralized in lib/utils.ts
+  const getCandidateUniqueId = (c: any): string => generateCandidateId(c);
+
 
   useEffect(() => {
     let subscription: any;
@@ -149,15 +282,18 @@ export default function CompanyDashboard() {
     setInterviewStudent(student);
     setInterviewDate("");
     setInterviewTime("");
+    setSlot1Time("");
+    setSlot2Time("");
+    setSlot3Time("");
     setShowInterviewModal(true);
   };
 
 const submitInterviewRequest = async () => {
     // Collect all slots data object structure layers dynamically mapping nodes
     const slots = [
-       { date: (document.getElementById("slot1_date") as HTMLInputElement)?.value, time: (document.getElementById("slot1_time") as HTMLInputElement)?.value },
-       { date: (document.getElementById("slot2_date") as HTMLInputElement)?.value, time: (document.getElementById("slot2_time") as HTMLInputElement)?.value },
-       { date: (document.getElementById("slot3_date") as HTMLInputElement)?.value, time: (document.getElementById("slot3_time") as HTMLInputElement)?.value }
+       { date: (document.getElementById("slot1_date") as HTMLInputElement)?.value, time: slot1Time || (document.getElementById("slot1_time") as HTMLInputElement)?.value },
+       { date: (document.getElementById("slot2_date") as HTMLInputElement)?.value, time: slot2Time || (document.getElementById("slot2_time") as HTMLInputElement)?.value },
+       { date: (document.getElementById("slot3_date") as HTMLInputElement)?.value, time: slot3Time || (document.getElementById("slot3_time") as HTMLInputElement)?.value }
     ].filter(s => s.date && s.time);
 
     if (slots.length === 0) return alert("🛑 Minimum ek Date aur Time slot bharna mandatory hai!");
@@ -204,7 +340,8 @@ const submitInterviewRequest = async () => {
   const shortlistCandidate = async (student: any) => {};
 
   const requestHire = async (student: any) => {
-    if(!confirm(`Send official Hire request for ${student.fullName}? Admin will verify and finalize this offline.`)) return;
+    const studentUniqueId = getCandidateUniqueId(student);
+    if(!confirm(`Send official Hire request for ${studentUniqueId}? Admin will verify and finalize this offline.`)) return;
     try {
       const { error } = await supabase.from("profiles").update({ 
         hired_status: "hire_requested",
@@ -262,7 +399,7 @@ const submitInterviewRequest = async () => {
       }
 
       const row: any = {
-        "Resource ID":                 `RM-${c.id?.substring(0, 6).toUpperCase()}`,
+        "Resource ID":                 getCandidateUniqueId(c),
         "Highest Qualification":       c.highestQualification || "N/A",
         "Year of Passing":             c.educations?.[0]?.passingYear || "N/A",
         "Total Experience (Years)":    c.experience || "N/A",
@@ -271,12 +408,19 @@ const submitInterviewRequest = async () => {
         "Expected Salary (INR)":       bumpedSalary,
         "Rating (out of 5)":           c.company_rating || "N/A",
         "Ready to Relocate":           c.willingToRelocate || "No",
+        "Traveling Preference":       c.travelPreference || "N/A",
         "Open to Contract / Temp":     c.openToContractRoles ? "Yes" : "No",
       };
 
       allSkills.forEach(skill => {
         const scoreData = c.meta?.skillScores?.[skill];
-        row[skill] = scoreData ? `${scoreData.correct} / ${scoreData.total}` : "N/A";
+        if (scoreData && typeof scoreData.total === 'number' && scoreData.total > 0) {
+          const correct = typeof scoreData.correct === 'number' ? scoreData.correct : (scoreData.scoreCount || 0);
+          const pct = Math.round((correct / scoreData.total) * 100);
+          row[skill] = `${pct}%`;
+        } else {
+          row[skill] = "N/A";
+        }
       });
 
       return row;
@@ -322,22 +466,7 @@ const submitInterviewRequest = async () => {
     let matchesSearch = true;
     if (searchTerm.trim() !== "") {
       const query = searchTerm.toLowerCase().trim();
-      let qualPrefix = "PR"; 
-      if (c.highestQualification) {
-         const hq = c.highestQualification.toLowerCase();
-         if (hq.includes('ca ') || hq.includes('ca-') || hq === 'ca' || hq.includes('chartered accountant')) qualPrefix = "CA";
-         else if (hq.includes('cma') || hq.includes('cost & management')) qualPrefix = "CM";
-         else if (hq.includes('cs ') || hq.includes('cs-') || hq === 'cs' || hq.includes('company secretary')) qualPrefix = "CS";
-         else if (hq.includes('acca')) qualPrefix = "AC";
-         else if (hq.includes('mba') || hq.includes('pgdm')) qualPrefix = "MB";
-         else if (hq.includes('b.tech') || hq.includes('btech') || hq.includes('b.e.')) qualPrefix = "BT";
-         else if (hq.includes('m.com') || hq.includes('mcom')) qualPrefix = "MC";
-         else if (hq.includes('b.com') || hq.includes('bcom') || hq.includes('bba')) qualPrefix = "BC";
-         else if (hq.includes('diploma') || hq.includes('polytechnic')) qualPrefix = "DP";
-         else if (hq.includes('high school') || hq.includes('12th') || hq.includes('puc')) qualPrefix = "HS";
-         else qualPrefix = "GD";
-      }
-      const generatedId = c.id ? `RM-${qualPrefix}-${c.id.substring(0, 8).toUpperCase()}` : "";
+      const generatedId = generateCandidateId(c);
       const matchId = generatedId.toLowerCase().includes(query) || (c.id && c.id.toLowerCase().includes(query));
       const matchName = c.fullName && c.fullName.toLowerCase().includes(query);
       const matchGlobalSkills = c.skills?.some((s: string) => s.toLowerCase().includes(query));
@@ -345,12 +474,20 @@ const submitInterviewRequest = async () => {
     }
     
     // 🔥 UPGRADED: Strict multi-node validator parsing row values matching student table schemas exactly
-    const matchesProfileJobType = selectedProfileJobTypes.length > 0 ? selectedProfileJobTypes.includes(c.jobType) : true;
+    const matchesProfileJobType = selectedProfileJobTypes.length > 0 
+      ? selectedProfileJobTypes.some(selectedType => {
+          if (c.jobType === selectedType) return true;
+          if (c.jobType === "Open to Both (Permanent & Contractual)") {
+            if (selectedType === "Permanent Role" || selectedType.includes("Contract") || selectedType.includes("Both")) return true;
+          }
+          return false;
+        })
+      : true;
     
     let matchesContractOpenness = true;
     if (selectedContractOpenness.length > 0) {
        matchesContractOpenness = selectedContractOpenness.some(opt => {
-          if (opt === "Yes") return c.openToContractRoles === true || (c.jobType && c.jobType.includes("Contract"));
+          if (opt === "Yes") return c.openToContractRoles === true || c.jobType === "Open to Both (Permanent & Contractual)" || (c.jobType && c.jobType.includes("Contract"));
           if (opt === "No") return c.openToContractRoles === false || c.jobType === "Permanent Role";
           return true;
        });
@@ -366,16 +503,36 @@ const submitInterviewRequest = async () => {
     const matchesLoc = selectedLocs.length > 0 ? selectedLocs.includes(c.city) : true;
     const matchesNotice = selectedNotices.length > 0 ? selectedNotices.includes(c.noticePeriod) : true;
     const matchesQual = selectedQuals.length > 0 ? selectedQuals.includes(c.highestQualification) : true;
-   const matchesWorkMode = selectedWorkModes.length > 0 ? selectedWorkModes.includes(c.workMode) : true;
+    const matchesWorkMode = selectedWorkModes.length > 0 ? selectedWorkModes.includes(c.workMode) : true;
     const matchesRelocation = selectedRelocation.length > 0 ? selectedRelocation.includes(c.willingToRelocate) : true;
+    const matchesTravel = selectedTravelPrefs.length > 0 ? selectedTravelPrefs.includes(c.travelPreference) : true;
     const matchesGender = selectedGenders.length > 0 ? selectedGenders.includes(c.gender) : true;
-    const matchesLaptop = selectedLaptops.length > 0 ? selectedLaptops.includes(c.hasLaptop) : true; // 🔥 NEW: Laptop strict matching validation data rule
+    const matchesLaptop = selectedLaptops.length > 0 ? selectedLaptops.includes(c.hasLaptop) : true;
 
-    return matchesSearch && matchesProfileJobType && matchesContractOpenness && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesGender && matchesLaptop;
+    // 🔥 NEW: Age filter — calculate from dob field
+    let matchesAge = true;
+    if (selectedAgeRanges.length > 0 && c.dob) {
+      const birthYear = new Date(c.dob).getFullYear();
+      const currentYear = new Date().getFullYear();
+      const age = currentYear - birthYear;
+      matchesAge = selectedAgeRanges.some(range => {
+        if (range === "Under 22") return age < 22;
+        if (range === "22–25") return age >= 22 && age <= 25;
+        if (range === "26–30") return age >= 26 && age <= 30;
+        if (range === "31–35") return age >= 31 && age <= 35;
+        if (range === "36–40") return age >= 36 && age <= 40;
+        if (range === "Above 40") return age > 40;
+        return true;
+      });
+    } else if (selectedAgeRanges.length > 0) {
+      matchesAge = true; // If no DOB, don't exclude
+    }
+
+    return matchesSearch && matchesProfileJobType && matchesContractOpenness && matchesSkills && matchesBehavioral && matchesTechTools && matchesExp && matchesLoc && matchesNotice && matchesQual && matchesWorkMode && matchesRelocation && matchesTravel && matchesGender && matchesLaptop && matchesAge;
   });
 
   const uniqueQuals = Array.from(new Set(candidates.map(c => c.highestQualification).filter(Boolean)));
-  const activeFiltersCount = selectedTypes.length + selectedExps.length + selectedLocs.length + selectedNotices.length + selectedQuals.length + selectedSkills.length + selectedBehavioral.length + selectedTechTools.length + selectedWorkModes.length + selectedRelocation.length + selectedGenders.length + selectedLaptops.length;
+  const activeFiltersCount = selectedTypes.length + selectedExps.length + selectedLocs.length + selectedNotices.length + selectedQuals.length + selectedSkills.length + selectedBehavioral.length + selectedTechTools.length + selectedWorkModes.length + selectedRelocation.length + selectedTravelPrefs.length + selectedGenders.length + selectedLaptops.length + selectedAgeRanges.length;
 
   const assignedList = filteredCandidates.filter(c => c.hired_status !== "hired" && c.hired_status !== "shortlisted" && c.hired_status !== "hire_requested" && c.hired_status !== "interview_requested");
   const hiredList = filteredCandidates.filter(c => c.hired_company_id === companyId && (c.hired_status === "hired" || c.hired_status === "shortlisted" || c.hired_status === "hire_requested" || c.hired_status === "interview_requested"));
@@ -386,6 +543,66 @@ const submitInterviewRequest = async () => {
      const requiredDays = c.jobType === '3-Month Contract' ? 90 : 60; 
      return daysSinceHire >= requiredDays; 
   });
+
+  // 🔥 Normalize qualification display name — handles all variants consistently
+  const normalizeQualification = (raw: string | undefined | null): string => {
+    if (!raw) return "Not Specified";
+    const q = raw.trim();
+    const ql = q.toLowerCase();
+
+    // ── Chartered Accountant (CA) ──
+    // Final / Qualified / just "CA" or full name → canonical
+    if (
+      (ql.includes('ca') || ql.includes('chartered accountant')) &&
+      !ql.includes('intermediate') && !ql.includes('inter') &&
+      !ql.includes('foundation') && !ql.includes('ipcc') && !ql.includes('ipce') &&
+      !ql.includes('cma') && !ql.includes('cost') && !ql.includes('acca')
+    ) return "Chartered Accountant (CA)";
+
+    // CA stages — keep as-is label but normalise text
+    if (ql.includes('ca') && (ql.includes('intermediate') || ql.includes('inter') || ql.includes('ipcc') || ql.includes('ipce'))) return "CA Intermediate";
+    if (ql.includes('ca') && (ql.includes('foundation') || ql.includes('cpt'))) return "CA Foundation";
+
+    // ── Cost & Management Accountant (CMA) ──
+    if (ql.includes('cma') && !ql.includes('intermediate') && !ql.includes('inter') && !ql.includes('foundation')) return "Cost & Management Accountant (CMA)";
+    if (ql.includes('cma') && (ql.includes('intermediate') || ql.includes('inter'))) return "CMA Intermediate";
+    if (ql.includes('cma') && ql.includes('foundation')) return "CMA Foundation";
+
+    // ── Company Secretary (CS) ──
+    if ((ql.includes('cs') || ql.includes('company secretary')) && !ql.includes('executive') && !ql.includes('foundation') && !ql.includes('acca')) return "Company Secretary (CS)";
+    if ((ql.includes('cs') || ql.includes('company secretary')) && ql.includes('executive')) return "CS Executive";
+    if ((ql.includes('cs') || ql.includes('company secretary')) && ql.includes('foundation')) return "CS Foundation";
+
+    // ── ACCA ──
+    if (ql.includes('acca')) return "ACCA";
+
+    // ── MBA / PGDM ──
+    if (ql.includes('mba') || ql.includes('pgdm')) return q; // keep as typed (MBA Finance etc)
+
+    // ── M.Com ──
+    if (ql.includes('m.com') || ql.includes('mcom')) return "Master of Commerce (M.Com)";
+
+    // ── B.Com ──
+    if (ql.includes('b.com') || ql.includes('bcom')) return "Bachelor of Commerce (B.Com)";
+
+    // ── BBA ──
+    if (ql.includes('bba')) return "Bachelor of Business Administration (BBA)";
+
+    // ── B.Tech / BE ──
+    if (ql.includes('b.tech') || ql.includes('btech') || ql.includes('b.e.')) return "Bachelor of Technology (B.Tech)";
+
+    // ── Diploma ──
+    if (ql.includes('diploma') || ql.includes('polytechnic')) return "Diploma";
+
+    // ── 12th / High School ──
+    if (ql.includes('12th') || ql.includes('hsc') || ql.includes('puc') || ql.includes('higher secondary') || ql.includes('intermediate') && !ql.includes('ca') && !ql.includes('cma') && !ql.includes('cs')) return "12th / Higher Secondary";
+
+    // ── 10th ──
+    if (ql.includes('10th') || ql.includes('ssc') || ql.includes('matriculation')) return "10th / Secondary";
+
+    // Default — return as-is
+    return q;
+  };
 
   if (loading) return <div className="h-screen bg-transparent flex items-center justify-center relative z-10"><Loader2 className="animate-spin text-[var(--primary)] w-12 h-12" /></div>;
 
@@ -627,6 +844,7 @@ const submitInterviewRequest = async () => {
                            <div className="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-[0_12px_30px_rgba(0,0,0,0.12)] z-50 p-2 space-y-0.5 max-h-48 overflow-y-auto custom-scrollbar">
                               {[
                                  "Permanent Role",
+                                 "Open to Both (Permanent & Contractual)",
                                  "1-3 Month Contract",
                                  "3-6 Month Contract",
                                  "6+ Month Contract",
@@ -689,27 +907,54 @@ const submitInterviewRequest = async () => {
                       </div>
                       
                       {activeDropdown === 'skills' && (
-                        <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-inner max-h-60 overflow-y-auto p-3 space-y-3 scrollbar-thin">
-                           {Object.keys(MASTER_SKILLS_DATA).map(category => (
-                             <div key={category} className="space-y-1">
-                               <div className="text-[9px] font-black text-[var(--primary)] bg-[var(--accent)] px-2 py-1 rounded border border-[var(--primary)]/10 uppercase tracking-wider block mb-1">{category}</div>
-                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                 {MASTER_SKILLS_DATA[category].map(sub => {
-                                   const isSelected = selectedSkills.includes(sub);
-                                   return (
-                                     <div 
-                                       key={sub} 
-                                       onClick={() => setSelectedSkills(prev => isSelected ? prev.filter(x => x !== sub) : [...prev, sub])}
-                                       className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'hover:bg-slate-50 border-transparent text-slate-600 font-medium bg-white'}`}
-                                     >
-                                       <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
-                                       <span className="text-[11px] truncate">{sub}</span>
-                                     </div>
-                                   );
-                                 })}
+                        <div className="mt-2 bg-white border border-slate-200 rounded-xl shadow-inner max-h-72 overflow-y-auto p-2.5 space-y-2 scrollbar-thin">
+                           {Object.keys(MASTER_SKILLS_DATA).map(category => {
+                             const isExpanded = expandedSkillCategory === category;
+                             const selectedCount = MASTER_SKILLS_DATA[category].filter(sub => selectedSkills.includes(sub)).length;
+
+                             return (
+                               <div key={category} className="border border-slate-100 rounded-xl overflow-hidden bg-slate-50/50">
+                                 {/* Blue Category Header with Expand Icon */}
+                                 <button
+                                   type="button"
+                                   onClick={() => setExpandedSkillCategory(isExpanded ? null : category)}
+                                   className="w-full text-left text-[9px] font-black text-[var(--primary)] bg-[var(--accent)] px-2.5 py-2 uppercase tracking-wider flex items-center justify-between hover:bg-[var(--accent)]/80 transition-colors cursor-pointer border-b border-[var(--primary)]/10"
+                                 >
+                                   <span className="truncate pr-2">{category}</span>
+                                   <div className="flex items-center gap-1.5 shrink-0">
+                                     {selectedCount > 0 && (
+                                       <span className="bg-[var(--primary)] text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                         {selectedCount}
+                                       </span>
+                                     )}
+                                     <ChevronDown 
+                                       size={13} 
+                                       className={`text-[var(--primary)] transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} 
+                                     />
+                                   </div>
+                                 </button>
+
+                                 {/* Subskills List when Expanded */}
+                                 {isExpanded && (
+                                   <div className="p-2 bg-white grid grid-cols-1 sm:grid-cols-2 gap-1.5 animate-in fade-in duration-150">
+                                     {MASTER_SKILLS_DATA[category].map(sub => {
+                                       const isSelected = selectedSkills.includes(sub);
+                                       return (
+                                         <div 
+                                           key={sub} 
+                                           onClick={() => setSelectedSkills(prev => isSelected ? prev.filter(x => x !== sub) : [...prev, sub])}
+                                           className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'hover:bg-slate-50 border-transparent text-slate-600 font-medium bg-white'}`}
+                                         >
+                                           <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                                           <span className="text-[11px] truncate">{sub}</span>
+                                         </div>
+                                       );
+                                     })}
+                                   </div>
+                                 )}
                                </div>
-                             </div>
-                           ))}
+                             );
+                           })}
                         </div>
                       )}
                     </div>
@@ -910,7 +1155,73 @@ const submitInterviewRequest = async () => {
                      )}
                   </div>
 
-                  {/* Pipeline filters counter block tags mapping logs render dashboard */}
+
+                  {/* 🔥 NEW: Age Range Filter Block */}
+                  <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Age Range</span>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {["Under 22", "22–25", "26–30", "31–35", "36–40", "Above 40"].map(range => {
+                        const isSelected = selectedAgeRanges.includes(range);
+                        return (
+                          <div
+                            key={range}
+                            onClick={() => setSelectedAgeRanges(prev => isSelected ? prev.filter(x => x !== range) : [...prev, range])}
+                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'bg-white border-transparent text-slate-700 hover:bg-slate-100'}`}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                            <span>{range} yrs</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Work Mode Filter Block */}
+                  <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Work Mode</span>
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                      {["On-site", "Hybrid", "Work From Home"].map(mode => {
+                        const isSelected = selectedWorkModes.includes(mode);
+                        return (
+                          <div
+                            key={mode}
+                            onClick={() => setSelectedWorkModes(prev => isSelected ? prev.filter(x => x !== mode) : [...prev, mode])}
+                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'bg-white border-transparent text-slate-700 hover:bg-slate-100'}`}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                            <span>{mode}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Traveling Preference Filter Block */}
+                  <div className="bg-slate-50 p-4 border border-slate-200 rounded-2xl">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Traveling Preference</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                      {[
+                        "No / Minimal Travel (Work from Base Office Only)",
+                        "Occasional Travel (Up to 5–7 Days / Month)",
+                        "Moderate Travel (15+ Days / Month)",
+                        "Open to Frequent Travel (No Restrictions)"
+                      ].map(pref => {
+                        const isSelected = selectedTravelPrefs.includes(pref);
+                        return (
+                          <div
+                            key={pref}
+                            onClick={() => setSelectedTravelPrefs(prev => isSelected ? prev.filter(x => x !== pref) : [...prev, pref])}
+                            className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs font-bold border ${isSelected ? 'bg-[var(--accent)] border-[var(--primary)]/20 text-[var(--primary)]' : 'bg-white border-transparent text-slate-700 hover:bg-slate-100'}`}
+                          >
+                            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-white text-[9px] shrink-0 ${isSelected ? 'bg-[var(--primary)] border-[var(--primary)]' : 'border-slate-300 bg-white'}`}>{isSelected && "✓"}</div>
+                            <span className="truncate" title={pref}>{pref}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+
                   {activeFiltersCount > 0 && (
                     <div className="pt-4 border-t border-slate-100 space-y-2 relative z-10">
                       <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pipeline Active Token Tags</div>
@@ -924,7 +1235,9 @@ const submitInterviewRequest = async () => {
                         {selectedTechTools.map(x => <span key={x} className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedTechTools(selectedTechTools.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedBehavioral.map(x => <span key={x} className="bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedBehavioral(selectedBehavioral.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedWorkModes.map(x => <span key={x} className="bg-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x} <button type="button" onClick={() => setSelectedWorkModes(selectedWorkModes.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedTravelPrefs.map(x => <span key={x} className="bg-sky-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 max-w-[150px] truncate">✈️ {x} <button type="button" onClick={() => setSelectedTravelPrefs(selectedTravelPrefs.filter(i=>i!==x))}>✕</button></span>)}
                         {selectedLaptops.map(x => <span key={x} className="bg-[var(--primary)] text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">{x === 'Yes' ? '💻 Laptop' : '❌ No Laptop'} <button type="button" onClick={() => setSelectedLaptops(selectedLaptops.filter(i=>i!==x))}>✕</button></span>)}
+                        {selectedAgeRanges.map(x => <span key={x} className="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">📅 {x} yrs <button type="button" onClick={() => setSelectedAgeRanges(selectedAgeRanges.filter(i=>i!==x))}>✕</button></span>)}
                       </div>
                     </div>
                   )}
@@ -938,7 +1251,7 @@ const submitInterviewRequest = async () => {
                     onClick={() => {
                       setSelectedTypes([]); setSelectedExps([]); setSelectedLocs([]); setSelectedNotices([]); setSelectedQuals([]);
                       setSelectedSkills([]); setSelectedBehavioral([]); setSelectedTechTools([]); setSelectedWorkModes([]);
-                      setSelectedRelocation([]); setSelectedGenders([]); setSelectedLaptops([]); setSelectedProfileJobTypes([]); setSelectedContractOpenness([]); setActiveDropdown(null);
+                      setSelectedRelocation([]); setSelectedTravelPrefs([]); setSelectedGenders([]); setSelectedLaptops([]); setSelectedProfileJobTypes([]); setSelectedContractOpenness([]); setSelectedAgeRanges([]); setActiveDropdown(null); setExpandedSkillCategory(null);
                     }}
                     className="flex-1 py-2.5 bg-white border border-[var(--border)] text-[var(--muted-foreground)] font-semibold rounded-lg text-sm hover:bg-[var(--surface)] transition-all"
                   >
@@ -959,7 +1272,7 @@ const submitInterviewRequest = async () => {
         </AnimatePresence>
 
       {/* 🚀 CANDIDATES GRID / LIST 🚀 */}
-     <div 
+     <div 
         className={viewMode === 'grid' ? "grid gap-5 items-stretch" : "flex flex-col gap-3"}
         style={viewMode === 'grid' ? { gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' } : undefined}
       >
@@ -969,7 +1282,7 @@ const submitInterviewRequest = async () => {
               const warnings = candidate.meta?.warningsCount || 0;
               const integrityScore = Math.max(0, 100 - warnings * 20);
               const isClean = integrityScore === 100;
-              const roleTitle = candidate.highestQualification || candidate.qualification || "Professional";
+              const roleTitle = normalizeQualification(candidate.highestQualification || candidate.educations?.[0]?.qualification || candidate.qualification);
 
              const statusMap: Record<string, { label: string; cls: string }> = {
                 interview_requested: { label: "Awaiting Meet Link",              cls: "bg-blue-50 text-blue-700 border-blue-200" },
@@ -1022,7 +1335,7 @@ const submitInterviewRequest = async () => {
 
                           {/* Identity */}
                           <div className="min-w-0 md:w-44 md:shrink-0">
-                            <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
+                             <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors">{getCandidateUniqueId(candidate)}</h3>
                             <p className="text-[10px] font-bold text-[var(--primary)] truncate">{roleTitle}</p>
                             <div className="flex items-center gap-1 text-[9px] text-slate-500 font-semibold mt-0.5">
                               <MapPin size={8} className="text-slate-400"/> {candidate.city || "Remote"}
@@ -1038,13 +1351,7 @@ const submitInterviewRequest = async () => {
                           {candidate.skills?.length > 4 && <span className="px-2 py-0.5 bg-white text-slate-400 rounded border border-slate-100 text-[8px] font-bold">+{candidate.skills.length - 4}</span>}
                         </div>
 
-                        {/* Metrics */}
-                        <div className="flex items-center gap-4 shrink-0 pr-2">
-                          <div className="text-center">
-                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">AI Score</p>
-                           <p className="text-sm font-black text-[var(--primary)]">{aiScore}</p>
-                          </div>
-                        </div>
+
 
                         {/* Actions */}
                         <div className="flex items-center gap-2 shrink-0 flex-wrap">
@@ -1068,7 +1375,7 @@ const submitInterviewRequest = async () => {
                               {candidate.hired_status === 'shortlisted' && (
                                 <>
                                   <button type="button" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="text-[9px] font-bold py-1.5 px-3 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-blue-50 cursor-pointer"><Video size={10}/> Meet</button>
-                                  <button type="button" onClick={() => triggerHireVerificationPopup(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[var(--primary)] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[var(--primary-glow)] cursor-pointer"><Zap size={10}/> Hire</button>
+                                  <button type="button" onClick={() => requestHire(candidate)} className="text-[9px] font-bold py-1.5 px-3 bg-[var(--primary)] text-white shadow-sm rounded-lg h-7 flex items-center gap-1 hover:bg-[var(--primary-glow)] cursor-pointer"><Zap size={10}/> Hire</button>
                                 </>
                               )}
                               {candidate.hired_status === 'hired' && !candidate.company_rating && (
@@ -1123,38 +1430,85 @@ const submitInterviewRequest = async () => {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors leading-tight">RM-{candidate.id?.substring(0, 6).toUpperCase()}</h3>
+                         <h3 className="text-sm font-black text-slate-900 truncate group-hover:text-[var(--primary)] transition-colors leading-tight">{getCandidateUniqueId(candidate)}</h3>
                           <p className="text-[11px] font-bold text-[var(--primary)] mt-0.5 truncate">{roleTitle}</p>
                           <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500 mt-1">
                             <span className="flex items-center gap-1"><MapPin size={10} className="text-slate-400" /> {candidate.city || "Remote"}</span>
-                            <span>•</span>
-                            <span>RM-{candidate.id?.substring(0, 4).toUpperCase()}</span>
                           </div>
                         </div>
                       </div>
 
-                     {/* 2. Compact Skills List — single line, fixed height */}
-                      <div className="flex items-center gap-1.5 mb-5 overflow-hidden h-[22px]">
-                        {candidate.skills?.slice(0, 2).map((skill: string, idx: number) => (
-                          <span key={idx} className="px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[9px] font-bold whitespace-nowrap shrink-0">
-                            {skill}
-                          </span>
-                        ))}
-                        {candidate.skills?.length > 2 && (
-                          <span className="px-2 py-0.5 bg-white text-slate-400 rounded border border-slate-100 text-[9px] font-bold shrink-0">
-                            +{candidate.skills.length - 2}
-                          </span>
-                        )}
-                      </div>
+                     {/* 2. Compact Skills List — single line, dynamic fit without cut off */}
+                      {(() => {
+                        const allSkills: string[] = Array.isArray(candidate.skills) && candidate.skills.length > 0
+                          ? candidate.skills
+                          : (Array.isArray(candidate.operationsSkills) ? candidate.operationsSkills : []);
+                        
+                        if (!allSkills || allSkills.length === 0) {
+                          return <div className="h-[22px] mb-5" />;
+                        }
+
+                        let visibleCount = 1;
+                        const firstLen = allSkills[0]?.length || 0;
+                        const secondLen = allSkills[1]?.length || 0;
+
+                        if (allSkills.length > 1 && firstLen <= 14 && (firstLen + secondLen) <= 24) {
+                          visibleCount = 2;
+                        }
+
+                        const shownSkills = allSkills.slice(0, visibleCount);
+                        const remainingCount = allSkills.length - visibleCount;
+
+                        return (
+                          <div className="flex items-center gap-1.5 mb-5 overflow-hidden h-[22px]">
+                            {shownSkills.map((skill: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[9px] font-bold whitespace-nowrap shrink-0 max-w-[190px] truncate"
+                                title={skill}
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {remainingCount > 0 && (
+                              <span className="px-2 py-0.5 bg-white text-slate-500 rounded border border-slate-200 text-[9px] font-bold shrink-0">
+                                +{remainingCount}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                       {/* 3. Sleek Metrics Grid */}
                       <div className="grid grid-cols-2 gap-2 mb-5">
-                         <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><BarChart3 size={10} className="inline mr-1 text-[var(--primary)]"/> Accuracy</span>
-                            <span className="text-xs font-black text-slate-800">95%</span>
+                         {/* Age */}
+                         <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center col-span-1">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Age</span>
+                            <span className="text-xs font-black text-slate-800">
+                              {candidate.dob ? `${new Date().getFullYear() - new Date(candidate.dob).getFullYear()} yrs` : "N/A"}
+                            </span>
                          </div>
+                         {/* Experience */}
+                         <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center col-span-1">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Exp.</span>
+                            <span className="text-xs font-black text-slate-800">{candidate.experience || "N/A"}</span>
+                         </div>
+                         {/* Expected Salary (Company sees +25% bumped) */}
                          <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest"><Award size={10} className="inline mr-1 text-amber-500"/> AI Verified Score</span>
-                           <span className="text-sm font-black text-[var(--primary)]">{aiScore}</span>
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Exp. Salary</span>
+                            <span className="text-xs font-black text-emerald-700">
+                              {(() => {
+                                if (!candidate.expectedSalary) return "N/A";
+                                const numMatch = candidate.expectedSalary.replace(/[^0-9]/g, '');
+                                if (!numMatch) return candidate.expectedSalary;
+                                const bumped = Math.round(parseInt(numMatch, 10) * 1.25);
+                                return "₹" + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(bumped);
+                              })()}
+                            </span>
+                         </div>
+                         {/* Gender */}
+                         <div className="col-span-2 bg-slate-50 rounded-lg p-2.5 border border-slate-100 flex justify-between items-center">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Gender</span>
+                            <span className="text-xs font-black text-slate-800">{candidate.gender || "N/A"}</span>
                          </div>
                       </div>
 
@@ -1165,11 +1519,11 @@ const submitInterviewRequest = async () => {
                         {activeTab === 'assigned' && (
                           <>
                             <div className="flex items-center gap-2">
-                              <Button variant="secondary" onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 text-[10px] py-2 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-sm rounded-lg h-8">
-                                <FileText size={12} className="mr-1.5 opacity-70" /> Profile
+                              <Button variant="primary" onClick={() => router.push(`/company/student/${candidate.id}`)} className="flex-1 text-[10px] py-2 bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-8">
+                                <FileText size={12} className="mr-1.5" /> Profile
                               </Button>
-                              <Button variant="secondary" onClick={() => openInterviewModal(candidate)} className="flex-1 text-[10px] py-2 bg-white border border-slate-200 text-slate-600 hover:text-[var(--primary)] hover:border-[var(--primary)]/30 hover:bg-[var(--accent)] shadow-sm rounded-lg h-8">
-                                <Video size={12} className="mr-1.5 opacity-70" /> Interview
+                              <Button variant="primary" onClick={() => openInterviewModal(candidate)} className="flex-1 text-[10px] py-2 bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-8">
+                                <Video size={12} className="mr-1.5" /> Interview
                               </Button>
                             </div>
                             <Button variant="primary" onClick={() => requestHire(candidate)} className="w-full text-[11px] py-2 bg-[var(--primary)] hover:bg-[var(--primary-glow)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9">
@@ -1194,10 +1548,10 @@ const submitInterviewRequest = async () => {
                             {/* 🔥 GOOGLE MEET READY STATE 🔥 */}
                             {candidate.hired_status === 'shortlisted' && (
                               <div className="flex gap-2">
-                                 <Button variant="secondary" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="flex-[0.8] text-[10px] py-2 bg-white border border-blue-200 text-blue-700 shadow-sm rounded-lg h-9 hover:bg-blue-50">
-                                   <Video size={12} className="mr-1" /> Join Meet
+                                 <Button variant="primary" onClick={() => window.open(candidate.meet_link || "https://meet.google.com", "_blank")} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
+                                    <Video size={12} className="mr-1" /> Join Meet
                                  </Button>
-                                <Button variant="primary" onClick={() => triggerHireVerificationPopup(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
+                                <Button variant="primary" onClick={() => requestHire(candidate)} className="flex-[1.2] text-[11px] py-2 bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/20 rounded-lg h-9 hover:bg-[var(--primary-glow)]">
                                     <Zap size={12} className="mr-1.5" /> Official Hire
                                   </Button>
                               </div>
@@ -1251,35 +1605,35 @@ const submitInterviewRequest = async () => {
               </div>
               <div>
                 <h3 className="text-2xl font-extrabold text-slate-900 leading-tight">Schedule Meet</h3>
-                <p className="text-slate-500 font-medium text-xs">for RM-{interviewStudent.id?.substring(0, 6).toUpperCase()}</p>
+                <p className="text-slate-500 font-medium text-xs">for {getCandidateUniqueId(interviewStudent)}</p>
               </div>
             </div>
             
-            <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
+            <div className="space-y-4 mb-6 max-h-[360px] overflow-y-auto pr-1 scrollbar-thin">
               {/* Option Slot 1 */}
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 relative z-30">
                 <span className="text-[9px] font-black text-[var(--primary)] bg-[var(--accent)] px-2 py-0.5 rounded border border-[var(--primary)]/10 uppercase tracking-wider">Option Slot 1</span>
                 <div className="grid grid-cols-2 gap-2">
                    <input type="date" id="slot1_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
-                   <input type="time" id="slot1_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
+                   <TimePicker15 id="slot1_time" value={slot1Time} onChange={setSlot1Time} />
                 </div>
               </div>
 
               {/* Option Slot 2 */}
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 relative z-20">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Option Slot 2</span>
                 <div className="grid grid-cols-2 gap-2">
                    <input type="date" id="slot2_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
-                   <input type="time" id="slot2_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
+                   <TimePicker15 id="slot2_time" value={slot2Time} onChange={setSlot2Time} />
                 </div>
               </div>
 
               {/* Option Slot 3 */}
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 relative z-10">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Option Slot 3</span>
                 <div className="grid grid-cols-2 gap-2">
                    <input type="date" id="slot3_date" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
-                   <input type="time" id="slot3_time" className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[var(--primary)] [color-scheme:light]" />
+                   <TimePicker15 id="slot3_time" value={slot3Time} onChange={setSlot3Time} />
                 </div>
               </div>
             </div>

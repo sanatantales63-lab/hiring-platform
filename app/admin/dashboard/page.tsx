@@ -5,10 +5,11 @@ import { generateCandidateId } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { 
   User, Users, Building2, CreditCard, LogOut, Upload, Bell, 
-  UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star, Globe, Video
+  UserPlus, X, ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap, CheckCircle, Search, AlertTriangle, ShieldAlert, ShieldCheck, ExternalLink, Sparkles, Loader2, AlertCircle, Star, Globe, Video, HelpCircle
 } from "lucide-react";
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import CompanyProfileView from "@/app/components/CompanyProfileView";
+import AdminSupportDeskView from "@/app/components/AdminSupportDeskView";
 import { motion } from "framer-motion";
 
 // 🔥 Naye Master Components 🔥
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("students");
   const [students, setStudents] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
+  const [openTicketsCount, setOpenTicketsCount] = useState(0);
   
  const [examRequests, setExamRequests] = useState<any[]>([]);
   const [shortlistedProfiles, setShortlistedProfiles] = useState<any[]>([]);
@@ -161,6 +163,9 @@ export default function AdminDashboard() {
         
         const { data: allCompanies } = await supabase.from("companies").select("*");
         if (allCompanies) setCompanies(allCompanies);
+
+        const { data: openTix } = await supabase.from("support_tickets").select("id").eq("status", "open");
+        if (openTix) setOpenTicketsCount(openTix.length);
       } catch (e) { console.error("Error:", e); } 
       finally { setLoading(false); }
     };
@@ -169,10 +174,12 @@ export default function AdminDashboard() {
 
     sub1 = supabase.channel('admin_profiles_live').on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => { fetchSessionAndData(); }).subscribe();
     sub2 = supabase.channel('admin_companies_live').on('postgres_changes', { event: '*', schema: 'public', table: 'companies' }, () => { fetchSessionAndData(); }).subscribe();
+    const sub3 = supabase.channel('admin_support_live').on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => { fetchSessionAndData(); }).subscribe();
 
     return () => {
       if(sub1) supabase.removeChannel(sub1);
       if(sub2) supabase.removeChannel(sub2);
+      if(sub3) supabase.removeChannel(sub3);
     };
   }, [router]);
 
@@ -484,6 +491,11 @@ export default function AdminDashboard() {
           
           <button onClick={() => setActiveTab("billing")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'billing' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <CreditCard size={20} /> Billing
+          </button>
+
+          <button onClick={() => setActiveTab("support")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'support' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
+            <div className="flex items-center gap-3"><HelpCircle size={20} /> Support Desk</div>
+            {openTicketsCount > 0 && <span className={`text-xs font-black px-2 py-0.5 rounded-full ${activeTab === 'support' ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-600 border border-rose-200 animate-pulse'}`}>{openTicketsCount}</span>}
           </button>
           
           <div className="pt-6 mt-6 border-t border-[var(--border)]">
@@ -1051,6 +1063,10 @@ export default function AdminDashboard() {
            </div>
         )}
 
+        {activeTab === "support" && (
+           <AdminSupportDeskView />
+        )}
+
       </main>
 
       {/* VIEW STUDENT PROFILE MODAL */}
@@ -1213,6 +1229,14 @@ export default function AdminDashboard() {
           <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
             <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5 truncate">Firms</span>
+          </div>
+
+          <div onClick={() => setActiveTab("support")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'support' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+             <div className={`relative p-2 rounded-2xl ${activeTab === 'support' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}>
+               <HelpCircle size={20} />
+               {openTicketsCount > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse"></span>}
+            </div>
+             <span className="text-[10px] font-bold mt-0.5 truncate">Support</span>
           </div>
 
           <div onClick={async () => { await supabase.auth.signOut(); router.push("/"); }} className="flex flex-col items-center gap-1 p-2 w-16 cursor-pointer text-slate-400 hover:text-red-500">
