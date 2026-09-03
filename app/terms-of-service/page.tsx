@@ -407,12 +407,12 @@ export default function TermsOfService() {
                 <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 bg-[var(--surface)] border border-[var(--border)] p-8 rounded-3xl shadow-sm">
                    <div className="text-left">
                       <span className="block text-xs font-black text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Email Us</span>
-                      <a href="mailto:support@Resourcemania.in" className="text-[var(--primary)] font-bold hover:text-[var(--primary-glow)]">support@Resourcemania.in</a>
+                      <a href="mailto:connect@resourcemania.in" className="text-[var(--primary)] font-bold hover:text-[var(--primary-glow)]">connect@resourcemania.in</a>
                    </div>
                    <div className="w-px bg-[var(--border)] hidden md:block"></div>
                    <div className="text-left">
                       <span className="block text-xs font-black text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Grievance Officer</span>
-                      <a href="mailto:grievance@Resourcemania.in" className="text-[var(--primary)] font-bold hover:text-[var(--primary-glow)]">grievance@Resourcemania.in</a>
+                      <a href="mailto:admin@resourcemania.in" className="text-[var(--primary)] font-bold hover:text-[var(--primary-glow)]">admin@resourcemania.in</a>
                    </div>
                    <div className="w-px bg-[var(--border)] hidden md:block"></div>
                    <div className="text-left">
