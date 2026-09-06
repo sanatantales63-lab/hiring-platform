@@ -567,7 +567,7 @@ export default function Home() {
               {
                 heading: "Company",
                 links: [
-                  ["About Us", "/"],
+                  ["About Us", "/about-us"],
                   ["Support & Help", "/support"],
                   ["Admin Portal", "/admin/login"],
                 ]
