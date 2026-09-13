@@ -108,6 +108,7 @@ export default function CandidateProfile() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
   
   const [formData, setFormData] = useState({
     fullName: "", 
@@ -435,6 +436,29 @@ export default function CandidateProfile() {
         streamRef.current.getTracks().forEach(track => track.stop());
     }
     setShowCamera(false);
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return alert("Please select a valid image file.");
+    if (file.size > 5 * 1024 * 1024) return alert("Photo must be under 5MB!");
+
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${session.user.id}_photo_${Date.now()}.${fileExt}`;
+      await supabase.storage.from('resumes').upload(fileName, file, { upsert: true });
+      const { data: publicUrlData } = supabase.storage.from('resumes').getPublicUrl(fileName);
+      setFormData(prev => ({ ...prev, photoURL: publicUrlData.publicUrl }));
+    } catch (error: any) {
+      alert("Upload failed: " + error.message);
+    } finally {
+      setUploading(false);
+      if (photoInputRef.current) photoInputRef.current.value = "";
+    }
   };
 
   const capturePhoto = async () => {
@@ -838,22 +862,35 @@ export default function CandidateProfile() {
                        />
                      </div>
 
-                     <div className="flex items-center gap-6 mb-6">
-                        <div onClick={startCamera} className="relative w-20 h-20 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center overflow-hidden shadow-soft group cursor-pointer hover:border-[var(--primary)]/50 transition-colors">
-                           {uploading ? <Loader2 className="animate-spin text-[var(--primary)]"/> : 
-                               formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
-                                  <Camera size={26} className="text-[var(--muted-foreground)] group-hover:text-[var(--primary)]"/>
-                           }
-                           <div className="absolute inset-0 bg-white/90 hidden group-hover:flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-sm">
-                              <Camera size={16} className="text-[var(--foreground)] mb-0.5"/>
-                              <span className="text-[9px] text-[var(--foreground)] font-bold leading-tight">Live Capture</span>
-                           </div>
-                        </div>
-                        <div>
-                           <p className="font-semibold text-base text-[var(--foreground)]">Profile Photo <span className="text-[#c53030]">*</span></p>
-                           <p className="text-xs text-[var(--muted-foreground)] font-medium">Click to capture a professional photo</p>
-                        </div>
-                     </div>
+                      <div className="flex items-center gap-6 mb-6">
+                         {/* Live Capture */}
+                         <div onClick={startCamera} className="relative w-20 h-20 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center overflow-hidden shadow-soft group cursor-pointer hover:border-[var(--primary)]/50 transition-colors">
+                            {uploading ? <Loader2 className="animate-spin text-[var(--primary)]"/> : 
+                                formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
+                                   <Camera size={26} className="text-[var(--muted-foreground)] group-hover:text-[var(--primary)]"/>
+                            }
+                            <div className="absolute inset-0 bg-white/90 hidden group-hover:flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-sm">
+                               <Camera size={16} className="text-[var(--foreground)] mb-0.5"/>
+                               <span className="text-[9px] text-[var(--foreground)] font-bold leading-tight">Live Capture</span>
+                            </div>
+                         </div>
+                         {/* Upload Photo */}
+                         <div onClick={() => photoInputRef.current?.click()} className="relative w-20 h-20 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center overflow-hidden shadow-soft group cursor-pointer hover:border-[var(--primary)]/50 transition-colors">
+                            {uploading ? <Loader2 className="animate-spin text-[var(--primary)]"/> : 
+                                formData.photoURL ? <img src={formData.photoURL} className="w-full h-full object-cover group-hover:opacity-50 transition-opacity"/> : 
+                                   <ImagePlus size={26} className="text-[var(--muted-foreground)] group-hover:text-[var(--primary)]"/>
+                            }
+                            <div className="absolute inset-0 bg-white/90 hidden group-hover:flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-sm">
+                               <ImagePlus size={16} className="text-[var(--foreground)] mb-0.5"/>
+                               <span className="text-[9px] text-[var(--foreground)] font-bold leading-tight">Upload</span>
+                            </div>
+                         </div>
+                         <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload}/>
+                         <div>
+                            <p className="font-semibold text-base text-[var(--foreground)]">Profile Photo <span className="text-[#c53030]">*</span></p>
+                            <p className="text-xs text-[var(--muted-foreground)] font-medium">Capture live <span className="text-[var(--muted-foreground)]">or</span> upload a photo</p>
+                         </div>
+                      </div>
 
                      <AnimatePresence>
                         {showCamera && (
@@ -991,6 +1028,8 @@ export default function CandidateProfile() {
                                  <option value="CA Finalist (Group 1 Cleared)" />
                                  <option value="CA Finalist (Group 2 Cleared)" />
                                  <option value="CA Intermediate - Cleared" />
+                                 <option value="CA Intermediate (Group 1 Cleared)" />
+                                 <option value="CA Intermediate (Group 2 Cleared)" />
                                  <option value="Cost & Management Accountant (CMA) - Qualified" />
                                  <option value="CMA Finalist" />
                                  <option value="CMA Intermediate" />

@@ -77,8 +77,8 @@ export default function LiveTestPage() {
   const MAX_TAB_WARNINGS = 2;
   const MAX_MIC_WARNINGS = 6;
   const MAX_CAM_WARNINGS = 6;
-  const MAX_FACE_WARNINGS = 4;
-  const MAX_DOUBLE_FACE_WARNINGS = 4;
+  const MAX_FACE_WARNINGS = 2;
+  const MAX_DOUBLE_FACE_WARNINGS = 2;
   const MAX_EYE_WARNINGS = 5;
 
   const [isTerminated, setIsTerminated] = useState(false);
