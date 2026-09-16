@@ -42,6 +42,8 @@ export default function LiveTestPage() {
   const noiseFramesRef = useRef(0);
   const movementFramesRef = useRef(0);
   const previousFrameRef = useRef<Uint8Array | null>(null);
+  // 🔥 FIX: Guard to prevent multiple simultaneous disqualification calls (stale closure race condition)
+  const isDisqualifyingRef = useRef(false);
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -379,13 +381,16 @@ export default function LiveTestPage() {
     }
   }, [user, studentProfile, isTerminated, isSubmitted, questions, answers, tabWarnings, micWarnings, camWarnings, faceWarnings, stopProctoring]);
 
-  const triggerWarning = useCallback((type: 'tab' | 'mic' | 'cam' | 'face', customMsg?: string) => {
-    if (isTerminated || isSubmitted) return;
+  const triggerWarning = useCallback((type: 'tab' | 'mic' | 'cam' | 'face' | 'double_face' | 'eye', customMsg?: string) => {
+    // 🔥 FIX: If already disqualifying, block ALL further calls (prevents stale closure race condition)
+    if (isDisqualifyingRef.current || isTerminated || isSubmitted) return;
     
     if (type === 'tab') {
         setTabWarnings(prev => {
             const next = prev + 1;
             if (next >= MAX_TAB_WARNINGS) {
+                if (isDisqualifyingRef.current) return prev; // Double guard
+                isDisqualifyingRef.current = true;
                 alert("🚨 Test Auto-Submitted due to Tab Switching!");
                 submitTest("Auto-Submitted: Tab Switching Exceeded", true);
             }
@@ -395,7 +400,9 @@ export default function LiveTestPage() {
     } else if (type === 'mic') {
         setMicWarnings(prev => {
             const next = prev + 1;
-            if (next >= MAX_MIC_WARNINGS) { 
+            if (next >= MAX_MIC_WARNINGS) {
+                if (isDisqualifyingRef.current) return prev; // Double guard
+                isDisqualifyingRef.current = true;
                 alert("🚨 Test Auto-Submitted due to Maximum Audio Warnings!"); 
                 submitTest("Auto-Submitted: Maximum Audio Warnings Exceeded", true); 
             } else alert(`⚠️ AUDIO WARNING ${next}/${MAX_MIC_WARNINGS}: Background Noise Detected!`);
@@ -404,7 +411,9 @@ export default function LiveTestPage() {
     } else if (type === 'cam') {
         setCamWarnings(prev => {
             const next = prev + 1;
-            if (next >= MAX_CAM_WARNINGS) { 
+            if (next >= MAX_CAM_WARNINGS) {
+                if (isDisqualifyingRef.current) return prev; // Double guard
+                isDisqualifyingRef.current = true;
                 alert("🚨 Test Auto-Submitted due to Maximum Camera Warnings!");
                 submitTest("Auto-Submitted: Maximum Camera Warnings Exceeded", true); 
             } else alert(`⚠️ CAMERA WARNING ${next}/${MAX_CAM_WARNINGS}: Please face the camera and do not move out of frame!`);
@@ -413,7 +422,9 @@ export default function LiveTestPage() {
     } else if (type === 'face') {
         setFaceWarnings(prev => {
             const next = prev + 1;
-            if (next >= MAX_FACE_WARNINGS) { 
+            if (next >= MAX_FACE_WARNINGS) {
+                if (isDisqualifyingRef.current) return prev; // Double guard
+                isDisqualifyingRef.current = true;
                 alert("🚨 Test Auto-Submitted due to Continuous Identity Mismatch!");
                 submitTest("Auto-Submitted: Identity Mismatch Exceeded", true); 
             } else alert(`⚠️ IDENTITY WARNING ${next}/${MAX_FACE_WARNINGS}: ${customMsg || "Face mismatch detected!"}`);
@@ -422,7 +433,9 @@ export default function LiveTestPage() {
     } else if (type === 'double_face') {
         setDoubleFaceWarnings(prev => {
             const next = prev + 1;
-            if (next >= MAX_DOUBLE_FACE_WARNINGS) { 
+            if (next >= MAX_DOUBLE_FACE_WARNINGS) {
+                if (isDisqualifyingRef.current) return prev; // Double guard
+                isDisqualifyingRef.current = true;
                 alert("🚨 Test Auto-Submitted: Multiple persons detected in frame!");
                 submitTest("Auto-Submitted: Multiple Faces Detected", true); 
             } else alert(`⚠️ CHEATING WARNING ${next}/${MAX_DOUBLE_FACE_WARNINGS}: Multiple faces detected! You will be disqualified.`);
@@ -431,7 +444,9 @@ export default function LiveTestPage() {
     } else if (type === 'eye') {
         setEyeWarnings(prev => {
             const next = prev + 1;
-            if (next >= MAX_EYE_WARNINGS) { 
+            if (next >= MAX_EYE_WARNINGS) {
+                if (isDisqualifyingRef.current) return prev; // Double guard
+                isDisqualifyingRef.current = true;
                 alert("🚨 Test Auto-Submitted: Suspicious Eye/Head movement detected!");
                 submitTest("Auto-Submitted: Eye/Head Movement Exceeded", true); 
             } else alert(`⚠️ PROCTOR WARNING ${next}/${MAX_EYE_WARNINGS}: ${customMsg || "Please look straight at the screen!"}`);
@@ -453,6 +468,11 @@ export default function LiveTestPage() {
       
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       const audioCtx = new AudioContextClass();
+      // 🔥 FIX: Mobile browsers (iOS Safari, Android Chrome) start AudioContext in 'suspended' state.
+      // Without resume(), mic monitoring silently does nothing on mobile.
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => console.warn("AudioContext resume failed"));
+      }
       audioContextRef.current = audioCtx;
       
       const analyser = audioCtx.createAnalyser();
@@ -478,13 +498,14 @@ export default function LiveTestPage() {
              const faceapi = (window as any).faceapi;
              if (!faceapi || !faceapi.nets.tinyFaceDetector.isLoaded) return;
 
-             const detectorOptions = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 });
+             // 🔥 FIX: scoreThreshold raised 0.3→0.5 to avoid detecting blurry/dark non-faces as faces
+             const detectorOptions = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 });
              const liveDetections = await faceapi.detectAllFaces(videoRef.current, detectorOptions).withFaceLandmarks().withFaceDescriptors();
 
-             // 1. NO FACE DETECTED (6 Seconds Buffer)
+             // 1. NO FACE DETECTED (🔥 FIX: Buffer increased 6s→10s to avoid false warnings during brief head turns)
              if (liveDetections.length === 0) {
                  noFaceTimeCounter += 2000;
-                 if (noFaceTimeCounter >= 6000) { // 6 Seconds tak face na dikhe tab warning
+                 if (noFaceTimeCounter >= 10000) { // 10 Seconds tak face na dikhe tab warning
                      triggerWarning('face', "No face detected! Please look at the camera.");
                      noFaceTimeCounter = 0;
                  }
@@ -506,19 +527,20 @@ export default function LiveTestPage() {
 
              const detection = liveDetections[0];
              
-             // 3. IDENTITY MISMATCH (Perfected to 0.54 & Smooth Buffer)
+             // 3. IDENTITY MISMATCH
+             // 🔥 FIX: Distance raised 0.52→0.60. Low light, glasses, different angle can push same-person
+             // distance to 0.55+. 0.60 is safe — real different person will be >0.65.
+             // Time buffer also raised from 6s→10s for extra safety.
              if (profileDescriptorRef.current && liveDetections.length === 1) {
                  const distance = faceapi.euclideanDistance(profileDescriptorRef.current, detection.descriptor);
                  
-                 // 0.58 bahut loose tha, 0.50 bahut strict tha. 0.54 is the perfect sweet spot!
-                 if (distance > 0.52) { 
+                 if (distance > 0.60) { 
                      mismatchTimeCounter += 2000;
-                     if (mismatchTimeCounter >= 6000) {
+                     if (mismatchTimeCounter >= 10000) {
                          triggerWarning('face', "Different person detected! Identity mismatch.");
                          mismatchTimeCounter = 0; // Warning dene ke baad reset
                      }
                  } else {
-                     // TRICK: Instantly 0 mat karo, warna smart cheaters pakde nahi jayenge. Dheere-dheere kam karo.
                      mismatchTimeCounter = Math.max(0, mismatchTimeCounter - 2000);
                  }
              }

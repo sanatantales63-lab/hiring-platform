@@ -63,8 +63,8 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
   const candidateWeaknesses = Array.isArray(candidate.weaknesses) ? candidate.weaknesses : [];
   const showReview = candidate.hired_status === 'hired' && candidate.company_rating && (candidate.company_rating >= 3 || isAdmin);
   const metaObj = candidate.meta || {};
-  const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0 };
-  const hasMediaWarnings = warns.mic > 0 || warns.cam > 0;
+  const warns = metaObj.warnings || { tab: metaObj.warningsCount || 0, mic: 0, cam: 0, face: 0, doubleFace: 0, eyeMovement: 0 };
+  const hasMediaWarnings = warns.mic > 0 || warns.cam > 0 || warns.face > 0 || warns.doubleFace > 0 || warns.eyeMovement > 0;
 
   // 🔥 SALARY DISPLAY LOGIC: Company sees +25%, Admin sees both, Candidate sees original
   let displayExpectedSalary = candidate.expectedSalary || "N/A";
@@ -368,6 +368,11 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                             <p className="font-bold text-lg text-[var(--foreground)] flex items-center gap-2 flex-wrap">
                                {edu.qualification} 
                                {edu.stageCleared && <span className="text-[10px] bg-[oklch(0.98_0.02_70)] text-[oklch(0.40_0.10_70)] border border-[oklch(0.85_0.05_70)] px-2 py-0.5 rounded uppercase font-bold">{edu.stageCleared}</span>}
+                               {edu.attempts && edu.attempts !== "" && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded border uppercase bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20">
+                                     🔁 {edu.attempts} {parseInt(edu.attempts) === 1 ? 'Attempt' : 'Attempts'}
+                                  </span>
+                               )}
                                {isSchoolLevel && edu.mathsIncluded && edu.mathsIncluded !== "" && (
                                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${edu.mathsIncluded === 'Yes' ? 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20' : 'bg-[var(--destructive)]/10 text-[var(--destructive)] border-[var(--destructive)]/20'}`}>
                                       Maths: {edu.mathsIncluded} {edu.mathsIncluded === 'Yes' && edu.mathsScore ? `(${edu.mathsScore}%)` : ''}
@@ -508,7 +513,7 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                <div className="mt-4 md:mt-0 flex gap-4">
                   <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] shadow-sm">
                      <p className="text-[10px] text-[var(--muted-foreground)] uppercase font-black tracking-widest mb-2 flex items-center gap-1"><AlertTriangle size={12}/> Trust Alerts</p>
-                     <div className="flex gap-4">
+                     <div className="flex flex-wrap gap-3">
                         <div className="text-center">
                            <span className={`text-lg font-bold flex items-center gap-1 ${warns.tab > 0 ? 'text-[var(--destructive)]' : 'text-[var(--foreground)]'}`}><Monitor size={14}/> {warns.tab}</span>
                            <span className="text-[9px] text-[var(--muted-foreground)] uppercase font-bold">Tab Switch</span>
@@ -521,6 +526,23 @@ export default function CandidateProfileView({ candidate, role }: { candidate: a
                            <span className={`text-lg font-bold flex items-center gap-1 ${warns.mic > 0 ? 'text-amber-500' : 'text-[var(--foreground)]'}`}><Mic size={14}/> {warns.mic}</span>
                            <span className="text-[9px] text-[var(--muted-foreground)] uppercase font-bold">Audio</span>
                         </div>
+                        {/* 🔥 FIX: Face/Eye/DoubleFace warnings were saved to DB but never displayed */}
+                        {isAdmin && (
+                          <>
+                            <div className="text-center">
+                               <span className={`text-lg font-bold flex items-center gap-1 ${(warns.face || 0) > 0 ? 'text-[var(--destructive)]' : 'text-[var(--foreground)]'}`}><ShieldAlert size={14}/> {warns.face || 0}</span>
+                               <span className="text-[9px] text-[var(--muted-foreground)] uppercase font-bold">Face ID</span>
+                            </div>
+                            <div className="text-center">
+                               <span className={`text-lg font-bold flex items-center gap-1 ${(warns.doubleFace || 0) > 0 ? 'text-[var(--destructive)]' : 'text-[var(--foreground)]'}`}><Users size={14}/> {warns.doubleFace || 0}</span>
+                               <span className="text-[9px] text-[var(--muted-foreground)] uppercase font-bold">Multi-Face</span>
+                            </div>
+                            <div className="text-center">
+                               <span className={`text-lg font-bold flex items-center gap-1 ${(warns.eyeMovement || 0) > 0 ? 'text-amber-500' : 'text-[var(--foreground)]'}`}><Target size={14}/> {warns.eyeMovement || 0}</span>
+                               <span className="text-[9px] text-[var(--muted-foreground)] uppercase font-bold">Eye/Head</span>
+                            </div>
+                          </>
+                        )}
                      </div>
                      {isAdmin && hasMediaWarnings && (
                         <button disabled={isResetting} onClick={handleResetMediaWarnings} className="w-full mt-3 bg-[var(--destructive)]/10 hover:bg-[var(--destructive)]/20 text-[var(--destructive)] border border-[var(--destructive)]/20 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-colors shadow-sm">
