@@ -53,9 +53,8 @@ export default function Home() {
             <Link href="/how-it-works" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
               How it Works
             </Link>
-            <Link href="/jobs" className="px-3.5 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50/80 hover:bg-teal-100 rounded-lg transition-colors flex items-center gap-1">
-              <span>Explore Jobs</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+            <Link href="/jobs" className="px-3.5 py-1.5 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] rounded-lg transition-colors">
+              Explore Jobs
             </Link>
           </nav>
 
@@ -97,9 +96,8 @@ export default function Home() {
             <Link href="/how-it-works" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
               How it Works
             </Link>
-            <Link href="/jobs" className="px-4 py-2 rounded-lg text-xs font-bold text-teal-700 bg-teal-50 flex items-center justify-between">
-              <span>Explore Jobs</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-600 text-white font-bold">New</span>
+            <Link href="/jobs" className="px-4 py-2 rounded-lg text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]">
+              Explore Jobs
             </Link>
             <div className="pt-2 border-t border-[var(--border)] flex flex-col gap-2">
               <button

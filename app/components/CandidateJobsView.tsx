@@ -23,7 +23,6 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [applySuccessNotice, setApplySuccessNotice] = useState<string | null>(null);
 
-  // Load applied jobs from localStorage for instant feedback
   useEffect(() => {
     if (user?.id) {
       try {
@@ -33,7 +32,6 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
     }
   }, [user]);
 
-  // Fetch verified active jobs
   useEffect(() => {
     const fetchActiveJobs = async () => {
       try {
@@ -87,68 +85,65 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
 
   return (
     <div className="space-y-6">
-      {/* Banner */}
-      <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* ── 1. HEADER MATCHING STUDENT DASHBOARD ── */}
+      <header className="flex justify-between items-start mb-6 gap-4 flex-wrap">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold mb-2 border border-teal-500/30">
-            <Sparkles size={14} /> Verified Opportunities
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Explore Open Job Postings
-          </h2>
-          <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl">
-            Verified companies actively hiring for Accounting, Finance, Direct & Indirect Tax, and Audit. Apply directly with your Resourcemania assessment profile.
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">
+            Explore Open Job Requirements
+          </h1>
+          <p className="text-[var(--muted-foreground)] mt-1 text-sm">
+            Opportunities from companies actively seeking verified finance talent. Apply directly with your Resourcemania assessment profile.
           </p>
         </div>
 
-        {/* Search Input */}
-        <div className="relative sm:w-64 shrink-0">
-          <Search size={14} className="absolute left-3 top-3 text-slate-400" />
+        {/* Search */}
+        <div className="relative w-full sm:w-64">
+          <Search size={14} className="absolute left-3 top-2.5 text-[var(--muted-foreground)]" />
           <input
             type="text"
             placeholder="Search roles or skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-white/10 border border-white/20 rounded-2xl text-xs text-white placeholder:text-slate-400 focus:outline-none focus:bg-white/20 font-medium"
+            className="w-full pl-9 pr-3 py-1.5 bg-white border border-[var(--border)] rounded-lg text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary)] font-medium"
           />
         </div>
-      </div>
+      </header>
 
       {/* Applied Success Notice */}
       {applySuccessNotice && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center justify-between text-xs font-semibold shadow-sm animate-in fade-in">
+        <div className="p-4 bg-[var(--success-bg)] border border-[var(--success)]/20 text-[var(--success)] rounded-xl flex items-center justify-between text-xs font-semibold shadow-soft animate-in fade-in">
           <div className="flex items-center gap-2">
-            <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+            <CheckCircle2 size={18} className="shrink-0" />
             <span>{applySuccessNotice}</span>
           </div>
-          <button onClick={() => setApplySuccessNotice(null)} className="text-emerald-700 hover:text-emerald-950 cursor-pointer">
+          <button onClick={() => setApplySuccessNotice(null)} className="cursor-pointer hover:opacity-75">
             <X size={16} />
           </button>
         </div>
       )}
 
-      {/* Header */}
+      {/* Title */}
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-slate-900">
+        <h3 className="text-base font-bold text-[var(--foreground)]">
           Active Job Requirements ({filteredJobs.length})
         </h3>
-        <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
-          <ShieldCheck size={14} className="text-teal-600" /> Verified by Admin
+        <span className="text-xs text-[var(--muted-foreground)] font-semibold flex items-center gap-1">
+          <ShieldCheck size={14} className="text-[var(--primary)]" /> Verified by Admin
         </span>
       </div>
 
       {/* Grid */}
       {loading ? (
-        <div className="p-12 text-center bg-white rounded-3xl border border-slate-100">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-teal-500 border-t-transparent mb-3" />
-          <p className="text-xs font-semibold text-slate-500">Loading open job requirements...</p>
+        <div className="p-12 text-center bg-white rounded-xl border border-[var(--border)] shadow-soft">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[var(--primary)] border-t-transparent mb-3" />
+          <p className="text-xs font-semibold text-[var(--muted-foreground)]">Loading open job requirements...</p>
         </div>
       ) : filteredJobs.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-3xl border border-dashed border-slate-200">
-          <Briefcase size={36} className="mx-auto text-slate-300 mb-2" />
-          <h4 className="text-sm font-bold text-slate-800">No Job Postings Found</h4>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            Check back soon! New openings are reviewed and published daily by the admin team.
+        <div className="p-12 text-center bg-white rounded-xl border border-dashed border-[var(--border)] shadow-soft">
+          <Briefcase size={36} className="mx-auto text-[var(--muted-foreground)] mb-2" />
+          <h4 className="text-sm font-bold text-[var(--foreground)]">No Job Postings Found</h4>
+          <p className="text-xs text-[var(--muted-foreground)] mt-1 max-w-sm mx-auto">
+            Check back soon! New openings are reviewed and published regularly by the admin team.
           </p>
         </div>
       ) : (
@@ -160,54 +155,54 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
             return (
               <Card
                 key={jId}
-                className="p-5 flex flex-col justify-between border-slate-200 hover:shadow-md transition-shadow rounded-2xl bg-white"
+                className="p-5 flex flex-col justify-between border-[var(--border)] bg-white hover:shadow-card transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20">
                       {job.job_id || "VERIFIED-JOB"}
                     </span>
                     <button
                       onClick={() => copyShareLink(job)}
                       title="Share Job"
-                      className="cursor-pointer text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-colors"
+                      className="cursor-pointer text-[var(--muted-foreground)] hover:text-[var(--primary)] p-1 rounded-lg hover:bg-[var(--surface)] transition-colors"
                     >
-                      {copiedLink ? <Check size={14} className="text-emerald-500" /> : <Share2 size={14} />}
+                      {copiedLink ? <Check size={14} className="text-[var(--success)]" /> : <Share2 size={14} />}
                     </button>
                   </div>
 
-                  <h4 className="text-base font-bold text-slate-900 leading-snug line-clamp-1 mb-0.5">
+                  <h4 className="text-base font-bold text-[var(--foreground)] leading-snug line-clamp-1 mb-0.5">
                     {job.title}
                   </h4>
-                  <div className="text-xs text-slate-500 font-semibold flex items-center gap-1.5 mb-2.5">
-                    <Building2 size={12} className="text-slate-400" />
-                    <span>{job.company_name || "Confidential Recruiter"}</span>
+                  <div className="text-xs text-[var(--muted-foreground)] font-semibold flex items-center gap-1.5 mb-2.5">
+                    <Building2 size={12} className="text-[var(--primary)]" />
+                    <span>{job.company_name || "Verified Hiring Partner"}</span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-600 mb-3">
-                    <span className="bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-[var(--ink-soft)] mb-3">
+                    <span className="bg-[var(--surface)] px-2 py-0.5 rounded border border-[var(--border)]">
                       📍 {job.location || "Remote"}
                     </span>
-                    <span className="bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                    <span className="bg-[var(--surface)] px-2 py-0.5 rounded border border-[var(--border)]">
                       💼 {job.experience || "1-3 Yrs"}
                     </span>
-                    <span className="bg-slate-50 px-2 py-0.5 rounded border border-slate-100 font-semibold text-slate-800">
+                    <span className="bg-[var(--surface)] px-2 py-0.5 rounded border border-[var(--border)] font-semibold text-[var(--foreground)]">
                       💰 {job.salary_range || "Competitive"}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-3">
+                  <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 leading-relaxed mb-3">
                     {job.description}
                   </p>
 
                   <div className="flex flex-wrap gap-1 mb-3">
                     {Array.isArray(job.skills_required) && job.skills_required.slice(0, 4).map((sk: string, idx: number) => (
-                      <span key={idx} className="text-[10px] font-medium bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md border border-teal-100">
+                      <span key={idx} className="text-[10px] font-medium bg-[var(--accent)] text-[var(--primary)] px-2 py-0.5 rounded-md border border-[var(--primary)]/20">
                         {sk}
                       </span>
                     ))}
                     {Array.isArray(job.skills_required) && job.skills_required.length > 4 && (
-                      <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-md">
+                      <span className="text-[10px] font-medium bg-[var(--surface)] text-[var(--muted-foreground)] px-1.5 py-0.5 rounded-md">
                         +{job.skills_required.length - 4}
                       </span>
                     )}
@@ -219,22 +214,20 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
-                  <button
+                <div className="pt-3 border-t border-[var(--border)] flex items-center gap-2">
+                  <Button
+                    variant="secondary"
                     onClick={() => setSelectedJob(job)}
-                    className="cursor-pointer flex-1 py-2 text-center text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors"
+                    className="flex-1 py-1.5 text-xs"
                   >
                     View Details
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
+                    variant="primary"
                     onClick={() => handleApply(job)}
                     disabled={hasApplied}
-                    className={`cursor-pointer flex-1 py-2 text-center text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                      hasApplied
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-teal-600 hover:bg-teal-500 text-white shadow-sm"
-                    }`}
+                    className={`flex-1 py-1.5 text-xs ${hasApplied ? "bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success)]/20 shadow-none hover:bg-[var(--success-bg)] cursor-default" : ""}`}
                   >
                     {hasApplied ? (
                       <>
@@ -245,7 +238,7 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
                         <Send size={13} /> Quick Apply
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </Card>
             );
@@ -256,20 +249,20 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
       {/* Details Modal */}
       {selectedJob && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in">
-            <div className="px-6 py-5 bg-gradient-to-r from-teal-950 to-slate-900 text-white flex items-start justify-between">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-modal border border-[var(--border)] overflow-hidden animate-in fade-in">
+            <div className="px-6 py-5 bg-[var(--surface)] border-b border-[var(--border)] flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-mono font-bold uppercase bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded border border-teal-500/30">
+                <span className="text-[10px] font-mono font-bold uppercase bg-[var(--accent)] text-[var(--primary)] px-2 py-0.5 rounded border border-[var(--primary)]/20">
                   {selectedJob.job_id || "VERIFIED-JOB"}
                 </span>
-                <h3 className="text-base font-bold mt-1 text-white">{selectedJob.title}</h3>
-                <p className="text-xs text-slate-300 flex items-center gap-1.5 mt-0.5">
-                  <Building2 size={13} /> {selectedJob.company_name || "Confidential Recruiter"}
+                <h3 className="text-base font-bold mt-1 text-[var(--foreground)]">{selectedJob.title}</h3>
+                <p className="text-xs text-[var(--muted-foreground)] flex items-center gap-1.5 mt-0.5">
+                  <Building2 size={13} className="text-[var(--primary)]" /> {selectedJob.company_name || "Verified Hiring Partner"}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedJob(null)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer"
+                className="w-8 h-8 rounded-lg border border-[var(--border)] bg-white hover:bg-[var(--surface)] flex items-center justify-center text-[var(--foreground)] cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -277,30 +270,30 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
 
             <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto text-xs">
               <div className="flex flex-wrap gap-2">
-                <span className="bg-slate-100 px-2.5 py-1 rounded-lg font-semibold text-slate-700">
+                <span className="bg-[var(--surface)] px-2.5 py-1 rounded-md font-semibold text-[var(--foreground)] border border-[var(--border)]">
                   📍 {selectedJob.location || "Remote"}
                 </span>
-                <span className="bg-slate-100 px-2.5 py-1 rounded-lg font-semibold text-slate-700">
+                <span className="bg-[var(--surface)] px-2.5 py-1 rounded-md font-semibold text-[var(--foreground)] border border-[var(--border)]">
                   💼 {selectedJob.experience || "1-3 Yrs"}
                 </span>
-                <span className="bg-slate-100 px-2.5 py-1 rounded-lg font-semibold text-slate-700">
+                <span className="bg-[var(--surface)] px-2.5 py-1 rounded-md font-semibold text-[var(--foreground)] border border-[var(--border)]">
                   💰 {selectedJob.salary_range || "Competitive"}
                 </span>
-                <span className="bg-slate-100 px-2.5 py-1 rounded-lg font-semibold text-slate-700">
+                <span className="bg-[var(--surface)] px-2.5 py-1 rounded-md font-semibold text-[var(--foreground)] border border-[var(--border)]">
                   ⏱ {selectedJob.job_type || "Full-time"}
                 </span>
               </div>
 
               <div>
-                <h5 className="font-bold text-slate-500 uppercase tracking-wider mb-2">Required Skills & Expertise</h5>
+                <h5 className="font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">Required Skills & Expertise</h5>
                 <div className="flex flex-wrap gap-1.5">
                   {Array.isArray(selectedJob.skills_required) && selectedJob.skills_required.map((sk: string, i: number) => (
-                    <span key={i} className="bg-teal-50 text-teal-800 px-2.5 py-1 rounded-lg border border-teal-100 font-medium">
+                    <span key={i} className="bg-[var(--accent)] text-[var(--primary)] px-2.5 py-1 rounded-md border border-[var(--primary)]/20 font-medium">
                       {sk}
                     </span>
                   ))}
                   {selectedJob.other_skills && (
-                    <span className="bg-purple-50 text-purple-800 px-2.5 py-1 rounded-lg border border-purple-100 font-medium">
+                    <span className="bg-purple-50 text-purple-800 px-2.5 py-1 rounded-md border border-purple-100 font-medium">
                       {selectedJob.other_skills}
                     </span>
                   )}
@@ -308,31 +301,29 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
               </div>
 
               <div>
-                <h5 className="font-bold text-slate-500 uppercase tracking-wider mb-1.5">Job Description</h5>
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 whitespace-pre-wrap leading-relaxed text-slate-700">
+                <h5 className="font-bold text-[var(--muted-foreground)] uppercase tracking-wider mb-1.5">Job Description</h5>
+                <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] whitespace-pre-wrap leading-relaxed text-[var(--foreground)]">
                   {selectedJob.description}
                 </div>
               </div>
             </div>
 
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-              <button
+            <div className="px-6 py-4 bg-[var(--surface)] border-t border-[var(--border)] flex items-center justify-between">
+              <Button
+                variant="secondary"
                 onClick={() => setSelectedJob(null)}
-                className="text-xs font-bold text-slate-600 hover:text-slate-800 cursor-pointer"
+                className="py-1.5 text-xs"
               >
                 Close
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 onClick={() => {
                   handleApply(selectedJob);
                   setSelectedJob(null);
                 }}
                 disabled={appliedJobs.includes(selectedJob.job_id || selectedJob.id)}
-                className={`cursor-pointer px-5 py-2.5 font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ${
-                  appliedJobs.includes(selectedJob.job_id || selectedJob.id)
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : "bg-teal-600 hover:bg-teal-500 text-white"
-                }`}
+                className={`py-1.5 text-xs ${appliedJobs.includes(selectedJob.job_id || selectedJob.id) ? "bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success)]/20" : ""}`}
               >
                 {appliedJobs.includes(selectedJob.job_id || selectedJob.id) ? (
                   <>
@@ -343,7 +334,7 @@ export default function CandidateJobsView({ user, profileData }: CandidateJobsVi
                     <Send size={14} /> Apply Now
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
