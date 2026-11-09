@@ -1,24 +1,37 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, UserCheck, Sparkles } from "lucide-react";
+import { Briefcase, Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck, UserCheck, Sparkles, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 // Master UI Components
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 
-export default function CandidateLogin() {
+function CandidateLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialRef = searchParams.get("ref") || "";
+
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(!!initialRef);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [referralCode, setReferralCode] = useState(initialRef);
   
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Auto set signup mode if ref query param present
+  useEffect(() => {
+    if (initialRef) {
+      setIsSignUp(true);
+      setReferralCode(initialRef.toUpperCase());
+    }
+  }, [initialRef]);
 
   // FETCH IP & BROWSER DETAILS FOR LEGAL PROOF
   const fetchLegalProof = async () => {
@@ -82,12 +95,18 @@ export default function CandidateLogin() {
         router.push("/student/dashboard");
       }
 
-      // SAVE LEGAL PROOF TO DATABASE (Only on Sign Up)
+      // SAVE LEGAL PROOF & REFERRAL CODE TO DATABASE (Only on Sign Up)
       if (isSignUp && authUserId) {
          const legalData = await fetchLegalProof();
+         const cleanRef = referralCode.trim().toUpperCase() || null;
+
          await supabase.from("profiles").upsert({ 
              id: authUserId, 
              email: email,
+             referral_code: cleanRef,
+             meta: {
+               referral_code: cleanRef,
+             },
              ...legalData 
          }, { onConflict: 'id' });
 
@@ -99,7 +118,8 @@ export default function CandidateLogin() {
                  body: JSON.stringify({
                      type: "signup",
                      candidateName: email.split('@')[0], 
-                     candidateEmail: email
+                     candidateEmail: email,
+                     extraInfo: cleanRef ? `Referred by code: ${cleanRef}` : 'Direct organic signup'
                  })
              });
          } catch (e) { console.error("Email alert failed", e); }
@@ -128,12 +148,20 @@ export default function CandidateLogin() {
         <Card className="bg-white/95 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-2xl p-7 sm:p-9 text-[var(--foreground)]">
           
           {/* Header Icon */}
-          <div className="flex justify-center mb-5">
+          <div className="flex justify-center mb-4">
             <div className="bg-gradient-to-br from-[var(--primary)] to-indigo-600 p-3.5 rounded-2xl text-white shadow-primary">
                <UserCheck className="w-8 h-8 stroke-[2.2]" />
             </div>
           </div>
           
+          {/* Referral Banner if referred */}
+          {initialRef && (
+            <div className="mb-4 p-2.5 rounded-xl bg-[var(--accent)] border border-[var(--primary)]/20 text-center text-xs font-bold text-[var(--primary)] flex items-center justify-center gap-1.5">
+              <Sparkles size={14} />
+              <span>Partner Invitation Applied ({initialRef})</span>
+            </div>
+          )}
+
           <h2 className="text-2xl font-black font-display text-center text-[var(--foreground)] tracking-tight">
             Candidate Portal
           </h2>
@@ -167,7 +195,7 @@ export default function CandidateLogin() {
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  className="absolute right-3.5 top-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
@@ -180,6 +208,26 @@ export default function CandidateLogin() {
                 </div>
               )}
             </div>
+
+            {/* REFERRAL CODE (Sign Up mode) */}
+            {isSignUp && (
+              <div className="animate-in fade-in">
+                <label className="text-[11px] font-bold text-[var(--foreground)] uppercase tracking-wider block mb-1.5 flex justify-between items-center">
+                  <span>Referral / Partner Code</span>
+                  <span className="text-[10px] text-[var(--muted-foreground)] font-normal lowercase">(optional)</span>
+                </label>
+                <div className="relative">
+                  <Sparkles className="absolute left-3.5 top-3.5 text-[var(--primary)]" size={16} />
+                  <input 
+                    type="text"
+                    placeholder="e.g. REF-FINPRO"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    className="w-full border border-[var(--border)] rounded-xl py-2.5 pl-10 pr-4 text-xs font-mono font-bold text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60 focus:border-[var(--primary)] outline-none bg-white uppercase"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* SMART CONDITIONAL CONSENT */}
             {isSignUp ? (
@@ -215,7 +263,7 @@ export default function CandidateLogin() {
 
           <div className="text-center text-xs font-semibold text-[var(--muted-foreground)] pt-3 border-t border-[var(--border)]">
             {isSignUp ? "Already have an account?" : "Don't have an account?"} 
-            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[var(--primary)] font-extrabold ml-1.5 hover:underline transition-colors">
+            <button onClick={() => { setIsSignUp(!isSignUp); setAgreedToTerms(false); }} className="text-[var(--primary)] font-extrabold ml-1.5 hover:underline transition-colors cursor-pointer">
               {isSignUp ? "Sign In here" : "Sign Up now"}
             </button>
           </div>
@@ -223,5 +271,17 @@ export default function CandidateLogin() {
         
       </motion.div>
     </div>
+  );
+}
+
+export default function CandidateLogin() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-[var(--primary)] border-t-transparent" />
+      </div>
+    }>
+      <CandidateLoginForm />
+    </Suspense>
   );
 }

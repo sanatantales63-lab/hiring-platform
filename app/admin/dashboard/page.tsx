@@ -11,6 +11,7 @@ import CandidateProfileView from "@/app/components/CandidateProfileView";
 import CompanyProfileView from "@/app/components/CompanyProfileView";
 import AdminSupportDeskView from "@/app/components/AdminSupportDeskView";
 import AdminJobsView from "@/app/components/AdminJobsView";
+import AdminReferralsView from "@/app/components/AdminReferralsView";
 import { motion } from "framer-motion";
 
 // 🔥 Naye Master Components 🔥
@@ -496,6 +497,10 @@ export default function AdminDashboard() {
           
           <button onClick={() => setActiveTab("students")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'students' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <Users size={20} /> Candidates
+          </button>
+          
+          <button onClick={() => setActiveTab("referrals")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'referrals' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
+            <UserPlus size={20} /> Partners & Referrals
           </button>
           
           <button onClick={() => setActiveTab("billing")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'billing' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
@@ -1082,6 +1087,12 @@ export default function AdminDashboard() {
            </div>
         )}
 
+        {activeTab === "referrals" && (
+           <div className="animate-in fade-in duration-300">
+             <AdminReferralsView />
+           </div>
+        )}
+
       </main>
 
       {/* VIEW STUDENT PROFILE MODAL */}
@@ -1252,6 +1263,11 @@ export default function AdminDashboard() {
           <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
             <div className={`p-2 rounded-2xl ${activeTab === 'companies' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><Building2 size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5 truncate">Firms</span>
+          </div>
+
+          <div onClick={() => setActiveTab("referrals")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'referrals' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`p-2 rounded-2xl ${activeTab === 'referrals' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><UserPlus size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Partners</span>
           </div>
 
           <div onClick={() => setActiveTab("support")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'support' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>

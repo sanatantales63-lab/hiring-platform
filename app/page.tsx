@@ -133,7 +133,7 @@ export default function Home() {
             {/* Top Pill */}
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-amber-300 uppercase tracking-wider mb-6">
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span>The future of hiring</span>
+              <span>100% Free for Candidates • Zero Exam & Placement Fees</span>
             </div>
 
             {/* Main Headline */}
@@ -159,6 +159,10 @@ export default function Home() {
                     <Users className="h-8 w-8 text-white stroke-[2.2]" />
                   </div>
 
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold mb-3">
+                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+                    <span>100% Free For Job Seekers Always</span>
+                  </div>
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 font-display">
                     For Candidates
                   </h3>
@@ -230,6 +234,45 @@ export default function Home() {
               ))}
             </div>
 
+          </div>
+        </section>
+
+        {/* ── 3. CANDIDATE ZERO-FEE TRANSPARENCY GUARANTEE ── */}
+        <section className="bg-[var(--surface)] border-b border-[var(--border)] py-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-white rounded-2xl border border-[var(--border)] p-6 sm:p-8 shadow-soft flex flex-col lg:flex-row items-center justify-between gap-6">
+              <div className="flex items-start sm:items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0 shadow-soft">
+                  <ShieldCheck size={26} />
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold border border-emerald-200 uppercase tracking-wider mb-1">
+                    Candidate Protection Guarantee
+                  </div>
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-[var(--foreground)]">
+                    100% Free for All Students &amp; Job Seekers
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-0.5 max-w-xl">
+                    Resourcemania will <strong>never charge candidates</strong> any registration fee, exam fee, or cut from your salary. The hiring companies fund our platform.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
+                <div className="px-4 py-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-center">
+                  <span className="block text-xs font-bold text-[var(--foreground)]">₹0 Registration</span>
+                  <span className="text-[11px] text-[var(--muted-foreground)]">Account &amp; profile free</span>
+                </div>
+                <div className="px-4 py-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-center">
+                  <span className="block text-xs font-bold text-[var(--foreground)]">₹0 Assessment Fee</span>
+                  <span className="text-[11px] text-[var(--muted-foreground)]">AI skill tests are free</span>
+                </div>
+                <div className="px-4 py-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-center">
+                  <span className="block text-xs font-bold text-[var(--foreground)]">100% Salary to You</span>
+                  <span className="text-[11px] text-[var(--muted-foreground)]">Zero deductions on hire</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
