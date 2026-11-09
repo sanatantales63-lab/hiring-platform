@@ -143,7 +143,7 @@ export default function Home() {
             </h1>
 
             <p className="mt-5 max-w-3xl mx-auto text-base sm:text-lg text-indigo-100/80 leading-relaxed font-normal">
-              Resourcemania connects verified finance &amp; professionals (CAs, Tax Experts, Developers) with companies to handle tax seasons, audits, project peaks, or permanent hiring needs.
+              Resourcemania connects verified finance &amp; accounting professionals (Semi-qualified CAs, CS, CMAs, ACCAs, and Tax Experts) with companies to handle tax seasons, audits, project peaks, or permanent hiring needs.
             </p>
 
             {/* 🚀 DUAL PATH HERO CARDS */}
@@ -173,7 +173,7 @@ export default function Home() {
 
                   <ul className="mt-4 space-y-2 mb-6 text-indigo-100/90 text-sm">
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Choose flexible contract projects or full-time roles</li>
-                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Earn verified, portable CA/finance/tech skill badges</li>
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Earn verified, portable CA, CS, CMA &amp; Finance skill badges</li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Get matched directly with premium hiring companies</li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-400 shrink-0" /> Skip repeat interview loops with verified scores</li>
                   </ul>
