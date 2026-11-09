@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import DownloadReportButton from "@/app/components/DownloadReportButton";
 import SupportDeskView from "@/app/components/SupportDeskView";
+import CandidateJobsView from "@/app/components/CandidateJobsView";
 
 // 🔥 Naye Master Components Import kar liye 🔥
 import Card from "@/app/components/ui/Card";
@@ -232,6 +233,7 @@ if (!isMounted || loading) return <div className="h-screen bg-[var(--surface)] f
         </div>
         <nav className="space-y-1 flex-1">
           <div onClick={() => setActiveView('overview')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'overview' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><LayoutDashboard size={20}/> <span>Dashboard</span></div>
+          <div onClick={() => setActiveView('jobs')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'jobs' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><Briefcase size={20}/> <span>Explore Jobs</span></div>
           <div onClick={() => setActiveView('earnings')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'earnings' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><IndianRupee size={20}/> <span>Earnings & Invoices</span></div>
           <div onClick={() => setActiveView('support')} className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-semibold transition-all ${activeView === 'support' ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'}`}><HelpCircle size={20}/> <span>Help & Support</span></div>
           <div onClick={() => router.push('/student/profile')} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)] transition-all font-semibold"><UserCircle size={20}/> <span>My Profile</span></div>
@@ -580,6 +582,13 @@ if (!isMounted || loading) return <div className="h-screen bg-[var(--surface)] f
            </div>
         )}
 
+        {/* 🔥 VIEW 4: EXPLORE JOBS 🔥 */}
+        {activeView === 'jobs' && (
+           <div className="animate-in fade-in duration-300 print:hidden">
+              <CandidateJobsView user={user} profileData={profileData} />
+           </div>
+        )}
+
         {/* 🔥 VIEW 3: HELP & SUPPORT DESK 🔥 */}
         {activeView === 'support' && (
            <div className="animate-in fade-in duration-300 print:hidden">
@@ -594,6 +603,10 @@ if (!isMounted || loading) return <div className="h-screen bg-[var(--surface)] f
           <div onClick={() => setActiveView('overview')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 ${activeView === 'overview' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
             <div className={`p-2 rounded-xl ${activeView === 'overview' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><LayoutDashboard size={20} /></div>
             <span className="text-[10px] font-bold mt-0.5">Overview</span>
+          </div>
+          <div onClick={() => setActiveView('jobs')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 ${activeView === 'jobs' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
+            <div className={`p-2 rounded-xl ${activeView === 'jobs' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><Briefcase size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Jobs</span>
           </div>
           <div onClick={() => setActiveView('earnings')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 ${activeView === 'earnings' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>
             <div className={`p-2 rounded-xl ${activeView === 'earnings' ? 'bg-[var(--accent)]' : 'hover:bg-[var(--surface)]'}`}><IndianRupee size={20} /></div>

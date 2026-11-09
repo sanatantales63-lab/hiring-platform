@@ -10,6 +10,7 @@ import {
 import CandidateProfileView from "@/app/components/CandidateProfileView";
 import CompanyProfileView from "@/app/components/CompanyProfileView";
 import AdminSupportDeskView from "@/app/components/AdminSupportDeskView";
+import AdminJobsView from "@/app/components/AdminJobsView";
 import { motion } from "framer-motion";
 
 // 🔥 Naye Master Components 🔥
@@ -25,6 +26,7 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [openTicketsCount, setOpenTicketsCount] = useState(0);
+  const [pendingJobsCount, setPendingJobsCount] = useState(0);
   
  const [examRequests, setExamRequests] = useState<any[]>([]);
   const [shortlistedProfiles, setShortlistedProfiles] = useState<any[]>([]);
@@ -165,6 +167,8 @@ export default function AdminDashboard() {
         if (allCompanies) setCompanies(allCompanies);
 
         const { data: openTix } = await supabase.from("support_tickets").select("id").eq("status", "open");
+        const { data: pendingJobsData } = await supabase.from("jobs").select("id").eq("status", "pending_approval");
+        if (pendingJobsData) setPendingJobsCount(pendingJobsData.length);
         if (openTix) setOpenTicketsCount(openTix.length);
       } catch (e) { console.error("Error:", e); } 
       finally { setLoading(false); }
@@ -475,6 +479,11 @@ export default function AdminDashboard() {
           <button onClick={() => setActiveTab("requests")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'requests' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
             <div className="flex items-center gap-3"><Bell size={20} /> Alerts</div>
             {totalAlerts > 0 && <span className={`text-xs font-black px-2 py-0.5 rounded-full animate-pulse ${activeTab === 'requests' ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>{totalAlerts}</span>}
+          </button>
+          
+          <button onClick={() => setActiveTab("jobs")} className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'jobs' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
+            <div className="flex items-center gap-3"><Briefcase size={20} /> Job Postings</div>
+            {pendingJobsCount > 0 && <span className={`text-xs font-black px-2 py-0.5 rounded-full ${activeTab === 'jobs' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800 border border-amber-300 animate-pulse'}`}>{pendingJobsCount}</span>}
           </button>
           
           <button onClick={() => setActiveTab("companies")} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold transition-all ${activeTab === 'companies' ? 'bg-gradient-primary text-[var(--primary-foreground)] shadow-glow' : 'hover:bg-[var(--accent)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent hover:border-[var(--border)]'}`}>
@@ -1067,6 +1076,12 @@ export default function AdminDashboard() {
            <AdminSupportDeskView />
         )}
 
+        {activeTab === "jobs" && (
+           <div className="animate-in fade-in duration-300">
+             <AdminJobsView />
+           </div>
+        )}
+
       </main>
 
       {/* VIEW STUDENT PROFILE MODAL */}
@@ -1224,6 +1239,14 @@ export default function AdminDashboard() {
           <div onClick={() => setActiveTab("hired_talent")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'hired_talent' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
              <div className={`p-2 rounded-2xl ${activeTab === 'hired_talent' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}><CheckCircle size={20} /></div>
              <span className="text-[10px] font-bold mt-0.5 truncate">Hired</span>
+          </div>
+
+          <div onClick={() => setActiveTab("jobs")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'jobs' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>
+            <div className={`relative p-2 rounded-2xl ${activeTab === 'jobs' ? 'bg-[var(--accent)]' : 'hover:bg-slate-50'}`}>
+              <Briefcase size={20} />
+              {pendingJobsCount > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse"></span>}
+            </div>
+            <span className="text-[10px] font-bold mt-0.5 truncate">Jobs</span>
           </div>
 
           <div onClick={() => setActiveTab("companies")} className={`flex flex-col items-center gap-1 p-2 w-16 cursor-pointer ${activeTab === 'companies' ? 'text-[var(--primary)]' : 'text-slate-400 hover:text-slate-900'}`}>

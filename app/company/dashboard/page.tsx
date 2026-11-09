@@ -14,6 +14,7 @@ import {
 import Card from "@/app/components/ui/Card";
 import Button from "@/app/components/ui/Button";
 import SupportDeskView from "@/app/components/SupportDeskView";
+import CompanyJobsView from "@/app/components/CompanyJobsView";
 import * as XLSX from 'xlsx';
 
 // 🔥 Custom Two-Column Time Picker with 15-Minute Intervals 🔥
@@ -142,6 +143,7 @@ export default function CompanyDashboard() {
   const router = useRouter();
   const [companyId, setCompanyId] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
   const [candidates, setCandidates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -238,6 +240,7 @@ export default function CompanyDashboard() {
           setApprovalStatus(companyData.status);
           setCompanyId(companyData.id);
           setCompanyName(companyData.name);
+          setCompanyEmail(session.user.email || companyData.contactEmail || "");
 
           // 🔥 UNLOCKED: Bypassed admin manual assignment. All registered firms can see all available talent instantly.
           const { data: allProfiles } = await supabase.from("profiles").select("*");
@@ -665,6 +668,18 @@ const submitInterviewRequest = async () => {
              {pendingReviews.length > 0 && <span className="bg-[var(--warning-bg)] text-[var(--warning)] text-xs font-bold px-2 py-0.5 rounded-full border border-[var(--warning)]/20">{pendingReviews.length}</span>}
           </div>
 
+          {/* Post a Job Tab */}
+          <div 
+            onClick={() => setActiveTab('jobs')} 
+            className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-semibold ${
+              activeTab === 'jobs' 
+                ? 'bg-[var(--accent)] text-[var(--primary)] border border-[var(--primary)]/20' 
+                : 'text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]'
+            }`}
+          >
+             <div className="flex items-center gap-3"><Briefcase size={18}/> <span>Post a Job</span></div>
+          </div>
+
           {/* Help & Support Tab */}
           <div 
             onClick={() => setActiveTab('support')} 
@@ -705,6 +720,8 @@ const submitInterviewRequest = async () => {
 
         {activeTab === 'support' ? (
            <SupportDeskView userType="company" user={{ id: companyId, email: companyName }} profileData={{ fullName: companyName }} />
+        ) : activeTab === 'jobs' ? (
+           <CompanyJobsView companyId={companyId} companyName={companyName} companyEmail={companyEmail} />
         ) : (
           <>
             <header className="flex justify-between items-start mb-6 gap-4 flex-wrap">
@@ -1706,6 +1723,11 @@ const submitInterviewRequest = async () => {
             {pendingReviews.length > 0 && (
               <span className="absolute top-2 right-4 bg-amber-500 w-2 h-2 rounded-full border border-white" />
             )}
+          </div>
+
+          <div onClick={() => setActiveTab('jobs')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 relative ${activeTab === 'jobs' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}`}>
+            <div className={`p-2 rounded-xl ${activeTab === 'jobs' ? 'bg-[var(--accent)]' : ''}`}><Briefcase size={20} /></div>
+            <span className="text-[10px] font-bold mt-0.5">Post Job</span>
           </div>
 
           <div onClick={() => setActiveTab('support')} className={`flex flex-col items-center gap-1 p-2 cursor-pointer w-16 relative ${activeTab === 'support' ? 'text-[var(--primary)]' : 'text-[var(--muted-foreground)]'}`}>
